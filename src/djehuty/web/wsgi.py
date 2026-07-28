@@ -3915,9 +3915,11 @@ class WebServer:
                 self.log.error ("Unable to send approval e-mail for physical sample %s: %s.",
                                 sample["uuid"], error)
 
-            return self.respond_201 ({
-                "location": f"{config.base_url}/review/physical-sample/published/{container_uuid}"
-            })
+            location = f"{config.base_url}/physical_sample/{container_uuid}"
+            output = self.response (json.dumps({ "location": location }))
+            output.status_code = 201
+            output.headers["Location"] = location
+            return output
 
         return self.error_500 ()
 
@@ -3964,9 +3966,7 @@ class WebServer:
                 self.log.error ("Unable to send decline e-mail for physical sample: %s.",
                                 sample["uuid"])
 
-            return self.respond_201 ({
-                "location": f"{config.base_url}/review/overview"
-            })
+            return self.respond_204 ()
 
         return self.error_500 ()
 
@@ -3978,7 +3978,7 @@ class WebServer:
             return account_uuid
 
         if not validator.is_valid_uuid (reviewer_uuid):
-            return self.error_403 (request)
+            return self.error_400 (request, "Invalid reviewer UUID.", "InvalidReviewerUuid")
 
         if not validator.is_valid_uuid (container_uuid):
             return self.error_404 (request)
