@@ -1,0 +1,20 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+DELETE {
+  GRAPH <{{state_graph}}> {
+    ?container       djht:account                  <{{from_account_uri}}> .
+  }
+}
+INSERT {
+  GRAPH <{{state_graph}}> {
+    ?container       djht:account                  <{{to_account_uri}}> .
+  }
+}
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?container       djht:account                  <{{from_account_uri}}> .
+    ?container       rdf:type                      ?type .
+    FILTER (?type IN (djht:DatasetContainer, djht:CollectionContainer))
+  }
+}
+{% endblock %}
