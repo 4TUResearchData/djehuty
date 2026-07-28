@@ -71,13 +71,13 @@ a.inline-button.open:active,
 /* Download all files — warm orange. Its label and byte count are links and
    would otherwise inherit the orange link colour from palette.css. Dark grey
    on #F29100 is 4.6:1; white would be 2.4:1 and fail AA. */
-#files ul li.zip { background: var(--warm-orange); }
+#files ul li.zip { background: var(--vibrant-orange); }
 #files ul li.zip:hover { background: #D97E00; }
 #files ul li.zip:active { background: #B36700; }
 #files ul li.zip a,
 #files ul li.zip a:hover,
 #files ul li.zip #total_size {
-    color: var(--dark-grey);
+    color: #fff;
 }
 
 /* Delete — outlined, so it reads as a warning rather than as one more

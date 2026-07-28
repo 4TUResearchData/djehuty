@@ -24,13 +24,22 @@
     line-height: 1.6;
 }
 
+/* Collection titles in the metadata column sit at 14pt in pub.css, two steps
+   above every other value in that column — the organizations, the publisher,
+   the time coverage — which are all body size. Nothing about a collection
+   title makes it more important than the rest, so it comes back down to 12pt
+   and the column reads as one list again. The id and element keep this ahead
+   of the #collections ul li a rule in pub.css, which loads first. */
+#wrapper #content #collections ul li a {
+    font-size: 12pt;
+}
+
 /* Titles — Aspekta, the backbone. ---------------------------------------- */
 #content h1 {
     font-family: var(--font-body);
     font-weight: 700;
     font-size: 27pt;
     line-height: 1.15;
-    letter-spacing: -0.01em;
     margin: 0 0 0.5em 0;
 }
 
@@ -39,7 +48,6 @@
     font-weight: 700;
     font-size: 18pt;
     line-height: 1.25;
-    letter-spacing: -0.005em;
     text-transform: none;
     margin: 1.75em 0 0.5em 0;
 }
@@ -50,7 +58,6 @@
     font-family: var(--font-ui);
     font-weight: 400;
     font-size: 12pt;
-    letter-spacing: 0.02em;
     text-transform: none;
 }
 
@@ -72,9 +79,8 @@
 #wrapper #content h3.label {
     font-family: var(--font-ui);
     font-weight: 500;
-    font-size: 11pt;
+    font-size: 14pt;
     line-height: 1.3;
-    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--dark-grey);
     margin: 1.5em 0 0.5em 0;

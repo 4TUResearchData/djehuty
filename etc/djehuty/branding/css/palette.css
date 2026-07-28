@@ -33,8 +33,9 @@ a,
     color: var(--dark-grey);
 }
 
-/* Buttons / filled surfaces -> vibrant orange (white text kept). ----------- */
-.public-button,
+/* Buttons / filled surfaces -> vibrant orange (white text kept). -----------
+   The metadata chips (.public-button) are deliberately not in this list; they
+   are warm orange and are styled as a set in chips.css. */
 .h1-suffix,
 .corporate-identity li.active {
     background: var(--vibrant-orange);
@@ -51,9 +52,7 @@ a,
 .corporate-identity-table {
     border-color: var(--warm-orange);
 }
-.public-button:hover,
 .h1-suffix:hover { background: var(--vibrant-hover); }
-.public-button:active,
 .h1-suffix:active { background: var(--vibrant-active); }
 
 /* Login button -> warm orange (primary brand colour), white text kept. ----- */
@@ -83,11 +82,9 @@ ul.latest-datasets li a:hover,
 }
 
 /* Category chips carry BOTH .corporate-identity and .public-button, so their
-   label must stay white with higher specificity than the link colour above,
-   otherwise it renders orange-on-orange and disappears. */
-.corporate-identity.public-button,
-.corporate-identity.public-button:hover,
-.corporate-identity.public-button:active { color: #ffffff; }
+   label has to be kept off the link colour above or it renders orange on
+   orange and disappears. That is done in chips.css, where the rest of the
+   chip treatment lives. */
 
 /* DOI value pill -> warm orange background with white text. pub.css sets both
    later with high specificity, so !important is needed. (White on #F29100 is
@@ -98,8 +95,17 @@ ul.latest-datasets li a:hover,
 /*}*/
 
 #wrapper #content #doi span.doi-value {
-    background-color: var(--warm-orange) !important;
-    /*color: #ffffff !important;*/
+    background-color: var(--fresh-blue) !important;
     color: var(--dark-grey) !important;
-    border-color: var(--warm-orange) !important;
+    border-color: #bbb !important;
+}
+
+/* DOI label -> the brand's dark ink instead of pure black, background and
+   border together so the label stays one solid block. White on #3C3C3C is
+   10.2:1. pub.css is linked from dataset.html rather than from the layout
+   head, so it loads after this file; the leading `body` is what gets ahead
+   of it. */
+body #wrapper #content #doi span.doi-label {
+    background-color: var(--dark-grey);
+    border-color: var(--dark-grey);
 }

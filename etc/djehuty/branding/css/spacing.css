@@ -7,6 +7,7 @@
    describe every gap on the page; anything not on the scale is a one-off that
    should be argued for rather than typed. */
 :root {
+    --brand-space-3xs:  2pt;   /* inside a line of text */
     --brand-space-2xs:  4pt;   /* inside a line of text */
     --brand-space-xs:   8pt;
     --brand-space-s:   14pt;   /* inside a card */
@@ -17,8 +18,19 @@
 
 /* Page frame — more room under the menu, and more space before the footer */
 #wrapper #content-wrapper {
-    padding-top: var(--brand-space-l);
+    padding-top: var(--brand-space-xs);
     padding-bottom: calc(var(--brand-space-xl) * 1.5);
+}
+
+/* DOI pill — pub.css sets a flat 5px all round, which leaves the identifier
+   pressed against both ends of its box. The vertical padding stays where it
+   was and the sides open up by one step, so the value sits clear of the dark
+   label to its left and of its own right edge.
+
+   pub.css is linked from dataset.html rather than from the layout head, so it
+   loads after this file; the leading `body` is what gets ahead of it. */
+body #wrapper #content #doi span.doi-value {
+    padding: var(--brand-space-2xs) var(--brand-space-xs);
 }
 
 /* Headings — let a title breathe before the block. ---------- */
@@ -58,7 +70,6 @@
    so widening it here separates the sections everywhere at once.*/
 #wrapper #content h3.label {
     margin-top: var(--brand-space-m);
-    margin-bottom: var(--brand-space-xs);
 }
 
 /* Latest datasets — roomier cards, and a clearer gap between the title and
