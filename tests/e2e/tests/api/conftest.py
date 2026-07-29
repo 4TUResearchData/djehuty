@@ -163,12 +163,17 @@ def published_dataset(authenticated_page: Page, test_file: str):
     authenticated_page.wait_for_url("**/my/dashboard**")
 
     # Wait for the published dataset to become accessible
+    resp = None
     for _ in range(5):
         resp = authenticated_page.goto(f"/datasets/{container_uuid}")
         authenticated_page.wait_for_load_state("domcontentloaded")
         if resp and resp.status == 200:
             break
         authenticated_page.wait_for_timeout(3000)
+
+    assert resp and resp.status == 200, (
+        "published dataset did not become accessible in time"
+    )
 
     return authenticated_page, container_uuid
 
@@ -204,4 +209,18 @@ def published_collection(authenticated_page: Page):
     )
     authenticated_page.goto("/login")
     authenticated_page.wait_for_url("**/my/dashboard**")
+
+    # Wait for the published collection to become accessible
+    resp = None
+    for _ in range(5):
+        resp = authenticated_page.goto(f"/collections/{container_uuid}")
+        authenticated_page.wait_for_load_state("domcontentloaded")
+        if resp and resp.status == 200:
+            break
+        authenticated_page.wait_for_timeout(3000)
+
+    assert resp and resp.status == 200, (
+        "published collection did not become accessible in time"
+    )
+
     return authenticated_page, container_uuid
