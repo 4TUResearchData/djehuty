@@ -612,13 +612,18 @@ class TestV2ArticlesApiErrors:
         assert response.status in (400, 406, 415)
 
     def test_delete_nonexistent_article(self, authenticated_page: Page, save_response):
-        """DELETE /v2/account/articles/<fake> → 500 (dataset not found)."""
+        """DELETE /v2/account/articles/<fake> → 404 (AS-IS: returns 500, #111)."""
         fake_uuid = str(uuid.uuid4())
         response = authenticated_page.request.delete(
             f"/v2/account/articles/{fake_uuid}"
         )
         save_response(response, "api-delete-nonexistent")
-        assert response.status == 500
+        assert_status(
+            response,
+            expected=404,
+            current_bug=500,
+            bug="#111: DELETE nonexistent article returns 500 instead of 404",
+        )
 
     def test_update_nonexistent_article(self, authenticated_page: Page, save_response):
         """PUT /v2/account/articles/<fake> → 403/404."""
