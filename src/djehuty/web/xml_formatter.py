@@ -4,7 +4,7 @@ and other XML formats.
 """
 
 from xml.etree import ElementTree
-from djehuty.utils.convenience import value_or, value_or_none
+from djehuty.utils.convenience import value_or, value_or_none, normalize_doi
 
 class ElementMaker:
     '''
@@ -463,11 +463,20 @@ def datacite_physical_sample_tree (parameters, debug=False):
             if not url:
                 continue
             type_id = value_or (resource, 'type_id', 'URL')
-            identifier_type = 'DOI' if type_id in ('IGSNDOI', 'OtherDOI') else 'URL'
+            identifier = url
+            identifier_type = 'URL'
+            ## DataCite validates values typed as a DOI against the '10.x/y'
+            ## pattern, so strip the resolver prefix and only claim the DOI
+            ## type when what remains actually is a DOI.
+            if type_id in ('IGSNDOI', 'OtherDOI'):
+                doi = normalize_doi (url)
+                if doi and doi.startswith ('10.'):
+                    identifier = doi
+                    identifier_type = 'DOI'
             relation_type = value_or (resource, 'relation_id', 'IsPartOf')
             maker.child (relations_element, 'relatedIdentifier',
                          {'relatedIdentifierType': identifier_type,
-                          'relationType': relation_type}, url)
+                          'relationType': relation_type}, identifier)
 
     #12 descriptions (Abstract, Methods, physical storage as TechnicalInfo)
     descriptions_element = maker.child (root, 'descriptions')
