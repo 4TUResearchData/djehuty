@@ -111,13 +111,21 @@ class TestV2PrivateCollectionsCrud:
         assert response.status == 200
         data = response.json()
         assert isinstance(data, list)
+        uuids = [d.get("uuid") or d.get("container_uuid", "") for d in data]
+        assert any(container_uuid in u for u in uuids)
 
     def test_search_private_collections(self, draft_collection, save_response):
-        """POST /v2/account/collections/search → 200, JSON array."""
+        """POST /v2/account/collections/search finds the user's collections."""
         page, container_uuid = draft_collection
+        unique_title = f"SearchMe-{uuid.uuid4().hex[:8]}"
+        page.request.put(
+            f"/v2/account/collections/{container_uuid}",
+            data={"title": unique_title},
+        )
+
         response = page.request.post(
             "/v2/account/collections/search",
-            data={"search_for": "test"},
+            data={"search_for": unique_title},
         )
         save_response(response, "v2-search-private-collections")
         assert response.status == 200
@@ -137,6 +145,22 @@ class TestV2PrivateCollectionsCrud:
         )
         save_response(delete_response, "v2-delete-collection")
         assert delete_response.status == 204
+
+    def test_delete_nonexistent_collection(
+        self, authenticated_page: Page, save_response
+    ):
+        """DELETE /v2/account/collections/<fake> → 404.
+
+        Unlike the articles path (which returns 500 AS-IS, #111), the
+        collections handler already 404s on a missing collection; this locks
+        that behaviour.
+        """
+        fake_uuid = str(uuid.uuid4())
+        response = authenticated_page.request.delete(
+            f"/v2/account/collections/{fake_uuid}"
+        )
+        save_response(response, "v2-delete-nonexistent-collection")
+        assert response.status == 404
 
 
 # ---------------------------------------------------------------------------

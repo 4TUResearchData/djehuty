@@ -2,7 +2,8 @@
 V2 Account / OAuth API contract tests.
 
 Endpoints (4):
-    GET/POST  /v2/account/applications/authorize
+    GET       /v2/account/applications/authorize  (route also accepts POST;
+              only the GET rejection path is exercised here)
     POST      /v2/token
     GET       /v2/account
     POST      /v2/account/funding/search
