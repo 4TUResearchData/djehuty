@@ -5,6 +5,8 @@ Run with:
     cd tests/e2e && python -m pytest tests/test_smoke.py -v
 """
 
+import importlib.metadata
+
 import pytest
 from playwright.sync_api import Page, expect
 
@@ -41,6 +43,12 @@ class TestSmoke:
         screenshot(page, "portal-with-title")
         expect(page).not_to_have_title("")
 
+    def test_footer_version(self, page: Page, screenshot):
+        """The footer should show the installed djehuty version."""
+        true_version = importlib.metadata.version("djehuty")
+        page.goto("/portal")
+        screenshot(page, "portal-footer-version")
+        expect(page.locator("#footer")).to_contain_text(f"Djehuty v{true_version}")
 
 @pytest.mark.smoke
 class TestPageObjects:

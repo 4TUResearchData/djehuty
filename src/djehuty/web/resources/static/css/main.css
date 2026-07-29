@@ -355,6 +355,11 @@ pre {
     padding: 0mm 0mm 0mm 5mm;
     text-align: left;
 }
+#footer .djehuty-version {
+    padding-bottom: 0.5em;
+    font-size: 10pt;
+}
+
 p.cts { text-align: right; }
 img.cts { width: 120px; }
 

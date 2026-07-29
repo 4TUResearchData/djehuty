@@ -82,6 +82,7 @@ class RuntimeConfiguration:  # pylint: disable=too-few-public-methods
             "</p></div>"
         )
         self.large_footer = self.small_footer
+        self.djehuty_version = ""
         self.orcid_client_id = None
         self.orcid_client_secret = None
         self.orcid_endpoint = None

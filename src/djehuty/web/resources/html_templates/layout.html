@@ -127,6 +127,9 @@
       {%- else %}
       {{small_footer | safe}}
       {%- endif %}
+      {%- if djehuty_version %}
+      <p class="djehuty-version">Djehuty v{{djehuty_version}}</p>
+      {%- endif %}
     </div>
   </body>
 </html>
