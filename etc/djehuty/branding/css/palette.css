@@ -85,11 +85,11 @@ ul.latest-datasets li a:hover,
     color: var(--vibrant-hover);
 }
 
-/* Dataset page — DOI value */
+/* Dataset page — DOI value (it need the important to override) */
 #wrapper #content #doi span.doi-value {
     background-color: var(--fresh-blue) !important;
     color: var(--dark-grey) !important;
-    border-color: #bbb !important;
+    border-color: #ccc !important;
 }
 
 /* Dataset page — DOI label */
