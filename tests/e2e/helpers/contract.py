@@ -49,7 +49,10 @@ def assert_status(
             must keep returning on this migration branch. When set, the
             response MUST equal this value or the test fails.
         bug: Free-form description of the bug; typically a tracker reference
-            like ``"#111: returns 500 instead of 404"``.
+            like ``"#111: returns 500 instead of 404"``. Required whenever
+            ``current_bug`` is set, so every reproduced bug is recorded in the
+            inventory. Must also differ from ``expected`` — an equal pair would
+            let a correct response be mislabeled as the bug.
 
     Examples:
         assert_status(response, expected=200)
@@ -67,9 +70,11 @@ def assert_status(
         )
         return
 
+    assert bug, "current_bug requires a bug description"
+    assert current_bug != expected, "current_bug must differ from expected"
+
     if response.status == current_bug:
-        if bug:
-            _BUG_REGISTRY[bug] += 1
+        _BUG_REGISTRY[bug] += 1
         warnings.warn(
             f"AS-IS API bug still present — {bug} "
             f"(got {current_bug}, should be {expected})",
@@ -78,8 +83,7 @@ def assert_status(
         return
 
     if response.status == expected:
-        if bug:
-            _FIXED_REGISTRY[bug] += 1
+        _FIXED_REGISTRY[bug] += 1
         raise AssertionError(
             f"AS-IS bug appears FIXED — {bug} (got the corrected status "
             f"{expected}, expected the documented buggy status {current_bug}). "
