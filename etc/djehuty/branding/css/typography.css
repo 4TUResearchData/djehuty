@@ -1,40 +1,20 @@
-/* 4TU.ResearchData 2026 branding — typography hierarchy.
+/* 4TU.ResearchData 2026 branding — typography.
 
-   Instance-scoped overrides, loaded through <custom-stylesheet> after main.css
-   so the upstream defaults stay untouched for other djehuty instances (see
-   footer.css for the full rationale).
+   Loaded after djehuty's own stylesheets, so it only changes how this
+   instance looks. Other instances keep the default styling. */
 
-   Brand system:
-     Aspekta        — the backbone. Titles, introductory text and body copy.
-                      Clear, structured, calm, easy to scan.
-     Space Grotesk  — the data-driven accent (var(--font-ui)). Reserved for
-                      subtitles and the metadata labels that structure a
-                      dataset page, where its slightly technical character
-                      reads as "this is data".
-
-   main.css styles h1 only; h2 and h3 fall back to inconsistent browser
-   defaults, which is what blurred the hierarchy. The scale below is anchored
-   to the 12pt body set in main.css and steps up in ~1.25 increments so that
-   titles, subtitles and body copy are unmistakably distinct. Everything is
-   scoped to #content to leave the header, primary menu and footer as they are. */
-
-/* Body & lists — generous line height for readability. -------------------- */
+/* Body & lists */
 #content p,
 #content li {
     line-height: 1.6;
 }
 
-/* Collection titles in the metadata column sit at 14pt in pub.css, two steps
-   above every other value in that column — the organizations, the publisher,
-   the time coverage — which are all body size. Nothing about a collection
-   title makes it more important than the rest, so it comes back down to 12pt
-   and the column reads as one list again. The id and element keep this ahead
-   of the #collections ul li a rule in pub.css, which loads first. */
+/* Dataset & collection pages — collection titles */
 #wrapper #content #collections ul li a {
     font-size: 12pt;
 }
 
-/* Titles — Aspekta, the backbone. ---------------------------------------- */
+/* Titles */
 #content h1 {
     font-family: var(--font-body);
     font-size: 27pt;
@@ -51,8 +31,7 @@
     margin: 1.75em 0 0.5em 0;
 }
 
-/* The inline "All" affordance in a title stays a quiet utility accent rather
-   than inheriting the 27pt title size. */
+/* Front page — the "All" link in a title */
 #content h1 .h1-suffix {
     font-family: var(--font-ui);
     font-weight: 400;
@@ -60,30 +39,19 @@
     text-transform: none;
 }
 
-/* Menu — Aspekta throughout. ---------------------------------------------
-   The top-level titles are bare text in the <li> and inherit the body font,
-   while main.css puts the links under them on --font-ui, so the menu mixed
-   the two faces. Navigation is reading rather than data, so the whole tree —
-   the titles, the dropdown and the level below it — goes to Aspekta.
-
-   #primary-menu li a matches main.css on specificity and this file loads
-   after it, which is what carries the override. */
+/* Menu */
 #primary-menu,
 #primary-menu li,
 #primary-menu li a {
     font-family: var(--font-body);
 }
 
-/* The action bar on the dataset and edit pages is #submenu, a different
-   element from the menu's .submenu dropdown despite the name. It stays on
-   --font-ui: those are controls, not navigation. */
+/* Dataset & edit pages — action bar */
 #submenu li a {
     font-family: var(--font-ui);
 }
 
-/* Subtitles & data labels — Space Grotesk, the technical accent. ---------
-   The .label selector carries an extra id + element so it wins over the
-   per-page #wrapper #content .label rule in pub.css, which loads afterwards. */
+/* Subtitles & data labels */
 #content h3,
 #content h4,
 #wrapper #content h3.label {

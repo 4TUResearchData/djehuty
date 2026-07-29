@@ -1,9 +1,9 @@
-/* 4TU.ResearchData 2026 branding — Vibrant Orange on controls.
+/* 4TU.ResearchData 2026 branding — colours.
 
-   Instance-scoped, loaded through <custom-stylesheet> after main.css and the
-   generated /theme/colors.css. Puts the Vibrant Orange (#FF6829) on buttons
-   and links. Note: white on #FF6829 is ~2.9:1, below WCAG AA. */
+   Loaded after djehuty's own stylesheets, so it only changes how this
+   instance looks. Other instances keep the default styling. */
 
+/* The palette */
 :root {
     --warm-orange:    #F29100;
     --vibrant-orange: #FF6829;
@@ -15,11 +15,7 @@
     --off-white: #FBF5E9;
 }
 
-/* Text -> dark grey, the brand's dark ink, instead of pure black. 10.2:1 on the
-   off white page, so it reads as softer without giving anything up.
-
-   main.css sets #000000 on the body and then again on each of these, so the
-   body alone does not cascade; every one has to be named. */
+/* Text */
 body,
 html,
 #content,
@@ -33,18 +29,13 @@ a,
     color: var(--dark-grey);
 }
 
-/* Buttons / filled surfaces -> vibrant orange (white text kept). -----------
-   The metadata chips (.public-button) are deliberately not in this list; they
-   are warm orange and are styled as a set in chips.css. */
+/* Filled surfaces */
 .h1-suffix,
 .corporate-identity li.active {
     background: var(--vibrant-orange);
 }
 
-/* Tables -> warm orange, header and frame together. colors.css draws the
-   frame in primary-color, so it is set here too or the frame and the header
-   sit a shade apart. The header keeps the black text from
-   primary-foreground-color, which is 8.8:1 on warm orange. */
+/* Tables */
 .corporate-identity-table thead tr,
 .corporate-identity-table thead tr th {
     background: var(--warm-orange);
@@ -55,28 +46,22 @@ a,
 .h1-suffix:hover { background: var(--vibrant-hover); }
 .h1-suffix:active { background: var(--vibrant-active); }
 
-/* Login button -> vibrant orange, in step with the other primary actions.
-   White text kept. (White on #FF6829 is ~2.9:1, below WCAG AA.) */
+/* Header — log in button */
 #login-button { background: var(--vibrant-orange); }
 #login-button:hover { background: var(--vibrant-hover); }
 #login-button:active { background: var(--vibrant-active); }
 
-/* Section rule under a front-page title. colors.css draws it as a 4px dotted
-   line in the primary colour, which competes with the title above it; a
-   hairline in grey separates the sections without asking to be looked at. */
+/* Front page — rule under a section title */
 .corporate-identity-h1 {
     border-bottom: 1px solid #ccc;
 }
 
-/* The divider between a summary figure and its label. portal.html draws it at
-   2pt, which reads as a bar rather than a rule; 1pt matches the hairline
-   under the section titles above. The portal's styles live in an inline
-   <style> that renders after every custom stylesheet, so the id-scoped
-   selector is what gets ahead of the plain class rule there. */
+/* Front page — divider beside a summary figure */
 #wrapper #content .portal-summary-item-left {
     border-right: solid 1pt #ccc;
 }
 
+/* Form buttons */
 .corporate-identity-standard-button { background: var(--vibrant-orange) !important; }
 .corporate-identity-standard-button:hover { background: var(--vibrant-hover) !important; }
 .corporate-identity-standard-button:active { background: var(--vibrant-active) !important; }
@@ -84,7 +69,7 @@ a,
 .publish-button a:hover { background: var(--vibrant-hover) !important; }
 .publish-button a:active { background: var(--vibrant-active) !important; }
 
-/* Links -> vibrant orange text. ------------------------------------------- */
+/* Links */
 .corporate-identity,
 ul.latest-datasets li a,
 #files ul li a,
@@ -98,30 +83,14 @@ ul.latest-datasets li a:hover,
     color: var(--vibrant-hover);
 }
 
-/* Category chips carry BOTH .corporate-identity and .public-button, so their
-   label has to be kept off the link colour above or it renders orange on
-   orange and disappears. That is done in chips.css, where the rest of the
-   chip treatment lives. */
-
-/* DOI value pill -> warm orange background with white text. pub.css sets both
-   later with high specificity, so !important is needed. (White on #F29100 is
-   ~2.4:1, below WCAG AA.) */
-/*#wrapper #content #doi span.doi-value {*/
-/*    background-color: var(--warm-orange) !important;*/
-/*    color: #FBF5E9 !important;*/
-/*}*/
-
+/* Dataset page — DOI value */
 #wrapper #content #doi span.doi-value {
     background-color: var(--fresh-blue) !important;
     color: var(--dark-grey) !important;
     border-color: #bbb !important;
 }
 
-/* DOI label -> the brand's dark ink instead of pure black, background and
-   border together so the label stays one solid block. White on #3C3C3C is
-   10.2:1. pub.css is linked from dataset.html rather than from the layout
-   head, so it loads after this file; the leading `body` is what gets ahead
-   of it. */
+/* Dataset page — DOI label */
 body #wrapper #content #doi span.doi-label {
     background-color: var(--dark-grey);
     border-color: var(--dark-grey);

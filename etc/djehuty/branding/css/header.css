@@ -1,8 +1,7 @@
-/* 4TU.ResearchData 2026 branding — header logo and its space.
+/* 4TU.ResearchData 2026 branding — header.
 
-   Instance-scoped overrides, loaded through <custom-stylesheet> after main.css
-   so the upstream defaults stay untouched for other djehuty instances (see
-   footer.css for the full rationale). */
+   Loaded after djehuty's own stylesheets, so it only changes how this
+   instance looks. Other instances keep the default styling. */
 
 #header {
     display: flex;
@@ -23,13 +22,10 @@
     max-height: none;
 }
 
-/* The far side of the header  */
+/* Search box & log in button */
 #header #header-right {
     padding-right: var(--brand-space-m, 22pt);
 }
-
-/* Vertical centring now comes from the flex row, so the offsets that used to
-   fake it are removed. */
 #header #search-box-wrapper {
     height: auto;
 }

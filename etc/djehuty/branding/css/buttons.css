@@ -1,11 +1,11 @@
 /* 4TU.ResearchData 2026 branding — buttons.
 
-   Instance-scoped for buttons, loaded after palette.css.
-   Being a bit careful about the accessibility check so we
-   cannot fully implement all color. */
+   Loaded after djehuty's own stylesheets, so it only changes how this
+   instance looks. Other instances keep the default styling. */
 
+/* The button colours */
 :root {
-    --btn-request:        #B9DBEF;  /* fresh blue, at full strength */
+    --btn-request:        #B9DBEF;
     --btn-request-hover:  #A6CFE7;
     --btn-request-active: #93C3DF;
 
@@ -13,7 +13,7 @@
     --btn-neutral-hover:  #2A2A2A;
     --btn-neutral-active: #1A1A1A;
 
-    --btn-delete:         #C7290F;  /* the vibrant orange, turned red */
+    --btn-delete:         #C7290F;
     --btn-delete-hover:   #B32D14;
 
     --btn-danger:         #8E1B2E;
@@ -21,13 +21,7 @@
     --btn-danger-active:  #5E121D;
 }
 
-/* Fresh blue — the working buttons on the edit page, plus the two request
-   links. Dark grey on the blue is 7.6:1.
-
-   edit-dataset.html and edit-collection.html set .preview-button and
-   .private-links-button inline with !important, in a <style> block the layout
-   renders after the custom stylesheets, so !important is needed here to land.
-   The id keeps this ahead of the template's plain class selector. */
+/* Edit page — save, preview & private links */
 a.inline-button.open,
 #submenu li.save-button a,
 #submenu li.preview-button a,
@@ -53,8 +47,7 @@ a.inline-button.open:active,
     color: var(--dark-grey) !important;
 }
 
-/* Submit for review — the one action the edit page is working towards, so it
-   keeps the vibrant orange the other primary buttons use. */
+/* Edit page — submit for review */
 #submenu li.submit-button a {
     background: var(--vibrant-orange);
     color: #ffffff;
@@ -68,9 +61,7 @@ a.inline-button.open:active,
     color: #ffffff;
 }
 
-/* Download all files — warm orange. Its label and byte count are links and
-   would otherwise inherit the orange link colour from palette.css. Dark grey
-   on #F29100 is 4.6:1; white would be 2.4:1 and fail AA. */
+/* Dataset page — download all files */
 #files ul li.zip { background: var(--vibrant-orange); }
 #files ul li.zip:hover { background: #D97E00; }
 #files ul li.zip:active { background: #B36700; }
@@ -80,8 +71,7 @@ a.inline-button.open:active,
     color: #fff;
 }
 
-/* Delete — outlined, so it reads as a warning rather than as one more
-   coloured button. */
+/* Delete */
 #submenu li.delete-button a {
     background: transparent;
     color: var(--btn-delete);
@@ -99,7 +89,7 @@ a.inline-button.open:active,
     border-color: var(--btn-delete-hover);
 }
 
-/* Neutral — navigation and everything unclassified. ---------------------- */
+/* Action bar — navigation & everything unclassified */
 #submenu li a,
 #dashboard-button,
 #dashboard-button a,
@@ -120,7 +110,7 @@ a.inline-button.open:active,
     color: var(--off-white);
 }
 
-/* Destructive, decline, cancel and log out. These stay filled. */
+/* Decline, cancel & log out */
 #submenu li.decline-button a,
 .cancel-button,
 a.inline-button.close {
@@ -142,7 +132,7 @@ a.inline-button.close:active {
 #logout-button { color: var(--btn-danger); }
 #logout-button:hover { color: var(--btn-danger-hover); }
 
-/* Selects in the action bar for the overview. Reviewer and status filters. */
+/* Review overview — reviewer & status filters */
 #submenu li select {
     font-family: var(--font-ui);
     font-size: 12pt;
@@ -162,8 +152,7 @@ a.inline-button.close:active {
     outline-offset: 2px;
 }
 
-/* Keyboard focus, which main.css leaves to the browser default and the filled
-   backgrounds swallow. */
+/* Keyboard focus */
 .button:focus-visible,
 .public-button:focus-visible,
 .inline-button:focus-visible,

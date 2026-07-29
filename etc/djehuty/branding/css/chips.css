@@ -1,14 +1,10 @@
 /* 4TU.ResearchData 2026 branding — metadata chips.
 
-   Instance-scoped overrides, loaded through <custom-stylesheet> last, so the
-   defaults in main.css, pub.css and the generated colors.css stay untouched
-   for other djehuty instances (see footer.css for the full rationale).
+   Loaded after djehuty's own stylesheets, so it only changes how this
+   instance looks. Other instances keep the default styling.
 
-   The chips are the categories, keywords, licence, interoperability and export
-   links in the right-hand column of a dataset or collection page, plus the
-   "Show more" in the search filters. Every one of them carries
-   .public-button, so they are all restyled together here and stay consistent
-   wherever the class is used. */
+   Dataset & collection pages: categories, keywords, licence,
+   interoperability and export. Search page: the "Show more" filters. */
 
 #wrapper #content .public-button {
     background: var(--warm-orange);
@@ -19,16 +15,12 @@
     font-weight: 700;
     line-height: 1.4;
 
-    /* Square, and with a little more room left and right: without the radius
-       the label would otherwise sit tight against the corners. */
     border-radius: 0;
     padding: .3em .6em;
     margin: 0 .3em .3em 0;
     text-transform: uppercase;
 }
 
-/* The two darker steps of the warm orange, matching the login and
-   download-all-files buttons. */
 #wrapper #content .public-button:hover {
     background: #D97E00;
     color: #ffffff;
@@ -38,9 +30,7 @@
     color: #ffffff;
 }
 
-/* Category chips carry both .corporate-identity and .public-button, so the
-   orange link colour from palette.css has to be overruled here as well or the
-   label renders orange on orange. */
+/* Category chips */
 #wrapper #content .corporate-identity.public-button,
 #wrapper #content .corporate-identity.public-button:hover,
 #wrapper #content .corporate-identity.public-button:active {
