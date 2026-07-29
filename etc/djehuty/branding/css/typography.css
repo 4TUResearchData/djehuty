@@ -51,6 +51,11 @@
     font-family: var(--font-ui);
 }
 
+/* Category & institution pages — tabs above the top datasets table */
+.tabs li a {
+    font-weight: 700;
+}
+
 /* Subtitles & data labels */
 #content h3,
 #content h4,

@@ -32,6 +32,7 @@ body #wrapper #content #doi span.doi-value {
 
 /* Headings */
 #wrapper #content h1 {
+    margin-top: var(--brand-space-m);
     margin-bottom: var(--brand-space-m);
 }
 
@@ -66,6 +67,28 @@ body #wrapper #content #doi span.doi-value {
     padding-left: var(--brand-space-xs);
     padding-right: var(--brand-space-xs);
     line-height: 1.25;
+}
+
+/* Info pages — accordion panels */
+#wrapper #content .accordion-panel {
+    box-sizing: border-box;
+    padding: var(--brand-space-s) var(--brand-space-m);
+}
+
+/* The heading of an open panel sits right below the panel's top border,
+   so it must not carry the section spacing headings get elsewhere. */
+#wrapper #content .accordion-panel > *:first-child,
+#wrapper #content .accordion-panel > h2:first-child {
+    margin-top: 0;
+}
+#wrapper #content .accordion-panel > *:last-child {
+    margin-bottom: 0;
+}
+
+/* Embedded media keeps within the padded panel. */
+#wrapper #content .accordion-panel iframe,
+#wrapper #content .accordion-panel img {
+    max-width: 100%;
 }
 
 /* Dataset, collection & author pages — metadata sections */

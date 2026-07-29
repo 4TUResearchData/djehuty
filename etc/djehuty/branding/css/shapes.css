@@ -51,6 +51,11 @@ body #wrapper #content #versions {
     border-radius: var(--brand-radius);
 }
 
+/* Category & institution pages — tabs above the top datasets table */
+.tabs li {
+    border-radius: var(--brand-radius) var(--brand-radius) 0em 0em;
+}
+
 /* Front page — the "All" link in a title */
 #wrapper #content .h1-suffix {
     border-radius: var(--brand-radius);

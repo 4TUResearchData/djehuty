@@ -29,10 +29,16 @@ a,
     color: var(--dark-grey);
 }
 
-/* Filled surfaces */
-.h1-suffix,
-.corporate-identity li.active {
+/* Filled surfaces. The active tab on the category and institution pages is
+   left out: it stays warm orange so it carries into the table below it. */
+.h1-suffix {
     background: var(--vibrant-orange);
+}
+
+/* Category & institution pages — top datasets table header & its tabs */
+#top-datasets th,
+.corporate-identity li.active a {
+    color: var(--dark-grey);
 }
 
 /* Tables */
