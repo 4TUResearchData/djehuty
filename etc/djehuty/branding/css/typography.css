@@ -60,12 +60,23 @@
     text-transform: none;
 }
 
-/* Menu — Space Grotesk throughout. --------------------------------------
-   The top-level menu titles are bare text in the <li> and inherit the Aspekta
-   body font, while the dropdown links already use --font-ui, so the menu
-   visibly mixed the two faces. Setting the whole primary menu (and the submenu
-   action bar) to --font-ui makes navigation uniformly Space Grotesk. */
+/* Menu — Aspekta throughout. ---------------------------------------------
+   The top-level titles are bare text in the <li> and inherit the body font,
+   while main.css puts the links under them on --font-ui, so the menu mixed
+   the two faces. Navigation is reading rather than data, so the whole tree —
+   the titles, the dropdown and the level below it — goes to Aspekta.
+
+   #primary-menu li a matches main.css on specificity and this file loads
+   after it, which is what carries the override. */
 #primary-menu,
+#primary-menu li,
+#primary-menu li a {
+    font-family: var(--font-body);
+}
+
+/* The action bar on the dataset and edit pages is #submenu, a different
+   element from the menu's .submenu dropdown despite the name. It stays on
+   --font-ui: those are controls, not navigation. */
 #submenu li a {
     font-family: var(--font-ui);
 }

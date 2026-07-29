@@ -68,6 +68,15 @@ a,
     border-bottom: 1px solid #ccc;
 }
 
+/* The divider between a summary figure and its label. portal.html draws it at
+   2pt, which reads as a bar rather than a rule; 1pt matches the hairline
+   under the section titles above. The portal's styles live in an inline
+   <style> that renders after every custom stylesheet, so the id-scoped
+   selector is what gets ahead of the plain class rule there. */
+#wrapper #content .portal-summary-item-left {
+    border-right: solid 1pt #ccc;
+}
+
 .corporate-identity-standard-button { background: var(--vibrant-orange) !important; }
 .corporate-identity-standard-button:hover { background: var(--vibrant-hover) !important; }
 .corporate-identity-standard-button:active { background: var(--vibrant-active) !important; }

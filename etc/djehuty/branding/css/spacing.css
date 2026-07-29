@@ -16,6 +16,18 @@
     --brand-space-xl:  52pt;   /* between sections */
 }
 
+/* Menu — the top level is a flex row and main.css sets its gap at 0.3em,
+   which is about 4.5pt at the 15pt menu size. Together with the 4pt of
+   padding each item already carries that leaves the titles running into one
+   another. One step on the scale opens them up without turning the row into
+   a list.
+
+   The row is nowrap, so the wider gap eats into the space the titles have on
+   a narrow window before they start to shrink. */
+#primary-menu {
+    gap: var(--brand-space-xs);
+}
+
 /* Page frame — more room under the menu, and more space before the footer */
 #wrapper #content-wrapper {
     padding-top: var(--brand-space-xs);
