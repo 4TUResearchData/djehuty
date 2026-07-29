@@ -7702,15 +7702,6 @@ class WebServer:
         if data is None:
             return False
 
-        ## Persist the IGSN on the draft so it carries over into the published
-        ## record.  Shares update_doi_after_publishing with datasets/collections.
-        if not self.db.update_doi_after_publishing (sample["sample_uuid"],
-                                                    "physical-sample", doi):
-            self.log.error ("Saving IGSN %s on sample %s failed.", doi, container_uuid)
-            return False
-        self.db.cache.invalidate_by_prefix (f"physical-samples_{account_uuid}")
-        self.db.cache.invalidate_by_prefix ("physical-samples")
-
         parameters = self.__physical_sample_datacite_parameters (sample, doi)
         xml = str (xml_formatter.datacite_physical_sample (parameters, indent=False),
                    encoding="utf-8")
@@ -7738,10 +7729,19 @@ class WebServer:
                                      auth    = (repository_id, password),
                                      timeout = 60,
                                      json    = json_data)
-            if response.status_code == 201:
-                return True
-            if response.status_code == 200:
-                self.log.warning ("IGSN %s already active, updated", doi)
+            if response.status_code in (200, 201):
+                if response.status_code == 200:
+                    self.log.warning ("IGSN %s already active, updated", doi)
+
+                ## Persist the IGSN on the draft only once DataCite accepted it,
+                ## so a failed registration doesn't leave a draft carrying an
+                ## IGSN.
+                if not self.db.update_doi_after_publishing (sample["sample_uuid"],
+                                                            "physical-sample", doi):
+                    self.log.error ("Saving IGSN %s on sample %s failed.", doi, container_uuid)
+                    return False
+                self.db.cache.invalidate_by_prefix (f"physical-samples_{account_uuid}")
+                self.db.cache.invalidate_by_prefix ("physical-samples")
                 return True
 
             self.log.error ("DataCite responded with %s (%s)",
