@@ -37,7 +37,6 @@
 /* Titles — Aspekta, the backbone. ---------------------------------------- */
 #content h1 {
     font-family: var(--font-body);
-    font-weight: 700;
     font-size: 27pt;
     line-height: 1.15;
     margin: 0 0 0.5em 0;

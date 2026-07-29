@@ -70,6 +70,13 @@ body #wrapper #content #versions {
     border-radius: var(--brand-radius);
 }
 
+/* The "All" affordance in a front-page title. portal.html sets its radius in
+   an inline <style> that renders after every custom stylesheet, so the
+   id-scoped selector is what gets ahead of the plain .h1-suffix rule there. */
+#wrapper #content .h1-suffix {
+    border-radius: var(--brand-radius);
+}
+
 /* Description and DOI ---------------------------------------------------
    The two boxes that open a dataset page. The DOI is a label and a value
    welded into one pill, so the halves round on their outer edges only. */

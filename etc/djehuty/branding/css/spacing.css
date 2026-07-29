@@ -41,18 +41,19 @@ body #wrapper #content #doi span.doi-value {
 /* Front page section rhythm ----------------------------------------------
    Summary, Institutions, Subjects and Latest */
 #wrapper.footer1 #content h1 {
-    margin-top: var(--brand-space-xl);
+    margin-top: var(--brand-space-l);
 }
 #wrapper.footer1 #content h1:first-of-type {
-    margin-top: var(--brand-space-xs);
+    margin-top: var(--brand-space-l);
 }
 
 /* Summary figures — space between the rows. */
 #wrapper #content #portal-summary {
-    padding: var(--brand-space-m) var(--brand-space-xs) var(--brand-space-m) 0pt;
+    /*padding: var(--brand-space-m) var(--brand-space-xs) var(--brand-space-m) 0pt;*/
 }
+
 #wrapper #content .portal-summary-item {
-    margin: var(--brand-space-2xs) 0pt;
+    /*margin: var(--brand-space-2xs) 0pt;*/
 }
 
 /* Subjects & Institutions  */
@@ -61,6 +62,30 @@ body #wrapper #content #doi span.doi-value {
 }
 #wrapper #content .tiles li {
     margin-bottom: var(--brand-space-s);
+}
+
+/* The tile label sits in a fixed 160pt box with no padding of its own, so the
+   longer subject names — Physical Geography & Environmental Geoscience,
+   Electrical & Electronic Engineering — run straight into the tile border.
+   One step in on each side gives them a margin to breathe.
+
+   The box-sizing is what keeps the tile from growing: the width is set in
+   points in portal.html, so without it the padding would be added on top of
+   the 160pt and the tiles would no longer line up. The portal's styles live
+   in an inline <style> that renders after this file, so the id-scoped
+   selector is what gets ahead of the plain .tile-row-text rule there.
+
+   The label box is a fixed 50pt and the tile clips whatever overflows it. At
+   the 1.6 line height inherited from #content li a 13pt label runs 20.8pt per
+   line, so a third line needs 62.4pt and is cut off — which is what the
+   padding triggered on the longest name. 1.25 brings a line to 16.25pt and
+   three of them to 48.75pt, inside the box, so the label can wrap as far as
+   it needs to without the tile growing or the grid shifting. */
+#wrapper #content .tile-row-text {
+    box-sizing: border-box;
+    padding-left: var(--brand-space-xs);
+    padding-right: var(--brand-space-xs);
+    line-height: 1.25;
 }
 
 /* Dataset, collection and author pages ----------------------------------
@@ -72,12 +97,11 @@ body #wrapper #content #doi span.doi-value {
     margin-top: var(--brand-space-m);
 }
 
-/* Latest datasets — roomier cards, and a clearer gap between the title and
-   the author line inside each one. */
+/* Latest datasets  cards  */
 #wrapper #content .latest-item {
-    padding: var(--brand-space-s) var(--brand-space-m);
-    margin-bottom: var(--brand-space-s);
+    /*padding: var(--brand-space-s) var(--brand-space-m);*/
+    /*margin-bottom: var(--brand-space-s);*/
 }
 #wrapper #content .latest-item .authors {
-    margin-top: var(--brand-space-xs);
+    /*margin-top: var(--brand-space-xs);*/
 }

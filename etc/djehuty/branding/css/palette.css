@@ -55,10 +55,18 @@ a,
 .h1-suffix:hover { background: var(--vibrant-hover); }
 .h1-suffix:active { background: var(--vibrant-active); }
 
-/* Login button -> warm orange (primary brand colour), white text kept. ----- */
-#login-button { background: var(--warm-orange); }
-#login-button:hover { background: #D97E00; }
-#login-button:active { background: #B36700; }
+/* Login button -> vibrant orange, in step with the other primary actions.
+   White text kept. (White on #FF6829 is ~2.9:1, below WCAG AA.) */
+#login-button { background: var(--vibrant-orange); }
+#login-button:hover { background: var(--vibrant-hover); }
+#login-button:active { background: var(--vibrant-active); }
+
+/* Section rule under a front-page title. colors.css draws it as a 4px dotted
+   line in the primary colour, which competes with the title above it; a
+   hairline in grey separates the sections without asking to be looked at. */
+.corporate-identity-h1 {
+    border-bottom: 1px solid #ccc;
+}
 
 .corporate-identity-standard-button { background: var(--vibrant-orange) !important; }
 .corporate-identity-standard-button:hover { background: var(--vibrant-hover) !important; }
