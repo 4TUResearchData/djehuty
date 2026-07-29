@@ -261,41 +261,6 @@ V3_ENDPOINTS = [
 ]
 
 
-# A fake-but-syntactically-valid UUID for path placeholders. The route lookup
-# only cares that the URL matches a Rule pattern — handlers may then return
-# 4xx/5xx because the resource does not exist. That is fine: this file only
-# asserts the route exists, not that the handler succeeds.
-_FAKE_UUID = "00000000-0000-0000-0000-000000000000"
-_PLACEHOLDERS = {
-    "<dataset_id>": _FAKE_UUID,
-    "<dataset_uuid>": _FAKE_UUID,
-    "<container_uuid>": _FAKE_UUID,
-    "<git_uuid>": _FAKE_UUID,
-    "<collection_id>": _FAKE_UUID,
-    "<account_id>": _FAKE_UUID,
-    "<account_uuid>": _FAKE_UUID,
-    "<author_id>": _FAKE_UUID,
-    "<author_uuid>": _FAKE_UUID,
-    "<file_id>": _FAKE_UUID,
-    "<funding_id>": _FAKE_UUID,
-    "<link_id>": _FAKE_UUID,
-    "<collaborator_uuid>": _FAKE_UUID,
-    "<reviewer_uuid>": _FAKE_UUID,
-    "<category_id>": "1",
-    "<version>": "1",
-    "<item_type>": "datasets",
-    "<token>": "placeholder",
-}
-
-
-def _concrete_path(template: str) -> str:
-    """Substitute placeholder segments with fake-but-valid values."""
-    out = template
-    for placeholder, value in _PLACEHOLDERS.items():
-        out = out.replace(placeholder, value)
-    return out
-
-
 # ---------------------------------------------------------------------------
 # Source-of-truth extraction from src/djehuty/web/wsgi.py
 # ---------------------------------------------------------------------------
@@ -312,7 +277,11 @@ _RULE_RE = re.compile(
 
 
 def _routes_from_wsgi():
-    """Return ({v2_paths}, {v3_paths}) registered in wsgi.py.
+    """Return ({v2_pairs}, {v3_pairs}) registered in wsgi.py.
+
+    Each element is a ``(path, handler)`` tuple, so a route being repointed to
+    a different handler in wsgi.py (same URL, new ``self.<handler>``) is caught
+    as drift too — not only added/removed paths.
 
     Comment lines (those starting with ``#`` after stripping) are skipped so
     string-literal paths mentioned in comments do not pollute the count.
@@ -325,11 +294,11 @@ def _routes_from_wsgi():
         match = _RULE_RE.match(line)
         if not match:
             continue
-        path = match.group("path")
-        if path.startswith("/v2/"):
-            v2.add(path)
+        pair = (match.group("path"), match.group("handler"))
+        if pair[0].startswith("/v2/"):
+            v2.add(pair)
         else:
-            v3.add(path)
+            v3.add(pair)
     return v2, v3
 
 
@@ -357,35 +326,43 @@ def test_inventory_totals():
 
 @pytest.mark.api_inventory
 def test_v2_inventory_matches_wsgi_py():
-    """Every V2 path in wsgi.py is listed here, and vice versa."""
+    """Every V2 (path, handler) pair in wsgi.py is listed here, and vice versa.
+
+    Comparing pairs (not just paths) means a route repointed to a different
+    handler in wsgi.py surfaces as drift too.
+    """
     real_v2, _ = _routes_from_wsgi()
-    inventory_v2 = {path for path, _ in V2_ENDPOINTS}
+    inventory_v2 = set(V2_ENDPOINTS)
 
     missing_from_inventory = real_v2 - inventory_v2
     extra_in_inventory = inventory_v2 - real_v2
 
     assert not missing_from_inventory and not extra_in_inventory, (
         f"V2 inventory drifted from src/djehuty/web/wsgi.py.\n"
-        f"  Added in wsgi.py but missing here ({len(missing_from_inventory)}): "
+        f"  In wsgi.py but missing/mismatched here ({len(missing_from_inventory)}): "
         f"{sorted(missing_from_inventory)}\n"
-        f"  Listed here but removed from wsgi.py ({len(extra_in_inventory)}): "
+        f"  Listed here but missing/mismatched in wsgi.py ({len(extra_in_inventory)}): "
         f"{sorted(extra_in_inventory)}"
     )
 
 
 @pytest.mark.api_inventory
 def test_v3_inventory_matches_wsgi_py():
-    """Every V3 path in wsgi.py is listed here, and vice versa."""
+    """Every V3 (path, handler) pair in wsgi.py is listed here, and vice versa.
+
+    Comparing pairs (not just paths) means a route repointed to a different
+    handler in wsgi.py surfaces as drift too.
+    """
     _, real_v3 = _routes_from_wsgi()
-    inventory_v3 = {path for path, _ in V3_ENDPOINTS}
+    inventory_v3 = set(V3_ENDPOINTS)
 
     missing_from_inventory = real_v3 - inventory_v3
     extra_in_inventory = inventory_v3 - real_v3
 
     assert not missing_from_inventory and not extra_in_inventory, (
         f"V3 inventory drifted from src/djehuty/web/wsgi.py.\n"
-        f"  Added in wsgi.py but missing here ({len(missing_from_inventory)}): "
+        f"  In wsgi.py but missing/mismatched here ({len(missing_from_inventory)}): "
         f"{sorted(missing_from_inventory)}\n"
-        f"  Listed here but removed from wsgi.py ({len(extra_in_inventory)}): "
+        f"  Listed here but missing/mismatched in wsgi.py ({len(extra_in_inventory)}): "
         f"{sorted(extra_in_inventory)}"
     )
