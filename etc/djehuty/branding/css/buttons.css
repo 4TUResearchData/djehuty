@@ -9,42 +9,57 @@
     --btn-request-hover:  #A6CFE7;
     --btn-request-active: #93C3DF;
 
+    --btn-save:           #276386;
+    --btn-save-hover:     #21556F;
+    --btn-save-active:    #1B4560;
+
     --btn-neutral:        #3C3C3C;
     --btn-neutral-hover:  #2A2A2A;
     --btn-neutral-active: #1A1A1A;
 
-    --btn-delete:         #C7290F;
-    --btn-delete-hover:   #B32D14;
+    --btn-delete:         #B3261E;
+    --btn-delete-hover:   #97201A;
 
     --btn-danger:         #8E1B2E;
     --btn-danger-hover:   #761724;
     --btn-danger-active:  #5E121D;
 }
 
-/* Edit page — save, preview & private links */
+/* Edit page: preview & private links.*/
 a.inline-button.open,
-#submenu li.save-button a,
 #submenu li.preview-button a,
-#submenu li.private-links-button a,
-#save_bottom {
+#submenu li.private-links-button a {
     background: var(--btn-request) !important;
     color: var(--dark-grey) !important;
 }
 a.inline-button.open:hover,
-#submenu li.save-button a:hover,
 #submenu li.preview-button a:hover,
-#submenu li.private-links-button a:hover,
-#save_bottom:hover {
+#submenu li.private-links-button a:hover {
     background: var(--btn-request-hover) !important;
     color: var(--dark-grey) !important;
 }
 a.inline-button.open:active,
-#submenu li.save-button a:active,
 #submenu li.preview-button a:active,
-#submenu li.private-links-button a:active,
-#save_bottom:active {
+#submenu li.private-links-button a:active {
     background: var(--btn-request-active) !important;
     color: var(--dark-grey) !important;
+}
+
+/* Edit page: save draft. */
+#submenu li.save-button a,
+#save_bottom {
+    background: var(--btn-save) !important;
+    color: #ffffff !important;
+}
+#submenu li.save-button a:hover,
+#save_bottom:hover {
+    background: var(--btn-save-hover) !important;
+    color: #ffffff !important;
+}
+#submenu li.save-button a:active,
+#save_bottom:active {
+    background: var(--btn-save-active) !important;
+    color: #ffffff !important;
 }
 
 /* Edit page — submit for review */
@@ -71,9 +86,23 @@ a.inline-button.open:active,
     color: #fff;
 }
 
-/* Delete */
+/* Edit page - publish.  */
+#submenu li.publish-button a {
+    background: var(--vibrant-orange) !important;
+    color: #ffffff !important;
+}
+#submenu li.publish-button a:hover {
+    background: var(--vibrant-hover) !important;
+    color: #ffffff !important;
+}
+#submenu li.publish-button a:active {
+    background: var(--vibrant-active) !important;
+    color: #ffffff !important;
+}
+
+/* Delete. */
 #submenu li.delete-button a {
-    background: transparent;
+    background: #ffffff;
     color: var(--btn-delete);
     border: solid 1pt var(--btn-delete);
     font-weight: 500;
@@ -89,7 +118,7 @@ a.inline-button.open:active,
     border-color: var(--btn-delete-hover);
 }
 
-/* Action bar — navigation & everything unclassified */
+/* Action bar: navigation */
 #submenu li a,
 #dashboard-button,
 #dashboard-button a,
@@ -110,20 +139,35 @@ a.inline-button.open:active,
     color: var(--off-white);
 }
 
-/* Decline, cancel & log out */
-#submenu li.decline-button a,
+/* Decline. */
+#submenu li.decline-button a {
+    background: #ffffff !important;
+    color: var(--btn-neutral) !important;
+    border: solid 1pt var(--btn-neutral);
+    font-weight: 500;
+}
+#submenu li.decline-button a:hover {
+    background: var(--btn-neutral) !important;
+    color: #ffffff !important;
+    border-color: var(--btn-neutral);
+}
+#submenu li.decline-button a:active {
+    background: var(--btn-neutral-active) !important;
+    color: #ffffff !important;
+    border-color: var(--btn-neutral-active);
+}
+
+/* Cancel & log out */
 .cancel-button,
 a.inline-button.close {
     background: var(--btn-danger) !important;
     color: var(--off-white);
 }
-#submenu li.decline-button a:hover,
 .cancel-button:hover,
 a.inline-button.close:hover {
     background: var(--btn-danger-hover) !important;
     color: var(--off-white);
 }
-#submenu li.decline-button a:active,
 .cancel-button:active,
 a.inline-button.close:active {
     background: var(--btn-danger-active) !important;

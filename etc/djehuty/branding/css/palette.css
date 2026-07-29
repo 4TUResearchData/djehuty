@@ -29,8 +29,7 @@ a,
     color: var(--dark-grey);
 }
 
-/* Filled surfaces. The active tab on the category and institution pages is
-   left out: it stays warm orange so it carries into the table below it. */
+/* Filled surfaces. */
 .h1-suffix {
     background: var(--vibrant-orange);
 }
@@ -71,9 +70,6 @@ a,
 .corporate-identity-standard-button { background: var(--vibrant-orange) !important; }
 .corporate-identity-standard-button:hover { background: var(--vibrant-hover) !important; }
 .corporate-identity-standard-button:active { background: var(--vibrant-active) !important; }
-.publish-button a { background: var(--vibrant-orange) !important; }
-.publish-button a:hover { background: var(--vibrant-hover) !important; }
-.publish-button a:active { background: var(--vibrant-active) !important; }
 
 /* Links */
 .corporate-identity,

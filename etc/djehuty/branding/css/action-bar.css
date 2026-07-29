@@ -1,0 +1,54 @@
+/* 4TU.ResearchData 2026 branding — the edit page action bar.
+
+   Loaded after djehuty's own stylesheets, so it only changes how this
+   instance looks. Other instances keep the default styling.. */
+
+:root {
+    --action-bar-separator: #D8D0C0;
+}
+
+#submenu ul:has(li.save-button) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 .75em;
+}
+
+#submenu ul:has(li.save-button) > li {
+    display: flex;
+    align-items: center;
+    gap: .75em;
+    margin: .5em 0;
+    order: 3;
+}
+
+/* Going back button is first one on the action bar */
+#submenu ul:has(li.save-button) > li:first-child { order: 1; }
+
+/* Where you are (edit dataset), and the ways to look at the dataset are 2 */
+#submenu ul:has(li.save-button) > li.active,
+#submenu ul:has(li.save-button) > li.preview-button,
+#submenu ul:has(li.save-button) > li.private-links-button { order: 2; }
+
+#submenu ul:has(li.save-button) > li.active {
+    align-self: stretch;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+/* The button in order 3 are everything that changes the dataset: save draft, submit
+   for review, publish and decline. Delete button ends the row (order 4). */
+#submenu ul:has(li.save-button) > li.delete-button { order: 4; }
+
+/* A small line between the groups */
+#submenu ul:has(li.save-button) > li:first-child::after,
+#submenu ul:has(li.save-button) > li.save-button::before,
+#submenu ul:has(li.save-button) > li.delete-button::before {
+    content: "";
+    flex: 0 0 auto;
+    width: 1px;
+    height: 1.6em;
+    background: var(--action-bar-separator);
+}
