@@ -1020,6 +1020,15 @@ class WebServer:
         self.log.audit (audit_log_message)
         return response
 
+    def error_502 (self, audit_log_message=None):
+        """Procedure to respond with HTTP 502."""
+        response = self.response ("")
+        response.status_code = 502
+        if audit_log_message is None:
+            audit_log_message = "Received an invalid response from an external service (HTTP 502)."
+        self.log.audit (audit_log_message)
+        return response
+
     def error_authorization_failed (self, request):
         """Procedure to handle authorization failures."""
         if self.accepts_html (request, strict=True):
@@ -3910,7 +3919,7 @@ class WebServer:
         if (config.igsn_prefix is not None
                 and config.in_production and not config.in_preproduction):
             if not self.__register_physical_sample_doi (sample, account_uuid):
-                return self.error_500 ((f"Registering IGSN for {container_uuid} failed."))
+                return self.error_502 ((f"Registering IGSN for {container_uuid} failed."))
 
         if self.db.publish_physical_sample (container_uuid, account_uuid):
             try:
