@@ -3488,7 +3488,7 @@ class WebServer:
                                                     is_published   = None,
                                                     is_latest      = None)[0]
                 except (IndexError, KeyError):
-                    return self.error_500 ()
+                    return self.error_404 (request)
 
                 existing_creators = self.db.physical_sample_creators (container_uuid, account_uuid)
                 existing_creators = list (map (
