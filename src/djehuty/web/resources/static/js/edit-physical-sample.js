@@ -440,21 +440,24 @@ function date_placeholder (format) {
     return "dd/mm/yyyy";
 }
 
+function date_format () {
+    return jQuery("input[name='dateFormat']:checked").val();
+}
+
 function set_date_format (format) {
-    // Show only the picker for the chosen format and clear the others and update the tip.
+    // The single field serves every format; only its placeholder differs.
+    // A range swaps it for the format, start and end fields on the same line.
     let hints = {
         "year":  "Enter the year only.",
         "month": "Enter the month and year.",
         "day":   "Enter the full calendar date.",
-        "range": "Choose the format, then enter the start and the end of the period."
+        "range": "Choose the format the period is written in, then enter its start and its end."
     };
-    jQuery("#date-year, #date-month, #date-day").hide().val("");
-    jQuery("#date-range-fields").hide();
-    set_date_range_format (jQuery("#date-range-format"));
-    if (format === "year") { jQuery("#date-year").show(); }
-    else if (format === "month") { jQuery("#date-month").show(); }
-    else if (format === "range") { jQuery("#date-range-fields").show(); }
-    else { jQuery("#date-day").show(); }
+    let is_range = (format === "range");
+    jQuery("#date-entry-panel").toggleClass ("is-range", is_range);
+    jQuery("#date-single").val("").attr("placeholder", date_placeholder (format));
+    if (is_range) { set_date_range_format (jQuery("#date-range-format")); }
+    else { jQuery("#date-range-start, #date-range-end").val(""); }
     jQuery("#date-hint").text (hints[format] || "");
 }
 
@@ -466,15 +469,10 @@ function set_date_range_format (select) {
 }
 
 function get_new_date_value () {
-    let format = jQuery("input[name='dateFormat']:checked").val();
-    if (format === "year") { return or_null(jQuery("#date-year").val()); }
-    if (format === "month") { return or_null(jQuery("#date-month").val()); }
-    if (format === "range") {
-        let start = or_null(jQuery("#date-range-start").val());
-        let end   = or_null(jQuery("#date-range-end").val());
-        return (start === null || end === null) ? null : [start, end];
-    }
-    return or_null(jQuery("#date-day").val());
+    if (date_format () !== "range") { return or_null(jQuery("#date-single").val()); }
+    let start = or_null(jQuery("#date-range-start").val());
+    let end   = or_null(jQuery("#date-range-end").val());
+    return (start === null || end === null) ? null : [start, end];
 }
 
 function auto_format_date (input, format) {
@@ -546,7 +544,8 @@ function format_display_range (iso, iso_end) {
 }
 
 function add_date (container_uuid) {
-    let format  = jQuery("input[name='dateFormat']:checked").val();
+    let format     = date_format ();
+    let is_period  = (format === "range");
     let raw_value  = get_new_date_value ();
     let type_value = or_null(jQuery("#dateType").val());
     let hints = {
@@ -556,14 +555,14 @@ function add_date (container_uuid) {
     };
 
     if (raw_value === null) {
-        show_message ("failure", (format === "range")
+        show_message ("failure", is_period
                       ? "<p>Enter both the start and the end of the period before adding it.</p>"
                       : "<p>Enter a date before adding it.</p>");
         return;
     }
 
     let iso_value = null;
-    if (format === "range") {
+    if (is_period) {
         // The start and the end use the format chosen for the range.
         let range_format = jQuery("#date-range-format").val();
         let ends = [];
@@ -605,7 +604,7 @@ function add_date (container_uuid) {
         data:        JSON.stringify([data]),
     }).done(function () {
         // Reset the entry fields and refresh the list below.
-        jQuery("#date-year, #date-month, #date-day").val("");
+        jQuery("#date-single").val("");
         jQuery("#date-range-start, #date-range-end").val("");
         jQuery("#dateType").val("");
         render_dates (container_uuid);
@@ -883,7 +882,7 @@ function activate (container_uuid, callback=jQuery.noop) {
         // A range follows its own format, not the one from the tabs.
         let format = jQuery(this).hasClass("date-range-input")
             ? jQuery("#date-range-format").val()
-            : jQuery("input[name='dateFormat']:checked").val();
+            : date_format ();
         auto_format_date (this, format);
     });
     jQuery("#physical-sample-dates-wrapper").on("click", ".add-date-button", function (event) {
@@ -895,7 +894,7 @@ function activate (container_uuid, callback=jQuery.noop) {
         remove_date (jQuery(this).data("uuid"), container_uuid);
     });
     // Set the initial format date (Full date) once the static markup exists.
-    set_date_format (jQuery("input[name='dateFormat']:checked").val());
+    set_date_format (date_format ());
     render_tags (container_uuid);
     render_categories_for_physical_sample (container_uuid);
     jQuery("#expand-categories-button").on("click", toggle_categories);
