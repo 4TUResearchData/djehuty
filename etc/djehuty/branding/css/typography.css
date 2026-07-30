@@ -14,6 +14,13 @@
     font-size: 12pt;
 }
 
+/* Front page - summary numbers  */
+#wrapper #content .portal-summary-item-left {
+    font-family: var(--font-body);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.03em;
+}
+
 /* Titles */
 #content h1 {
     font-family: var(--font-body);
