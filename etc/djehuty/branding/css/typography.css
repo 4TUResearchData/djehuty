@@ -59,7 +59,9 @@
 /* Subtitles & data labels */
 #content h3,
 #content h4,
-#wrapper #content h3.label {
+#wrapper #content h3.label,
+#wrapper #content #cite h3,
+#wrapper #content #collect h3 {
     font-family: var(--font-ui);
     font-weight: 500;
     font-size: 14pt;
@@ -67,4 +69,12 @@
     text-transform: uppercase;
     color: var(--dark-grey);
     margin: 1.5em 0 0.5em 0;
+}
+
+/* Dataset page — the citation & collection boxes size their heading apart
+   from the data labels, so it needs the important to line up with them. */
+#wrapper #content #cite h3,
+#wrapper #content #collect h3 {
+    font-size: 14pt !important;
+    margin-top: 0;
 }
