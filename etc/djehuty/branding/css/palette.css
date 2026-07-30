@@ -9,7 +9,8 @@
     --vibrant-orange: #FF6829;
     --vibrant-hover:  #f2551a;
     --vibrant-active: #db4a12;
-    --fresh-blue: #B9DBEF;
+    --fb-blue-200: #CFE7F5; /* fresh blue 200 */
+    --fresh-blue: #B9DBEF; /* fb-300 */
     --soft-grey: #969696;
     --dark-grey: #3C3C3C;
     --off-white: #FBF5E9;
@@ -89,7 +90,7 @@ ul.latest-datasets li a:hover,
 
 /* Dataset page — DOI value (it need the important to override) */
 #wrapper #content #doi span.doi-value {
-    background-color: var(--fresh-blue) !important;
+    background-color: var(--fb-blue-200) !important;
     color: var(--dark-grey) !important;
     border-color: #ccc !important;
 }

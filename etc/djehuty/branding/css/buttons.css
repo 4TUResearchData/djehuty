@@ -78,8 +78,8 @@ a.inline-button.open:active,
 
 /* Dataset page — download all files */
 #files ul li.zip { background: var(--vibrant-orange); }
-#files ul li.zip:hover { background: #D97E00; }
-#files ul li.zip:active { background: #B36700; }
+#files ul li.zip:hover { background: var(--vibrant-hover); }
+#files ul li.zip:active { background: var(--vibrant-active); }
 #files ul li.zip a,
 #files ul li.zip a:hover,
 #files ul li.zip #total_size {
