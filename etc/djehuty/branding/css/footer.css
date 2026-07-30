@@ -45,7 +45,7 @@
 #footer-wrapper .footer-column h3,
 #footer-wrapper .footer-column h4 {
     font-family: var(--font-ui);
-    font-size: 12pt;
+    font-size: 14pt;
     font-weight: 500;
     line-height: 1.3;
     text-transform: uppercase;
@@ -62,12 +62,22 @@
 }
 #footer-wrapper .footer-column a {
     color: #e6e2da;
-    text-decoration: none;
+    text-decoration: underline;
+    text-underline-offset: 3px;
 }
 #footer-wrapper .footer-column a:hover,
 #footer-wrapper .footer-column a:focus-visible {
     color: #fff;
-    text-decoration: underline;
+}
+
+/* The logos and the social icons are links too, but only text should be
+   underlined. */
+#footer-wrapper .footer-column a:has(img),
+#footer-wrapper .footer-column a.fa,
+#footer-wrapper .footer-column a.fas,
+#footer-wrapper .footer-column a.far,
+#footer-wrapper .footer-column a.fab {
+    text-decoration: none;
 }
 
 /* Logos */

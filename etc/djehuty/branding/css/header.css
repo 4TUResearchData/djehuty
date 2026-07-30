@@ -29,8 +29,46 @@
 #header #search-box-wrapper {
     height: auto;
 }
-#header #search-box {
+/* The field and its button share one height, so the row has no leftover
+   space for the placeholder to drift into. */
+#header #search-box-wrapper form {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+#header #search-box,
+#header .search-submit-btn {
+    /* The browser gives the two controls a different default box model, so
+       state it here to keep the field and its button the same height. */
+    box-sizing: border-box;
+    height: 34pt;
     margin-top: 0;
+}
+#header #search-box {
+    font-family: var(--font-body);
+}
+#header #search-box:focus {
+    background: var(--off-white, #FBF5E9);
+}
+
+/* The placeholder. The markup is shared with other instances, so the wording
+   comes from a pseudo-element shown only while the box is empty. */
+#header #search-box::placeholder {
+    color: transparent;
+}
+#header #search-box-wrapper form:has(#search-box:placeholder-shown)::before {
+    content: "Search";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: calc(1em + 2pt);
+    display: flex;
+    align-items: center;
+    line-height: 1;
+    font-family: var(--font-body);
+    font-size: 14pt;
+    color: var(--soft-grey, #969696);
+    pointer-events: none;
 }
 #header #header-right .button {
     margin-top: 0;
