@@ -13,6 +13,9 @@
     --soft-grey: #969696;
     --dark-grey: #3C3C3C;
     --off-white: #FBF5E9;
+    --light-sand: #FFF7E8;
+    --sand: #FEEED1;
+    --deep-sand: #FDDCA3;
 }
 
 /* Text */
@@ -95,4 +98,24 @@ ul.latest-datasets li a:hover,
 body #wrapper #content #doi span.doi-label {
     background-color: var(--dark-grey);
     border-color: var(--dark-grey);
+}
+
+/* Edit page — the help balloons */
+.help-icon:hover .help-text,
+.help-icon-clicked .help-text {
+    background: var(--sand);
+    border-color: var(--deep-sand);
+}
+
+/* Forms — the field headings. Those pages load their own stylesheet after
+   this one, so the rule needs the extra weight of the body element. */
+body #content-wrapper label {
+    background: var(--deep-sand);
+}
+
+/* Search & review overview — the filters. These labels name an option
+   instead of a field, so they keep the background of the page. */
+body #content-wrapper .search-filter-row label,
+body #content-wrapper label.normal-text {
+    background: none;
 }

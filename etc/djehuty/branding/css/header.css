@@ -48,7 +48,7 @@
     font-family: var(--font-body);
 }
 #header #search-box:focus {
-    background: var(--off-white, #FBF5E9);
+    background: #FFF7E8;
 }
 
 /* The placeholder. The markup is shared with other instances, so the wording
