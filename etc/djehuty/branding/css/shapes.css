@@ -46,6 +46,15 @@ body #wrapper #content #versions {
     border-radius: 0em var(--brand-radius) var(--brand-radius) 0em;
 }
 
+/* Menu — the drop-down panels */
+.submenu,
+.sub-submenu {
+    border-radius: var(--brand-radius);
+}
+.submenu > li:last-child {
+    border-radius: 0em 0em var(--brand-radius) var(--brand-radius);
+}
+
 /* Review overview — action bar filters */
 #submenu li select {
     border-radius: var(--brand-radius);

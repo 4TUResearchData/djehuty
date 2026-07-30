@@ -23,6 +23,7 @@ h1,
 a,
 #primary-menu li,
 .submenu-item a,
+.sub-submenu-item a,
 #submenu li,
 #submenu li.active,
 .tabs li {
@@ -74,14 +75,12 @@ a,
 /* Links */
 .corporate-identity,
 ul.latest-datasets li a,
-#files ul li a,
-.sub-submenu-item a {
+#files ul li a {
     color: var(--vibrant-orange);
 }
 .corporate-identity:hover,
 ul.latest-datasets li a:hover,
-#files ul li a:hover,
-.sub-submenu-item a:hover {
+#files ul li a:hover {
     color: var(--vibrant-hover);
 }
 
