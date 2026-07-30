@@ -38,6 +38,7 @@ from djehuty.utils.constants import (
     member_url_names,
 )
 from djehuty.utils.convenience import (
+    date_or_range,
     decimal_coords,
     deduplicate_list,
     html_to_plaintext,
@@ -3611,12 +3612,14 @@ class WebServer:
 
             for date_record in record:
                 date_type = validator.options_value (date_record, "type", types, True, errors)
-                date      = validator.partial_date_value (date_record, "date", True, errors)
+                date, date_end = validator.partial_date_range_value (date_record, "date",
+                                                                     True, errors)
                 if date_type is not None and date is not None:
                     if self.db.add_date_to_physical_sample (container_uuid,
                                                             date_type,
                                                             date,
-                                                            account_uuid) is None:
+                                                            account_uuid,
+                                                            date_end) is None:
                         self.log.error ("Failed to add date (%s, %s) to physical sample %s.",
                                         date_type, date, container_uuid)
                         errors.append ({
@@ -5549,7 +5552,8 @@ class WebServer:
                          image_factory = qrcode.image.svg.SvgPathImage).save (qr_buf)
             qr_code_svg = qr_buf.getvalue().decode("utf-8")
 
-        dates = [("-".join(reversed(str(d.get("date", ""))[:10].split("-"))), str(d.get("date_type", "")))
+        dates = [(date_or_range (d.get("date"), d.get("date_end")),
+                  str(d.get("date_type", "")))
                  for d in raw_dates if d.get("date")]
 
         lat = self_or_value_or_none (physical_sample, "latitude")

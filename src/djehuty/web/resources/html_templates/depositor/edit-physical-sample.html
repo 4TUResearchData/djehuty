@@ -96,6 +96,23 @@ jQuery(document).ready(function (){
     margin-bottom: 0;
 }
 #date-entry-panel .add-date-button { align-self: end; }
+/* Dates -> the format of the range, then its start and its end. */
+#date-range-fields { display: none; }
+#date-range-fields .date-range-row {
+    display: grid;
+    grid-template-columns: 4.5em 1fr;
+    gap: .5em;
+    align-items: center;
+    margin-bottom: .4em;
+}
+#date-range-fields .date-range-row:last-child { margin-bottom: 0em; }
+#date-range-fields label.inner-head { margin-bottom: 0em; }
+#date-entry-panel select.date-range-format {
+    width: 100%;
+    max-width: 110pt;
+    box-sizing: border-box;
+    margin-bottom: 0;
+}
 #physical-sample-dates { width: 100%; border-collapse: collapse; margin-top: .3em; }
 #physical-sample-dates td { vertical-align: middle; padding: .4em .5em; }
 #physical-sample-dates td:last-child { text-align: right; width: 2em; }
@@ -246,9 +263,9 @@ jQuery(document).ready(function (){
 </div>
 
 
-<label>Dates</label><div class="fas fa-question-circle help-icon"><span class="help-text">This property may be used to log events relevant to the physical sample. Enter the date, and select the date type.</span></div>
+<label>Dates</label><div class="fas fa-question-circle help-icon"><span class="help-text">This property may be used to log events relevant to the physical sample. Enter the date, and select the date type. A period is entered as a range, of which the start and the end are entered in the same format.</span></div>
 <div id="physical-sample-dates-wrapper">
-  <p id="date-format-intro">Choose the format matches the date you want to enter (full date, month, or year), enter the value, and select the date type:</p>
+  <p id="date-format-intro">Choose the format matches the date you want to enter (full date, month, year, or a range), enter the value, and select the date type:</p>
   <div id="date-format-tabs" class="options-wrapper">
     <input type="radio" name="dateFormat" id="format-day" value="day" checked="checked" />
     <label class="no-head" for="format-day">Full date</label>
@@ -256,6 +273,8 @@ jQuery(document).ready(function (){
     <label class="no-head" for="format-month">Month</label>
     <input type="radio" name="dateFormat" id="format-year" value="year" />
     <label class="no-head" for="format-year">Year</label>
+    <input type="radio" name="dateFormat" id="format-range" value="range" />
+    <label class="no-head" for="format-range">Range</label>
   </div>
   <div id="date-entry-panel">
     <p class="date-hint" id="date-hint"></p>
@@ -265,6 +284,24 @@ jQuery(document).ready(function (){
         <input type="text" id="date-year" class="date-input" placeholder="yyyy" inputmode="numeric" autocomplete="off" />
         <input type="text" id="date-month" class="date-input" placeholder="mm/yyyy" inputmode="numeric" autocomplete="off" />
         <input type="text" id="date-day" class="date-input" placeholder="dd/mm/yyyy" inputmode="numeric" autocomplete="off" />
+        <div id="date-range-fields">
+          <div class="date-range-row">
+            <label class="inner-head" for="date-range-format">Format</label>
+            <select id="date-range-format" class="date-range-format">
+              <option value="day">Full date</option>
+              <option value="month">Month</option>
+              <option value="year">Year</option>
+            </select>
+          </div>
+          <div class="date-range-row">
+            <label class="inner-head" for="date-range-start">From</label>
+            <input type="text" id="date-range-start" class="date-input date-range-input" placeholder="dd/mm/yyyy" inputmode="numeric" autocomplete="off" />
+          </div>
+          <div class="date-range-row">
+            <label class="inner-head" for="date-range-end">To</label>
+            <input type="text" id="date-range-end" class="date-input date-range-input" placeholder="dd/mm/yyyy" inputmode="numeric" autocomplete="off" />
+          </div>
+        </div>
       </div>
       <div class="date-field">
         <label class="inner-head">Type</label>
