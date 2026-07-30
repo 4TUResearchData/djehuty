@@ -3482,12 +3482,8 @@ class WebServer:
                 if errors:
                     return self.error_400_list (request, errors)
 
-                try:
-                    item = self.db.container_items (container_uuid = container_uuid,
-                                                    account_uuid   = account_uuid,
-                                                    is_published   = None,
-                                                    is_latest      = None)[0]
-                except (IndexError, KeyError):
+                item = self.__editable_physical_sample_draft (container_uuid, account_uuid)
+                if item is None:
                     return self.error_404 (request)
 
                 existing_creators = self.db.physical_sample_creators (container_uuid, account_uuid)
@@ -3496,7 +3492,7 @@ class WebServer:
                     existing_creators))
 
                 creators = existing_creators + new_creators
-                if self.db.update_item_list (item["uuid"], account_uuid, creators, "creators"):
+                if self.db.update_item_list (item["sample_uuid"], account_uuid, creators, "creators"):
                     return self.respond_204 ()
 
                 return self.error_500 ()
@@ -3552,17 +3548,16 @@ class WebServer:
         if account_uuid is None:
             return self.error_authorization_failed (request)
 
-        try:
-            item = self.db.container_items (container_uuid = container_uuid,
-                                             account_uuid   = account_uuid,
-                                             is_published   = None,
-                                             is_latest      = None)[0]
+        item = self.__editable_physical_sample_draft (container_uuid, account_uuid)
+        if item is None:
+            return self.error_404 (request)
 
+        try:
             creators = self.db.physical_sample_creators (container_uuid, account_uuid)
             creators.remove (next (filter (lambda c: c["uuid"] == creator_uuid, creators)))
             creators = list (map (lambda c: URIRef (uuid_to_uri (c["uuid"], "author")), creators))
 
-            if self.db.update_item_list (item["uuid"], account_uuid, creators, "creators"):
+            if self.db.update_item_list (item["sample_uuid"], account_uuid, creators, "creators"):
                 return self.respond_204 ()
 
             return self.error_500 ()
@@ -3646,18 +3641,17 @@ class WebServer:
         if account_uuid is None:
             return self.error_authorization_failed (request)
 
-        try:
-            item = self.db.container_items (container_uuid = container_uuid,
-                                             account_uuid   = account_uuid,
-                                             is_published   = None,
-                                             is_latest      = None)[0]
+        item = self.__editable_physical_sample_draft (container_uuid, account_uuid)
+        if item is None:
+            return self.error_404 (request)
 
+        try:
             dates = self.db.physical_sample_dates (container_uuid, account_uuid)
             dates.remove (next (filter (lambda d: d["uuid"] == date_uuid, dates)))
             dates = list (map (lambda d: URIRef (uuid_to_uri (d["uuid"],
                                                  "physical-sample-date")), dates))
 
-            if self.db.update_item_list (item["uuid"], account_uuid, dates, "dates"):
+            if self.db.update_item_list (item["sample_uuid"], account_uuid, dates, "dates"):
                 return self.respond_204 ()
 
             return self.error_500 ()
@@ -3742,18 +3736,17 @@ class WebServer:
         if account_uuid is None:
             return self.error_authorization_failed (request)
 
-        try:
-            item = self.db.container_items (container_uuid = container_uuid,
-                                             account_uuid   = account_uuid,
-                                             is_published   = None,
-                                             is_latest      = None)[0]
+        item = self.__editable_physical_sample_draft (container_uuid, account_uuid)
+        if item is None:
+            return self.error_404 (request)
 
+        try:
             resources = self.db.physical_sample_related_resources (container_uuid, account_uuid)
             resources.remove (next (filter (lambda r: r["uuid"] == resource_uuid, resources)))
             resources = list (map (lambda r: URIRef (uuid_to_uri (r["uuid"],
                                                      "physical-sample-related-resource")), resources))
 
-            if self.db.update_item_list (item["uuid"], account_uuid, resources, "related_resources"):
+            if self.db.update_item_list (item["sample_uuid"], account_uuid, resources, "related_resources"):
                 return self.respond_204 ()
 
             return self.error_500 ()
