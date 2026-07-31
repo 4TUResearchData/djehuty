@@ -1,12 +1,17 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT DISTINCT ?uuid ?url ?type ?relation ?created_date
+SELECT DISTINCT ?uuid ?url ?type ?type_id ?relation ?relation_id ?created_date
                 (?rest AS ?originating_blank_node) ?order_index
 WHERE {
   GRAPH <{{state_graph}}> {
     ?container         rdf:type                 djht:PhysicalSampleContainer .
-    ?item_uri          djht:container           ?container ;
-                       djht:related_resources/rdf:rest* ?rest .
+    {%- if sample_uri is not none %}
+    BIND(<{{sample_uri}}> AS ?item_uri)
+    ?item_uri          djht:container           ?container .
+    {%- else %}
+    ?container         djht:draft               ?item_uri .
+    {%- endif %}
+    ?item_uri          djht:related_resources/rdf:rest* ?rest .
     ?rest              rdf:first                ?related ;
                        djht:index               ?order_index .
 
@@ -15,6 +20,9 @@ WHERE {
     ?related           djht:relation          ?relation_uri .
     ?relation_uri      rdfs:label             ?relation .
     ?related           djht:url               ?url .
+
+    BIND(STRAFTER(STR(?type_uri),     "PhysicalSampleRelatedResource") AS ?type_id)
+    BIND(STRAFTER(STR(?relation_uri), "PhysicalSampleRelatedResource") AS ?relation_id)
     ?related           djht:created_date      ?created_date .
 
     {%- if account_uuid is not none %}

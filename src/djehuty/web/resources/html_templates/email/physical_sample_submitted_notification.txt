@@ -1,0 +1,10 @@
+Request for review
+
+{{account.first_name | default("", False)}} {{account.last_name | default("", False)}} sent a physical sample for your review.
+
+The physical sample is titled '{{dataset.title}}'.
+Its unique identifier is '{{dataset.uuid}}'.
+
+Visit the reviewer dashboard[1] to review this physical sample.
+
+[1] {{base_url}}/review/overview
