@@ -3293,7 +3293,8 @@ class WebServer:
                 account    = account,
                 groups     = groups,
                 categories = self.db.categories_tree(),
-                draft_doi  = f"{config.igsn_prefix}/{container_uuid}")
+                draft_doi  = f"{config.igsn_prefix}/{container_uuid}",
+                current_year = datetime.now().strftime("%Y"))
         except IndexError:
             return self.error_403 (request)
 
@@ -3422,7 +3423,7 @@ class WebServer:
                     "resource_type":        validator.string_value (record, "resource_type", 0, 512,  False),
                     "subject":              validator.string_value (record, "subject",       0, 512,  False),
                     "organizations":        validator.string_value (record, "organizations", 0, 2048, False),
-                    "physical_storage_location":   validator.string_value (record, "physical_storage_location", 1, 2048, True),
+                    "physical_storage_location":   validator.string_value (record, "physical_storage_location", 0, 2048, False),
                     "geolocation":          validator.string_value (record, "geolocation",   0, 255,  False),
                     "longitude":            validator.string_value (record, "longitude",     0, 64,   False),
                     "latitude":             validator.string_value (record, "latitude",      0, 64,   False),
@@ -3471,8 +3472,32 @@ class WebServer:
                 return self.error_405 (["GET", "POST"])
 
             record = request.get_json()
-            validated = []
             errors = []
+
+            # A dictionary payload with an "authors" field creates a brand-new
+            # author record and links it as a creator, mirroring the dataset
+            # author flow.  A list payload links existing authors by UUID.
+            if isinstance (record, dict):
+                new_creators, errors = self.__author_list_from_request_input (record, account_uuid)
+                if errors:
+                    return self.error_400_list (request, errors)
+
+                item = self.__editable_physical_sample_draft (container_uuid, account_uuid)
+                if item is None:
+                    return self.error_404 (request)
+
+                existing_creators = self.db.physical_sample_creators (container_uuid, account_uuid)
+                existing_creators = list (map (
+                    lambda creator: URIRef (uuid_to_uri (creator["uuid"], "author")),
+                    existing_creators))
+
+                creators = existing_creators + new_creators
+                if self.db.update_item_list (item["sample_uuid"], account_uuid, creators, "creators"):
+                    return self.respond_204 ()
+
+                return self.error_500 ()
+
+            validated = []
             if not isinstance (record, list):
                 return self.error_400 (request, message = "Expected a list.",
                                                 code    = "UnexpectedContent")
@@ -3523,17 +3548,16 @@ class WebServer:
         if account_uuid is None:
             return self.error_authorization_failed (request)
 
-        try:
-            item = self.db.container_items (container_uuid = container_uuid,
-                                             account_uuid   = account_uuid,
-                                             is_published   = None,
-                                             is_latest      = None)[0]
+        item = self.__editable_physical_sample_draft (container_uuid, account_uuid)
+        if item is None:
+            return self.error_404 (request)
 
+        try:
             creators = self.db.physical_sample_creators (container_uuid, account_uuid)
             creators.remove (next (filter (lambda c: c["uuid"] == creator_uuid, creators)))
             creators = list (map (lambda c: URIRef (uuid_to_uri (c["uuid"], "author")), creators))
 
-            if self.db.update_item_list (item["uuid"], account_uuid, creators, "creators"):
+            if self.db.update_item_list (item["sample_uuid"], account_uuid, creators, "creators"):
                 return self.respond_204 ()
 
             return self.error_500 ()
@@ -3617,18 +3641,17 @@ class WebServer:
         if account_uuid is None:
             return self.error_authorization_failed (request)
 
-        try:
-            item = self.db.container_items (container_uuid = container_uuid,
-                                             account_uuid   = account_uuid,
-                                             is_published   = None,
-                                             is_latest      = None)[0]
+        item = self.__editable_physical_sample_draft (container_uuid, account_uuid)
+        if item is None:
+            return self.error_404 (request)
 
+        try:
             dates = self.db.physical_sample_dates (container_uuid, account_uuid)
             dates.remove (next (filter (lambda d: d["uuid"] == date_uuid, dates)))
             dates = list (map (lambda d: URIRef (uuid_to_uri (d["uuid"],
                                                  "physical-sample-date")), dates))
 
-            if self.db.update_item_list (item["uuid"], account_uuid, dates, "dates"):
+            if self.db.update_item_list (item["sample_uuid"], account_uuid, dates, "dates"):
                 return self.respond_204 ()
 
             return self.error_500 ()
@@ -3713,18 +3736,17 @@ class WebServer:
         if account_uuid is None:
             return self.error_authorization_failed (request)
 
-        try:
-            item = self.db.container_items (container_uuid = container_uuid,
-                                             account_uuid   = account_uuid,
-                                             is_published   = None,
-                                             is_latest      = None)[0]
+        item = self.__editable_physical_sample_draft (container_uuid, account_uuid)
+        if item is None:
+            return self.error_404 (request)
 
+        try:
             resources = self.db.physical_sample_related_resources (container_uuid, account_uuid)
             resources.remove (next (filter (lambda r: r["uuid"] == resource_uuid, resources)))
             resources = list (map (lambda r: URIRef (uuid_to_uri (r["uuid"],
                                                      "physical-sample-related-resource")), resources))
 
-            if self.db.update_item_list (item["uuid"], account_uuid, resources, "related_resources"):
+            if self.db.update_item_list (item["sample_uuid"], account_uuid, resources, "related_resources"):
                 return self.respond_204 ()
 
             return self.error_500 ()
@@ -3831,7 +3853,7 @@ class WebServer:
                 "resource_type":        validator.string_value  (record, "resource_type",    0, 512,   False, errors),
                 "subject":              validator.string_value  (record, "subject",          0, 512,   False, errors),
                 "publisher":            validator.string_value  (record, "publisher",        0, 10000, True,  errors),
-                "publication_year":     validator.string_value  (record, "publication_year", 0, 4,     True,  errors),
+                "publication_year":     datetime.now().strftime("%Y"),
                 "alternate_identifier": validator.string_value  (record, "alternate_identifier", 0, 255, False, errors),
                 "organizations":        validator.string_value  (record, "organizations",    0, 2048,  True,  errors),
                 "physical_storage_location": validator.string_value (record, "physical_storage_location", 1, 2048, True, errors),
@@ -5498,7 +5520,7 @@ class WebServer:
 
         qr_code_svg = None
         sample_doi  = value_or_none (physical_sample, "doi")
-        if sample_doi is None and private_view:
+        if sample_doi is None and private_view and config.igsn_prefix is not None:
             sample_doi = f"{config.igsn_prefix}/{container_uuid}"
         if sample_doi:
             qr_buf = BytesIO()
