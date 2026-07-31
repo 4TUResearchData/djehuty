@@ -5,3 +5,4 @@ requests>=2.26.0
 Werkzeug>=2.0.2
 defusedxml>=0.7.1
 pillow>=9.4.0
+qrcode>=8.2
