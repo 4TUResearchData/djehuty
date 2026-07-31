@@ -315,8 +315,6 @@ jQuery(document).ready(function (){
 <textarea id="physical_storage_location" name="physical_storage_location" placeholder="Example: Delft University of Technology, Faculty of Geoscience & Engineering, Department of Applied Geology - Building 23">{{object["physical_storage_location"] | default("", True) }}</textarea>
 
 <h3 class="corporate-identity-h3">Terms and agreement</h3>
-<input type="checkbox" name="deposit_agreement" id="deposit_agreement" {% if object.agreed_to_deposit_agreement %}checked="checked"{% endif %}{% if object.is_under_review %} disabled="disabled"{% endif %}>
-<label class="no-head" for="deposit_agreement">I agree with the <a target="_blank" rel="noopener noreferrer" href="/s/docs/deposit-agreement.pdf">Deposit Agreement</a>.</label><span class="required-field">&#8727;</span><br />
 <input type="checkbox" name="publish_agreement" id="publish_agreement" {% if object.agreed_to_publish %}checked="checked"{% endif %}{% if object.is_under_review %} disabled="disabled"{% endif %}>
 <label class="no-head" for="publish_agreement">I agree that my physical sample will be published once it is approved by a reviewer.</label><span class="required-field">&#8727;</span>
 
