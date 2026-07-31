@@ -1,6 +1,6 @@
 {% extends "prefixes.sparql" %}
 {% block query %}
-SELECT DISTINCT ?uuid ?date ?date_type ?created_date
+SELECT DISTINCT ?uuid (STR(?date_raw) AS ?date) ?date_type ?created_date
                 (?rest AS ?originating_blank_node) ?order_index
 WHERE {
   GRAPH <{{state_graph}}> {
@@ -17,7 +17,7 @@ WHERE {
 
     ?date_entry        djht:date_type           ?date_type_uri .
     ?date_type_uri     rdfs:label               ?date_type .
-    ?date_entry        djht:date                ?date .
+    ?date_entry        djht:date                ?date_raw .
     ?date_entry        djht:created_date        ?created_date .
 
     {%- if account_uuid is not none %}
