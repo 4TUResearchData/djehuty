@@ -82,7 +82,7 @@
       <td>{{object.resource_type | default("undefined", False)}}</td>
       <td>{% if object.has_draft %}Update under review{% else %}Published{% endif %}</td>
       <td>{{object.published_date | default(object.created_date, True) | truncate(10,False,'')}}</td>
-      <td>{% if not object.has_draft %}<a href="/my/physical-samples/{{object.container_uuid}}/edit" class="fas fa-pen" title="Edit (creates a draft update for review)"></a>{% endif %}</td>
+      <td><a href="/physical_sample/{{object.container_uuid}}/qr-code" class="fas fa-qrcode" title="Download QR code (links to the IGSN)" download></a>{% if not object.has_draft %} <a href="/my/physical-samples/{{object.container_uuid}}/edit" class="fas fa-pen" title="Edit (creates a draft update for review)"></a>{% endif %}</td>
     </tr>
   {% endfor %}
   </tbody>

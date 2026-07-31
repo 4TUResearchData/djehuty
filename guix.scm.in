@@ -50,6 +50,7 @@
           python-rdflib
           python-pillow
           python-pygit2
+          python-qrcode
           python-requests
           python-werkzeug))
    (home-page "https://github.com/4TUResearchData/djehuty")
