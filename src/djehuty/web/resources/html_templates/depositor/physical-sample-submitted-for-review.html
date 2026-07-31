@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+{% block submenu %}
+<ul>
+  <li><a href="/my/physical-samples">&#8592; Go back</a>
+  <li class="active corporate-identity-submenu-active">Edit physical sample
+</ul>
+{% endblock %}
+{% block body %}
+<h1>Your physical sample has been submitted for review</h1>
+<p>Thank you for submitting your physical sample to {{site_name}}.  We received your submission.</p>
+<p>A reviewer will contact you about publishing it in the {{site_name}} repository.</p>
+<div class="center">
+  <a href="/my/physical-samples" class="button corporate-identity-standard-button">Go to physical samples overview</a>
+</div>
+{% endblock %}

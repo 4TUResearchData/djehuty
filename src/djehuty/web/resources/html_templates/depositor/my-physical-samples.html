@@ -11,7 +11,7 @@
 </ul>
 {% endblock %}
 {% block body %}
-<h1>Physical sample</h1>
+<h1>Physical samples</h1>
 
 <h2>Drafts</h2>
 {%- if drafts: %}
@@ -20,6 +20,7 @@
     <tr>
       <th>Physical sample</th>
       <th>Type</th>
+      <th>Status</th>
       <th>Created&nbsp;at</th>
       <th>Actions</th>
     </tr>
@@ -28,13 +29,63 @@
     <tr>
       <td><a href="/my/physical-samples/{{object.container_uuid}}/edit">{{object.title}}</a></td>
       <td>{{object.resource_type | default("undefined", False)}}</td>
+      <td>{% if object.is_under_review %}Under review{% else %}Draft{% endif %}</td>
       <td>{{object.created_date | truncate(10,False,'')}}</td>
-      <td><a href="/my/physical-samples/{{object.container_uuid}}/delete" class="fas fa-trash-can" title="Remove"></a></td>
+      <td>{% if not object.is_under_review %}<a href="/my/physical-samples/{{object.container_uuid}}/delete" class="fas fa-trash-can" title="Remove"></a>{% endif %}</td>
     </tr>
-  {% endfor %}</tbody>
+  {% endfor %}
+  </tbody>
 </table>
 {%- else %}
 <p>You don&apos;t have draft physical samples (yet).</p>
 <div class="center"><a id="add-new-object" href="/my/physical-samples/new" class="button corporate-identity-standard-button">Register physical sample</a></div>
+{%- endif %}
+
+{%- if review_samples: %}
+<h2>Under review</h2>
+<table id="table-review" class="corporate-identity-table">
+  <thead>
+    <tr>
+      <th>Physical sample</th>
+      <th>Type</th>
+      <th>Status</th>
+      <th>Submitted&nbsp;at</th>
+    </tr>
+  </thead>
+  <tbody>{% for object in review_samples: %}
+    <tr>
+      <td><a href="/my/physical-samples/{{object.container_uuid}}/edit">{{object.title}}</a></td>
+      <td>{{object.resource_type | default("undefined", False)}}</td>
+      <td>{{object.review_status | default("unassigned", False)}}</td>
+      <td>{{object.review_submit_date | truncate(10,False,'')}}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{%- endif %}
+
+{%- if published_samples: %}
+<h2>Published</h2>
+<table id="table-published" class="corporate-identity-table">
+  <thead>
+    <tr>
+      <th>Physical sample</th>
+      <th>Type</th>
+      <th>Status</th>
+      <th>Published&nbsp;at</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>{% for object in published_samples: %}
+    <tr>
+      <td><a href="/physical_sample/{{object.container_uuid}}">{{object.title}}</a></td>
+      <td>{{object.resource_type | default("undefined", False)}}</td>
+      <td>{% if object.has_draft %}Update under review{% else %}Published{% endif %}</td>
+      <td>{{object.published_date | default(object.created_date, True) | truncate(10,False,'')}}</td>
+      <td>{% if not object.has_draft %}<a href="/my/physical-samples/{{object.container_uuid}}/edit" class="fas fa-pen" title="Edit (creates a draft update for review)"></a>{% endif %}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
 {%- endif %}
 {% endblock %}

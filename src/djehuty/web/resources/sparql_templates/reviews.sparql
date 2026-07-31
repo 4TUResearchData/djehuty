@@ -6,7 +6,7 @@ SELECT DISTINCT ?uuid ?request_date ?reminder_date ?assigned_to
                 ?published_date ?container_uuid ?dataset_version ?declined_date
                 ?reviewer_email ?reviewer_first_name ?reviewer_last_name
                 ?modified_date (?status_label AS ?status) ?has_published_version
-                ?last_seen_by_reviewer
+                ?last_seen_by_reviewer ?item_type
 WHERE {
   GRAPH <{{state_graph}}> {
     ?review             rdf:type                 djht:Review ;
@@ -59,7 +59,11 @@ WHERE {
     }
 
     BIND(STRAFTER(STR(?container_uri), "container:") AS ?container_uuid)
-    BIND(STRAFTER(STR(?dataset), "dataset:")  AS ?dataset_uuid)
+    BIND(IF(STRSTARTS(STR(?dataset), "physical-sample:"),
+            "physical-sample", "dataset")            AS ?item_type)
+    BIND(IF(STRSTARTS(STR(?dataset), "physical-sample:"),
+            STRAFTER(STR(?dataset), "physical-sample:"),
+            STRAFTER(STR(?dataset), "dataset:"))     AS ?dataset_uuid)
     BIND(STRAFTER(STR(?account), "account:")  AS ?account_uuid)
     BIND(STRAFTER(STR(?review),  "review:")   AS ?uuid)
     BIND(BOUND(?published_version)            AS ?has_published_version)

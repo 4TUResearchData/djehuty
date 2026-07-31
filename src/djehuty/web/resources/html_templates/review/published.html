@@ -6,9 +6,17 @@
 </ul>
 {% endblock %}
 {% block body %}
+{%- if item_type == "physical-sample" %}
+<h1>The physical sample has been published</h1>
+<p>The physical sample has been published.  Have a nice day!</p>
+<div class="center">
+  <a href="/review/overview" class="button corporate-identity-standard-button">Back to review overview.</a>
+</div>
+{%- else %}
 <h1>The dataset has been published</h1>
 <p>The dataset has been published.  Have a nice day!</p>
 <div class="center">
   <a id="create-new-dataset" href="/datasets/{{container_uuid}}" class="button corporate-identity-standard-button">Go to dataset page.</a>
 </div>
+{%- endif %}
 {% endblock %}
