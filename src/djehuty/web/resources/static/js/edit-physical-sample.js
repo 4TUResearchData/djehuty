@@ -469,7 +469,6 @@ function render_dates (container_uuid) {
         row += '<option value="" disabled="disabled" selected="selected">Date type</option>';
         row += '<option value="collected">Collected</option>';
         row += '<option value="destroyed">Destroyed</option>';
-        row += '<option value="issued">Issued</option>';
         row += '<option value="other">Other</option>';
         row += '</select></td>';
         row += '<td><a class="form-button corporate-identity-standard-button add-date-button" href="#">Add</a></td></tr>';
