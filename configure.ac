@@ -1,4 +1,4 @@
-AC_INIT(djehuty, 26.3.3)
+AC_INIT(djehuty, 26.4)
 AM_INIT_AUTOMAKE([foreign tar-ustar])
 AM_PATH_PYTHON([3.10])
 AC_CONFIG_FILES([
