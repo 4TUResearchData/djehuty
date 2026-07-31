@@ -26,7 +26,8 @@
       "font-face": [
         { "family": "Aspekta", "src": "/assets/fonts/Aspekta-300.woff2", "format": "woff2", "weight": "300 400", "style": "normal" },
         { "family": "Aspekta", "src": "/assets/fonts/Aspekta-500.woff2", "format": "woff2", "weight": "500 700", "style": "normal" },
-        { "family": "SpaceGrotesk", "src": "/assets/fonts/SpaceGrotesk-Regular.woff2", "format": "woff2", "weight": "400 700", "style": "normal" }
+        { "family": "SpaceGrotesk", "src": "/assets/fonts/SpaceGrotesk-Regular.woff2", "format": "woff2", "weight": "400 500", "style": "normal" },
+        { "family": "SpaceGrotesk", "src": "/assets/fonts/SpaceGrotesk-Bold.woff2", "format": "woff2", "weight": "700", "style": "normal" }
       ]
     },
     "custom-assets-root": "branding",
