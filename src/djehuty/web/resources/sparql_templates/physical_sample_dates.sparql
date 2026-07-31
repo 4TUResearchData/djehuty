@@ -5,8 +5,13 @@ SELECT DISTINCT ?uuid ?date ?date_type ?created_date
 WHERE {
   GRAPH <{{state_graph}}> {
     ?container         rdf:type                 djht:PhysicalSampleContainer .
-    ?item_uri          djht:container           ?container ;
-                       djht:dates/rdf:rest*     ?rest .
+    {%- if sample_uri is not none %}
+    BIND(<{{sample_uri}}> AS ?item_uri)
+    ?item_uri          djht:container           ?container .
+    {%- else %}
+    ?container         djht:draft               ?item_uri .
+    {%- endif %}
+    ?item_uri          djht:dates/rdf:rest*     ?rest .
     ?rest              rdf:first                ?date_entry ;
                        djht:index               ?order_index .
 

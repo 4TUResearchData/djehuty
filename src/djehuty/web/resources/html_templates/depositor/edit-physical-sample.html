@@ -78,13 +78,26 @@ jQuery(document).ready(function (){
 #sample-owner-wrapper input[type="text"] { width: 812pt; }
 .preview-button a { background: #736f53 !important; }
 .preview-button a:hover { background: #96937e !important; }
+.decline-button a { background: #aa3333 !important; }
+.decline-button a:hover { background: #cc3333 !important; }
 </style>
 {% endblock %}
 {% block submenu %}
 <ul>
+  {%- if object.is_under_review and is_reviewing %}
+  <li><a href="/logout">&#8592; Go back</a>
+  {%- else %}
   <li><a href="/my/physical-samples">&#8592; Go back</a>
+  {%- endif %}
   <li class="active corporate-identity-submenu-active">Edit physical sample
   <li class="hide-for-javascript save-button"><a id="save" href="#">Save draft</a>
+  {%- if not object.is_under_review %}
+  <li class="hide-for-javascript submit-button"><a id="submit" href="#">Submit for review</a>
+  {%- endif %}
+  {%- if object.is_under_review and is_reviewing %}
+  <li class="hide-for-javascript publish-button"><a id="publish" href="#">Publish</a>
+  <li class="hide-for-javascript decline-button"><a id="decline" href="#">Decline</a>
+  {%- endif %}
   <li class="hide-for-javascript delete-button"><a id="delete" href="#">Delete</a>
   <li class="hide-for-javascript preview-button"><a id="preview" href="#">Preview</a>
 </ul>
@@ -229,6 +242,13 @@ jQuery(document).ready(function (){
 <label for="physical_storage_location">Physical storage location</label><div class="fas fa-question-circle help-icon"><span class="help-text">Add the location details (name university, faculty, department, etc.) where the sample is stored.</span></div><span class="required-field">&#8727;</span>
 <textarea id="physical_storage_location" name="physical_storage_location" placeholder="Example: Delft University of Technology, Faculty of Geoscience & Engineering, Department of Applied Geology - Building 23">{{object["physical_storage_location"] | default("", True) }}</textarea>
 
+{%- if not object.is_under_review %}
+<h3 class="corporate-identity-h3">Terms and agreement</h3>
+<input type="checkbox" name="deposit_agreement" id="deposit_agreement">
+<label class="no-head" for="deposit_agreement">I agree with the <a target="_blank" rel="noopener noreferrer" href="/s/docs/deposit-agreement.pdf">Deposit Agreement</a>.</label><span class="required-field">&#8727;</span><br />
+<input type="checkbox" name="publish_agreement" id="publish_agreement">
+<label class="no-head" for="publish_agreement">I agree that my physical sample will be published once it is approved by a reviewer.</label><span class="required-field">&#8727;</span>
+{%- endif %}
 
 </div>
 </div>

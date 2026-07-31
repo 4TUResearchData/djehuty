@@ -710,6 +710,7 @@ def format_review_record (record):
     """Record formatter for reviews."""
     return {
         "uuid":                  conv.value_or_none (record, "uuid"),
+        "item_type":             conv.value_or (record, "item_type", "dataset"),
         "container_uuid":        conv.value_or_none (record, "container_uuid"),
         "dataset_title":         conv.value_or_none (record, "dataset_title"),
         "dataset_uuid":          conv.value_or_none (record, "dataset_uuid"),
