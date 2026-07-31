@@ -6,6 +6,36 @@ news section (`doc/news.tex`) is regenerated at release time by `just news`.
 
 Commit links point to <https://github.com/4TUResearchData/djehuty>.
 
+
+## [v26.4]
+
+The fourth release of 2026 consists of 12 commits made by 3 authors.
+
+This release gives administrators two new tools for correcting the record after
+publication.
+
+### New features
+
+- Add an administrative dashboard action to retract a published dataset. ([a358518](https://github.com/4TUResearchData/djehuty/commit/a35851850e24c72fa48c76711125977c86b9f7a4))
+- Add an administrative action to merge user accounts and transfer their ownership. ([83cbe0d](https://github.com/4TUResearchData/djehuty/commit/83cbe0d3799ae74ec6331d7143b92ecb66cd643d))
+- Show the djehuty version in the page footer. ([ed9f9c8](https://github.com/4TUResearchData/djehuty/commit/ed9f9c89719abea0d96931b1d050fc2c32b5ef7e))
+
+### Incremental improvements
+
+- Set up Ruff linting and formatting. ([45805c2](https://github.com/4TUResearchData/djehuty/commit/45805c2e50501b98d92cbb39966b00040d548c69))
+- Update Python, GitHub Actions and Docker dependencies for security and performance. ([7c5ca35](https://github.com/4TUResearchData/djehuty/commit/7c5ca352da3fe83e2ba09a0e1f6136f997d364f8),
+[02a4ad1](https://github.com/4TUResearchData/djehuty/commit/02a4ad1f7d4e0c2be556056c497680fa24b4854e),
+[dc35b9a](https://github.com/4TUResearchData/djehuty/commit/dc35b9a7006489076fce710e65921dd4452b3e1f),
+[36d0698](https://github.com/4TUResearchData/djehuty/commit/36d0698aa56e14d017fc74a28b14973eee643ee2),
+[ac3967f](https://github.com/4TUResearchData/djehuty/commit/ac3967ff7f7511121fbb7c26d991f52fc717820d))
+
+### Documentation
+
+- Migrate the documentation to Markdown and publish it with MkDocs. ([3f28684](https://github.com/4TUResearchData/djehuty/commit/3f28684da8fb51fed2b69b418de2bd84d756b48a))
+- Remove the documentation section from README.md now that it lives in the docs site. ([dd8f54b](https://github.com/4TUResearchData/djehuty/commit/dd8f54bf95b0836a2f5b4611b32bccc52601ae22))
+- Add a documentation issue template. ([5a2e2b5](https://github.com/4TUResearchData/djehuty/commit/5a2e2b5aed0babd005c903e10b1df706a6cb9078))
+
+
 ## [v26.3.3]
 
 This patch release fixes the Djehuty container image, which failed to start
