@@ -78,13 +78,13 @@
     margin: 1.5em 0 0.5em 0;
 }
 
-/* Dataset page — the DATA and Files headings. This is where visitors go to
-   reach the files, so these carry more weight than the surrounding metadata
-   labels. Scoped to #data, which covers the DATA, DATA - under embargo,
-   DATA - restricted access and DATA - not available variants along with the
-   file listing heading. */
-#wrapper #content #data h3.label {
+/* Dataset page — the DATA heading. */
+#wrapper #content #data > h3.label {
+    font-family: var(--font-body);
     font-weight: 700;
+    font-size: 18pt;
+    line-height: 1.25;
+    text-transform: none;
 }
 
 /* Dataset page — the citation & collection boxes size their heading apart

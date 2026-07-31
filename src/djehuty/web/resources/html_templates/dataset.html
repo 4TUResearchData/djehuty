@@ -25,7 +25,7 @@ const dataset_uuid = "{{item.container_uuid}}";
 {%- include 'public_metadata.html' %}
 <div id="data">
 {%- if item.is_embargoed %}
-    <h3 class="label">DATA - under embargo</h3>
+    <h3 class="label">Data - under embargo</h3>
         <div id="limited_access">
             <p>The files in this dataset are under embargo{%- if item.embargo_until_date %} until {{item.embargo_until_date}}{%- endif %}.</p>
     {%- if item.embargo_reason or item.confidential_reason %}
@@ -40,7 +40,7 @@ const dataset_uuid = "{{item.container_uuid}}";
     {%- endif %}
        </div>
 {%- elif item.is_restricted %}
-    <h3 class="label">DATA - restricted access</h3>
+    <h3 class="label">Data - restricted access</h3>
         <div id="limited_access">
             <h4>Reason</h4>
     {%- autoescape false %}
@@ -59,7 +59,7 @@ const dataset_uuid = "{{item.container_uuid}}";
         </div>
         {%- include 'dataset_access_request.html' %}
 {%- elif item.is_metadata_record %}
-    <h3 class="label">DATA - not available</h3>
+    <h3 class="label">Data - not available</h3>
         <div id="metadata_only">
     {%- if item.metadata_reason %}
             {{item.metadata_reason}}
@@ -74,7 +74,7 @@ const dataset_uuid = "{{item.container_uuid}}";
     <div id="private_view">As you are on a private link, you have access to the data files.</div>
 {%- endif %}
 {%- if not(item.is_restricted or item.is_embargoed) and files %}
-    <h3 class="label">DATA</h3>
+    <h3 class="label">Data</h3>
 {%- endif %}
 {%- if is_own_item or private_view or not(item.is_restricted or item.is_embargoed) %}
 {%- if services %}
