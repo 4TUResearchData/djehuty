@@ -120,3 +120,20 @@ body #content-wrapper .search-filter-row label,
 body #content-wrapper label.normal-text {
     background: none;
 }
+
+/* Dataset page — the file listing. The rows share the white panel of the
+   description, so the files read as one surface against the page. The border
+   matches the description's. The zip row is the download button and stays
+   outside the panel, on the page background. */
+body #wrapper #content #files ul li:not(.zip) {
+    background: #ffffff;
+    border-left: solid 1pt #cccccc;
+    border-right: solid 1pt #cccccc;
+}
+body #wrapper #content #files ul li:not(.zip):first-child {
+    border-top: solid 1pt #cccccc;
+}
+body #wrapper #content #files ul li:not(.zip):last-child,
+body #wrapper #content #files ul li:not(.zip):has(+ li.zip) {
+    border-bottom: solid 1pt #cccccc;
+}

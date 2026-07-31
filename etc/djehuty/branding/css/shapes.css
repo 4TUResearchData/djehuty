@@ -75,6 +75,21 @@ body #wrapper #content #description {
     border-radius: var(--brand-radius);
 }
 
+/* Dataset page — the file listing panel. Only the outer corners are rounded,
+   so the rows in between keep meeting flush. The last rule covers a dataset
+   with a single file, where one row is the whole panel. */
+body #wrapper #content #files ul li:not(.zip):first-child {
+    border-radius: var(--brand-radius) var(--brand-radius) 0em 0em;
+}
+body #wrapper #content #files ul li:not(.zip):last-child,
+body #wrapper #content #files ul li:not(.zip):has(+ li.zip) {
+    border-radius: 0em 0em var(--brand-radius) var(--brand-radius);
+}
+body #wrapper #content #files ul li:not(.zip):first-child:last-child,
+body #wrapper #content #files ul li:not(.zip):first-child:has(+ li.zip) {
+    border-radius: var(--brand-radius);
+}
+
 /* Dataset page — DOI pill */
 body #wrapper #content #doi {
     border-radius: var(--brand-radius);

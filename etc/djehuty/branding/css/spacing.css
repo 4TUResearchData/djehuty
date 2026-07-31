@@ -96,6 +96,22 @@ body #wrapper #content #doi span.doi-value {
     margin-top: var(--brand-space-m);
 }
 
+/* Dataset page — the file listing. The rows breathe inside the white panel,
+   and the zip download button is set apart from it. */
+body #wrapper #content #files ul li:not(.zip) {
+    padding: var(--brand-space-3xs) var(--brand-space-xs);
+}
+body #wrapper #content #files ul li:not(.zip):first-child {
+    padding-top: var(--brand-space-2xs);
+}
+body #wrapper #content #files ul li:not(.zip):last-child,
+body #wrapper #content #files ul li:not(.zip):has(+ li.zip) {
+    padding-bottom: var(--brand-space-2xs);
+}
+body #wrapper #content #files ul li.zip {
+    margin-top: var(--brand-space-xs);
+}
+
 /* Front page — latest dataset cards */
 #wrapper #content .latest-item {
     /*padding: var(--brand-space-s) var(--brand-space-m);*/
