@@ -56,6 +56,12 @@
       "password": "",
       "prefix": "10.5438"
     },
+    "igsn": {
+      "api-url": "https://api.datacite.org",
+      "repository-id": "",
+      "password": "",
+      "prefix": "10.XXXXX"
+    },
     "handle": {
       "url": "https://epic-pid.storage.surfsara.nl:800X/api/handles",
       "index": "XXX",
