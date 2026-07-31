@@ -41,7 +41,7 @@ function gather_form_data (container_uuid) {
     return form_data;
 }
 
-function save_physical_sample (container_uuid, event, notify=true) {
+function save_physical_sample (container_uuid, event, notify=true, on_success=jQuery.noop) {
     event.preventDefault();
     event.stopPropagation();
 
@@ -56,6 +56,7 @@ function save_physical_sample (container_uuid, event, notify=true) {
         if (notify) {
             show_message ("success", "<p>Saved changes.</p>");
         }
+        on_success ();
     }).fail(function (jqXHR) {
         if (notify) {
             let json = jqXHR.responseJSON;
@@ -63,6 +64,101 @@ function save_physical_sample (container_uuid, event, notify=true) {
             if (json) { message = `<p>Failed to save draft: ${json.message}</p>`; }
             show_message ("failure", message);
         }
+    });
+}
+
+function submit_physical_sample (container_uuid, event) {
+    stop_event_propagation (event);
+    jQuery("#content").addClass("loader-top");
+    jQuery("#content-wrapper").css("opacity", "0.15");
+    save_physical_sample (container_uuid, event, false, function () {
+        let form_data = gather_form_data();
+        form_data["agreed_to_deposit_agreement"] = jQuery("#deposit_agreement").prop("checked");
+        form_data["agreed_to_publish"] = jQuery("#publish_agreement").prop("checked");
+        jQuery.ajax({
+            url:         `/v3/physical-samples/${container_uuid}/submit-for-review`,
+            type:        "PUT",
+            contentType: "application/json",
+            accept:      "application/json",
+            data:        JSON.stringify(form_data),
+        }).done(function () {
+            window.location.replace("/my/physical-samples/submitted-for-review");
+        }).fail(function (response) {
+            jQuery(".missing-required").removeClass("missing-required");
+            let error_messages = jQuery.parseJSON (response.responseText);
+            if (error_messages && error_messages.length > 0) {
+                let items = "";
+                for (let message of error_messages) {
+                    if (message.field_name == "group_id") {
+                        jQuery("#groups-wrapper").addClass("missing-required");
+                    } else if (message.field_name == "categories") {
+                        jQuery("#categories-wrapper").addClass("missing-required");
+                    } else if (message.field_name == "authors") {
+                        jQuery("#authors").addClass("missing-required");
+                    } else if (message.field_name == "tag") {
+                        jQuery("#tag").addClass("missing-required");
+                    } else if (message.field_name == "agreed_to_deposit_agreement") {
+                        jQuery("label[for='deposit_agreement']").addClass("missing-required");
+                    } else if (message.field_name == "agreed_to_publish") {
+                        jQuery("label[for='publish_agreement']").addClass("missing-required");
+                    } else {
+                        jQuery(`#${message.field_name}`).addClass("missing-required");
+                    }
+                    if (message.message) {
+                        items += `<li>${message.message}</li>`;
+                    }
+                }
+                show_message ("failure",
+                              `<p>Please correct the following before submitting:</p>` +
+                              `<ul>${items}</ul>`);
+            } else {
+                show_message ("failure", "<p>Please fill in all required fields.</p>");
+            }
+            jQuery("#content-wrapper").css("opacity", "1.0");
+            jQuery("#content").removeClass("loader-top");
+        });
+    });
+}
+
+function publish_physical_sample (container_uuid, event) {
+    stop_event_propagation (event);
+    jQuery("#content").addClass("loader-top");
+    jQuery("#content-wrapper").css("opacity", "0.15");
+    save_physical_sample (container_uuid, event, false, function () {
+        jQuery.ajax({
+            url:         `/v3/physical-samples/${container_uuid}/publish`,
+            type:        "POST",
+            accept:      "application/json",
+        }).done(function () {
+            window.location.replace("/logout");
+        }).fail(function (response, text_status, error_code) {
+            show_message ("failure",
+                          `<p>Could not publish due to error ` +
+                          `<code>${error_code}</code>.</p>`);
+            jQuery("#content-wrapper").css("opacity", "1.0");
+            jQuery("#content").removeClass("loader-top");
+        });
+    });
+}
+
+function decline_physical_sample (container_uuid, event) {
+    stop_event_propagation (event);
+    jQuery("#content").addClass("loader-top");
+    jQuery("#content-wrapper").css("opacity", "0.15");
+    save_physical_sample (container_uuid, event, false, function () {
+        jQuery.ajax({
+            accept:      "application/json",
+            type:        "POST",
+            url:         `/v3/physical-samples/${container_uuid}/decline`
+        }).done(function () {
+            window.location.replace("/logout");
+        }).fail(function (response, text_status, error_code) {
+            show_message ("failure",
+                          `<p>Could not decline due to error ` +
+                          `<code>${error_code}</code>.</p>`);
+            jQuery("#content-wrapper").css("opacity", "1.0");
+            jQuery("#content").removeClass("loader-top");
+        });
     });
 }
 
@@ -527,6 +623,9 @@ function activate (container_uuid, callback=jQuery.noop) {
     new Quill('#methods', { theme: '4tu' });
     jQuery("#delete").on("click", function (event) { delete_physical_sample (container_uuid, event); });
     jQuery("#save").on("click", function (event)   { save_physical_sample (container_uuid, event); });
+    jQuery("#submit").on("click", function (event) { submit_physical_sample (container_uuid, event); });
+    jQuery("#publish").on("click", function (event) { publish_physical_sample (container_uuid, event); });
+    jQuery("#decline").on("click", function (event) { decline_physical_sample (container_uuid, event); });
     jQuery("#preview").on("click", function (event) { preview_physical_sample (container_uuid, event); });
     jQuery("#authors").on("input", function (event) {
         return autocomplete_author (event, container_uuid);

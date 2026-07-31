@@ -7,8 +7,13 @@ SELECT DISTINCT ?first_name      ?full_name        ?uuid
 WHERE {
   GRAPH <{{state_graph}}> {
     ?container         rdf:type                 djht:PhysicalSampleContainer .
-    ?item_uri          djht:container           ?container ;
-                       djht:creators/rdf:rest*  ?rest .
+    {%- if sample_uri is not none %}
+    BIND(<{{sample_uri}}> AS ?item_uri)
+    ?item_uri          djht:container           ?container .
+    {%- else %}
+    ?container         djht:draft               ?item_uri .
+    {%- endif %}
+    ?item_uri          djht:creators/rdf:rest*  ?rest .
     ?rest              rdf:first                ?creator ;
                        djht:index               ?order_index .
 

@@ -1,0 +1,8 @@
+Physical sample approved and published
+======================================
+
+Your physical sample with title "{{title}}" has been approved and published.
+
+This is an automated message. For further correspondence, either use the feedback form [1] or contact us by e-mail at {{support_email}}
+
+[1] {{base_url}}/feedback

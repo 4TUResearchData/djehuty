@@ -28,9 +28,16 @@ function assign_reviewer (event) {
     let identifiers = this.value.split(":");
     let dataset_uuid = identifiers[0];
     let reviewer_uuid = identifiers[1];
+    let item_type = jQuery(this).data("item-type");
+    let container_uuid = jQuery(this).data("container-uuid");
+
+    let assign_url = `/v3/datasets/${dataset_uuid}/assign-reviewer/${reviewer_uuid}`;
+    if (item_type == "physical-sample") {
+        assign_url = `/v3/physical-samples/${container_uuid}/assign-reviewer/${reviewer_uuid}`;
+    }
 
     jQuery.ajax({
-        url:         `/v3/datasets/${dataset_uuid}/assign-reviewer/${reviewer_uuid}`,
+        url:         assign_url,
         type:        "PUT",
         accept:      "application/json"
     }).done(function (response) {
@@ -81,10 +88,10 @@ function filter_status (event) {
     });
 }
 
-function copy_row (uuid, dataset_uuid, title, version, first_name, last_name,
+function copy_row (uuid, goto_url, title, version, first_name, last_name,
                    email, group_name, request_date, modified_date, published_date) {
     let escaped_title = title.replaceAll ('"', '""');
-    let text = `=HYPERLINK("${window.location.origin}/review/goto-dataset/${dataset_uuid}"; "${escaped_title}")\t${version}\t${first_name} ${last_name}\t${email}\t${group_name}\t\t${request_date}\t${modified_date}\t${published_date}\n`;
+    let text = `=HYPERLINK("${window.location.origin}${goto_url}"; "${escaped_title}")\t${version}\t${first_name} ${last_name}\t${email}\t${group_name}\t\t${request_date}\t${modified_date}\t${published_date}\n`;
     navigator.clipboard.writeText(text);
     jQuery(`#copy-btn-${uuid}`)
         .removeClass("fa-copy")
@@ -100,7 +107,10 @@ function copy_to_clipboard_event (event) {
     review = event.data["review"];
     published_date = event.data["published_date"];
     version = event.data["version"];
-    copy_row (review.uuid, review.dataset_uuid, review.dataset_title,
+    let goto_url = (review.item_type == "physical-sample")
+        ? `/review/goto-physical-sample/${review.container_uuid}`
+        : `/review/goto-dataset/${review.dataset_uuid}`;
+    copy_row (review.uuid, goto_url, review.dataset_title,
               version, review.submitter_first_name, review.submitter_last_name,
               review.submitter_email, review.group_name, review.request_date,
                           review.modified_date, published_date);
@@ -125,13 +135,22 @@ function render_overview_table () {
             published_date = null;
             version = "new";
             reviewer_html = "";
+            let is_physical_sample = (review.item_type == "physical-sample");
             if (review.status == "approved") {
                 status = review_approved;
                 published_date = review.published_date;
-                title_html = `<a href="/datasets/${review.container_uuid}/${review.dataset_version}">${review.dataset_title}</a>`;
+                if (is_physical_sample) {
+                    title_html = `${review.dataset_title}`;
+                } else {
+                    title_html = `<a href="/datasets/${review.container_uuid}/${review.dataset_version}">${review.dataset_title}</a>`;
+                }
             }
             else {
-                title_html = `<a href="/review/goto-dataset/${review.dataset_uuid}">${review.dataset_title}</a>`;
+                if (is_physical_sample) {
+                    title_html = `<a href="/review/goto-physical-sample/${review.container_uuid}">${review.dataset_title}</a>`;
+                } else {
+                    title_html = `<a href="/review/goto-dataset/${review.dataset_uuid}">${review.dataset_title}</a>`;
+                }
                 if (review.status == "assigned") { status = review_assigned; }
                 else if (review.status == "rejected") { status = review_rejected; }
                 else { status = review_unassigned; }
@@ -155,7 +174,7 @@ function render_overview_table () {
             if (review.status == "approved" || review.status == "rejected") {
                 reviewer_html = `${review.reviewer_first_name} ${review.reviewer_last_name}`;
             } else {
-                reviewer_html = '<select class="reviewer-selector"><option value="" hidden>Unassigned</option>';
+                reviewer_html = `<select class="reviewer-selector" data-item-type="${or_empty(review.item_type)}" data-container-uuid="${or_empty(review.container_uuid)}"><option value="" hidden>Unassigned</option>`;
                 for (reviewer of reviewers) {
                     reviewer_html += `<option value="${review.dataset_uuid}:${reviewer.uuid}"`;
                     if (review.reviewer_email == reviewer.email) { reviewer_html += "selected"; }
