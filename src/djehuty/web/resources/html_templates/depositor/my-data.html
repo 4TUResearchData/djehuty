@@ -8,6 +8,8 @@
 #table-unpublished { display: none; }
 #table-published { display: none; }
 #table-review { display: none; }
+#table-deleted { display: none; }
+#table-deleted a.delete-permanently { color: #cc0000; }
 #add-new-dataset { margin: auto; }
 </style>
 <script nonce="{{nonce}}">
@@ -34,6 +36,15 @@ jQuery(document).ready(function () {
     });
     jQuery("#table-review").show();
     jQuery("#table-review-loader").remove();
+
+    if (jQuery("#table-deleted").length) {
+        jQuery("#table-deleted").DataTable({
+            columnDefs: [{ orderable: false, targets: 3 }],
+            order: [[2, 'desc']]
+        });
+        jQuery("#table-deleted").show();
+        jQuery("#table-deleted-loader").remove();
+    }
 });
 </script>
 {% endblock %}
@@ -129,6 +140,29 @@ jQuery(document).ready(function () {
         {%- if not article.has_draft %}<a href="/my/datasets/{{article.container_uuid}}/new-version-draft" class="fas fa-plus" title="Add new version"></a>{% endif %}
         <a href="/my/datasets/{{article.uuid}}/private_links" class="fas fa-link" title="Private links"></a>
       </td>
+    </tr>
+  {% endfor %}</tbody>
+</table>
+{%- endif %}
+{%- if deleted_datasets: %}
+<h2>Deleted</h2>
+<p>These drafts were deleted and are hidden from your other lists. Restore one to keep working on it, or delete it permanently.</p>
+<div id="table-deleted-loader" class="loader"></div>
+<table id="table-deleted" class="corporate-identity-table">
+  <thead>
+    <tr>
+      <th>Dataset</th>
+      <th>Type</th>
+      <th>Deleted&nbsp;at</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>{% for article in deleted_datasets: %}
+    <tr>
+      <td>{{article.title}}</td>
+      <td>{{article.defined_type_name | default("undefined", False)}}</td>
+      <td>{{article.deleted_date | truncate(10,False,'')}}</td>
+      <td>{% if not article.is_shared_with_me or (article.is_shared_with_me and article.is_supervisor) %}<a href="/my/datasets/{{article.container_uuid}}/restore" class="fas fa-sync" title="Restore this draft"></a>&nbsp;<a href="/my/datasets/{{article.container_uuid}}/delete-permanently" class="fas fa-trash-can delete-permanently" title="Delete permanently (cannot be undone)"></a>{% endif %}</td>
     </tr>
   {% endfor %}</tbody>
 </table>

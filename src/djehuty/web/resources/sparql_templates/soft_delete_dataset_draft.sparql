@@ -1,0 +1,23 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+DELETE {
+  GRAPH <{{state_graph}}> {
+    ?dataset   djht:is_deleted            ?is_deleted .
+    ?dataset   djht:deleted_date          ?deleted_date .
+  }
+}
+INSERT {
+  GRAPH <{{state_graph}}> {
+    ?dataset   djht:is_deleted            "true"^^xsd:boolean .
+    ?dataset   djht:deleted_date          "{{deleted_date}}"^^xsd:dateTime .
+  }
+}
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?dataset   rdf:type              djht:Dataset .
+    OPTIONAL { ?dataset djht:is_deleted   ?is_deleted . }
+    OPTIONAL { ?dataset djht:deleted_date ?deleted_date . }
+  }
+  FILTER (?dataset = <dataset:{{dataset_uuid}}>)
+}
+{% endblock %}
