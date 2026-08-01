@@ -200,8 +200,10 @@ class TestDeleteDataset:
         authenticated_page.wait_for_load_state("domcontentloaded")
         screenshot(authenticated_page, "after-delete-from-list")
 
-        # The unique title should not appear anymore
-        expect(authenticated_page.locator("body")).not_to_contain_text(unique_title)
+        expect(authenticated_page.locator("#table-deleted")).to_contain_text(unique_title)
+        drafts_table = authenticated_page.locator("#table-unpublished")
+        if drafts_table.count() > 0:
+            expect(drafts_table).not_to_contain_text(unique_title)
 
 
 @pytest.mark.dataset

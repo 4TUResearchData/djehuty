@@ -16,6 +16,7 @@ from pathlib import Path
 import pytest
 from playwright.sync_api import Page, expect
 
+from config import BASE_URL
 from helpers.dataset import (
     create_draft_dataset,
     get_container_uuid_from_url,
@@ -475,3 +476,41 @@ class TestVersionAccess:
 
         assert len(versions) >= 1
         assert any(v["version"] == 1 for v in versions)
+
+
+@pytest.mark.versioning
+@pytest.mark.dataset
+class TestNewVersionWithDeletedDraft:
+    """A soft-deleted draft still occupies the container's single draft slot."""
+
+    def test_soft_deleted_draft_blocks_second_new_version(
+        self, authenticated_page: Page, published_dataset: str, screenshot
+    ):
+        """Creating a new-version draft, soft-deleting it, then requesting
+        another must not create a second draft on the same container."""
+        container_uuid = published_dataset
+
+        # First new-version draft.
+        authenticated_page.goto(f"/my/datasets/{container_uuid}/new-version-draft")
+        authenticated_page.wait_for_url("**/my/datasets/*/edit")
+        authenticated_page.wait_for_load_state("domcontentloaded")
+
+        # Soft-delete it.
+        DatasetEditorPage(authenticated_page).delete()
+
+        # Requesting another new version must be refused, not create a second draft.
+        authenticated_page.goto(f"/my/datasets/{container_uuid}/new-version-draft")
+        authenticated_page.wait_for_load_state("domcontentloaded")
+        screenshot(authenticated_page, "new-version-blocked-by-deleted-draft")
+        expect(authenticated_page).to_have_url(f"{BASE_URL}/my/datasets")
+
+        # The container's deleted draft is listed exactly once, and it has
+        # no active draft.
+        deleted_table = authenticated_page.locator("#table-deleted")
+        expect(deleted_table).to_be_visible()
+        restore_link = f'a[href="/my/datasets/{container_uuid}/restore"]'
+        expect(deleted_table.locator(f"tbody tr:has({restore_link})")).to_have_count(1)
+        drafts_table = authenticated_page.locator("#table-unpublished")
+        if drafts_table.count() > 0:
+            edit_link = f'a[href="/my/datasets/{container_uuid}/edit"]'
+            expect(drafts_table.locator(edit_link)).to_have_count(0)
