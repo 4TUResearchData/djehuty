@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+{% block body %}
+<h1>Delete dataset permanently</h1>
+{%- if error %}
+<p class="message-box failure">{{error}}</p>
+{%- endif %}
+<p>You are about to permanently delete the draft
+  <strong>{{dataset.title}}</strong>.</p>
+<p><strong>This cannot be undone.</strong> The metadata will be removed and
+  cannot be recovered. If you only want to hide this draft, go back and leave
+  it in the Deleted list instead, where it can still be restored.</p>
+<form method="POST" action="/my/datasets/{{dataset.container_uuid}}/delete-permanently">
+  <p>
+    <input type="checkbox" id="confirm" name="confirm" value="yes" />
+    <label for="confirm">I understand this permanently deletes the draft and cannot be undone.</label>
+  </p>
+  <div class="center">
+    <a href="/my/datasets" class="button corporate-identity-standard-button">Cancel</a>
+    <button type="submit" class="button corporate-identity-alert-button">Delete permanently</button>
+  </div>
+</form>
+{% endblock %}
