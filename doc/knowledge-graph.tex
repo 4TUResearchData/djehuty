@@ -96,6 +96,20 @@
   the \i{view}, \i{download}, \i{share} and \i{citation} counts are stored
   in a version-unspecific way.
 
+\subsection{Soft-deleted drafts}
+
+  Deleting a draft dataset does not remove its triples.  Instead, the draft
+  is marked with \code{djht:is\_deleted} set to \code{true} and a
+  \code{djht:deleted\_date} timestamp, while its link to the
+  \code{djht:DatasetContainer} is kept.  A soft-deleted draft is hidden from
+  the depositor's \i{Drafts}, \i{Under review}, and \i{Published} lists and
+  appears under a separate \i{Deleted} list, from where it can be restored
+  (clearing \code{djht:is\_deleted}) or permanently deleted (removing the
+  triples as before).  The absence of \code{djht:is\_deleted} is treated as
+  ``not deleted'', so drafts created before this property existed need no
+  migration.  File contents on the filesystem are not affected by soft
+  delete, restore, or permanent delete.
+
 \section{Collections}
 
   Collections provide a way to group \code{djht:Dataset} objects.
