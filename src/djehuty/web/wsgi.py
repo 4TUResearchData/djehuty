@@ -51,6 +51,7 @@ from djehuty.utils.convenience import (
     self_or_value_or_none,
     split_author_name,
     split_string,
+    strip_parenthesized_suffix,
     value_or,
     value_or_none,
 )
@@ -1502,7 +1503,7 @@ class WebServer:
             record["email"]      = attributes[config.saml_attribute_email][0]
             record["first_name"] = attributes[config.saml_attribute_first_name][0]
             record["last_name"]  = attributes[config.saml_attribute_last_name][0]
-            record["common_name"] = attributes[config.saml_attribute_common_name][0]
+            record["common_name"] = strip_parenthesized_suffix (attributes[config.saml_attribute_common_name][0])
             record["domain"] = None
             record["group_uuid"] = None
 
