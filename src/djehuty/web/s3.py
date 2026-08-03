@@ -70,7 +70,6 @@ class S3DownloadStreamer:
         self.offset = offset
         self.end = end
         self.log = logging.getLogger (__name__)
-        self.chunk_size = chunk_size
         self.original_filename = name
         self.content_length = 0
         self.total_length = 0
@@ -94,12 +93,23 @@ class S3DownloadStreamer:
             secret_key=self.secret_key
         )
         try:
-            self.file_object   = self.client.get_object (Bucket = self.bucket,
-                                                         Key    = self.filename,
-                                                         Range  = self.__range_header ())
+            request_arguments = { "Bucket": self.bucket,
+                                  "Key":    self.filename,
+                                  "Range":  self.__range_header () }
+            if self.etag is not None:
+                request_arguments["IfMatch"] = self.etag
+            self.file_object   = self.client.get_object (**request_arguments)
             self.file_contents = self.file_object["Body"]
-        except (ClientError, KeyError) as error:
+        except ClientError as error:
+            if error.response.get ("Error", {}).get ("Code") == "PreconditionFailed":
+                self.log.error ("Object s3://%s/%s changed during download.",
+                                self.bucket, self.filename)
+            else:
+                self.log.error ("An S3 download stream error occurred: %s", error)
+            return
+        except KeyError as error:
             self.log.error ("An S3 download stream error occurred: %s", error)
+            return
 
         try:
             http_headers = self.file_object["ResponseMetadata"]["HTTPHeaders"]
@@ -155,14 +165,26 @@ class S3DownloadStreamer:
         self.client = None
 
     def reset (self, offset=DEFAULT_OFFSET):
-        """Resets the S3 connection and attempt to continue reading at OFFSET."""
+        """Resets the S3 connection and attempt to continue reading at OFFSET.
+
+        The previously seen ETag is kept so the reconnect is guarded with
+        'IfMatch': serving bytes from a changed object corrupts the download.
+        """
+        etag = self.etag
         self.close ()
+        self.etag = etag
         self.offset = offset
         self.connect ()
 
     def reset_range (self, offset=DEFAULT_OFFSET, end=None):
-        """Resets the connection to read the inclusive byte range [OFFSET, END]."""
+        """Resets the connection to read the inclusive byte range [OFFSET, END].
+
+        The previously seen ETag is kept so the reconnect is guarded with
+        'IfMatch': serving bytes from a changed object corrupts the download.
+        """
+        etag = self.etag
         self.close ()
+        self.etag = etag
         self.offset = offset
         self.end = end
         self.connect ()
