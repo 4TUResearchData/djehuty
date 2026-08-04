@@ -26,6 +26,7 @@ from PIL import Image, ImageSequence, UnidentifiedImageError
 from rdflib import URIRef
 from requests.utils import quote, unquote
 from werkzeug.exceptions import BadRequest, HTTPException, NotFound
+from werkzeug.http import http_date, parse_if_range_header, parse_range_header, unquote_etag
 from werkzeug.middleware.shared_data import SharedDataMiddleware
 from werkzeug.routing import Map, Rule
 from werkzeug.utils import redirect, send_file
@@ -87,6 +88,37 @@ def R (uri_path, endpoint):  # pylint: disable=invalid-name
     entry-point procedure.
     """
     return Rule (uri_path, endpoint=endpoint)
+
+def resolve_byte_range (range_header, if_range_header, etag, total_length):
+    """Decides how to answer a download request that may contain a 'Range'.
+
+    Returns ("full", None) to serve the entire file, ("partial", (start, stop))
+    to serve the half-open byte interval START to STOP, or
+    ("unsatisfiable", None) to refuse with a 416.
+
+    Malformed and multi-interval 'Range' headers are ignored per RFC 9110 by
+    serving the entire file.  When 'If-Range' is present, a partial response
+    is only produced when it carries an entity-tag matching ETAG; date-based
+    validators fall back to serving the entire file, which is always correct.
+    """
+    if total_length <= 0 or range_header is None:
+        return ("full", None)
+
+    requested = parse_range_header (range_header)
+    if requested is None or len (requested.ranges) != 1:
+        return ("full", None)
+
+    if if_range_header:
+        current   = unquote_etag (etag)[0] if etag else None
+        validator = parse_if_range_header (if_range_header)
+        if validator.etag is None or current is None or validator.etag != current:
+            return ("full", None)
+
+    range_tuple = requested.range_for_length (total_length)
+    if range_tuple is None:
+        return ("unsatisfiable", None)
+
+    return ("partial", range_tuple)
 
 class WebServer:
     """This class implements the HTTP interface for users."""
@@ -4768,6 +4800,68 @@ class WebServer:
         else:
             self.__log_event (request, container_uuid, "dataset", "download")
 
+    def __s3_validator_headers (self, response, streamer):
+        """Attaches the resume-related headers so clients can safely continue."""
+        response.headers["Accept-Ranges"] = "bytes"
+        if streamer.etag is not None:
+            response.headers["ETag"] = streamer.etag
+        if streamer.last_modified is not None:
+            response.headers["Last-Modified"] = http_date (datetime (*streamer.last_modified))
+        return response
+
+    def __s3_full_response (self, streamer, disposition):
+        """Serves the entire S3 object with a 200."""
+        response = self.response (streamer.iterator (),
+                                  mimetype="application/octet-stream")
+        if streamer.content_length > 0:
+            response.headers["Content-Length"] = streamer.content_length
+        response.headers["Content-disposition"] = disposition
+        return self.__s3_validator_headers (response, streamer)
+
+    def __s3_unsatisfiable_range_response (self, streamer):
+        """Refuses a 'Range' beyond the end of the S3 object with a 416."""
+        total = streamer.total_length
+        streamer.close ()
+        response = self.response ("", mimetype="application/octet-stream")
+        response.status_code = 416
+        response.headers["Content-Range"] = f"bytes */{total}"
+        response.headers["Accept-Ranges"] = "bytes"
+        return response
+
+    def __s3_partial_content_response (self, streamer, start, stop, disposition):
+        """Serves the half-open byte range [START, STOP) of the S3 object with a 206."""
+        streamer.reset_range (offset=start, end=stop - 1)
+        if streamer.file_contents is None:
+            return self.error_500 (f"S3 ranged read failed for {streamer.filename}.")
+
+        total    = streamer.total_length
+        response = self.response (streamer.iterator (),
+                                  mimetype="application/octet-stream")
+        response.status_code = 206
+        response.headers["Content-Range"] = f"bytes {start}-{stop - 1}/{total}"
+        response.headers["Content-Length"] = stop - start
+        response.headers["Content-disposition"] = disposition
+        return self.__s3_validator_headers (response, streamer)
+
+    def __s3_download_response (self, request, streamer, name):
+        """Builds a (possibly ranged) download response for an S3-backed file.
+
+        Honours the client's 'Range' and 'If-Range' headers so interrupted
+        downloads can be resumed without corruption.
+        """
+        disposition = f"filename*=UTF-8''{quote (name)}"
+        streamer.connect ()
+        decision, span = resolve_byte_range (request.headers.get ("Range"),
+                                             request.headers.get ("If-Range"),
+                                             streamer.etag,
+                                             streamer.total_length)
+        if decision == "unsatisfiable":
+            return self.__s3_unsatisfiable_range_response (streamer)
+        if decision == "partial":
+            return self.__s3_partial_content_response (streamer, span[0], span[1],
+                                                       disposition)
+        return self.__s3_full_response (streamer, disposition)
+
     def ui_download_file (self, request, dataset_id, file_id):
         """Implements /file/<id>/<fid>."""
         dataset, metadata = self.__accessible_files_for_dataset (request, dataset_id, file_id)
@@ -4797,13 +4891,7 @@ class WebServer:
 
             self.__log_download_event (request, dataset["container_uuid"])
             if isinstance (file_path, s3.S3DownloadStreamer):
-                file_path.connect ()
-                response = self.response (file_path.iterator(), mimetype="application/octet-stream")
-                filename = quote(metadata["name"])
-                if file_path.content_length > 0:
-                    response.headers["Content-Length"] = file_path.content_length
-                response.headers["Content-disposition"] = f"filename*=UTF-8''{filename}"
-                return response
+                return self.__s3_download_response (request, file_path, metadata["name"])
             return send_file (file_path,
                               request.environ,
                               "application/octet-stream",
