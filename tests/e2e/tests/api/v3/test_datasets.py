@@ -253,14 +253,14 @@ class TestV3DatasetWorkflowApi:
         assert response.status in (401, 403)
 
     def test_submit_unprepared_returns_error(self, draft_dataset, save_response):
-        """Submitting an unprepared draft → 4xx (missing required fields)."""
+        """Submitting an unprepared draft → 400 (validation error list)."""
         page, container_uuid = draft_dataset
         response = page.request.put(
             f"/v3/datasets/{container_uuid}/submit-for-review",
             data={},
         )
         save_response(response, "v3-submit-unprepared")
-        assert 400 <= response.status < 600
+        assert response.status == 400
 
     def test_publish_requires_auth(self, page: Page, save_response):
         """POST .../publish without auth → 401/403."""
@@ -346,13 +346,13 @@ class TestV3DatasetAuthorsApi:
         data = response.json()
         assert isinstance(data, list)
 
-    def test_delete_v3_author_missing(self, draft_dataset, save_response):
-        """DELETE /v3/datasets/<uuid>/authors/<fake> → 4xx."""
+    def test_delete_v3_author_unsupported(self, draft_dataset, save_response):
+        """DELETE /v3/datasets/<uuid>/authors/<fake> → 405 (route is GET-only)."""
         page, container_uuid = draft_dataset
         fake = str(uuid.uuid4())
         response = page.request.delete(f"/v3/datasets/{container_uuid}/authors/{fake}")
         save_response(response, "v3-dataset-author-delete-missing")
-        assert 400 <= response.status < 600
+        assert response.status == 405
 
 
 class TestV3DatasetReorderAuthorsApi:
@@ -368,15 +368,15 @@ class TestV3DatasetReorderAuthorsApi:
         save_response(response, "v3-dataset-reorder-no-auth")
         assert response.status in (401, 403)
 
-    def test_reorder_empty(self, draft_dataset, save_response):
-        """POST with empty order → 2xx or 4xx (depends on validator)."""
+    def test_reorder_rejects_malformed_body(self, draft_dataset, save_response):
+        """POST without `direction`/`author` → 400 (the handler requires both)."""
         page, container_uuid = draft_dataset
         response = page.request.post(
             f"/v3/datasets/{container_uuid}/reorder-authors",
             data={"order": []},
         )
-        save_response(response, "v3-dataset-reorder-empty")
-        assert response.status in (200, 204, 400)
+        save_response(response, "v3-dataset-reorder-malformed")
+        assert response.status == 400
 
 
 # ---------------------------------------------------------------------------
@@ -405,16 +405,16 @@ class TestV3DatasetCollaboratorsApi:
         assert isinstance(data, list)
 
     def test_delete_collaborator_missing(self, draft_dataset, save_response):
-        """DELETE .../collaborators/<fake> → 204 (idempotent DELETE) or 4xx."""
+        """DELETE .../collaborators/<fake> → 204 (idempotent DELETE)."""
         page, container_uuid = draft_dataset
         fake = str(uuid.uuid4())
         response = page.request.delete(
             f"/v3/datasets/{container_uuid}/collaborators/{fake}"
         )
         save_response(response, "v3-collaborator-delete-missing")
-        # Idempotent DELETE is REST-idiomatic; 204 on a missing collaborator
-        # is acceptable.
-        assert response.status == 204 or 400 <= response.status < 600
+        # The SPARQL delete succeeds whether or not the collaborator exists,
+        # so removing a missing collaborator is an idempotent 204.
+        assert response.status == 204
 
 
 # ---------------------------------------------------------------------------
@@ -428,9 +428,12 @@ class TestV3PublishedDatasetsApi:
     def test_published_dataset_in_v3_listing(self, published_dataset, save_response):
         """GET /v3/datasets includes the published dataset."""
         page, container_uuid = published_dataset
-        response = page.request.get("/v3/datasets?limit=50")
+        response = page.request.get(
+            "/v3/datasets?limit=50&order=published_date&order_direction=desc"
+        )
         save_response(response, "api-v3-list-published")
         assert response.status == 200
         data = response.json()
         assert isinstance(data, list)
-        assert len(data) >= 1
+        uuids = [d.get("uuid") or d.get("container_uuid", "") for d in data]
+        assert any(container_uuid in u for u in uuids)

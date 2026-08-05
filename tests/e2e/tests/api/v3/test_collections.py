@@ -88,17 +88,15 @@ class TestV3CollectionAuthorsReorderApi:
         save_response(response, "v3-collection-reorder-no-auth")
         assert response.status in (401, 403)
 
-    def test_reorder_empty(self, draft_collection, save_response):
-        """POST with empty order array → 2xx/4xx (no-op on a draft with no authors)."""
+    def test_reorder_rejects_malformed_body(self, draft_collection, save_response):
+        """POST without `direction`/`author` → 400 (the handler requires both)."""
         page, container_uuid = draft_collection
         response = page.request.post(
             f"/v3/collections/{container_uuid}/reorder-authors",
             data={"order": []},
         )
-        save_response(response, "v3-collection-reorder-empty")
-        # Either accepted (200/204) or validation error (400) — both are
-        # legitimate handler responses for an empty order on a draft.
-        assert response.status in (200, 204, 400)
+        save_response(response, "v3-collection-reorder-malformed")
+        assert response.status == 400
 
 
 class TestV3CollectionPublishApi:
@@ -117,13 +115,13 @@ class TestV3CollectionPublishApi:
     def test_publish_unprepared_collection_returns_error(
         self, draft_collection, save_response
     ):
-        """A draft without required fields cannot be published → 4xx."""
+        """A draft without required fields cannot be published → 400."""
         page, container_uuid = draft_collection
         response = page.request.post(
             f"/v3/collections/{container_uuid}/publish",
             data={},
         )
         save_response(response, "v3-collection-publish-unprepared")
-        # 400/403/404 are all valid — exact code depends on which validation
-        # step fails first.
-        assert response.status in (400, 403, 404, 500)
+        # The draft exists and is owned by the caller, so the handler reaches
+        # strict metadata validation and returns the 400 error list.
+        assert response.status == 400
