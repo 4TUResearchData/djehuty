@@ -143,7 +143,11 @@ def draft_dataset(authenticated_page: Page):
 
 @pytest.fixture()
 def published_dataset(authenticated_page: Page, test_file: str):
-    """Create and publish a dataset; yield (page, container_uuid)."""
+    """Create and publish a dataset; return (page, container_uuid).
+
+    No teardown: published datasets cannot be deleted, so every call leaves
+    a published dataset behind in the instance.
+    """
     url = create_draft_dataset(authenticated_page)
     container_uuid = get_container_uuid_from_url(url)
     editor = DatasetEditorPage(authenticated_page)
@@ -198,7 +202,11 @@ def draft_collection(authenticated_page: Page):
 
 @pytest.fixture()
 def published_collection(authenticated_page: Page):
-    """Create and publish a collection; yield (page, container_uuid)."""
+    """Create and publish a collection; return (page, container_uuid).
+
+    No teardown: published collections cannot be deleted, so every call
+    leaves a published collection behind in the instance.
+    """
     url = create_draft_collection(authenticated_page)
     container_uuid = get_collection_uuid_from_url(url)
     fill_required_fields_and_publish_collection(
