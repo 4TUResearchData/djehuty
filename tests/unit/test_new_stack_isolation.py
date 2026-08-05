@@ -24,16 +24,20 @@ NEW_STACK_MODULES = ("djehuty.route_groups", "djehuty.application", "djehuty.dis
 
 
 def _new_stack_files():
-    files = []
+    files = {}
     for package in NEW_STACK_PACKAGES:
         pkg = importlib.import_module(package)
         for location in pkg.__path__:
-            files.extend(Path(location).rglob("*.py"))
+            root = Path(location)
+            for path in root.rglob("*.py"):
+                rel = path.relative_to(root).with_suffix("")
+                parts = [p for p in rel.parts if p != "__init__"]
+                files[path] = ".".join((package, *parts[:-1])) if parts else package
     for module in NEW_STACK_MODULES:
         spec = importlib.util.find_spec(module)
         assert spec and spec.origin, f"cannot locate module {module}"
-        files.append(Path(spec.origin))
-    return sorted(set(files))
+        files[Path(spec.origin)] = module.rsplit(".", 1)[0]
+    return sorted(files.items())
 
 
 def _imported_modules(tree: ast.AST, package: str) -> set:
@@ -55,10 +59,13 @@ def _imported_modules(tree: ast.AST, package: str) -> set:
     return modules
 
 
-@pytest.mark.parametrize("path", _new_stack_files(), ids=lambda p: p.name)
-def test_new_stack_file_does_not_import_legacy_wsgi(path: Path):
+def _param_id(value):
+    return value.name if isinstance(value, Path) else value
+
+
+@pytest.mark.parametrize("path,package", _new_stack_files(), ids=_param_id)
+def test_new_stack_file_does_not_import_legacy_wsgi(path: Path, package: str):
     tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
-    package = dotted.rsplit(".", 1)[0]
     imported = _imported_modules(tree, package)
     offending = {
         m for m in imported if m == LEGACY_WSGI_MODULE or m.startswith(LEGACY_WSGI_MODULE + ".")

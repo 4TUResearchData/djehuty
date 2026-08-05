@@ -97,7 +97,7 @@ def create_collection(
             }
         )
     except validator.ValidationException as error:
-        raise InvalidInputError(error.message, error.code)
+        raise InvalidInputError(error.message, error.code) from error
 
 
 @router.delete(
@@ -217,7 +217,7 @@ def update_private_collection(
             categories=validator.array_value(body, "categories", False),
         )
     except validator.ValidationException as error:
-        raise InvalidInputError(error.message, error.code)
+        raise InvalidInputError(error.message, error.code) from error
 
     if result is None:
         raise InvalidInputError("Failed to update collection.", "UpdateFailed")

@@ -135,9 +135,7 @@ def test_put_replaces_the_article_list():
 
 def test_post_without_articles_field_is_a_400():
     client, db = _client()
-    response = client.post(
-        f"/v2/account/collections/{DRAFT_UUID}/articles", json={}, headers=AUTH
-    )
+    response = client.post(f"/v2/account/collections/{DRAFT_UUID}/articles", json={}, headers=AUTH)
     assert response.status_code == 400
     assert response.json()["code"] == "NoArticlesField"
     assert db.updated is None
@@ -173,9 +171,7 @@ def test_absent_paging_stays_unbounded():
 
 def test_mixing_page_and_limit_is_a_400():
     client, db = _client()
-    response = client.get(
-        "/v2/account/collections", params={"page": 1, "limit": 5}, headers=AUTH
-    )
+    response = client.get("/v2/account/collections", params={"page": 1, "limit": 5}, headers=AUTH)
     assert response.status_code == 400
     assert response.json()["code"] == "InvalidPagingOptions"
     assert db.collection_calls == []
@@ -210,12 +206,12 @@ def test_post_categories_without_parameter_is_a_400():
 
 def test_draft_collection_authors_and_funding_are_visible():
     client, db = _client()
-    assert client.get(
-        f"/v2/account/collections/{DRAFT_UUID}/authors", headers=AUTH
-    ).status_code == 200
-    assert client.get(
-        f"/v2/account/collections/{DRAFT_UUID}/funding", headers=AUTH
-    ).status_code == 200
+    assert (
+        client.get(f"/v2/account/collections/{DRAFT_UUID}/authors", headers=AUTH).status_code == 200
+    )
+    assert (
+        client.get(f"/v2/account/collections/{DRAFT_UUID}/funding", headers=AUTH).status_code == 200
+    )
     assert db.author_calls[-1]["is_published"] is False
     assert db.funding_calls[-1]["is_published"] is False
     assert db.funding_calls[-1]["account_uuid"] == "acct-1"
@@ -233,9 +229,7 @@ class _MembersDb(_Db):
 
 def test_delete_collection_author_rewrites_the_author_list():
     client, db = _client(_MembersDb())
-    response = client.delete(
-        f"/v2/account/collections/{DRAFT_UUID}/authors/au-1", headers=AUTH
-    )
+    response = client.delete(f"/v2/account/collections/{DRAFT_UUID}/authors/au-1", headers=AUTH)
     assert response.status_code == 204
     item_uuid, account_uuid, uris, predicate = db.updated
     assert item_uuid == "col-1"
@@ -246,9 +240,7 @@ def test_delete_collection_author_rewrites_the_author_list():
 
 def test_delete_collection_funding_rewrites_the_funding_list():
     client, db = _client(_MembersDb())
-    response = client.delete(
-        f"/v2/account/collections/{DRAFT_UUID}/funding/fu-1", headers=AUTH
-    )
+    response = client.delete(f"/v2/account/collections/{DRAFT_UUID}/funding/fu-1", headers=AUTH)
     assert response.status_code == 204
     item_uuid, account_uuid, uris, predicate = db.updated
     assert predicate == "funding_list"
@@ -257,18 +249,14 @@ def test_delete_collection_funding_rewrites_the_funding_list():
 
 def test_delete_collection_funding_without_any_funding_is_a_404():
     client, db = _client()
-    response = client.delete(
-        f"/v2/account/collections/{DRAFT_UUID}/funding/fu-1", headers=AUTH
-    )
+    response = client.delete(f"/v2/account/collections/{DRAFT_UUID}/funding/fu-1", headers=AUTH)
     assert response.status_code == 404
     assert db.updated is None
 
 
 def test_delete_collection_category_removes_by_category_uri():
     client, db = _client()
-    response = client.delete(
-        f"/v2/account/collections/{DRAFT_UUID}/categories/13431", headers=AUTH
-    )
+    response = client.delete(f"/v2/account/collections/{DRAFT_UUID}/categories/13431", headers=AUTH)
     assert response.status_code == 204
     subject, predicate, value = db.deleted
     assert subject == "collection:col-1"

@@ -58,11 +58,12 @@ def upsert_article_authors(
         if "uuid" in author_data and author_data["uuid"]:
             new_author_uuids.append(author_data["uuid"])
         else:
+            first_name = author_data.get("first_name", "")
+            last_name = author_data.get("last_name", "")
             author_uuid = db.insert_author(
-                first_name=author_data.get("first_name", ""),
-                last_name=author_data.get("last_name", ""),
-                full_name=author_data.get("name")
-                or f"{author_data.get('first_name', '')} {author_data.get('last_name', '')}".strip(),
+                first_name=first_name,
+                last_name=last_name,
+                full_name=author_data.get("name") or f"{first_name} {last_name}".strip(),
                 email=author_data.get("email"),
                 orcid_id=author_data.get("orcid_id"),
             )
