@@ -66,7 +66,8 @@ _ARTICLE_DETAIL_EXAMPLE = {
     "defined_type": 9,
     "defined_type_name": "software",
     "group_id": 28586,
-    "description": "<p>This dataset contains the source code of the 4TU.ResearchData repository (djehuty).</p>",
+    "description": "<p>This dataset contains the source code of the "
+    "4TU.ResearchData repository (djehuty).</p>",
     "license": {
         "value": 1,
         "name": "CC BY 4.0",
@@ -247,7 +248,8 @@ def search_articles(
 @router.get(
     "/articles/{dataset_id}",
     summary="Get article details",
-    description="Returns full details for a published article, including authors, files, categories, and funding.",
+    description="Returns full details for a published article, including "
+    "authors, files, categories, and funding.",
     responses={
         200: _ok("Article details", _ARTICLE_DETAIL_EXAMPLE),
         404: {"model": ErrorResponse, "description": "Article not found"},

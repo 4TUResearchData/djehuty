@@ -21,5 +21,5 @@ def _resolve_private_dataset(db, dataset_id, account_uuid):
                 container_uuid=str(dataset_id), account_uuid=account_uuid, is_published=False
             )[0]
     except (IndexError, AttributeError):
-        raise NotFoundError()
+        raise NotFoundError() from None
     return dataset

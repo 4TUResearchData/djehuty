@@ -194,9 +194,7 @@ def test_create_persists_the_list_fields():
 
 def test_delete_single_file_invalidates_both_storage_caches():
     client, db = _client()
-    response = client.delete(
-        f"/v2/account/articles/{DATASET_UUID}/files/{'f' * 36}", headers=AUTH
-    )
+    response = client.delete(f"/v2/account/articles/{DATASET_UUID}/files/{'f' * 36}", headers=AUTH)
     assert response.status_code == 204
     assert "acct-1_storage" in db.cache.invalidated
     assert "ds-1_dataset_storage" in db.cache.invalidated

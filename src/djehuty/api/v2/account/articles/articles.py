@@ -173,7 +173,7 @@ def create_article(
             }
         )
     except validator.ValidationException as error:
-        raise InvalidInputError(error.message, error.code)
+        raise InvalidInputError(error.message, error.code) from error
 
 
 @router.post(
@@ -370,7 +370,7 @@ def update_article(
 
         return Response(status_code=205)
     except validator.ValidationException as error:
-        raise InvalidInputError(error.message, error.code)
+        raise InvalidInputError(error.message, error.code) from error
 
 
 @router.delete(
