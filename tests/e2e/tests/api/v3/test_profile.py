@@ -29,17 +29,28 @@ class TestV3ProfileApi:
         assert response.status in (401, 403)
 
     def test_update_profile(self, authenticated_page: Page, save_response):
-        """PUT /v3/profile with valid fields → 204."""
-        response = authenticated_page.request.put(
-            "/v3/profile",
-            data={
-                "first_name": "API",
-                "last_name": "Tester",
-                "location": "Delft",
-            },
-        )
-        save_response(response, "v3-profile-update")
-        assert response.status == 204
+        """PUT /v3/profile with valid fields → 204, then restore the account."""
+        original = authenticated_page.request.get("/v2/account").json()
+        try:
+            response = authenticated_page.request.put(
+                "/v3/profile",
+                data={
+                    "first_name": "API",
+                    "last_name": "Tester",
+                    "location": "Delft",
+                },
+            )
+            save_response(response, "v3-profile-update")
+            assert response.status == 204
+        finally:
+            # Only the name fields can be restored: no endpoint returns `location`.
+            authenticated_page.request.put(
+                "/v3/profile",
+                data={
+                    "first_name": original.get("first_name") or "",
+                    "last_name": original.get("last_name") or "",
+                },
+            )
 
 
 class TestV3ProfileCategoriesApi:
