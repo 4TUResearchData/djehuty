@@ -68,11 +68,20 @@ class TestV3TagsSearchApi:
 
 
 class TestV3FileApi:
-    """GET /v3/file/<id> — file metadata by ID."""
+    """GET /v3/file/<id> — file metadata by ID (auth required)."""
 
-    def test_file_nonexistent_returns_404(self, page: Page, save_response):
-        """GET /v3/file/<fake-uuid> → 403/404."""
+    def test_file_requires_auth(self, page: Page, save_response):
+        """GET /v3/file/<fake> without auth → 403 (auth is checked first)."""
         fake_uuid = str(uuid.uuid4())
         response = page.request.get(f"/v3/file/{fake_uuid}")
+        save_response(response, "v3-file-no-auth")
+        assert response.status == 403
+
+    def test_file_nonexistent_returns_404(
+        self, authenticated_page: Page, save_response
+    ):
+        """GET /v3/file/<fake-uuid> authenticated → 404."""
+        fake_uuid = str(uuid.uuid4())
+        response = authenticated_page.request.get(f"/v3/file/{fake_uuid}")
         save_response(response, "v3-file-404")
-        assert response.status in (403, 404)
+        assert response.status == 404

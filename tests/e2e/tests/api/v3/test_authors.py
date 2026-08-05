@@ -45,7 +45,7 @@ class TestV3AccountsSearchApi:
             data = response.json()
             assert isinstance(data, list)
 
-    def test_accounts_search_rejects_get(self, page: Page, save_response):
+    def test_accounts_search_get_requires_auth(self, page: Page, save_response):
         """GET /v3/accounts/search unauthenticated → 403 (auth checked first)."""
         response = page.request.get("/v3/accounts/search")
         save_response(response, "v3-accounts-search-get-rejected")
@@ -55,13 +55,20 @@ class TestV3AccountsSearchApi:
 
 
 class TestV3AuthorDetailsApi:
-    """GET /v3/authors/<uuid> — author by UUID."""
+    """GET /v3/authors/<uuid> — author by UUID (auth required)."""
 
-    def test_nonexistent_author_returns_404(self, page: Page, save_response):
-        """GET /v3/authors/<fake> → 404."""
+    def test_author_requires_auth(self, page: Page, save_response):
+        """GET /v3/authors/<fake> without auth → 403 (auth is checked first)."""
         fake_uuid = str(uuid.uuid4())
         response = page.request.get(f"/v3/authors/{fake_uuid}")
+        save_response(response, "v3-author-no-auth")
+        assert response.status == 403
+
+    def test_nonexistent_author_returns_404(
+        self, authenticated_page: Page, save_response
+    ):
+        """GET /v3/authors/<fake> authenticated → 404."""
+        fake_uuid = str(uuid.uuid4())
+        response = authenticated_page.request.get(f"/v3/authors/{fake_uuid}")
         save_response(response, "v3-author-404")
-        # AS-IS: returns 403 for missing author (hides existence). Accept both —
-        # the new version may switch to 404 for consistency with other endpoints.
-        assert response.status in (403, 404)
+        assert response.status == 404
