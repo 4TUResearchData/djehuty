@@ -102,3 +102,8 @@ select = [
     "B"
 ]
 
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI's dependency-injection idiom: Depends/Query/Body in defaults are
+# resolved per-request by the framework, never shared mutable state.
+extend-immutable-calls = ["fastapi.Depends", "fastapi.Query", "fastapi.Body"]
+

@@ -9,10 +9,10 @@ class Timeline(BaseModel):
     """Publication timeline for datasets and collections."""
 
     posted: str | None = None
-    firstOnline: str | None = Field(None, alias="firstOnline")
+    first_online: str | None = Field(None, alias="firstOnline")
     revision: str | None = None
     submission: str | None = None
-    publisherPublication: str | None = None
+    publisher_publication: str | None = Field(None, alias="publisherPublication")
 
     model_config = {
         "populate_by_name": True,

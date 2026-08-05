@@ -98,9 +98,9 @@ def upsert_collection_articles(
             db.cache.invalidate_by_prefix("datasets")
             return Response(status_code=205)
     except KeyError:
-        raise InvalidInputError("Expected an array for 'articles'.", "NoArticlesField")
+        raise InvalidInputError("Expected an array for 'articles'.", "NoArticlesField") from None
     except validator.ValidationException as error:
-        raise InvalidInputError(error.message, error.code)
+        raise InvalidInputError(error.message, error.code) from error
     except (IndexError, TypeError):
         pass
 
