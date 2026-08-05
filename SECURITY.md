@@ -3,7 +3,7 @@
 ## Reporting a Vulnerability
 
 If you discover a security vulnerability in djehuty, please report it
-**privately** by emailing [djehuty@4tu.nl](mailto:djehuty@4tu.nl).
+**privately** by emailing [security@djehuty.4tu.nl](mailto:security@djehuty.4tu.nl).
 
 **Please do not open a public issue for security vulnerabilities.**
 

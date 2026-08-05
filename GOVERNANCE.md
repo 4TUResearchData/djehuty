@@ -141,8 +141,8 @@ to maintain a welcoming and inclusive environment.
 
 ## Contact information
 - Core maintainer: g.kuhn@tudelft.nl
-- Governance questions: djehuty@4tu.nl
-- Security issues: djehuty@4tu.nl
+- Governance questions: info@djehuty.4tu.nl
+- Security issues: security@djehuty.4tu.nl
 
 Djehuty governance is reviewed periodically and will be improved with the involvement of our community members.
 

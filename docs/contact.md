@@ -8,13 +8,13 @@ for news, events, opportunities and announcements regarding `djehuty` and 4TU.Re
 ## General inquiries
 
 For questions about the project or requests, e-mail us at
-[djehuty@4tu.nl](mailto:djehuty@4tu.nl).
+[info@djehuty.4tu.nl](mailto:info@djehuty.4tu.nl).
 
 ## Reporting security vulnerabilities
 
 For security-related matters, please take a look at the
 [security policy](https://github.com/4TUResearchData/djehuty?tab=security-ov-file#readme)
-document and e-mail us at [djehuty@4tu.nl](mailto:djehuty@4tu.nl).
+document and e-mail us at [security@djehuty.4tu.nl](mailto:security@djehuty.4tu.nl).
 
 ## Contact the team
 
@@ -31,4 +31,4 @@ Software Engineer @ TU Delft
 Senior Software Engineer @ TU Delft
 
 **For general questions about 4TU.ResearchData** :
-[researchdata@4tu.nl](mailto:researchdata@4tu.nl)
+[info@djehuty.4tu.nl](mailto:info@djehuty.4tu.nl)

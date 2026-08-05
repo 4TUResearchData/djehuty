@@ -156,6 +156,7 @@ This runs `ruff check` (bugs, style errors, import sorting) and `ruff format --c
 
 ---
 ### Contact information
+- **General**: info@djehuty.4tu.nl
 - **Maintainers**: a.e.wilczynska@tudelft.nl, g.kuhn@tudelft.nl, k.f.deAraujo@tudelft.nl
-- **Security issues**: djehuty@4tu.nl
+- **Security issues**: security@djehuty.4tu.nl
 
