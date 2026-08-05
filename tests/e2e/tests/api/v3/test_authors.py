@@ -46,12 +46,12 @@ class TestV3AccountsSearchApi:
             assert isinstance(data, list)
 
     def test_accounts_search_rejects_get(self, page: Page, save_response):
-        """GET /v3/accounts/search → 405 (method enforcement)."""
+        """GET /v3/accounts/search unauthenticated → 403 (auth checked first)."""
         response = page.request.get("/v3/accounts/search")
         save_response(response, "v3-accounts-search-get-rejected")
-        # AS-IS: auth check runs before method check, so unauth GET → 403.
-        # Either is acceptable contract for "this method is rejected here".
-        assert response.status in (403, 405)
+        # AS-IS: this handler checks auth before method, so an unauth GET is
+        # 403, not the 405 you'd expect from a method-enforcement test.
+        assert response.status == 403
 
 
 class TestV3AuthorDetailsApi:
