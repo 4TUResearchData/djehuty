@@ -156,6 +156,86 @@ class TestEditDataset:
 
 
 @pytest.mark.dataset
+class TestKeywordMinimum:
+    """Test the keyword-minimum guidance message in the dataset editor."""
+
+    def test_no_message_with_zero_keywords(self, authenticated_page: Page, screenshot):
+        """With no keywords, the guidance message should stay hidden."""
+        create_draft_dataset(authenticated_page)
+        editor = DatasetEditorPage(authenticated_page)
+        screenshot(authenticated_page, "keywords-zero")
+
+        assert editor.get_keyword_count() == 0
+        assert not editor.is_message_visible()
+
+        editor.delete()
+
+    def test_warning_message_below_minimum(self, authenticated_page: Page, screenshot):
+        """Below the minimum, the message should show and be styled as a warning."""
+        create_draft_dataset(authenticated_page)
+        editor = DatasetEditorPage(authenticated_page)
+
+        editor.add_keyword("first")
+        screenshot(authenticated_page, "keywords-one")
+
+        assert editor.is_message_visible()
+        assert editor.is_message_warning()
+        assert editor.get_message_text() == "Please add more keywords."
+
+        editor.delete()
+
+    def test_one_more_message_at_minimum_minus_one(self, authenticated_page: Page, screenshot):
+        """With exactly one keyword left to add, the message should say so."""
+        create_draft_dataset(authenticated_page)
+        editor = DatasetEditorPage(authenticated_page)
+
+        for word in ["one", "two", "three"]:
+            editor.add_keyword(word)
+        screenshot(authenticated_page, "keywords-three")
+
+        assert editor.get_keyword_count() == 3
+        assert editor.is_message_warning()
+        assert editor.get_message_text() == "Please add one more keyword."
+
+        editor.delete()
+
+    def test_findability_message_at_minimum(self, authenticated_page: Page, screenshot):
+        """At the minimum count, the message should switch to the findability
+        note and drop the warning style."""
+        create_draft_dataset(authenticated_page)
+        editor = DatasetEditorPage(authenticated_page)
+
+        for word in ["one", "two", "three", "four"]:
+            editor.add_keyword(word)
+        screenshot(authenticated_page, "keywords-four")
+
+        assert editor.get_keyword_count() == 4
+        assert editor.is_message_visible()
+        assert not editor.is_message_warning()
+        assert "findable" in editor.get_message_text()
+
+        editor.delete()
+
+    def test_warning_returns_after_removing_below_minimum(self, authenticated_page: Page, screenshot):
+        """Removing a keyword below the minimum should bring the warning back."""
+        create_draft_dataset(authenticated_page)
+        editor = DatasetEditorPage(authenticated_page)
+
+        for word in ["one", "two", "three", "four"]:
+            editor.add_keyword(word)
+        assert not editor.is_message_warning()
+
+        editor.remove_keyword(0)
+        screenshot(authenticated_page, "keywords-removed-below-minimum")
+
+        assert editor.get_keyword_count() == 3
+        assert editor.is_message_warning()
+        assert editor.get_message_text() == "Please add one more keyword."
+
+        editor.delete()
+
+
+@pytest.mark.dataset
 class TestDeleteDataset:
     """Test deleting draft datasets."""
 

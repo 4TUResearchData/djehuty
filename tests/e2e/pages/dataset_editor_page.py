@@ -199,3 +199,36 @@ class DatasetEditorPage(BasePage):
 
     def is_restricted_form_visible(self) -> bool:
         return self.page.locator("#restricted_access_form").is_visible()
+
+    # ------------------------------------------------------------------
+    # Keyword manipulation
+    # ------------------------------------------------------------------
+
+    def add_keyword(self, keyword: str):
+        """Add a single keyword via the input + Add keyword button."""
+        count_before = self.get_keyword_count()
+        self.page.locator("#tag").fill(keyword)
+        self.page.locator("#add-keyword-button").click()
+        expect(self.page.locator("#tags-list li")).to_have_count(count_before + 1)
+
+    def remove_keyword(self, index: int = 0):
+        """Remove the keyword at the given row index."""
+        count_before = self.get_keyword_count()
+        self.page.locator("#tags-list li").nth(index).locator("a.fa-trash-can").click()
+        expect(self.page.locator("#tags-list li")).to_have_count(count_before - 1)
+
+    def get_keyword_count(self) -> int:
+        """Return the number of keywords currently listed."""
+        return self.page.locator("#tags-list li").count()
+
+    def get_message_text(self) -> str:
+        """Return the text of the keyword-minimum guidance message."""
+        return self.page.locator("#keyword-minimum-message").inner_text()
+
+    def is_message_visible(self) -> bool:
+        return self.page.locator("#keyword-minimum-message").is_visible()
+
+    def is_message_warning(self) -> bool:
+        """True when the message is in its under-minimum (red) state."""
+        classes = self.page.locator("#keyword-minimum-message").get_attribute("class") or ""
+        return "required-field" in classes.split()
