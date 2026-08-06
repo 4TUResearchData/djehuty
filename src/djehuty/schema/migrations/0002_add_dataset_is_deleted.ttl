@@ -1,0 +1,22 @@
+@prefix djht: <https://ontologies.data.4tu.nl/djehuty/0.0.1/> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# Soft delete for draft datasets. A draft carrying djht:is_deleted "true"
+# is hidden from the depositor's draft/review/published views but keeps all
+# of its triples and files, so it can be restored. Absence of the predicate
+# means "not deleted"; existing drafts need no back-fill.
+
+djht:is_deleted a owl:DatatypeProperty ;
+    rdfs:label "is deleted"^^xsd:string ;
+    rdfs:comment "True when a draft dataset has been soft-deleted by its owner or a reviewer."^^xsd:string ;
+    rdfs:domain djht:Dataset ;
+    rdfs:range xsd:boolean .
+
+djht:deleted_date a owl:DatatypeProperty ;
+    rdfs:label "deleted date"^^xsd:string ;
+    rdfs:comment "Timestamp at which a draft dataset was soft-deleted."^^xsd:string ;
+    rdfs:domain djht:Dataset ;
+    rdfs:range xsd:dateTime .

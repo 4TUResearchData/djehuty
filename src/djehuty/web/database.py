@@ -409,7 +409,7 @@ class SparqlInterface:
                   is_published=True, is_under_review=None, git_uuid=None,
                   private_link_id_string=None, use_cache=True, is_restricted=None,
                   is_embargoed=None, is_software=None, organizations=None,
-                  codecheck_certificate_doi=None):
+                  codecheck_certificate_doi=None, is_deleted=False):
         """Procedure to retrieve version(s) of datasets."""
 
         filters  = rdf.sparql_filter ("container_uri",  rdf.uuid_to_uri (container_uuid, "container"), is_uri=True)
@@ -464,6 +464,7 @@ class SparqlInterface:
             "is_latest":      is_latest,
             "is_published":   is_published,
             "is_under_review": is_under_review,
+            "is_deleted":     is_deleted,
             "private_link_id_string": private_link_id_string,
             "search_for_raw": rdf.escape_string_value (search_for_raw),
             "filters":        filters,
@@ -2160,6 +2161,51 @@ class SparqlInterface:
         if is_under_review:
             self.cache.invalidate_by_prefix ("reviews")
 
+        return result
+
+    def __invalidate_dataset_draft_caches (self, dataset_uuid, account_uuid,
+                                           owner_account_uuid, collaborators):
+        """Invalidate the caches touched by a draft delete/soft-delete/restore."""
+
+        self.cache.invalidate_by_prefix (f"{account_uuid}_storage")
+        self.cache.invalidate_by_prefix (f"{dataset_uuid}_dataset_storage")
+        self.cache.invalidate_by_prefix (f"datasets_{owner_account_uuid}")
+
+        for collaborator in collaborators:
+            self.cache.invalidate_by_prefix (f"datasets_{collaborator['account_uuid']}")
+
+        if self.dataset_is_under_review (dataset_uuid):
+            self.cache.invalidate_by_prefix ("reviews")
+
+    def soft_delete_dataset_draft (self, container_uuid, dataset_uuid, account_uuid, owner_account_uuid):
+        """Mark the draft dataset as deleted without removing its triples."""
+
+        # Only explicit collaborators are needed for cache invalidation; skip
+        # the costly inferred institution-group members.
+        collaborators = self.collaborators (dataset_uuid, include_inferred=False)
+        current_time  = datetime.strftime (datetime.now(), datetime_format)
+        query   = self.__query_from_template ("soft_delete_dataset_draft", {
+            "dataset_uuid":        dataset_uuid,
+            "deleted_date":        current_time
+        })
+
+        result = self.__run_logged_query (query)
+        self.__invalidate_dataset_draft_caches (dataset_uuid, account_uuid,
+                                                owner_account_uuid, collaborators)
+        return result
+
+    def restore_dataset_draft (self, container_uuid, dataset_uuid, account_uuid, owner_account_uuid):
+        """Clear the deleted mark on a soft-deleted draft dataset."""
+
+        # See soft_delete_dataset_draft: inferred members are not needed here.
+        collaborators = self.collaborators (dataset_uuid, include_inferred=False)
+        query   = self.__query_from_template ("restore_dataset_draft", {
+            "dataset_uuid":        dataset_uuid
+        })
+
+        result = self.__run_logged_query (query)
+        self.__invalidate_dataset_draft_caches (dataset_uuid, account_uuid,
+                                                owner_account_uuid, collaborators)
         return result
 
     def publish_collection (self, container_uuid, account_uuid):

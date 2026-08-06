@@ -154,6 +154,8 @@ class WebServer:
             R("/my/datasets",                                                    self.ui_my_data),
             R("/my/datasets/<dataset_id>/edit",                                  self.ui_edit_dataset),
             R("/my/datasets/<dataset_id>/delete",                                self.ui_delete_dataset),
+            R("/my/datasets/<dataset_id>/restore",                               self.ui_restore_dataset),
+            R("/my/datasets/<dataset_id>/delete-permanently",                    self.ui_delete_dataset_permanently),
             R("/my/datasets/<dataset_uuid>/private_links",                       self.ui_dataset_private_links),
             R("/my/datasets/<dataset_uuid>/private_link/<link_id>/delete",       self.ui_dataset_delete_private_link),
             R("/my/datasets/<dataset_uuid>/private_link/new",                    self.ui_dataset_new_private_link),
@@ -1088,7 +1090,7 @@ class WebServer:
     def __dataset_by_id_or_uri (self, identifier, account_uuid=None,
                                 is_published=True, is_latest=False,
                                 is_under_review=None, version=None,
-                                use_cache=True):
+                                use_cache=True, is_deleted=False):
         try:
             if version is not None and not parses_to_int (version):
                 return None
@@ -1097,6 +1099,7 @@ class WebServer:
                 "is_published": is_published,
                 "is_latest": is_latest,
                 "is_under_review": is_under_review,
+                "is_deleted": is_deleted,
                 "version": version,
                 "account_uuid": account_uuid,
                 "use_cache": use_cache,
@@ -2248,6 +2251,11 @@ class WebServer:
                                                limit           = 10000,
                                                is_latest       = True,
                                                is_under_review = False)
+        deleted_datasets   = self.db.datasets (account_uuid    = account_uuid,
+                                               limit           = 10000,
+                                               is_published    = False,
+                                               is_under_review = None,
+                                               is_deleted      = True)
 
         draft_datasets     = self.__datasets_with_storage_usage (draft_datasets)
         review_datasets    = self.__datasets_with_storage_usage (review_datasets)
@@ -2256,7 +2264,8 @@ class WebServer:
         return self.__render_template (request, "depositor/my-data.html",
                                        draft_datasets     = draft_datasets,
                                        review_datasets    = review_datasets,
-                                       published_datasets = published_datasets)
+                                       published_datasets = published_datasets,
+                                       deleted_datasets   = deleted_datasets)
 
     def ui_collection_published (self, request, collection_id):
         """Implements /my/collections/published/<id>."""
@@ -2326,11 +2335,16 @@ class WebServer:
             return self.error_403 (request, (f"account:{account_uuid} attempted to create "
                                              f"new version of dataset:{dataset_id}."))
 
+        # is_deleted=None so a soft-deleted draft also blocks a second one.
         existing_draft = self.__dataset_by_id_or_uri (container_uuid,
                                                       is_published = False,
                                                       account_uuid = account_uuid,
+                                                      is_deleted   = None,
                                                       use_cache    = False)
         if existing_draft is not None:
+            if value_or (existing_draft, "is_deleted", False):
+                self.log.info ("Refusing to create a draft while a deleted one exists.")
+                return redirect ("/my/datasets", code=302)
             self.log.info ("Refusing to create two drafts for one dataset.")
             return redirect (f"/my/datasets/{container_uuid}/edit", code=302)
 
@@ -2426,10 +2440,80 @@ class WebServer:
                                                  f"to delete dataset:{dataset_id}."))
 
             container_uuid = dataset["container_uuid"]
-            if self.db.delete_dataset_draft (container_uuid, dataset["uuid"], account_uuid, dataset["account_uuid"]):
+            if self.db.soft_delete_dataset_draft (container_uuid, dataset["uuid"], account_uuid, dataset["account_uuid"]):
                 return redirect ("/my/datasets", code=303)
 
             return self.error_404 (request)
+        except (IndexError, KeyError):
+            pass
+
+        return self.error_500 ()
+
+    def ui_restore_dataset (self, request, dataset_id):
+        """Implements /my/datasets/<id>/restore."""
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
+
+        account_uuid, error_response = self.__depositor_account_uuid (request)
+        if error_response is not None:
+            return error_response
+
+        try:
+            dataset = self.__dataset_by_id_or_uri (dataset_id,
+                                                   account_uuid=account_uuid,
+                                                   is_published=False,
+                                                   is_deleted=True)
+
+            if dataset is None:
+                return self.error_403 (request, (f"account:{account_uuid} attempted "
+                                                 f"to restore dataset:{dataset_id}."))
+
+            # Existence confirmed above; a falsy result is a failed update.
+            container_uuid = dataset["container_uuid"]
+            if self.db.restore_dataset_draft (container_uuid, dataset["uuid"], account_uuid, dataset["account_uuid"]):
+                return redirect ("/my/datasets", code=303)
+
+            return self.error_500 ()
+        except (IndexError, KeyError):
+            pass
+
+        return self.error_500 ()
+
+    def ui_delete_dataset_permanently (self, request, dataset_id):
+        """Implements /my/datasets/<id>/delete-permanently."""
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
+
+        account_uuid, error_response = self.__depositor_account_uuid (request)
+        if error_response is not None:
+            return error_response
+
+        try:
+            dataset = self.__dataset_by_id_or_uri (dataset_id,
+                                                   account_uuid=account_uuid,
+                                                   is_published=False,
+                                                   is_deleted=True)
+
+            if dataset is None:
+                return self.error_403 (request, (f"account:{account_uuid} attempted "
+                                                 f"to permanently delete dataset:{dataset_id}."))
+
+            if request.method != "POST":
+                return self.__render_template (
+                    request, "depositor/delete-dataset-permanently.html",
+                    dataset = dataset)
+
+            if request.form.get ("confirm") != "yes":
+                return self.__render_template (
+                    request, "depositor/delete-dataset-permanently.html",
+                    dataset = dataset,
+                    error   = "Please tick the confirmation box. Nothing was deleted.")
+
+            container_uuid = dataset["container_uuid"]
+            if self.db.delete_dataset_draft (container_uuid, dataset["uuid"], account_uuid, dataset["account_uuid"]):
+                return redirect ("/my/datasets", code=303)
+
+            return self.error_500 ()
         except (IndexError, KeyError):
             pass
 
@@ -5591,7 +5675,7 @@ class WebServer:
                                                            is_published=False)
 
                 container_uuid = dataset["container_uuid"]
-                if self.db.delete_dataset_draft (container_uuid, dataset["uuid"], account_uuid, dataset["account_uuid"]):
+                if self.db.soft_delete_dataset_draft (container_uuid, dataset["uuid"], account_uuid, dataset["account_uuid"]):
                     return self.respond_204()
             except (IndexError, KeyError):
                 pass

@@ -50,10 +50,25 @@ def in_memory_dataset():
 
 
 @pytest.fixture
-def runner_real(in_memory_dataset, real_migrations_dir):
+def initial_only_migrations_dir(real_migrations_dir, tmp_path):
+    """Copy of the production dir holding only 0001_initial.ttl.
+
+    These tests assert on the initial seed specifically (head == 0001,
+    a single applied migration); isolating it keeps them stable as real
+    migrations accumulate in the production directory.
+    """
+    dest = tmp_path / "initial_only"
+    dest.mkdir()
+    src = real_migrations_dir / "0001_initial.ttl"
+    (dest / src.name).write_text(src.read_text())
+    return dest
+
+
+@pytest.fixture
+def runner_real(in_memory_dataset, initial_only_migrations_dir):
     return MigrationRunner(
         sparql_graph=in_memory_dataset,
-        migrations_dir=real_migrations_dir,
+        migrations_dir=initial_only_migrations_dir,
         target_graph=STATE_GRAPH,
         migrations_graph=MIG_GRAPH,
         djehuty_version="test",
