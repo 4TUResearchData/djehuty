@@ -59,7 +59,7 @@ def fill_required_fields_and_publish(
     dataset_uuid = match.group(1) if match else None
 
     # Add a tag via API (with retry to handle transient database locks)
-    for attempt in range(3):
+    for _attempt in range(3):
         tag_response = page.request.post(
             f"/v3/datasets/{container_uuid}/tags",
             data={"tags": ["e2e-test"]},

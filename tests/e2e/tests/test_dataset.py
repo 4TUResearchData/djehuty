@@ -46,7 +46,7 @@ class TestCreateDataset:
 
     def test_new_dataset_has_empty_title(self, authenticated_page: Page, screenshot):
         """A new dataset should have a placeholder title, not a filled value."""
-        url = create_draft_dataset(authenticated_page)
+        create_draft_dataset(authenticated_page)
         screenshot(authenticated_page, "new-dataset-title")
 
         editor = DatasetEditorPage(authenticated_page)
@@ -143,7 +143,7 @@ class TestEditDataset:
 
     def test_editor_has_save_and_delete_buttons(self, authenticated_page: Page, screenshot):
         """The dataset editor should show Save and Delete buttons for drafts."""
-        url = create_draft_dataset(authenticated_page)
+        create_draft_dataset(authenticated_page)
         editor = DatasetEditorPage(authenticated_page)
         screenshot(authenticated_page, "editor-buttons")
 
@@ -161,7 +161,7 @@ class TestDeleteDataset:
 
     def test_delete_draft_dataset(self, authenticated_page: Page, screenshot):
         """Deleting a draft dataset should redirect to /my/datasets."""
-        url = create_draft_dataset(authenticated_page)
+        create_draft_dataset(authenticated_page)
         screenshot(authenticated_page, "before-delete")
 
         editor = DatasetEditorPage(authenticated_page)

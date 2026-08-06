@@ -61,7 +61,7 @@ class TestEmbargoEditor:
 
     def test_select_embargo_shows_form(self, authenticated_page: Page, screenshot):
         """Selecting 'Embargoed access' should reveal the embargo form."""
-        url = create_draft_dataset(authenticated_page)
+        create_draft_dataset(authenticated_page)
         editor = DatasetEditorPage(authenticated_page)
         editor.wait_for_ready()
         screenshot(authenticated_page, "before-embargo-select")
@@ -77,7 +77,7 @@ class TestEmbargoEditor:
 
     def test_select_restricted_shows_form(self, authenticated_page: Page, screenshot):
         """Selecting 'Restricted access' should reveal the restricted form."""
-        url = create_draft_dataset(authenticated_page)
+        create_draft_dataset(authenticated_page)
         editor = DatasetEditorPage(authenticated_page)
         editor.wait_for_ready()
 
@@ -121,7 +121,7 @@ class TestEmbargoEditor:
 
     def test_switch_between_access_types(self, authenticated_page: Page, screenshot):
         """Switching access types should show/hide the correct forms."""
-        url = create_draft_dataset(authenticated_page)
+        create_draft_dataset(authenticated_page)
         editor = DatasetEditorPage(authenticated_page)
         editor.wait_for_ready()
 

@@ -66,7 +66,7 @@ class TestFileUpload:
 
     def test_upload_file_via_picker(self, authenticated_page: Page, test_file: str, screenshot):
         """Uploading a file should make it appear in the files table."""
-        url = create_draft_dataset(authenticated_page)
+        create_draft_dataset(authenticated_page)
         editor = DatasetEditorPage(authenticated_page)
         editor.wait_for_ready()
         screenshot(authenticated_page, "editor-before-upload")
@@ -83,7 +83,7 @@ class TestFileUpload:
 
     def test_upload_multiple_files(self, authenticated_page: Page, tmp_path: Path, screenshot):
         """Uploading multiple files should show all of them in the table."""
-        url = create_draft_dataset(authenticated_page)
+        create_draft_dataset(authenticated_page)
         editor = DatasetEditorPage(authenticated_page)
         editor.wait_for_ready()
 
@@ -226,7 +226,7 @@ class TestFileRemoval:
 
     def test_remove_all_files(self, authenticated_page: Page, tmp_path: Path, screenshot):
         """The 'Remove all files' button should clear all files."""
-        url = create_draft_dataset(authenticated_page)
+        create_draft_dataset(authenticated_page)
         editor = DatasetEditorPage(authenticated_page)
         editor.wait_for_ready()
 
@@ -263,7 +263,7 @@ class TestGitInstructions:
 
     def test_software_deposit_shows_git_instructions(self, authenticated_page: Page, screenshot):
         """Selecting 'Software deposit' should display git push instructions."""
-        url = create_draft_dataset(authenticated_page)
+        create_draft_dataset(authenticated_page)
         editor = DatasetEditorPage(authenticated_page)
         editor.wait_for_ready()
         screenshot(authenticated_page, "before-software-select")
@@ -290,7 +290,7 @@ class TestGitInstructions:
 
     def test_software_deposit_shows_git_branch_selector(self, authenticated_page: Page, screenshot):
         """The software deposit view should include a branch selector."""
-        url = create_draft_dataset(authenticated_page)
+        create_draft_dataset(authenticated_page)
         editor = DatasetEditorPage(authenticated_page)
         editor.wait_for_ready()
 

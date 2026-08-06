@@ -91,7 +91,7 @@ class TestCreateCollection:
 
     def test_new_collection_has_empty_title(self, authenticated_page: Page, screenshot):
         """A new collection should have a placeholder title, not a filled value."""
-        url = create_draft_collection(authenticated_page)
+        create_draft_collection(authenticated_page)
         screenshot(authenticated_page, "new-collection-title")
 
         editor = CollectionEditorPage(authenticated_page)
@@ -194,7 +194,7 @@ class TestEditCollection:
 
     def test_editor_has_save_delete_and_publish_buttons(self, authenticated_page: Page, screenshot):
         """The collection editor should show Save, Delete, and Publish buttons."""
-        url = create_draft_collection(authenticated_page)
+        create_draft_collection(authenticated_page)
         editor = CollectionEditorPage(authenticated_page)
         screenshot(authenticated_page, "editor-buttons")
 
@@ -216,7 +216,7 @@ class TestDeleteCollection:
 
     def test_delete_draft_collection(self, authenticated_page: Page, screenshot):
         """Deleting a draft collection should redirect to /my/collections."""
-        url = create_draft_collection(authenticated_page)
+        create_draft_collection(authenticated_page)
         screenshot(authenticated_page, "before-delete")
 
         editor = CollectionEditorPage(authenticated_page)
