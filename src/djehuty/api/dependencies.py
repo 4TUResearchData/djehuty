@@ -21,6 +21,11 @@ def get_db(request: Request):
     return request.app.state.db
 
 
+def get_email(request: Request):
+    """Return the shared, ui.py-configured EmailInterface (None when absent)."""
+    return getattr(request.app.state, "email", None)
+
+
 def get_token(request: Request) -> str | None:
     """Session token from the cookie or the Authorization header.
 
