@@ -3,11 +3,12 @@
 from fastapi import APIRouter, Depends, Response
 from fastapi.responses import JSONResponse
 
-from djehuty.api.dependencies import get_db, require_auth
+from djehuty.api.dependencies import get_db, get_token, require_auth
 from djehuty.api.exceptions import ForbiddenError, InvalidInputError, NotFoundError
 from djehuty.api.services.article_service import ArticleService
 from djehuty.api.v2.account.articles._shared import _ok, _resolve_private_dataset
 from djehuty.web import formatter
+from djehuty.web.config import config
 
 router = APIRouter(prefix="/account", tags=["V2 / Account / Articles / Files"])
 
@@ -51,6 +52,58 @@ def get_private_article_file(
     if not files:
         raise NotFoundError()
     return JSONResponse(content=formatter.format_file_details_record(files[0]))
+
+
+@router.post(
+    "/articles/{dataset_id}/files",
+    summary="Register a file or link",
+)
+def create_article_file(
+    dataset_id: str,
+    body: dict,
+    account=Depends(require_auth),
+    db=Depends(get_db),
+    token: str | None = Depends(get_token),
+):
+    from djehuty.web import validator
+
+    try:
+        link = validator.string_value(body, "link", 0, 1000, False)
+        dataset = ArticleService(db)._resolve_dataset(
+            dataset_id, account_uuid=account["uuid"], is_published=False
+        )
+        if dataset is None:
+            raise ForbiddenError()
+
+        if link is not None:
+            file_id = db.insert_file(
+                dataset_uri=dataset["uri"],
+                account_uuid=account["uuid"],
+                is_link_only=True,
+                download_url=link,
+            )
+        else:
+            file_id = db.insert_file(
+                dataset_uri=dataset["uri"],
+                account_uuid=account["uuid"],
+                is_link_only=False,
+                upload_token=token,
+                supplied_md5=validator.string_value(body, "md5", 32, 32),
+                name=validator.string_value(body, "name", 0, 255, True),
+                size=validator.integer_value(body, "size", 0, pow(2, 63), True),
+            )
+
+        if file_id is None:
+            return Response(status_code=500)
+
+        return JSONResponse(
+            status_code=201,
+            content={
+                "location": f"{config.base_url}/v2/account/articles/{dataset_id}/files/{file_id}"
+            },
+        )
+    except validator.ValidationException as error:
+        raise InvalidInputError(error.message, error.code) from error
 
 
 @router.delete(
