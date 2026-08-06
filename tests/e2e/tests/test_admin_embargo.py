@@ -16,15 +16,13 @@ from datetime import date, timedelta
 from pathlib import Path
 
 import pytest
-from playwright.sync_api import Page, expect
-
 from helpers.accounts import get_non_admin_account_uuid
 from helpers.dataset import create_draft_dataset, get_container_uuid_from_url
 from helpers.impersonation import impersonate, stop_impersonation
 from helpers.publish import fill_required_fields_and_publish
 from pages.admin_embargo_page import AdminEmbargoPage
 from pages.dataset_editor_page import DatasetEditorPage
-
+from playwright.sync_api import Page, expect
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -81,9 +79,7 @@ class TestAdminUpdatePublishedDatasetDashboard:
     def test_submenu_entry_visible_on_admin_dashboard(self, admin_page: Page, screenshot):
         """The 'Update Published Dataset' link should appear in the admin submenu."""
         screenshot(admin_page, "admin-dashboard")
-        expect(
-            admin_page.locator("a[href='/admin/update-published-dataset']")
-        ).to_be_visible()
+        expect(admin_page.locator("a[href='/admin/update-published-dataset']")).to_be_visible()
 
     def test_dashboard_shows_embargos_link(self, admin_page: Page, screenshot):
         """The dashboard should be reachable and show the Embargos action link."""
@@ -91,9 +87,7 @@ class TestAdminUpdatePublishedDatasetDashboard:
         assert response is not None
         assert response.status == 200
         admin_page.wait_for_load_state("domcontentloaded")
-        embargos_link = admin_page.locator(
-            "a[href='/admin/update-published-dataset/embargos']"
-        )
+        embargos_link = admin_page.locator("a[href='/admin/update-published-dataset/embargos']")
         expect(embargos_link).to_be_visible()
         screenshot(admin_page, "update-published-dataset-embargos-link")
 
@@ -215,10 +209,12 @@ class TestAdminEmbargoAccessControl:
         response = admin_page.request.fetch(
             "/admin/update-published-dataset/embargos/update",
             method="PUT",
-            data=json.dumps({
-                "dataset_uuid": "00000000-0000-0000-0000-000000000000",
-                "embargo_until_date": _iso_date(1),
-            }),
+            data=json.dumps(
+                {
+                    "dataset_uuid": "00000000-0000-0000-0000-000000000000",
+                    "embargo_until_date": _iso_date(1),
+                }
+            ),
             headers={"Content-Type": "application/json"},
         )
         assert response.status == 403

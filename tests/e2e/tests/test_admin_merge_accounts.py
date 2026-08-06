@@ -16,14 +16,12 @@ Run with:
 
 import pytest
 import requests
-from playwright.sync_api import Page, expect
-
 from config import ADMIN_EMAIL, SPARQL_GRAPH, SPARQL_URL
 from helpers.accounts import get_account_uuid, get_non_admin_account
 from helpers.dataset import create_draft_dataset, get_container_uuid_from_url
 from helpers.impersonation import impersonate, stop_impersonation
 from pages.dataset_editor_page import DatasetEditorPage
-
+from playwright.sync_api import Page, expect
 
 # ---------------------------------------------------------------------------
 # Local SPARQL helper
@@ -137,7 +135,7 @@ class TestAdminMergeAccountsApi:
             "/admin/users/merge/preview",
             {
                 "from_email": "no-such-account@example.org",
-                "to_email":   ADMIN_EMAIL,
+                "to_email": ADMIN_EMAIL,
             },
         )
         assert response.status == 400
@@ -152,7 +150,7 @@ class TestAdminMergeAccountsApi:
             "/admin/users/merge/preview",
             {
                 "from_email": ADMIN_EMAIL,
-                "to_email":   "no-such-account@example.org",
+                "to_email": "no-such-account@example.org",
             },
         )
         assert response.status == 400
@@ -219,7 +217,7 @@ class TestAdminMergeAccountsApi:
                 "/admin/users/merge/execute",
                 {
                     "from_account_uuid": non_admin_uuid,
-                    "to_account_uuid":   non_admin_uuid,
+                    "to_account_uuid": non_admin_uuid,
                 },
             )
             assert response.status == 403
@@ -247,9 +245,7 @@ class TestAdminMergeAccountsFlow:
             stop_impersonation(page)
         return container_uuid
 
-    def test_preview_lists_source_containers(
-        self, admin_page: Page, screenshot
-    ):
+    def test_preview_lists_source_containers(self, admin_page: Page, screenshot):
         """Preview must return the source account's containers."""
         non_admin = get_non_admin_account()
         admin_uuid = get_account_uuid(ADMIN_EMAIL)
@@ -286,9 +282,7 @@ class TestAdminMergeAccountsFlow:
         finally:
             stop_impersonation(admin_page)
 
-    def test_execute_reassigns_container_ownership(
-        self, admin_page: Page, screenshot
-    ):
+    def test_execute_reassigns_container_ownership(self, admin_page: Page, screenshot):
         """After confirming the merge, the container's djht:account changes."""
         non_admin = get_non_admin_account()
         admin_uuid = get_account_uuid(ADMIN_EMAIL)

@@ -15,8 +15,6 @@ Run with:
 from pathlib import Path
 
 import pytest
-from playwright.sync_api import Page, expect
-
 from config import BASE_URL
 from helpers.accounts import get_non_admin_account_uuid
 from helpers.dataset import create_draft_dataset, get_container_uuid_from_url
@@ -24,7 +22,7 @@ from helpers.impersonation import impersonate, stop_impersonation
 from helpers.publish import fill_required_fields_and_publish
 from helpers.quota import create_quota_request
 from pages.dataset_editor_page import DatasetEditorPage
-
+from playwright.sync_api import Page, expect
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -199,12 +197,8 @@ class TestAdminReports:
         admin_page.wait_for_load_state("domcontentloaded")
         screenshot(admin_page, "reports-links")
 
-        expect(
-            admin_page.locator("a[href='/admin/reports/restricted_datasets']")
-        ).to_be_visible()
-        expect(
-            admin_page.locator("a[href='/admin/reports/embargoed_datasets']")
-        ).to_be_visible()
+        expect(admin_page.locator("a[href='/admin/reports/restricted_datasets']")).to_be_visible()
+        expect(admin_page.locator("a[href='/admin/reports/embargoed_datasets']")).to_be_visible()
 
     def test_restricted_datasets_report(self, admin_page: Page, screenshot):
         """Admin should be able to view the restricted datasets report."""
@@ -222,31 +216,27 @@ class TestAdminReports:
         screenshot(admin_page, "embargoed-datasets-report")
         expect(admin_page.locator("body")).to_contain_text("Embargoed Datasets")
 
-    def test_restricted_report_has_export_links(self, restricted_dataset, admin_page: Page, screenshot):
+    def test_restricted_report_has_export_links(
+        self, restricted_dataset, admin_page: Page, screenshot
+    ):
         """Restricted datasets report should have CSV and JSON export links."""
         admin_page.goto("/admin/reports/restricted_datasets")
         admin_page.wait_for_load_state("domcontentloaded")
         screenshot(admin_page, "restricted-export-links")
 
-        expect(
-            admin_page.locator("a[href*='export=1'][href*='format=csv']")
-        ).to_be_visible()
-        expect(
-            admin_page.locator("a[href*='export=1'][href*='format=json']")
-        ).to_be_visible()
+        expect(admin_page.locator("a[href*='export=1'][href*='format=csv']")).to_be_visible()
+        expect(admin_page.locator("a[href*='export=1'][href*='format=json']")).to_be_visible()
 
-    def test_embargoed_report_has_export_links(self, embargoed_dataset, admin_page: Page, screenshot):
+    def test_embargoed_report_has_export_links(
+        self, embargoed_dataset, admin_page: Page, screenshot
+    ):
         """Embargoed datasets report should have CSV and JSON export links."""
         admin_page.goto("/admin/reports/embargoed_datasets")
         admin_page.wait_for_load_state("domcontentloaded")
         screenshot(admin_page, "embargoed-export-links")
 
-        expect(
-            admin_page.locator("a[href*='export=1'][href*='format=csv']")
-        ).to_be_visible()
-        expect(
-            admin_page.locator("a[href*='export=1'][href*='format=json']")
-        ).to_be_visible()
+        expect(admin_page.locator("a[href*='export=1'][href*='format=csv']")).to_be_visible()
+        expect(admin_page.locator("a[href*='export=1'][href*='format=json']")).to_be_visible()
 
     def test_non_admin_gets_403_on_reports(self, admin_page: Page, screenshot):
         """A non-admin user should receive 403 on /admin/reports."""
@@ -305,9 +295,7 @@ class TestAdminQuotaRequests:
         expect(quotas_table).to_contain_text("5.0 GB")
 
         # Click approve (thumbs up) on the first row
-        approve_link = admin_page.locator(
-            "a[href*='/admin/approve-quota-request/']"
-        ).first
+        approve_link = admin_page.locator("a[href*='/admin/approve-quota-request/']").first
         approve_link.click()
         admin_page.wait_for_load_state("domcontentloaded")
         screenshot(admin_page, "quota-after-approve")
@@ -328,9 +316,7 @@ class TestAdminQuotaRequests:
         expect(quotas_table).to_contain_text("100.0 GB")
 
         # Click deny (thumbs down)
-        deny_link = admin_page.locator(
-            "a[href*='/admin/deny-quota-request/']"
-        ).first
+        deny_link = admin_page.locator("a[href*='/admin/deny-quota-request/']").first
         deny_link.click()
         admin_page.wait_for_load_state("domcontentloaded")
         screenshot(admin_page, "quota-after-deny")

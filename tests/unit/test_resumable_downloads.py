@@ -22,7 +22,7 @@ class FakeBody:
 
     def iter_chunks(self, chunk_size=8192):
         for index in range(0, len(self.payload), chunk_size):
-            yield self.payload[index:index + chunk_size]
+            yield self.payload[index : index + chunk_size]
 
     def close(self):
         self.closed = True
@@ -46,7 +46,7 @@ class FakeS3Client:
                 "GetObject",
             )
         start, end = self._parse_range(kwargs["Range"])
-        piece = self.payload[start:end + 1]
+        piece = self.payload[start : end + 1]
         headers = {
             "content-type": "application/octet-stream",
             "content-length": str(len(piece)),
@@ -54,9 +54,7 @@ class FakeS3Client:
             "last-modified": LAST_MODIFIED,
         }
         if self.with_content_range:
-            headers["content-range"] = (
-                f"bytes {start}-{start + len(piece) - 1}/{len(self.payload)}"
-            )
+            headers["content-range"] = f"bytes {start}-{start + len(piece) - 1}/{len(self.payload)}"
         body = FakeBody(piece)
         self.bodies.append(body)
         return {"Body": body, "ResponseMetadata": {"HTTPHeaders": headers}}
@@ -72,14 +70,14 @@ class FakeS3Client:
 @pytest.fixture
 def fake_client(monkeypatch):
     client = FakeS3Client()
-    monkeypatch.setattr(s3.S3ClientFactory, "get_client",
-                        lambda **kwargs: client)
+    monkeypatch.setattr(s3.S3ClientFactory, "get_client", lambda **kwargs: client)
     return client
 
 
 def make_streamer(**kwargs):
-    return s3.S3DownloadStreamer("http://s3.test", "bucket", "key-id", "secret",
-                                 "container_file", "file.bin", **kwargs)
+    return s3.S3DownloadStreamer(
+        "http://s3.test", "bucket", "key-id", "secret", "container_file", "file.bin", **kwargs
+    )
 
 
 class TestS3DownloadStreamer:
@@ -104,8 +102,7 @@ class TestS3DownloadStreamer:
 
     def test_total_falls_back_to_content_length(self, monkeypatch):
         client = FakeS3Client(with_content_range=False)
-        monkeypatch.setattr(s3.S3ClientFactory, "get_client",
-                            lambda **kwargs: client)
+        monkeypatch.setattr(s3.S3ClientFactory, "get_client", lambda **kwargs: client)
         streamer = make_streamer()
         streamer.connect()
         assert streamer.total_length == streamer.content_length == len(PAYLOAD)
@@ -145,47 +142,52 @@ TOTAL = 1000
 class TestResolveByteRange:
     """The 200/206/416 decision, including malformed Range and If-Range."""
 
-    @pytest.mark.parametrize("range_header", [
-        None,
-        "",
-        "bytes=abc-def",
-        "bytes=3333.2",
-        "bytes",
-        "bytes=0-1,5-6",
-    ])
+    @pytest.mark.parametrize(
+        "range_header",
+        [
+            None,
+            "",
+            "bytes=abc-def",
+            "bytes=3333.2",
+            "bytes",
+            "bytes=0-1,5-6",
+        ],
+    )
     def test_absent_or_malformed_range_serves_full_file(self, range_header):
         assert resolve_byte_range(range_header, None, ETAG, TOTAL) == ("full", None)
 
     def test_unknown_total_serves_full_file(self):
         assert resolve_byte_range("bytes=0-99", None, ETAG, 0) == ("full", None)
 
-    @pytest.mark.parametrize("range_header, expected", [
-        ("bytes=0-99", (0, 100)),
-        ("bytes=900-", (900, TOTAL)),
-        ("bytes=-100", (900, TOTAL)),
-        ("bytes=0-0", (0, 1)),
-        ("bytes=0-4999", (0, TOTAL)),
-    ])
+    @pytest.mark.parametrize(
+        "range_header, expected",
+        [
+            ("bytes=0-99", (0, 100)),
+            ("bytes=900-", (900, TOTAL)),
+            ("bytes=-100", (900, TOTAL)),
+            ("bytes=0-0", (0, 1)),
+            ("bytes=0-4999", (0, TOTAL)),
+        ],
+    )
     def test_satisfiable_range_serves_partial(self, range_header, expected):
-        assert resolve_byte_range(range_header, None, ETAG, TOTAL) == \
-            ("partial", expected)
+        assert resolve_byte_range(range_header, None, ETAG, TOTAL) == ("partial", expected)
 
     def test_range_beyond_end_is_unsatisfiable(self):
-        assert resolve_byte_range("bytes=1100-", None, ETAG, TOTAL) == \
-            ("unsatisfiable", None)
+        assert resolve_byte_range("bytes=1100-", None, ETAG, TOTAL) == ("unsatisfiable", None)
 
     def test_if_range_with_matching_etag_serves_partial(self):
-        assert resolve_byte_range("bytes=0-99", ETAG, ETAG, TOTAL) == \
-            ("partial", (0, 100))
+        assert resolve_byte_range("bytes=0-99", ETAG, ETAG, TOTAL) == ("partial", (0, 100))
 
-    @pytest.mark.parametrize("if_range", [
-        '"stale-etag"',
-        "Mon, 20 Jul 2026 10:00:00 GMT",
-        "garbage",
-    ])
+    @pytest.mark.parametrize(
+        "if_range",
+        [
+            '"stale-etag"',
+            "Mon, 20 Jul 2026 10:00:00 GMT",
+            "garbage",
+        ],
+    )
     def test_if_range_mismatch_serves_full_file(self, if_range):
-        assert resolve_byte_range("bytes=0-99", if_range, ETAG, TOTAL) == \
-            ("full", None)
+        assert resolve_byte_range("bytes=0-99", if_range, ETAG, TOTAL) == ("full", None)
 
     def test_if_range_without_known_etag_serves_full_file(self):
         assert resolve_byte_range("bytes=0-99", ETAG, None, TOTAL) == ("full", None)

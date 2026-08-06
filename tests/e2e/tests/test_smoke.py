@@ -8,12 +8,11 @@ Run with:
 import importlib.metadata
 
 import pytest
-from playwright.sync_api import Page, expect
-
 from config import BASE_URL
-from pages.login_page import LoginPage
-from pages.dashboard_page import DashboardPage
 from pages.admin_page import AdminPage
+from pages.dashboard_page import DashboardPage
+from pages.login_page import LoginPage
+from playwright.sync_api import Page, expect
 
 
 @pytest.mark.smoke
@@ -49,6 +48,7 @@ class TestSmoke:
         page.goto("/portal")
         screenshot(page, "portal-footer-version")
         expect(page.locator("#footer")).to_contain_text(f"Djehuty v{true_version}")
+
 
 @pytest.mark.smoke
 class TestPageObjects:

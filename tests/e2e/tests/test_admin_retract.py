@@ -16,19 +16,17 @@ Run with:
 import json
 
 import pytest
-from playwright.sync_api import Page, expect
-
 from helpers.accounts import get_non_admin_account_uuid
 from helpers.impersonation import impersonate, stop_impersonation
 from pages.admin_retract_page import AdminRetractPage
-
+from playwright.sync_api import Page, expect
 
 # Mirrors the second INSERT block in
 # docker/sparql-init/002-seed-test-data.sql. If any value here changes,
 # update the seed accordingly (and vice versa).
-SEED_TITLE          = "Retract Test Seed Dataset"
+SEED_TITLE = "Retract Test Seed Dataset"
 SEED_CONTAINER_UUID = "11111111-2222-3333-8444-555555555555"
-SEED_DOI            = f"10.4121/retract-seed-{SEED_CONTAINER_UUID}"
+SEED_DOI = f"10.4121/retract-seed-{SEED_CONTAINER_UUID}"
 
 
 # ---------------------------------------------------------------------------
@@ -45,9 +43,7 @@ class TestAdminRetractDashboardLink:
         assert response is not None
         assert response.status == 200
         admin_page.wait_for_load_state("domcontentloaded")
-        retract_link = admin_page.locator(
-            "a[href='/admin/update-published-dataset/retract']"
-        )
+        retract_link = admin_page.locator("a[href='/admin/update-published-dataset/retract']")
         expect(retract_link).to_be_visible()
         screenshot(admin_page, "update-published-dataset-retract-link")
 
@@ -62,9 +58,7 @@ class TestAdminRetractDashboardLink:
 class TestAdminRetractFlow:
     """End-to-end retract flow against the seeded "Retract Test Seed Dataset"."""
 
-    def test_search_preview_doi_gate_and_confirm(
-        self, admin_page: Page, screenshot
-    ):
+    def test_search_preview_doi_gate_and_confirm(self, admin_page: Page, screenshot):
         """Search for the seeded dataset, preview, exercise the DOI gate,
         confirm, and verify the post-retraction state."""
 
@@ -157,12 +151,14 @@ class TestAdminRetractAccessControl:
         response = admin_page.request.fetch(
             "/admin/update-published-dataset/retract/execute",
             method="PUT",
-            data=json.dumps({
-                "container_uuid": "00000000-0000-0000-0000-000000000000",
-                "dataset_uuid":   "00000000-0000-0000-0000-000000000000",
-                "confirm_doi":    "10.0/x",
-                "expected_doi":   "10.0/x",
-            }),
+            data=json.dumps(
+                {
+                    "container_uuid": "00000000-0000-0000-0000-000000000000",
+                    "dataset_uuid": "00000000-0000-0000-0000-000000000000",
+                    "confirm_doi": "10.0/x",
+                    "expected_doi": "10.0/x",
+                }
+            ),
             headers={"Content-Type": "application/json"},
         )
         assert response.status == 403
@@ -181,12 +177,14 @@ class TestAdminRetractAccessControl:
         response = admin_page.request.fetch(
             "/admin/update-published-dataset/retract/execute",
             method="PUT",
-            data=json.dumps({
-                "container_uuid": "00000000-0000-0000-0000-000000000000",
-                "dataset_uuid":   "00000000-0000-0000-0000-000000000000",
-                "confirm_doi":    "wrong",
-                "expected_doi":   "right",
-            }),
+            data=json.dumps(
+                {
+                    "container_uuid": "00000000-0000-0000-0000-000000000000",
+                    "dataset_uuid": "00000000-0000-0000-0000-000000000000",
+                    "confirm_doi": "wrong",
+                    "expected_doi": "right",
+                }
+            ),
             headers={"Content-Type": "application/json"},
         )
         assert response.status == 400

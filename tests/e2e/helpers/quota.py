@@ -2,12 +2,13 @@
 Helpers for creating and querying quota requests via the API.
 """
 
+from config import SPARQL_GRAPH, SPARQL_URL
 from playwright.sync_api import Page
 
-from config import SPARQL_URL, SPARQL_GRAPH
 
-
-def create_quota_request(page: Page, quota_gb: int = 10, reason: str = "E2E test quota request") -> None:
+def create_quota_request(
+    page: Page, quota_gb: int = 10, reason: str = "E2E test quota request"
+) -> None:
     """Create a quota request via the profile API.
 
     The page must be authenticated.

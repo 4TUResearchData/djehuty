@@ -14,15 +14,13 @@ Run with:
 from pathlib import Path
 
 import pytest
-from playwright.sync_api import Page, expect
-
 from helpers.dataset import (
     create_draft_dataset,
     get_container_uuid_from_url,
 )
 from helpers.publish import fill_required_fields_and_publish
 from pages.dataset_editor_page import DatasetEditorPage
-
+from playwright.sync_api import Page, expect
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -99,9 +97,7 @@ class TestCreateNewVersion:
         for attempt in range(4):
             authenticated_page.goto("/my/datasets")
             authenticated_page.wait_for_load_state("domcontentloaded")
-            authenticated_page.locator("#table-published").wait_for(
-                state="visible", timeout=60000
-            )
+            authenticated_page.locator("#table-published").wait_for(state="visible", timeout=60000)
             if attempt == 0:
                 screenshot(authenticated_page, "my-datasets-published")
             if new_version_link.count() > 0:
@@ -118,9 +114,7 @@ class TestCreateNewVersion:
         container_uuid = published_dataset
 
         # Navigate to the new-version-draft URL
-        authenticated_page.goto(
-            f"/my/datasets/{container_uuid}/new-version-draft"
-        )
+        authenticated_page.goto(f"/my/datasets/{container_uuid}/new-version-draft")
         authenticated_page.wait_for_url("**/my/datasets/*/edit")
         authenticated_page.wait_for_load_state("domcontentloaded")
         screenshot(authenticated_page, "new-version-editor")
@@ -143,9 +137,7 @@ class TestCreateNewVersion:
         """A new version draft should preserve the title from the published version."""
         container_uuid = published_dataset
 
-        authenticated_page.goto(
-            f"/my/datasets/{container_uuid}/new-version-draft"
-        )
+        authenticated_page.goto(f"/my/datasets/{container_uuid}/new-version-draft")
         authenticated_page.wait_for_url("**/my/datasets/*/edit")
         authenticated_page.wait_for_load_state("domcontentloaded")
 
@@ -165,9 +157,7 @@ class TestCreateNewVersion:
         """A new version draft should preserve the description from the published version."""
         container_uuid = published_dataset
 
-        authenticated_page.goto(
-            f"/my/datasets/{container_uuid}/new-version-draft"
-        )
+        authenticated_page.goto(f"/my/datasets/{container_uuid}/new-version-draft")
         authenticated_page.wait_for_url("**/my/datasets/*/edit")
         authenticated_page.wait_for_load_state("domcontentloaded")
 
@@ -188,9 +178,7 @@ class TestCreateNewVersion:
         """A new version draft should preserve the files from the published version."""
         container_uuid = published_dataset
 
-        authenticated_page.goto(
-            f"/my/datasets/{container_uuid}/new-version-draft"
-        )
+        authenticated_page.goto(f"/my/datasets/{container_uuid}/new-version-draft")
         authenticated_page.wait_for_url("**/my/datasets/*/edit")
         authenticated_page.wait_for_load_state("domcontentloaded")
 
@@ -219,18 +207,14 @@ class TestCreateNewVersion:
         container_uuid = published_dataset
 
         # Create first draft
-        authenticated_page.goto(
-            f"/my/datasets/{container_uuid}/new-version-draft"
-        )
+        authenticated_page.goto(f"/my/datasets/{container_uuid}/new-version-draft")
         authenticated_page.wait_for_url("**/my/datasets/*/edit")
         authenticated_page.wait_for_load_state("domcontentloaded")
         first_url = authenticated_page.url
         screenshot(authenticated_page, "first-draft-created")
 
         # Try creating another draft — should redirect to the same editor
-        authenticated_page.goto(
-            f"/my/datasets/{container_uuid}/new-version-draft"
-        )
+        authenticated_page.goto(f"/my/datasets/{container_uuid}/new-version-draft")
         authenticated_page.wait_for_url("**/my/datasets/*/edit")
         authenticated_page.wait_for_load_state("domcontentloaded")
         second_url = authenticated_page.url
@@ -254,16 +238,13 @@ class TestVersionHistory:
     """Test version history navigation on the public dataset page."""
 
     def test_version_dropdown_visible_after_two_versions(
-        self, authenticated_page: Page, published_dataset: str, test_file: str,
-        screenshot
+        self, authenticated_page: Page, published_dataset: str, test_file: str, screenshot
     ):
         """After publishing a second version, the version dropdown should appear."""
         container_uuid = published_dataset
 
         # Create and publish a second version
-        authenticated_page.goto(
-            f"/my/datasets/{container_uuid}/new-version-draft"
-        )
+        authenticated_page.goto(f"/my/datasets/{container_uuid}/new-version-draft")
         authenticated_page.wait_for_url("**/my/datasets/*/edit")
         authenticated_page.wait_for_load_state("domcontentloaded")
 
@@ -291,16 +272,13 @@ class TestVersionHistory:
         screenshot(authenticated_page, "version-dropdown-visible")
 
     def test_version_dropdown_lists_all_versions(
-        self, authenticated_page: Page, published_dataset: str, test_file: str,
-        screenshot
+        self, authenticated_page: Page, published_dataset: str, test_file: str, screenshot
     ):
         """The version dropdown should list all published versions."""
         container_uuid = published_dataset
 
         # Create and publish v2
-        authenticated_page.goto(
-            f"/my/datasets/{container_uuid}/new-version-draft"
-        )
+        authenticated_page.goto(f"/my/datasets/{container_uuid}/new-version-draft")
         authenticated_page.wait_for_url("**/my/datasets/*/edit")
         authenticated_page.wait_for_load_state("domcontentloaded")
 
@@ -330,16 +308,13 @@ class TestVersionHistory:
         expect(versions_div).to_contain_text("Version 2")
 
     def test_navigate_to_older_version(
-        self, authenticated_page: Page, published_dataset: str, test_file: str,
-        screenshot
+        self, authenticated_page: Page, published_dataset: str, test_file: str, screenshot
     ):
         """Clicking version 1 in the dropdown should navigate to that version."""
         container_uuid = published_dataset
 
         # Create and publish v2
-        authenticated_page.goto(
-            f"/my/datasets/{container_uuid}/new-version-draft"
-        )
+        authenticated_page.goto(f"/my/datasets/{container_uuid}/new-version-draft")
         authenticated_page.wait_for_url("**/my/datasets/*/edit")
         authenticated_page.wait_for_load_state("domcontentloaded")
 
@@ -362,9 +337,7 @@ class TestVersionHistory:
         # Click dropdown and navigate to version 1
         authenticated_page.locator("#versions-btn").click()
         authenticated_page.wait_for_timeout(500)
-        authenticated_page.locator(
-            f'#versions a[href="/datasets/{container_uuid}/1"]'
-        ).click()
+        authenticated_page.locator(f'#versions a[href="/datasets/{container_uuid}/1"]').click()
         authenticated_page.wait_for_load_state("domcontentloaded")
         screenshot(authenticated_page, "navigated-to-v1")
 
@@ -386,16 +359,13 @@ class TestVersionAccess:
     """Test accessing specific versions via URL."""
 
     def test_access_version_1_directly(
-        self, authenticated_page: Page, published_dataset: str, test_file: str,
-        screenshot
+        self, authenticated_page: Page, published_dataset: str, test_file: str, screenshot
     ):
         """Version 1 should be accessible directly via /datasets/<uuid>/1."""
         container_uuid = published_dataset
 
         # Create and publish v2 so version 1 is an older version
-        authenticated_page.goto(
-            f"/my/datasets/{container_uuid}/new-version-draft"
-        )
+        authenticated_page.goto(f"/my/datasets/{container_uuid}/new-version-draft")
         authenticated_page.wait_for_url("**/my/datasets/*/edit")
         authenticated_page.wait_for_load_state("domcontentloaded")
 
@@ -420,16 +390,13 @@ class TestVersionAccess:
         expect(authenticated_page.locator("#metadata")).to_be_visible()
 
     def test_access_latest_version_via_container_url(
-        self, authenticated_page: Page, published_dataset: str, test_file: str,
-        screenshot
+        self, authenticated_page: Page, published_dataset: str, test_file: str, screenshot
     ):
         """The container URL without version should show the latest version."""
         container_uuid = published_dataset
 
         # Create and publish v2
-        authenticated_page.goto(
-            f"/my/datasets/{container_uuid}/new-version-draft"
-        )
+        authenticated_page.goto(f"/my/datasets/{container_uuid}/new-version-draft")
         authenticated_page.wait_for_url("**/my/datasets/*/edit")
         authenticated_page.wait_for_load_state("domcontentloaded")
 
@@ -466,9 +433,7 @@ class TestVersionAccess:
         container_uuid = published_dataset
 
         # V1 is already published. Check API.
-        response = authenticated_page.request.get(
-            f"/v2/articles/{container_uuid}/versions"
-        )
+        response = authenticated_page.request.get(f"/v2/articles/{container_uuid}/versions")
         assert response.ok
         versions = response.json()
         screenshot(authenticated_page, "api-versions-v1-only")

@@ -13,12 +13,9 @@ Run with:
     cd tests/e2e && python -m pytest tests/test_review.py -v
 """
 
-import re
 from pathlib import Path
 
 import pytest
-from playwright.sync_api import Page, expect
-
 from helpers.dataset import (
     create_draft_dataset,
     get_container_uuid_from_url,
@@ -26,7 +23,7 @@ from helpers.dataset import (
 )
 from helpers.publish import fill_required_fields_and_publish
 from pages.dataset_editor_page import DatasetEditorPage
-
+from playwright.sync_api import Page, expect
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -123,9 +120,7 @@ def submit_for_review_via_api(page: Page, container_uuid: str, title: str = "Rev
 class TestSubmitForReview:
     """Test the submission workflow."""
 
-    def test_submit_confirmation_page(
-        self, authenticated_page: Page, test_file: str, screenshot
-    ):
+    def test_submit_confirmation_page(self, authenticated_page: Page, test_file: str, screenshot):
         """After submission, the confirmation page should be shown."""
         url = create_draft_dataset(authenticated_page)
         container_uuid = get_container_uuid_from_url(url)
@@ -134,17 +129,16 @@ class TestSubmitForReview:
         editor.upload_file(test_file)
         editor.save()
 
-        submit_for_review_via_api(authenticated_page, container_uuid,
-                                  title="Submit Confirmation Test")
+        submit_for_review_via_api(
+            authenticated_page, container_uuid, title="Submit Confirmation Test"
+        )
 
         # Visit the confirmation page
         authenticated_page.goto("/my/datasets/submitted-for-review")
         authenticated_page.wait_for_load_state("domcontentloaded")
         screenshot(authenticated_page, "submitted-for-review")
 
-        expect(authenticated_page.locator("h1")).to_contain_text(
-            "submitted for review"
-        )
+        expect(authenticated_page.locator("h1")).to_contain_text("submitted for review")
 
     def test_submit_button_hidden_after_submission(
         self, authenticated_page: Page, test_file: str, screenshot
@@ -157,8 +151,7 @@ class TestSubmitForReview:
         editor.upload_file(test_file)
         editor.save()
 
-        submit_for_review_via_api(authenticated_page, container_uuid,
-                                  title="Submit Hidden Test")
+        submit_for_review_via_api(authenticated_page, container_uuid, title="Submit Hidden Test")
 
         # Go back to the editor
         authenticated_page.goto(f"/my/datasets/{container_uuid}/edit")
@@ -191,8 +184,7 @@ class TestReviewOverview:
         editor.upload_file(test_file)
         editor.save()
 
-        submit_for_review_via_api(authenticated_page, container_uuid,
-                                  title="Overview Visible Test")
+        submit_for_review_via_api(authenticated_page, container_uuid, title="Overview Visible Test")
 
         # Navigate to review overview
         authenticated_page.goto("/review/overview")
@@ -204,9 +196,7 @@ class TestReviewOverview:
             "Overview Visible Test"
         )
 
-    def test_review_overview_status_filters(
-        self, authenticated_page: Page, screenshot
-    ):
+    def test_review_overview_status_filters(self, authenticated_page: Page, screenshot):
         """The status filter dropdown should filter the review table."""
         authenticated_page.goto("/review/overview")
         authenticated_page.wait_for_load_state("domcontentloaded")
@@ -219,9 +209,7 @@ class TestReviewOverview:
         screenshot(authenticated_page, "overview-filtered-unassigned")
 
         # All visible rows should have "unassigned" in the status column
-        visible_rows = authenticated_page.locator(
-            "#overview-table tbody tr:visible"
-        )
+        visible_rows = authenticated_page.locator("#overview-table tbody tr:visible")
         for i in range(visible_rows.count()):
             status_cell = visible_rows.nth(i).locator("td:nth-child(6)")
             expect(status_cell).to_contain_text("unassigned")
@@ -247,8 +235,7 @@ class TestAssignReviewer:
         editor.upload_file(test_file)
         editor.save()
 
-        submit_for_review_via_api(authenticated_page, container_uuid,
-                                  title="Assign Reviewer Test")
+        submit_for_review_via_api(authenticated_page, container_uuid, title="Assign Reviewer Test")
 
         # Go to review overview
         authenticated_page.goto("/review/overview")
@@ -258,8 +245,7 @@ class TestAssignReviewer:
 
         # Find the first row matching our dataset title
         row = authenticated_page.locator(
-            "#overview-table tbody tr",
-            has_text="Assign Reviewer Test"
+            "#overview-table tbody tr", has_text="Assign Reviewer Test"
         ).first
         reviewer_select = row.locator(".reviewer-selector")
 
@@ -409,9 +395,7 @@ class TestPublishDataset:
 class TestDeclineDataset:
     """Test declining a dataset through the review interface."""
 
-    def test_decline_returns_to_draft(
-        self, authenticated_page: Page, test_file: str, screenshot
-    ):
+    def test_decline_returns_to_draft(self, authenticated_page: Page, test_file: str, screenshot):
         """Declining a dataset should return it to draft (not under review)."""
         url = create_draft_dataset(authenticated_page)
         container_uuid = get_container_uuid_from_url(url)

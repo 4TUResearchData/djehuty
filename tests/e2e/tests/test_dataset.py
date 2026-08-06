@@ -16,13 +16,12 @@ import re
 import uuid
 
 import pytest
-from playwright.sync_api import Page, expect
-
 from config import BASE_URL
 from helpers.accounts import get_non_admin_account_uuid
 from helpers.dataset import create_draft_dataset, get_container_uuid_from_url
 from helpers.impersonation import impersonate, stop_impersonation
 from pages.dataset_editor_page import DatasetEditorPage
+from playwright.sync_api import Page, expect
 
 
 @pytest.mark.dataset
@@ -40,9 +39,7 @@ class TestCreateDataset:
 
         editor = DatasetEditorPage(authenticated_page)
         assert editor.heading == "Add new dataset"
-        expect(authenticated_page).to_have_url(
-            re.compile(rf"{BASE_URL}/my/datasets/.+/edit")
-        )
+        expect(authenticated_page).to_have_url(re.compile(rf"{BASE_URL}/my/datasets/.+/edit"))
 
         # Clean up: delete the created dataset
         editor.delete()

@@ -2,8 +2,6 @@
 
 import json
 
-import pytest
-
 from djehuty.web.config.json_parser import JsonConfigElement, parse_config_root
 
 
@@ -33,9 +31,18 @@ class TestCleanSchema:
         assert quotas.attrib["default"] == "5000"
 
     def test_group_metadata_as_plain_keys(self, tmp_path):
-        path = _write_json(tmp_path, {"djehuty": {"groups": {"group": [
-            {"name": "TU", "domain": "tudelft.nl", "id": "1", "is_featured": "1"}
-        ]}}})
+        path = _write_json(
+            tmp_path,
+            {
+                "djehuty": {
+                    "groups": {
+                        "group": [
+                            {"name": "TU", "domain": "tudelft.nl", "id": "1", "is_featured": "1"}
+                        ]
+                    }
+                }
+            },
+        )
         root = parse_config_root(path)
         group = next(iter(root.find("groups")))
         assert group.attrib["name"] == "TU"

@@ -18,12 +18,10 @@ import tempfile
 from pathlib import Path
 
 import pytest
-from playwright.sync_api import Page, expect
-
 from config import BASE_URL
 from helpers.dataset import create_draft_dataset
 from pages.dataset_editor_page import DatasetEditorPage
-
+from playwright.sync_api import Page, expect
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -57,27 +55,23 @@ def create_local_git_repo(directory: Path, files: dict[str, str]) -> None:
         directory: Path to create the repo in.
         files: Dict of filename -> content to create and commit.
     """
-    subprocess.run(
-        ["git", "init"], cwd=directory, check=True, capture_output=True
-    )
+    subprocess.run(["git", "init"], cwd=directory, check=True, capture_output=True)
     subprocess.run(
         ["git", "config", "user.email", "e2e@test.com"],
-        cwd=directory, check=True, capture_output=True
+        cwd=directory,
+        check=True,
+        capture_output=True,
     )
     subprocess.run(
-        ["git", "config", "user.name", "E2E Test"],
-        cwd=directory, check=True, capture_output=True
+        ["git", "config", "user.name", "E2E Test"], cwd=directory, check=True, capture_output=True
     )
     for name, content in files.items():
         file_path = directory / name
         file_path.parent.mkdir(parents=True, exist_ok=True)
         file_path.write_text(content)
+    subprocess.run(["git", "add", "."], cwd=directory, check=True, capture_output=True)
     subprocess.run(
-        ["git", "add", "."], cwd=directory, check=True, capture_output=True
-    )
-    subprocess.run(
-        ["git", "commit", "-m", "Initial commit"],
-        cwd=directory, check=True, capture_output=True
+        ["git", "commit", "-m", "Initial commit"], cwd=directory, check=True, capture_output=True
     )
 
 
@@ -85,11 +79,12 @@ def git_push(directory: Path, remote_url: str) -> subprocess.CompletedProcess:
     """Add remote and push all branches."""
     subprocess.run(
         ["git", "remote", "add", "djehuty", remote_url],
-        cwd=directory, check=True, capture_output=True
+        cwd=directory,
+        check=True,
+        capture_output=True,
     )
     result = subprocess.run(
-        ["git", "push", "djehuty", "--all"],
-        cwd=directory, capture_output=True, text=True
+        ["git", "push", "djehuty", "--all"], cwd=directory, capture_output=True, text=True
     )
     return result
 
@@ -143,15 +138,16 @@ class TestGitDeposit:
 
         with tempfile.TemporaryDirectory() as tmpdir:
             repo_dir = Path(tmpdir)
-            create_local_git_repo(repo_dir, {
-                "README.md": "# Test Software\n\nThis is a test.\n",
-                "main.py": "print('Hello from E2E test')\n",
-            })
+            create_local_git_repo(
+                repo_dir,
+                {
+                    "README.md": "# Test Software\n\nThis is a test.\n",
+                    "main.py": "print('Hello from E2E test')\n",
+                },
+            )
 
             result = git_push(repo_dir, git_url)
-            assert result.returncode == 0, (
-                f"git push failed: {result.stderr}"
-            )
+            assert result.returncode == 0, f"git push failed: {result.stderr}"
 
         screenshot(editor.page, "after-git-push")
 
@@ -162,10 +158,13 @@ class TestGitDeposit:
 
         with tempfile.TemporaryDirectory() as tmpdir:
             repo_dir = Path(tmpdir)
-            create_local_git_repo(repo_dir, {
-                "README.md": "# Test Project\n",
-                "app.py": "print('hello')\n",
-            })
+            create_local_git_repo(
+                repo_dir,
+                {
+                    "README.md": "# Test Project\n",
+                    "app.py": "print('hello')\n",
+                },
+            )
             result = git_push(repo_dir, git_url)
             assert result.returncode == 0, f"git push failed: {result.stderr}"
 
@@ -192,9 +191,12 @@ class TestGitDeposit:
 
         with tempfile.TemporaryDirectory() as tmpdir:
             repo_dir = Path(tmpdir)
-            create_local_git_repo(repo_dir, {
-                "file.txt": "content\n",
-            })
+            create_local_git_repo(
+                repo_dir,
+                {
+                    "file.txt": "content\n",
+                },
+            )
             result = git_push(repo_dir, git_url)
             assert result.returncode == 0, f"git push failed: {result.stderr}"
 
@@ -216,12 +218,15 @@ class TestGitDeposit:
 
         with tempfile.TemporaryDirectory() as tmpdir:
             repo_dir = Path(tmpdir)
-            create_local_git_repo(repo_dir, {
-                "README.md": "# Multi-file Test\n",
-                "setup.py": "from setuptools import setup\nsetup(name='test')\n",
-                "main.py": "def main(): pass\n",
-                "utils.py": "def helper(): pass\n",
-            })
+            create_local_git_repo(
+                repo_dir,
+                {
+                    "README.md": "# Multi-file Test\n",
+                    "setup.py": "from setuptools import setup\nsetup(name='test')\n",
+                    "main.py": "def main(): pass\n",
+                    "utils.py": "def helper(): pass\n",
+                },
+            )
             result = git_push(repo_dir, git_url)
             assert result.returncode == 0, f"git push failed: {result.stderr}"
 
@@ -243,9 +248,12 @@ class TestGitDeposit:
 
         with tempfile.TemporaryDirectory() as tmpdir:
             repo_dir = Path(tmpdir)
-            create_local_git_repo(repo_dir, {
-                "persistent.txt": "This should persist.\n",
-            })
+            create_local_git_repo(
+                repo_dir,
+                {
+                    "persistent.txt": "This should persist.\n",
+                },
+            )
             result = git_push(repo_dir, git_url)
             assert result.returncode == 0, f"git push failed: {result.stderr}"
 

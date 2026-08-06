@@ -19,7 +19,6 @@ from djehuty.utils import rdf
 from djehuty.web.config import config
 from djehuty.web.database import SparqlInterface
 
-
 # SPARQL keywords that must never appear in a generated filter fragment. Their
 # presence means an injected value escaped its intended string/name position.
 # (Punctuation like '#' is not checked here: it legitimately occurs in the

@@ -15,15 +15,12 @@ Run with:
 """
 
 import re
-import tempfile
 from pathlib import Path
 
 import pytest
-from playwright.sync_api import Page, expect
-
-from helpers.dataset import create_draft_dataset, get_container_uuid_from_url
+from helpers.dataset import create_draft_dataset
 from pages.dataset_editor_page import DatasetEditorPage
-
+from playwright.sync_api import Page, expect
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -181,9 +178,7 @@ class TestFileDownload:
 
         # Get the download URL and trigger download
         with page.expect_download() as download_info:
-            file_link = page.locator("table#files tbody tr").first.locator(
-                "td:first-child a"
-            ).first
+            file_link = page.locator("table#files tbody tr").first.locator("td:first-child a").first
             file_link.click()
 
         download = download_info.value
@@ -266,9 +261,7 @@ class TestFileRemoval:
 class TestGitInstructions:
     """Test that git instructions are displayed for software deposits."""
 
-    def test_software_deposit_shows_git_instructions(
-        self, authenticated_page: Page, screenshot
-    ):
+    def test_software_deposit_shows_git_instructions(self, authenticated_page: Page, screenshot):
         """Selecting 'Software deposit' should display git push instructions."""
         url = create_draft_dataset(authenticated_page)
         editor = DatasetEditorPage(authenticated_page)
@@ -295,9 +288,7 @@ class TestGitInstructions:
         # Clean up
         editor.delete()
 
-    def test_software_deposit_shows_git_branch_selector(
-        self, authenticated_page: Page, screenshot
-    ):
+    def test_software_deposit_shows_git_branch_selector(self, authenticated_page: Page, screenshot):
         """The software deposit view should include a branch selector."""
         url = create_draft_dataset(authenticated_page)
         editor = DatasetEditorPage(authenticated_page)

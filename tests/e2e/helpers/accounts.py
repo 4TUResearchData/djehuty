@@ -8,8 +8,7 @@ impersonation and access control tests.
 from typing import Optional
 
 import requests
-
-from config import SPARQL_URL, SPARQL_GRAPH, ADMIN_EMAIL
+from config import ADMIN_EMAIL, SPARQL_GRAPH, SPARQL_URL
 
 
 def _sparql_query(query: str) -> list[dict]:

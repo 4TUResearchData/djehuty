@@ -13,12 +13,10 @@ Run with:
 from pathlib import Path
 
 import pytest
-from playwright.sync_api import Page, expect
-
 from helpers.dataset import create_draft_dataset, get_container_uuid_from_url
 from helpers.publish import fill_required_fields_and_publish
 from pages.dataset_editor_page import DatasetEditorPage
-
+from playwright.sync_api import Page, expect
 
 TEST_FILE_CONTENT = b"ROR publisher test file.\n"
 TEST_FILE_NAME = "ror-test-file.txt"

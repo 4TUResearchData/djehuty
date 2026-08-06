@@ -14,11 +14,9 @@ Run with:
 """
 
 import pytest
-from playwright.sync_api import Page, expect
-
 from config import BASE_URL
 from pages.search_page import SearchPage
-
+from playwright.sync_api import Page, expect
 
 # ---------------------------------------------------------------------------
 # Search from homepage

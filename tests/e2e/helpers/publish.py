@@ -80,7 +80,9 @@ def fill_required_fields_and_publish(
         f"/v2/account/articles/{container_uuid}/authors",
         data={"authors": [{"first_name": "Test", "last_name": "Author"}]},
     )
-    assert author_response.ok, f"Add author failed: {author_response.status} {author_response.text()}"
+    assert author_response.ok, (
+        f"Add author failed: {author_response.status} {author_response.text()}"
+    )
 
     # Add a category via API
     if category_uuid:

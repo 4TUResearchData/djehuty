@@ -25,15 +25,13 @@ import uuid
 from pathlib import Path
 
 import pytest
-from playwright.sync_api import Page
-
 from helpers.dataset import (
     create_draft_dataset,
     get_container_uuid_from_url,
 )
 from helpers.publish import fill_required_fields_and_publish
 from pages.dataset_editor_page import DatasetEditorPage
-
+from playwright.sync_api import Page
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -61,9 +59,7 @@ def draft_dataset(authenticated_page: Page):
     container_uuid = get_container_uuid_from_url(url)
     yield authenticated_page, container_uuid
     # Teardown: delete via API (ignore errors if already deleted)
-    authenticated_page.request.delete(
-        f"/v2/account/articles/{container_uuid}"
-    )
+    authenticated_page.request.delete(f"/v2/account/articles/{container_uuid}")
 
 
 @pytest.fixture()
@@ -193,9 +189,7 @@ class TestPrivateDatasetCrud:
 
         # Clean up: extract UUID and delete
         dataset_uuid = data["location"].rstrip("/").split("/")[-1]
-        authenticated_page.request.delete(
-            f"/v2/account/articles/{dataset_uuid}"
-        )
+        authenticated_page.request.delete(f"/v2/account/articles/{dataset_uuid}")
 
     def test_create_dataset_without_title(self, authenticated_page: Page, save_response):
         """POST /v2/account/articles without title should return 400."""
@@ -210,9 +204,7 @@ class TestPrivateDatasetCrud:
     def test_get_private_dataset(self, draft_dataset, save_response):
         """GET /v2/account/articles/<uuid> should return dataset details."""
         page, container_uuid = draft_dataset
-        response = page.request.get(
-            f"/v2/account/articles/{container_uuid}"
-        )
+        response = page.request.get(f"/v2/account/articles/{container_uuid}")
         save_response(response, "api-get-private-dataset")
         assert response.status == 200
         data = response.json()
@@ -233,9 +225,7 @@ class TestPrivateDatasetCrud:
         assert response.ok
 
         # Verify the update persisted
-        get_response = page.request.get(
-            f"/v2/account/articles/{container_uuid}"
-        )
+        get_response = page.request.get(f"/v2/account/articles/{container_uuid}")
         save_response(get_response, "api-update-dataset-verify")
         data = get_response.json()
         assert data["title"] == unique_title
@@ -261,17 +251,13 @@ class TestPrivateDatasetCrud:
         dataset_uuid = data["location"].rstrip("/").split("/")[-1]
 
         # Delete it
-        delete_response = authenticated_page.request.delete(
-            f"/v2/account/articles/{dataset_uuid}"
-        )
+        delete_response = authenticated_page.request.delete(f"/v2/account/articles/{dataset_uuid}")
         save_response(delete_response, "api-delete-dataset")
         assert delete_response.status == 204
 
         # Verify it's gone — the private endpoint returns 200 with an empty
         # array when the dataset no longer exists for this account.
-        get_response = authenticated_page.request.get(
-            f"/v2/account/articles/{dataset_uuid}"
-        )
+        get_response = authenticated_page.request.get(f"/v2/account/articles/{dataset_uuid}")
         save_response(get_response, "api-delete-dataset-verify-gone")
         assert get_response.status == 200
         assert get_response.json() == [] or get_response.body() == b"[]"
@@ -285,10 +271,7 @@ class TestPrivateDatasetCrud:
         data = response.json()
         assert isinstance(data, list)
         # Our draft should be in the list
-        uuids = [
-            d.get("uuid") or d.get("container_uuid", "")
-            for d in data
-        ]
+        uuids = [d.get("uuid") or d.get("container_uuid", "") for d in data]
         assert any(container_uuid in u for u in uuids)
 
     def test_search_private_datasets(self, draft_dataset, save_response):
@@ -329,9 +312,7 @@ class TestDatasetAuthorsApi:
     def test_get_authors(self, draft_dataset, save_response):
         """GET /v2/account/articles/<uuid>/authors should return a list."""
         page, container_uuid = draft_dataset
-        response = page.request.get(
-            f"/v2/account/articles/{container_uuid}/authors"
-        )
+        response = page.request.get(f"/v2/account/articles/{container_uuid}/authors")
         save_response(response, "api-get-authors")
         assert response.status == 200
         data = response.json()
@@ -348,9 +329,7 @@ class TestDatasetAuthorsApi:
         assert response.ok
 
         # Verify the author was added — v2 returns full_name, not first/last
-        get_response = page.request.get(
-            f"/v2/account/articles/{container_uuid}/authors"
-        )
+        get_response = page.request.get(f"/v2/account/articles/{container_uuid}/authors")
         save_response(get_response, "api-add-author-verify")
         authors = get_response.json()
         names = [a.get("full_name", "") for a in authors]
@@ -361,10 +340,12 @@ class TestDatasetAuthorsApi:
         page, container_uuid = draft_dataset
         response = page.request.put(
             f"/v2/account/articles/{container_uuid}/authors",
-            data={"authors": [
-                {"first_name": "Alice", "last_name": "Smith"},
-                {"first_name": "Bob", "last_name": "Jones"},
-            ]},
+            data={
+                "authors": [
+                    {"first_name": "Alice", "last_name": "Smith"},
+                    {"first_name": "Bob", "last_name": "Jones"},
+                ]
+            },
         )
         save_response(response, "api-replace-authors")
         assert response.ok
@@ -382,9 +363,7 @@ class TestDatasetTagsApi:
     def test_get_tags(self, draft_dataset, save_response):
         """GET /v3/datasets/<uuid>/tags should return a list."""
         page, container_uuid = draft_dataset
-        response = page.request.get(
-            f"/v3/datasets/{container_uuid}/tags"
-        )
+        response = page.request.get(f"/v3/datasets/{container_uuid}/tags")
         save_response(response, "api-get-tags")
         assert response.status == 200
         data = response.json()
@@ -401,9 +380,7 @@ class TestDatasetTagsApi:
         assert response.ok
 
         # Verify
-        get_response = page.request.get(
-            f"/v3/datasets/{container_uuid}/tags"
-        )
+        get_response = page.request.get(f"/v3/datasets/{container_uuid}/tags")
         save_response(get_response, "api-add-tags-verify")
         tags = get_response.json()
         tag_values = [t.get("tag", t) if isinstance(t, dict) else t for t in tags]
@@ -418,9 +395,7 @@ class TestDatasetTagsApi:
             data={"tags": ["to-delete"]},
         )
         # Then delete it
-        response = page.request.delete(
-            f"/v3/datasets/{container_uuid}/tags?tag=to-delete"
-        )
+        response = page.request.delete(f"/v3/datasets/{container_uuid}/tags?tag=to-delete")
         save_response(response, "api-delete-tag")
         assert response.ok
 
@@ -437,9 +412,7 @@ class TestDatasetReferencesApi:
     def test_get_references(self, draft_dataset, save_response):
         """GET /v3/datasets/<uuid>/references should return a list."""
         page, container_uuid = draft_dataset
-        response = page.request.get(
-            f"/v3/datasets/{container_uuid}/references"
-        )
+        response = page.request.get(f"/v3/datasets/{container_uuid}/references")
         save_response(response, "api-get-references")
         assert response.status == 200
         data = response.json()
@@ -456,9 +429,7 @@ class TestDatasetReferencesApi:
         assert response.ok
 
         # Verify
-        get_response = page.request.get(
-            f"/v3/datasets/{container_uuid}/references"
-        )
+        get_response = page.request.get(f"/v3/datasets/{container_uuid}/references")
         save_response(get_response, "api-add-references-verify")
         refs = get_response.json()
         assert len(refs) > 0
@@ -473,9 +444,7 @@ class TestDatasetReferencesApi:
             data={"references": [{"url": ref_url}]},
         )
         # Delete the specific reference via query parameter
-        response = page.request.delete(
-            f"/v3/datasets/{container_uuid}/references?url={ref_url}"
-        )
+        response = page.request.delete(f"/v3/datasets/{container_uuid}/references?url={ref_url}")
         save_response(response, "api-delete-references")
         assert response.status == 204
 
@@ -492,9 +461,7 @@ class TestDatasetCategoriesApi:
     def test_get_categories(self, draft_dataset, save_response):
         """GET /v2/account/articles/<uuid>/categories should return a list."""
         page, container_uuid = draft_dataset
-        response = page.request.get(
-            f"/v2/account/articles/{container_uuid}/categories"
-        )
+        response = page.request.get(f"/v2/account/articles/{container_uuid}/categories")
         save_response(response, "api-get-categories")
         assert response.status == 200
         data = response.json()
@@ -530,9 +497,7 @@ class TestPrivateLinksApi:
             f"/v2/account/articles/{container_uuid}/private_links",
             data={"read_only": True},
         )
-        response = page.request.get(
-            f"/v2/account/articles/{container_uuid}/private_links"
-        )
+        response = page.request.get(f"/v2/account/articles/{container_uuid}/private_links")
         save_response(response, "api-list-private-links")
         assert response.status == 200
         data = response.json()
@@ -570,9 +535,7 @@ class TestDatasetFilesApi:
     def test_get_private_files_empty(self, draft_dataset, save_response):
         """GET /v2/account/articles/<uuid>/files on empty dataset returns list."""
         page, container_uuid = draft_dataset
-        response = page.request.get(
-            f"/v2/account/articles/{container_uuid}/files"
-        )
+        response = page.request.get(f"/v2/account/articles/{container_uuid}/files")
         save_response(response, "api-get-files-empty")
         assert response.status == 200
         data = response.json()
@@ -592,9 +555,7 @@ class TestDatasetEmbargoApi:
     def test_get_embargo(self, draft_dataset, save_response):
         """GET /v2/account/articles/<uuid>/embargo should return embargo info."""
         page, container_uuid = draft_dataset
-        response = page.request.get(
-            f"/v2/account/articles/{container_uuid}/embargo"
-        )
+        response = page.request.get(f"/v2/account/articles/{container_uuid}/embargo")
         save_response(response, "api-get-embargo")
         assert response.status == 200
 
@@ -620,9 +581,7 @@ class TestPublishedDatasetApi:
     def test_get_published_dataset_versions(self, published_dataset, save_response):
         """GET /v2/articles/<uuid>/versions should return version list."""
         page, container_uuid = published_dataset
-        response = page.request.get(
-            f"/v2/articles/{container_uuid}/versions"
-        )
+        response = page.request.get(f"/v2/articles/{container_uuid}/versions")
         save_response(response, "api-get-versions")
         assert response.status == 200
         data = response.json()
@@ -632,9 +591,7 @@ class TestPublishedDatasetApi:
     def test_get_published_dataset_files(self, published_dataset, save_response):
         """GET /v2/articles/<uuid>/files should return the file list."""
         page, container_uuid = published_dataset
-        response = page.request.get(
-            f"/v2/articles/{container_uuid}/files"
-        )
+        response = page.request.get(f"/v2/articles/{container_uuid}/files")
         save_response(response, "api-get-published-files")
         assert response.status == 200
         data = response.json()
@@ -692,9 +649,7 @@ class TestDatasetApiErrors:
     def test_delete_nonexistent_dataset(self, authenticated_page: Page, save_response):
         """DELETE /v2/account/articles/<fake> should return 500 (dataset not found)."""
         fake_uuid = str(uuid.uuid4())
-        response = authenticated_page.request.delete(
-            f"/v2/account/articles/{fake_uuid}"
-        )
+        response = authenticated_page.request.delete(f"/v2/account/articles/{fake_uuid}")
         save_response(response, "api-delete-nonexistent")
         assert response.status == 500
 

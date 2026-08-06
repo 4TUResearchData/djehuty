@@ -15,7 +15,6 @@ Usage in tests::
         screenshot(page, "after-login-click")
 """
 
-import os
 from pathlib import Path
 
 from playwright.sync_api import Page

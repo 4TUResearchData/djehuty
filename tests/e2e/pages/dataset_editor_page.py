@@ -4,7 +4,7 @@ Page object for the dataset editor (/my/datasets/<id>/edit).
 
 import re
 
-from playwright.sync_api import Page, expect
+from playwright.sync_api import Page
 
 from pages.base_page import BasePage
 
@@ -101,9 +101,9 @@ class DatasetEditorPage(BasePage):
         fc_info.value.set_files(file_path)
         # Wait for the expected number of rows to appear in the files table.
         # Use a longer timeout because S3 uploads can be slow in CI.
-        self.page.locator(
-            f"table#files tbody tr:nth-child({expected_count})"
-        ).wait_for(state="visible", timeout=60000)
+        self.page.locator(f"table#files tbody tr:nth-child({expected_count})").wait_for(
+            state="visible", timeout=60000
+        )
         # Wait for Dropzone's AJAX re-render to finish before the next upload
         self.page.wait_for_load_state("networkidle")
 

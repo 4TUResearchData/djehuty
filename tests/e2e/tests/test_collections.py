@@ -17,8 +17,6 @@ import re
 import uuid
 
 import pytest
-from playwright.sync_api import Page, expect
-
 from config import BASE_URL
 from helpers.accounts import get_non_admin_account_uuid
 from helpers.collection import (
@@ -32,7 +30,7 @@ from helpers.impersonation import impersonate, stop_impersonation
 from helpers.publish import fill_required_fields_and_publish
 from pages.collection_editor_page import CollectionEditorPage
 from pages.dataset_editor_page import DatasetEditorPage
-
+from playwright.sync_api import Page, expect
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -87,9 +85,7 @@ class TestCreateCollection:
         editor = CollectionEditorPage(authenticated_page)
         editor.wait_for_ready()
         assert editor.heading.lower() == "add new collection"
-        expect(authenticated_page).to_have_url(
-            re.compile(rf"{BASE_URL}/my/collections/.+/edit")
-        )
+        expect(authenticated_page).to_have_url(re.compile(rf"{BASE_URL}/my/collections/.+/edit"))
 
         editor.delete()
 
@@ -229,7 +225,9 @@ class TestDeleteCollection:
         screenshot(authenticated_page, "after-delete")
         expect(authenticated_page).to_have_url(f"{BASE_URL}/my/collections")
 
-    def test_deleted_collection_removed_from_drafts_list(self, authenticated_page: Page, screenshot):
+    def test_deleted_collection_removed_from_drafts_list(
+        self, authenticated_page: Page, screenshot
+    ):
         """A deleted collection should no longer appear in the drafts list."""
         url = create_draft_collection(authenticated_page)
         editor = CollectionEditorPage(authenticated_page)
@@ -459,9 +457,7 @@ class TestPublishCollection:
         editor.wait_for_ready()
 
         # Wait for AJAX calls in activate() to finish rendering tags/authors/categories
-        authenticated_page.locator("#tags-list li").first.wait_for(
-            state="visible", timeout=10000
-        )
+        authenticated_page.locator("#tags-list li").first.wait_for(state="visible", timeout=10000)
         authenticated_page.locator("#authors-list tbody tr").first.wait_for(
             state="visible", timeout=10000
         )
@@ -485,8 +481,7 @@ class TestPublishCollection:
 
         publish_response = response_info.value
         assert publish_response.ok, (
-            f"Publish API failed: {publish_response.status} "
-            f"{publish_response.text()}"
+            f"Publish API failed: {publish_response.status} {publish_response.text()}"
         )
 
         # After successful publish, JS redirects via window.location.replace
@@ -517,9 +512,7 @@ class TestPublishCollection:
         published_table = authenticated_page.locator("#table-published-collections")
         expect(published_table).to_contain_text("Listed Published Collection")
 
-    def test_published_collection_shows_metadata(
-        self, authenticated_page: Page, screenshot
-    ):
+    def test_published_collection_shows_metadata(self, authenticated_page: Page, screenshot):
         """The public collection page should display the collection metadata."""
         url = create_draft_collection(authenticated_page)
         container_uuid = get_container_uuid_from_url(url)
@@ -605,9 +598,7 @@ class TestPublishCollection:
 class TestCollectionVersioning:
     """Test creating new versions of published collections."""
 
-    def test_new_version_button_on_my_collections(
-        self, authenticated_page: Page, screenshot
-    ):
+    def test_new_version_button_on_my_collections(self, authenticated_page: Page, screenshot):
         """The published collections table should show a 'new version' button."""
         url = create_draft_collection(authenticated_page)
         container_uuid = get_container_uuid_from_url(url)
@@ -643,9 +634,7 @@ class TestCollectionVersioning:
         authenticated_page.goto("/login")
         authenticated_page.wait_for_url("**/my/dashboard**")
 
-        authenticated_page.goto(
-            f"/my/collections/{container_uuid}/new-version-draft"
-        )
+        authenticated_page.goto(f"/my/collections/{container_uuid}/new-version-draft")
         authenticated_page.wait_for_url("**/my/collections/*/edit")
         authenticated_page.wait_for_load_state("domcontentloaded")
         screenshot(authenticated_page, "new-version-editor")
@@ -716,9 +705,7 @@ class TestCollectButton:
 
         try:
             for title in titles:
-                collections[title] = _create_titled_draft_collection(
-                    authenticated_page, title
-                )
+                collections[title] = _create_titled_draft_collection(authenticated_page, title)
 
             for title, container_uuid in collections.items():
                 # Reload between clicks so the menu is rebuilt from scratch,
@@ -764,6 +751,4 @@ class TestCollectButton:
                 )
         finally:
             for container_uuid in collections.values():
-                authenticated_page.request.delete(
-                    f"/v2/account/collections/{container_uuid}"
-                )
+                authenticated_page.request.delete(f"/v2/account/collections/{container_uuid}")
