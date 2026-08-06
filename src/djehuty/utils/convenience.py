@@ -376,6 +376,17 @@ def strip_string(input_string):
     return input_string
 
 
+def strip_parenthesized_suffix(value):
+    """Removes a trailing parenthesized token from VALUE.
+
+    'Surname, N. (nsurname)' -> 'Surname, N.'
+    """
+    if not isinstance(value, str):
+        return value
+    stripped = re.sub(r"\s*\([^()]*\)\s*$", "", value).strip()
+    return stripped if stripped else value.strip()
+
+
 def normalize_identifier(value, prefix_url):
     """Procedure to rewrite URLs to URIs."""
     # Don't process invalid entries
