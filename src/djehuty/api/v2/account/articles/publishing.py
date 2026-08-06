@@ -1,15 +1,27 @@
 """Authenticated /v2/account/articles publishing endpoints."""
 
-from fastapi import APIRouter, Depends
+import logging
+
+from fastapi import APIRouter, Depends, Response
 from fastapi.responses import JSONResponse
 
-from djehuty.api.dependencies import get_db, require_auth
-from djehuty.api.exceptions import ForbiddenError, InvalidInputError
+from djehuty.api.dependencies import (
+    get_db,
+    get_email,
+    get_impersonator_token,
+    get_token,
+    require_auth,
+)
+from djehuty.api.exceptions import ForbiddenError
 from djehuty.api.models.common import ErrorResponse
-from djehuty.api.v2.account.articles._shared import _ok, _resolve_private_dataset
+from djehuty.api.services.article_service import ArticleService
+from djehuty.api.v2.account.articles._shared import _ok
+from djehuty.services import datacite, notifications
+from djehuty.utils.convenience import value_or, value_or_none
 from djehuty.web.config import config
 
 router = APIRouter(prefix="/account", tags=["V2 / Account / Articles / Publishing"])
+_log = logging.getLogger(__name__)
 
 
 @router.post(
@@ -18,21 +30,28 @@ router = APIRouter(prefix="/account", tags=["V2 / Account / Articles / Publishin
     responses={200: _ok("Reserved DOI", {"doi": "10.5074/d7b3daa5-45e2-47b0-9910-0f7fa6a995b1"})},
 )
 def reserve_doi(dataset_id: str, account=Depends(require_auth), db=Depends(get_db)):
-    dataset = _resolve_private_dataset(db, dataset_id, account["uuid"])
-    doi = db.reserve_doi(dataset["uri"], account["uuid"], item_type="dataset")
-    if doi is None:
-        raise InvalidInputError("Failed to reserve DOI.", "ReserveFailed")
-    return JSONResponse(content={"doi": doi})
+    dataset = ArticleService(db)._resolve_dataset(
+        dataset_id, account_uuid=account["uuid"], is_published=False
+    )
+    if dataset is None:
+        raise ForbiddenError()
+
+    reserved_doi = datacite.reserve_and_save_doi(db, account["uuid"], dataset)
+    if reserved_doi:
+        return JSONResponse(content={"doi": reserved_doi})
+    return Response(status_code=500)
 
 
 @router.post(
     "/articles/{dataset_id}/publish",
     summary="Publish an article",
     description=(
-        "Publish a draft article. Requires reviewer permissions on the "
-        "calling account. In production this also reserves DataCite DOIs "
-        "for the container and the new version (the DOI flow is gated by "
-        "``config.in_production`` and skipped in dev/preproduction)."
+        "Publish a draft article. Requires reviewer permissions (via the "
+        "review-impersonation cookie or the calling account's token). In "
+        "production this reserves the container and version DOIs at DataCite "
+        "and pushes their metadata; the DOI flow is skipped in "
+        "dev/preproduction. Sends the approval e-mail to the owner and a "
+        "notification to the reviewers."
     ),
     responses={
         201: _ok(
@@ -43,52 +62,96 @@ def reserve_doi(dataset_id: str, account=Depends(require_auth), db=Depends(get_d
         500: {"model": ErrorResponse, "description": "Publication backend error"},
     },
 )
-def publish_article(dataset_id: str, account=Depends(require_auth), db=Depends(get_db)):
-    # The /v2/account/articles/<id>/publish path delegates to the v3 dataset
-    # publish handler in the legacy app — same business logic for both URLs.
-    if not (db.may_review(account.get("uuid")) or db.may_review_institution(account.get("uuid"))):
-        raise ForbiddenError("Reviewer permissions required.")
+def publish_article(
+    dataset_id: str,
+    account=Depends(require_auth),
+    db=Depends(get_db),
+    email=Depends(get_email),
+    impersonator_token: str | None = Depends(get_impersonator_token),
+    token: str | None = Depends(get_token),
+):
+    reviewer_token = impersonator_token
+    may_review_all = db.may_review(reviewer_token)
+    may_review_institution = db.may_review_institution(reviewer_token)
+    if not may_review_all and not may_review_institution:
+        may_review_all = db.may_review(token)
+        may_review_institution = db.may_review_institution(token)
+        if not may_review_all and not may_review_institution:
+            raise ForbiddenError()
 
-    dataset = _resolve_private_dataset(db, dataset_id, account["uuid"])
-    container_uuid = dataset["container_uuid"]
-
-    # For institutional reviewers, the reviewer's group must match the
-    # dataset's group.
-    if db.may_review_institution(account.get("uuid")):
-        reviewer_group = account.get("group_id", "reviewer-group")
-        dataset_group = dataset.get("group_id", "dataset-group")
-        if reviewer_group != dataset_group:
-            raise ForbiddenError("Reviewer group mismatch.")
-
-    # Best-effort review-status update — legacy logs an error on failure
-    # but does not block publication. We mirror that.
-    review_uri = dataset.get("review_uri")
-    if review_uri:
-        db.update_review(
-            review_uri,
-            author_account_uuid=dataset["account_uuid"],
-            assigned_to=account.get("uuid"),
-            status="assigned",
-        )
-
-    # DOI reservation is production-only. The DataCite calls require helpers
-    # that still live on the legacy server (``__reserve_and_save_doi`` /
-    # ``__update_item_doi``). For dev/preproduction this block is skipped.
-    if config.in_production and not config.in_preproduction:
-        # TODO: extract DataCite DOI helpers into a shared module so the
-        # production-only DOI reservation can run from here too. Until then,
-        # production deployments must keep ``api-service = legacy`` for the
-        # publish endpoint.
-        raise InvalidInputError(
-            "Publishing via the FastAPI implementation is not yet wired up "
-            "for production DOI reservation.",
-            "PublishUnavailableInProd",
-        )
-
-    if not db.publish_dataset(container_uuid, account["uuid"]):
-        raise InvalidInputError("Failed to publish dataset.", "PublishFailed")
-
-    return JSONResponse(
-        content={"location": f"{config.base_url}/published/{dataset_id}"},
-        status_code=201,
+    dataset = ArticleService(db)._resolve_dataset(
+        dataset_id, account_uuid=account["uuid"], is_published=False
     )
+    if dataset is None:
+        raise ForbiddenError()
+
+    reviewer_account = db.account_by_session_token(reviewer_token)
+    if may_review_institution:
+        if value_or(dataset, "group_id", "A") != value_or(reviewer_account, "group_id", "not-A"):
+            raise ForbiddenError()
+
+    if not db.update_review(
+        dataset["review_uri"],
+        author_account_uuid=dataset["account_uuid"],
+        assigned_to=reviewer_account["uuid"],
+        status="assigned",
+    ):
+        _log.error("Unable to assign reviewer before publishing for %s.", dataset_id)
+
+    container_uuid = dataset["container_uuid"]
+    container = db.container(container_uuid)
+    new_version = value_or(container, "latest_published_version_number", 0) + 1
+    if config.in_production and not config.in_preproduction:
+        for version in (None, new_version):
+            reserved_doi = datacite.reserve_and_save_doi(
+                db, account["uuid"], dataset, version=version
+            )
+            if not reserved_doi:
+                _log.error("Reserving DOI for %s failed.", container_uuid)
+                return Response(status_code=500)
+
+            if not datacite.update_item_doi(
+                db, container_uuid, item_type="dataset", version=version
+            ):
+                _log.error(
+                    "Updating DOI %s for publication of %s failed.",
+                    reserved_doi,
+                    container_uuid,
+                )
+                return Response(status_code=500)
+
+    if db.publish_dataset(container_uuid, account["uuid"]):
+        try:
+            owner_account = db.account_by_uuid(dataset["account_uuid"])
+            dataset = db.datasets(dataset_uuid=dataset["uuid"], use_cache=False)[0]
+
+            subject = f"Approved: {dataset['title']}"
+            parameters = {
+                "base_url": config.base_url,
+                "support_email": config.support_email_address,
+                "title": dataset["title"],
+                "container_uuid": dataset["container_uuid"],
+                "versioned_doi": value_or_none(dataset, "doi"),
+                "container_doi": dataset["container_doi"],
+            }
+            notifications.send_templated_email(
+                db, email, [owner_account["email"]], subject, "dataset_approved", **parameters
+            )
+            notifications.send_email_to_reviewers(
+                db,
+                email,
+                subject,
+                "published_dataset_notification",
+                dataset=dataset,
+                account_email=owner_account["email"],
+                **parameters,
+            )
+        except (TypeError, IndexError, KeyError) as error:
+            _log.error("Unable to send approval e-mail for dataset %s: %s.", dataset["uuid"], error)
+
+        return JSONResponse(
+            status_code=201,
+            content={"location": f"{config.base_url}/review/published/{dataset_id}"},
+        )
+
+    return Response(status_code=500)
