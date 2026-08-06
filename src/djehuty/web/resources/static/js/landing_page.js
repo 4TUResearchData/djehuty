@@ -98,7 +98,7 @@ function render_draft_collections () {
     }).done(function (records) {
         jQuery("#collect ul").remove();
         jQuery("#collect").append("<ul></ul>");
-        for (collection of records) {
+        for (let collection of records) {
             let item = jQuery("<a/>", { "href": "#", "class": "corporate-identity" })
                 .text(collection.title)
                 .on("click", function (event) {

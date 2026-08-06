@@ -661,3 +661,109 @@ class TestCollectionVersioning:
         screenshot(authenticated_page, "new-version-draft-ready")
 
         editor.delete()
+
+
+# ---------------------------------------------------------------------------
+# COLLECT button tests
+# ---------------------------------------------------------------------------
+
+
+def _create_titled_draft_collection(page: Page, title: str) -> str:
+    """Create a draft collection with a title via the API.
+
+    Returns the container UUID. Used instead of the UI helper because the
+    COLLECT menu labels its entries by title, so the collections under test
+    have to be distinguishable from one another.
+    """
+    response = page.request.post("/v2/account/collections", data={"title": title})
+    assert response.ok, f"Create collection failed: {response.status} {response.text()}"
+    return response.json()["location"].rstrip("/").split("/")[-1]
+
+
+def _collection_contains_dataset(page: Page, container_uuid: str, dataset_uuid: str) -> bool:
+    """Return whether a collection lists the given dataset container."""
+    response = page.request.get(
+        f"/v2/account/collections/{container_uuid}/articles",
+        params={"limit": 10000},
+    )
+    assert response.ok, f"List datasets failed: {response.status} {response.text()}"
+    return any(record.get("uuid") == dataset_uuid for record in response.json())
+
+
+@pytest.mark.collections
+class TestCollectButton:
+    """Tests for the COLLECT button on a dataset landing page."""
+
+    def test_collect_adds_to_the_clicked_collection(
+        self, authenticated_page: Page, published_dataset, screenshot
+    ):
+        """Clicking an entry in the COLLECT menu adds the dataset to that
+        collection, and not to whichever entry happens to be listed last.
+        Regression test for #218.
+
+        Two collections are required. With only one, the last entry is also the
+        entry being clicked, and the defect cannot be observed.
+
+        Every collection is exercised rather than just one, because the menu
+        order is not something this test controls. Clicking each in turn guarantees
+        that at least one click targets a non-last entry, which is the case that
+        fails when the defect is present.
+        """
+
+        marker = uuid.uuid4().hex[:8]
+        titles = [f"Collect Alpha {marker}", f"Collect Beta {marker}"]
+        collections: dict[str, str] = {}
+
+        try:
+            for title in titles:
+                collections[title] = _create_titled_draft_collection(
+                    authenticated_page, title
+                )
+
+            for title, container_uuid in collections.items():
+                # Reload between clicks so the menu is rebuilt from scratch,
+                # the same way a user arriving at the page would see it.
+                authenticated_page.goto(f"/datasets/{published_dataset}")
+                authenticated_page.wait_for_load_state("domcontentloaded")
+
+                authenticated_page.locator("#collect-btn").click()
+                entries = authenticated_page.locator("#collect ul a")
+                expect(entries.first).to_be_visible()
+                screenshot(authenticated_page, f"collect-menu-{title.split()[1].lower()}")
+
+                assert entries.count() >= 2, (
+                    "At least two collections must be listed for the defect to "
+                    f"be observable, got {entries.all_inner_texts()}"
+                )
+
+                # Locate by title rather than by index: the account may own
+                # collections beyond the two created here, and their position
+                # in the menu is not guaranteed.
+                #
+                # /v2/account/collections lists every version node, so a
+                # collection with published versions appears once per version,
+                # each entry carrying the same title and container UUID. The
+                # collections created here are fresh drafts and so appear once,
+                # but match on .first regardless: any entry for a given title
+                # points at the same collection.
+                entry = entries.filter(has_text=title).first
+                expect(entry).to_be_visible()
+                entry.click()
+
+                expect(authenticated_page.locator("#message")).to_contain_text(
+                    "added to collection"
+                )
+                screenshot(authenticated_page, f"collect-added-{title.split()[1].lower()}")
+
+                assert _collection_contains_dataset(
+                    authenticated_page, container_uuid, published_dataset
+                ), (
+                    f"Clicking {title!r} did not add the dataset to that "
+                    "collection. Under #218 every entry added the dataset to "
+                    "whichever collection happened to be listed last."
+                )
+        finally:
+            for container_uuid in collections.values():
+                authenticated_page.request.delete(
+                    f"/v2/account/collections/{container_uuid}"
+                )
