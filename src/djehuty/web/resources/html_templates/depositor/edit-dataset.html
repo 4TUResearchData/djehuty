@@ -12,6 +12,7 @@ var initial_thumbnail_file_uuid = "";
 {%- else %}
 var initial_thumbnail_file_uuid = "{{article.thumb_origin}}";
 {%- endif %}
+const minimum_keywords_count = {{minimum_keywords_count}};
 {%- if article.is_shared_with_me %}
     const is_shared_with_me = true;
     const permissions = {{permissions|tojson}};

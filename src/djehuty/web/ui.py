@@ -740,6 +740,8 @@ def read_configuration_file (server, config_file, logger, config_files):
 
         config.base_url     = config_value (xml_root, "base-url", None, config.base_url)
         config.storage      = config_value (xml_root, "storage-root", None, config.storage)
+        config.minimum_keywords_count = int(config_value (xml_root, "minimum-keywords-count",
+                                                          None, config.minimum_keywords_count))
         config.state_graph  = config_value (xml_root, "rdf-store/state-graph", None, config.state_graph)
         config.migrations_graph    = config_value (xml_root, "rdf-store/migrations-graph",
                                                    None, config.migrations_graph)

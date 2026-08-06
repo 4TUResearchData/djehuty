@@ -513,7 +513,7 @@ function render_tags_for_dataset (dataset_uuid) {
             jQuery("#tags-list").append(row);
         }
 
-        let remaining = MINIMUM_KEYWORDS_COUNT - tags.length;
+        let remaining = minimum_keywords_count - tags.length;
         let message_el = jQuery("#keyword-minimum-message");
         if (tags.length === 0) {
             message_el.addClass("hidden");
@@ -1636,6 +1636,9 @@ function submit_dataset (dataset_uuid, event) {
                     } else if (message.field_name == "files") {
                         show_message ("failure", `<p>${message.message}</p>`);
                         jQuery("#dropzone-field").addClass("missing-required");
+                    } else if (message.field_name == "tag") {
+                        show_message ("failure", `<p>${message.message}</p>`);
+                        jQuery("#tag").addClass("missing-required");
                     } else {
                         jQuery(`#${message.field_name}`).addClass("missing-required");
                     }
