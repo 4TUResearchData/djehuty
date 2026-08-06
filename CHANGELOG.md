@@ -14,18 +14,18 @@ This patch release includes bugfixes, minor updates in documentation and improve
 
 ### Documentation
 
-- Update documentation with new email addresses for information and security reporting. ([612288d](https://github.com/4TUResearchData/djehuty/commit/61228d4ef7a331eeac4ed7f085823ffc2651756b))
+- Update documentation with new email addresses for information and security reporting. ([61228d4](https://github.com/4TUResearchData/djehuty/commit/61228d4ef7a331eeac4ed7f085823ffc2651756b))
 
 ### Bugfixes
 
-- Remove netid username from authors name. ([2d5428c](https://github.com/4TUResearchData/djehuty/commit/2d5428c8e4b64a6e96f74b56f9d19f4fab57c80a))
+- Remove netid username from author's name. ([2d5428c](https://github.com/4TUResearchData/djehuty/commit/2d5428c8e4b64a6e96f74b56f9d19f4fab57c80a))
 - Allow correct collection when selected using COLLECT button. ([e7dd5c9](https://github.com/4TUResearchData/djehuty/commit/e7dd5c97797c6a97e82890f1b995c225c7abaf69a))
 - Remove ROR link from institution name (only link on icon remains). ([0dda062](https://github.com/4TUResearchData/djehuty/commit/0dda062868aee40b53faa0923a161a17a2655e05))
 
 ### Incremental Improvements
 
 - Improved downloads of large files allowing to resume started downloads in case of failure. ([9a6af80](https://github.com/4TUResearchData/djehuty/commit/9a6af80b372b23a7df605894261fe3cf92f5f668))
-- Update Python, GitHub Actions and Docker dependencies for security and performance. ([ad56ce4](https://github.com/4TUResearchData/djehuty/commit/ad56ce423d9de5afbb3a53787e7bb87600e2a73b), [329335b](https://github.com/4TUResearchData/djehuty/commit/329335b25291b79189189b18b4d1ec4644912caa), [0418d2](https://github.com/4TUResearchData/djehuty/commit/0418d2e375c3662f9bc7e7f31547a098ffa7cdd9) )
+- Update Python, GitHub Actions and Docker dependencies for security and performance. ([ad56ce4](https://github.com/4TUResearchData/djehuty/commit/ad56ce423d9de5afbb3a53787e7bb87600e2a73b), [329335b](https://github.com/4TUResearchData/djehuty/commit/329335b25291b79189189b18b4d1ec4644912caa), [0418d2e](https://github.com/4TUResearchData/djehuty/commit/0418d2e375c3662f9bc7e7f31547a098ffa7cdd9))
 
 ## [v26.4]
 
