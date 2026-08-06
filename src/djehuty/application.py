@@ -34,7 +34,7 @@ curl -H "Authorization: token YOUR_TOKEN" https://data.4tu.nl/v2/account
 """
 
 
-def create_app(db) -> FastAPI:
+def create_app(db, email=None) -> FastAPI:
     app = FastAPI(
         title="Djehuty",
         summary="Research data repository for 4TU.ResearchData",
@@ -45,6 +45,7 @@ def create_app(db) -> FastAPI:
         openapi_url="/api/openapi.json",
     )
     app.state.db = db
+    app.state.email = email
 
     app.add_middleware(
         CORSMiddleware,
