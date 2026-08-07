@@ -201,7 +201,9 @@ test *args="":
 lint_paths := "src/djehuty/utils" + \
     " src/djehuty/web/config" + \
     " src/djehuty/web/locks.py" + \
-    " src/djehuty/web/email_handler.py" + \
+    " src/djehuty/web/email_handler.py " + \
+    " src/djehuty/ui.py " + \
+    " src/djehuty/__init__.py " + \
     " tests"
 
 # Lint and check formatting of cleaned paths
