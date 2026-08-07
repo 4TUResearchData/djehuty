@@ -15,14 +15,12 @@ Run with:
 import uuid
 
 import pytest
-from playwright.sync_api import Page, expect
-
 from config import BASE_URL
 from helpers.dataset import create_draft_dataset
 from pages.dashboard_page import DashboardPage
 from pages.dataset_editor_page import DatasetEditorPage
 from pages.profile_page import ProfilePage
-
+from playwright.sync_api import Page, expect
 
 # ---------------------------------------------------------------------------
 # Profile tests
@@ -48,8 +46,16 @@ class TestViewProfile:
         profile.navigate()
         screenshot(authenticated_page, "profile-fields")
 
-        for field_id in ["first_name", "last_name", "job_title", "location",
-                         "twitter", "linkedin", "website", "biography"]:
+        for field_id in [
+            "first_name",
+            "last_name",
+            "job_title",
+            "location",
+            "twitter",
+            "linkedin",
+            "website",
+            "biography",
+        ]:
             expect(authenticated_page.locator(f"#{field_id}")).to_be_visible()
 
     def test_profile_shows_current_values(self, authenticated_page: Page, screenshot):

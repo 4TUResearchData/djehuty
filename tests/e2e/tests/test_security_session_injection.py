@@ -14,9 +14,8 @@ import uuid
 
 import pytest
 import requests
+from config import SPARQL_GRAPH, SPARQL_URL
 from playwright.sync_api import Page
-
-from config import SPARQL_URL, SPARQL_GRAPH
 
 
 def _sparql_select(query: str) -> list[dict]:
@@ -65,14 +64,10 @@ class TestSessionNameInjection:
             )
             # The request may be accepted (name stored, escaped) or rejected,
             # but it must never result in the injected triple.
-            assert response.status in (200, 205, 400), (
-                f"unexpected status {response.status}"
-            )
+            assert response.status in (200, 205, 400), f"unexpected status {response.status}"
 
             # (a) The canary triple must not exist in ANY graph.
-            injected = _sparql_select(
-                f"SELECT ?p ?o WHERE {{ GRAPH ?g {{ <{canary}> ?p ?o }} }}"
-            )
+            injected = _sparql_select(f"SELECT ?p ?o WHERE {{ GRAPH ?g {{ <{canary}> ?p ?o }} }}")
             assert injected == [], f"SPARQL injection succeeded: {injected}"
 
             # (b) If accepted, the payload must be stored verbatim as the name,

@@ -16,13 +16,12 @@ import re
 import uuid
 
 import pytest
-from playwright.sync_api import Page, expect
-
 from config import BASE_URL
 from helpers.accounts import get_non_admin_account_uuid
 from helpers.dataset import create_draft_dataset, get_container_uuid_from_url
 from helpers.impersonation import impersonate, stop_impersonation
 from pages.dataset_editor_page import DatasetEditorPage
+from playwright.sync_api import Page, expect
 
 
 @pytest.mark.dataset
@@ -40,16 +39,14 @@ class TestCreateDataset:
 
         editor = DatasetEditorPage(authenticated_page)
         assert editor.heading == "Add new dataset"
-        expect(authenticated_page).to_have_url(
-            re.compile(rf"{BASE_URL}/my/datasets/.+/edit")
-        )
+        expect(authenticated_page).to_have_url(re.compile(rf"{BASE_URL}/my/datasets/.+/edit"))
 
         # Clean up: delete the created dataset
         editor.delete()
 
     def test_new_dataset_has_empty_title(self, authenticated_page: Page, screenshot):
         """A new dataset should have a placeholder title, not a filled value."""
-        url = create_draft_dataset(authenticated_page)
+        create_draft_dataset(authenticated_page)
         screenshot(authenticated_page, "new-dataset-title")
 
         editor = DatasetEditorPage(authenticated_page)
@@ -146,7 +143,7 @@ class TestEditDataset:
 
     def test_editor_has_save_and_delete_buttons(self, authenticated_page: Page, screenshot):
         """The dataset editor should show Save and Delete buttons for drafts."""
-        url = create_draft_dataset(authenticated_page)
+        create_draft_dataset(authenticated_page)
         editor = DatasetEditorPage(authenticated_page)
         screenshot(authenticated_page, "editor-buttons")
 
@@ -164,7 +161,7 @@ class TestDeleteDataset:
 
     def test_delete_draft_dataset(self, authenticated_page: Page, screenshot):
         """Deleting a draft dataset should redirect to /my/datasets."""
-        url = create_draft_dataset(authenticated_page)
+        create_draft_dataset(authenticated_page)
         screenshot(authenticated_page, "before-delete")
 
         editor = DatasetEditorPage(authenticated_page)

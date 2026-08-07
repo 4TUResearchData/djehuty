@@ -150,9 +150,7 @@ class TestAutoStamp:
             ),
         ],
     )
-    def test_auto_stamps_when_already_seeded(
-        self, seed_triple, runner_real, in_memory_dataset
-    ):
+    def test_auto_stamps_when_already_seeded(self, seed_triple, runner_real, in_memory_dataset):
         # Marker present, or seeded without one (Figshare import): stamp 0001,
         # don't re-run its body, or the static data doubles up.
         state = in_memory_dataset.graph(URIRef(STATE_GRAPH))
@@ -173,9 +171,7 @@ class TestAutoStamp:
         monkeypatch.setattr(runner_real.sparql, "query", boom)
         assert runner_real._state_graph_is_seeded() is False
 
-    def test_auto_stamp_only_affects_the_initial_migration(
-        self, in_memory_dataset, tmp_path
-    ):
+    def test_auto_stamp_only_affects_the_initial_migration(self, in_memory_dataset, tmp_path):
         """With 0002 present, the marker stamps only 0001; 0002 still runs."""
         migrations_dir = tmp_path / "migrations"
         migrations_dir.mkdir()
@@ -217,9 +213,7 @@ class TestDiscovery:
 
 
 class TestSparqlMigration:
-    def test_sparql_kind_runs_update(
-        self, runner_tmp, tmp_migrations_dir, in_memory_dataset
-    ):
+    def test_sparql_kind_runs_update(self, runner_tmp, tmp_migrations_dir, in_memory_dataset):
         body = (
             f"INSERT DATA {{ GRAPH <{STATE_GRAPH}> {{ "
             f'<http://test/x> <http://test/p> "hello" . }} }}'

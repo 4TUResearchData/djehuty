@@ -1,7 +1,6 @@
 """Tests for ${env:...} and ${file:...} secret references in JSON config."""
 
 import json
-import os
 
 import pytest
 
@@ -21,9 +20,14 @@ def _write_json(tmp_path, payload):
 class TestEnvReference:
     def test_resolves_env_var(self, tmp_path, monkeypatch):
         monkeypatch.setenv("DJ_TEST_ORCID_SECRET", "abc123")
-        path = _write_json(tmp_path, {
-            "djehuty": {"authentication": {"orcid": {"client-secret": "${env:DJ_TEST_ORCID_SECRET}"}}}
-        })
+        path = _write_json(
+            tmp_path,
+            {
+                "djehuty": {
+                    "authentication": {"orcid": {"client-secret": "${env:DJ_TEST_ORCID_SECRET}"}}
+                }
+            },
+        )
         root = parse_config_root(path)
         assert root.find("authentication/orcid/client-secret").text == "abc123"
 
@@ -44,9 +48,9 @@ class TestFileReference:
     def test_resolves_file_contents(self, tmp_path):
         secret = tmp_path / "key.pem"
         secret.write_text("-----BEGIN-----\nbody\n-----END-----\n", encoding="utf-8")
-        path = _write_json(tmp_path, {
-            "djehuty": {"repository": {"private-key": f"${{file:{secret}}}"}}
-        })
+        path = _write_json(
+            tmp_path, {"djehuty": {"repository": {"private-key": f"${{file:{secret}}}"}}}
+        )
         root = parse_config_root(path)
         # .strip() removes the trailing newline; PEM body is preserved
         assert root.find("repository/private-key").text == "-----BEGIN-----\nbody\n-----END-----"

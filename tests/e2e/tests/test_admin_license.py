@@ -17,23 +17,21 @@ Run with:
 import json
 
 import pytest
-from playwright.sync_api import Page, expect
-
 from helpers.accounts import get_non_admin_account_uuid
 from helpers.impersonation import impersonate, stop_impersonation
 from pages.admin_license_page import AdminLicensePage
-
+from playwright.sync_api import Page, expect
 
 # Mirrors the seed dataset in docker/sparql-init/002-seed-test-data.sql.
 # Shared with the search tests; the license test only mutates djht:license
 # (which no other test asserts), so they can run in any order.
-SEED_TITLE          = "Search Test Seed Dataset"
+SEED_TITLE = "Search Test Seed Dataset"
 SEED_CONTAINER_UUID = "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d"
-SEED_DOI            = f"10.4121/search-seed-{SEED_CONTAINER_UUID}"
-SEED_CURRENT_URL    = "https://creativecommons.org/licenses/by-nc/4.0/"
-SEED_CURRENT_NAME   = "CC BY-NC 4.0"
+SEED_DOI = f"10.4121/search-seed-{SEED_CONTAINER_UUID}"
+SEED_CURRENT_URL = "https://creativecommons.org/licenses/by-nc/4.0/"
+SEED_CURRENT_NAME = "CC BY-NC 4.0"
 
-NEW_LICENSE_URL  = "https://creativecommons.org/licenses/by/4.0/"
+NEW_LICENSE_URL = "https://creativecommons.org/licenses/by/4.0/"
 NEW_LICENSE_NAME = "CC BY 4.0"
 
 
@@ -51,9 +49,7 @@ class TestAdminLicenseDashboardLink:
         assert response is not None
         assert response.status == 200
         admin_page.wait_for_load_state("domcontentloaded")
-        license_link = admin_page.locator(
-            "a[href='/admin/update-published-dataset/license']"
-        )
+        license_link = admin_page.locator("a[href='/admin/update-published-dataset/license']")
         expect(license_link).to_be_visible()
         screenshot(admin_page, "update-published-dataset-license-link")
 
@@ -68,9 +64,7 @@ class TestAdminLicenseDashboardLink:
 class TestAdminLicenseFlow:
     """End-to-end license-change flow against the seeded dataset."""
 
-    def test_search_pick_preview_warning_and_confirm(
-        self, admin_page: Page, screenshot
-    ):
+    def test_search_pick_preview_warning_and_confirm(self, admin_page: Page, screenshot):
         """Search for the seeded dataset, pick a new license, review
         (verify the warning is shown), confirm, and verify the change
         persists in subsequent searches."""
@@ -105,9 +99,9 @@ class TestAdminLicenseFlow:
         assert license_page.warning_visible()
         assert license_page.confirm_value("title") == SEED_TITLE
         assert license_page.confirm_value("from-name") == SEED_CURRENT_NAME
-        assert license_page.confirm_value("from-url")  == SEED_CURRENT_URL
-        assert license_page.confirm_value("to-name")   == NEW_LICENSE_NAME
-        assert license_page.confirm_value("to-url")    == NEW_LICENSE_URL
+        assert license_page.confirm_value("from-url") == SEED_CURRENT_URL
+        assert license_page.confirm_value("to-name") == NEW_LICENSE_NAME
+        assert license_page.confirm_value("to-url") == NEW_LICENSE_URL
         screenshot(admin_page, "license-step3-review")
 
         # Back-to-edit lands on Step 2 with the chosen value preserved.
@@ -127,7 +121,7 @@ class TestAdminLicenseFlow:
         license_page.wait_for_results()
         license_page.select_row_by_title(SEED_TITLE)
         assert license_page.detail_value("current-name") == NEW_LICENSE_NAME
-        assert license_page.detail_value("current-url")  == NEW_LICENSE_URL
+        assert license_page.detail_value("current-url") == NEW_LICENSE_URL
 
 
 # ---------------------------------------------------------------------------
@@ -170,11 +164,13 @@ class TestAdminLicenseAccessControl:
         response = admin_page.request.fetch(
             "/admin/update-published-dataset/license/update",
             method="PUT",
-            data=json.dumps({
-                "container_uuid":   "00000000-0000-0000-0000-000000000000",
-                "dataset_uuid":     "00000000-0000-0000-0000-000000000000",
-                "new_license_url":  NEW_LICENSE_URL,
-            }),
+            data=json.dumps(
+                {
+                    "container_uuid": "00000000-0000-0000-0000-000000000000",
+                    "dataset_uuid": "00000000-0000-0000-0000-000000000000",
+                    "new_license_url": NEW_LICENSE_URL,
+                }
+            ),
             headers={"Content-Type": "application/json"},
         )
         assert response.status == 403
@@ -193,11 +189,13 @@ class TestAdminLicenseAccessControl:
         response = admin_page.request.fetch(
             "/admin/update-published-dataset/license/update",
             method="PUT",
-            data=json.dumps({
-                "container_uuid":   "00000000-0000-0000-0000-000000000000",
-                "dataset_uuid":     "00000000-0000-0000-0000-000000000000",
-                "new_license_url":  "https://example.invalid/not-a-real-license/",
-            }),
+            data=json.dumps(
+                {
+                    "container_uuid": "00000000-0000-0000-0000-000000000000",
+                    "dataset_uuid": "00000000-0000-0000-0000-000000000000",
+                    "new_license_url": "https://example.invalid/not-a-real-license/",
+                }
+            ),
             headers={"Content-Type": "application/json"},
         )
         assert response.status == 400

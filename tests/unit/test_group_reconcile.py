@@ -7,7 +7,7 @@ rdflib store (same approach as ``test_migrate.py``), so no Virtuoso is needed.
 import tempfile
 
 import pytest
-from rdflib import Graph, RDF, XSD
+from rdflib import RDF, XSD, Graph
 
 from djehuty.utils import rdf
 from djehuty.web.config import config
@@ -17,11 +17,14 @@ from djehuty.web.database import SparqlInterface
 class TestStableNode:
     """The deterministic node generator behind the fix."""
 
-    @pytest.mark.parametrize("seed_a, seed_b, equal", [
-        (("group", 28586), ("group", 28586), True),    # same seed -> same uri
-        (("group", 28586), ("group", 28598), False),   # different id
-        (("group", 28586), ("account", 28586), False),  # different prefix
-    ])
+    @pytest.mark.parametrize(
+        "seed_a, seed_b, equal",
+        [
+            (("group", 28586), ("group", 28586), True),  # same seed -> same uri
+            (("group", 28586), ("group", 28598), False),  # different id
+            (("group", 28586), ("account", 28586), False),  # different prefix
+        ],
+    )
     def test_equality(self, seed_a, seed_b, equal):
         assert (rdf.stable_node(*seed_a) == rdf.stable_node(*seed_b)) is equal
 
@@ -69,16 +72,21 @@ def _seed_preexisting_groups(db, groups):
 
 
 def _count_groups(db):
-    rows = list(db.sparql.query(
-        f"SELECT (COUNT(DISTINCT ?g) AS ?n) WHERE {{ GRAPH <{config.state_graph}> {{ "
-        f"?g a <{rdf.DJHT['InstitutionGroup']}> }} }}"))
+    rows = list(
+        db.sparql.query(
+            f"SELECT (COUNT(DISTINCT ?g) AS ?n) WHERE {{ GRAPH <{config.state_graph}> {{ "
+            f"?g a <{rdf.DJHT['InstitutionGroup']}> }} }}"
+        )
+    )
     return int(rows[0][0])
 
 
 def _refresh(db):
     db.delete_groups_by_id([g[2] for g in CONFIG_GROUPS])
-    return [db.insert_group(name, True, is_featured, gid, pid, dom)
-            for name, is_featured, gid, pid, dom in CONFIG_GROUPS]
+    return [
+        db.insert_group(name, True, is_featured, gid, pid, dom)
+        for name, is_featured, gid, pid, dom in CONFIG_GROUPS
+    ]
 
 
 class TestInsertGroup:
@@ -107,15 +115,19 @@ class TestDeleteGroupsById:
 
 
 class TestRefresh:
-    @pytest.mark.parametrize("extra_existing, expected", [
-        # Only the config-managed groups already present.
-        ([], len(CONFIG_GROUPS)),
-        # Plus a group not in the config: must be left alone.
-        ([("Retired Institution", 99001, 28585, "retired.nl")], len(CONFIG_GROUPS) + 1),
-    ])
+    @pytest.mark.parametrize(
+        "extra_existing, expected",
+        [
+            # Only the config-managed groups already present.
+            ([], len(CONFIG_GROUPS)),
+            # Plus a group not in the config: must be left alone.
+            ([("Retired Institution", 99001, 28585, "retired.nl")], len(CONFIG_GROUPS) + 1),
+        ],
+    )
     def test_no_duplicates_and_idempotent(self, db, extra_existing, expected):
         _seed_preexisting_groups(
-            db, [(n, i, p, d) for n, _, i, p, d in CONFIG_GROUPS] + extra_existing)
+            db, [(n, i, p, d) for n, _, i, p, d in CONFIG_GROUPS] + extra_existing
+        )
         assert _count_groups(db) == expected  # pre-existing copies, not reconciled yet
 
         _refresh(db)

@@ -11,10 +11,9 @@ Run with:
 """
 
 import pytest
-from playwright.sync_api import Page, expect
-
 from config import BASE_URL
 from helpers.accounts import get_non_admin_account_uuid
+from playwright.sync_api import Page, expect
 
 
 @pytest.mark.auth

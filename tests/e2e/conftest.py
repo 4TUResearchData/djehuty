@@ -12,17 +12,16 @@ Provides:
 from pathlib import Path
 
 import pytest
-from playwright.sync_api import BrowserContext, Page
-from slugify import slugify
-
 from config import BASE_URL, TIMEOUT
 from helpers.api_response import ApiResponseHelper
 from helpers.screenshot import ScreenshotHelper
-
+from playwright.sync_api import BrowserContext, Page
+from slugify import slugify
 
 # ---------------------------------------------------------------------------
 # Browser context
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture()
 def browser_context(browser):
@@ -47,6 +46,7 @@ def page(browser_context: BrowserContext):
 # ---------------------------------------------------------------------------
 # Authentication
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture()
 def authenticated_page(page: Page):
@@ -75,6 +75,7 @@ def admin_page(authenticated_page: Page):
 # ---------------------------------------------------------------------------
 # Screenshots
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture()
 def screenshot(pytestconfig, request):
@@ -113,6 +114,7 @@ def save_response(pytestconfig, request):
 # ---------------------------------------------------------------------------
 # Test-data helpers (setup / teardown)
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture()
 def created_dataset(authenticated_page: Page):

@@ -19,8 +19,6 @@ from datetime import date, timedelta
 from pathlib import Path
 
 import pytest
-from playwright.sync_api import Page, expect
-
 from config import BASE_URL
 from helpers.dataset import (
     create_draft_dataset,
@@ -29,7 +27,7 @@ from helpers.dataset import (
 )
 from helpers.publish import create_private_link, fill_required_fields_and_publish
 from pages.dataset_editor_page import DatasetEditorPage
-
+from playwright.sync_api import Page, expect
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -63,7 +61,7 @@ class TestEmbargoEditor:
 
     def test_select_embargo_shows_form(self, authenticated_page: Page, screenshot):
         """Selecting 'Embargoed access' should reveal the embargo form."""
-        url = create_draft_dataset(authenticated_page)
+        create_draft_dataset(authenticated_page)
         editor = DatasetEditorPage(authenticated_page)
         editor.wait_for_ready()
         screenshot(authenticated_page, "before-embargo-select")
@@ -79,7 +77,7 @@ class TestEmbargoEditor:
 
     def test_select_restricted_shows_form(self, authenticated_page: Page, screenshot):
         """Selecting 'Restricted access' should reveal the restricted form."""
-        url = create_draft_dataset(authenticated_page)
+        create_draft_dataset(authenticated_page)
         editor = DatasetEditorPage(authenticated_page)
         editor.wait_for_ready()
 
@@ -123,7 +121,7 @@ class TestEmbargoEditor:
 
     def test_switch_between_access_types(self, authenticated_page: Page, screenshot):
         """Switching access types should show/hide the correct forms."""
-        url = create_draft_dataset(authenticated_page)
+        create_draft_dataset(authenticated_page)
         editor = DatasetEditorPage(authenticated_page)
         editor.wait_for_ready()
 
@@ -158,9 +156,7 @@ class TestEmbargoEditor:
 class TestEmbargoDisplay:
     """Test embargo status on published dataset pages."""
 
-    def test_embargo_label_displayed(
-        self, authenticated_page: Page, test_file: str, screenshot
-    ):
+    def test_embargo_label_displayed(self, authenticated_page: Page, test_file: str, screenshot):
         """A published embargoed dataset should show the embargo label."""
         url = create_draft_dataset(authenticated_page)
         editor = DatasetEditorPage(authenticated_page)
@@ -351,9 +347,7 @@ class TestPrivateLinks:
         # Submit
         authenticated_page.locator("#submit-button-label").click()
         authenticated_page.wait_for_load_state("domcontentloaded")
-        authenticated_page.wait_for_url(
-            f"**/my/datasets/{dataset_uuid}/private_links"
-        )
+        authenticated_page.wait_for_url(f"**/my/datasets/{dataset_uuid}/private_links")
         screenshot(authenticated_page, "private-link-created")
 
         # Verify the link appears in the table

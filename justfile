@@ -198,7 +198,13 @@ test *args="":
         --output=/app/test-results {{ args }}
 
 # Paths already cleaned and enforced by ruff (extended per sub-issue)
-lint_paths := "src/djehuty/utils src/djehuty/web/config src/djehuty/web/locks.py src/djehuty/web/email_handler.py src/djehuty/ui.py src/djehuty/__init__.py"
+lint_paths := "src/djehuty/utils" + \
+    " src/djehuty/web/config" + \
+    " src/djehuty/web/locks.py" + \
+    " src/djehuty/web/email_handler.py " + \
+    " src/djehuty/ui.py " + \
+    " src/djehuty/__init__.py " + \
+    " tests"
 
 # Lint and check formatting of cleaned paths
 lint:
