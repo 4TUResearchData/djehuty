@@ -173,6 +173,53 @@ def read_storage_configuration (xml_root, logger):
             config.s3_buckets[bucket["name"]] = bucket
     return None
 
+def _read_web_service_targets (node):
+    """Collect {group_name: 'new'|'legacy'} from a config node.
+
+    Handles both formats: XML child elements (<admin>legacy</admin>) and JSON
+    scalar keys (which the JSON parser exposes via .attrib).
+    """
+    targets = {}
+    for child in node:
+        if child.text in ("new", "legacy"):
+            targets[child.tag] = child.text
+    for name, value in node.attrib.items():
+        if value in ("new", "legacy"):
+            targets[name] = value
+    return targets
+
+
+def read_web_service_configuration (xml_root):
+    """Read the per-group new/legacy switch.
+
+    Accepts a flat value (<web-service>new</web-service>) for the global default,
+    or an object with <default> and a <groups> map for per-group overrides. The
+    old key "api-service" is accepted as a back-compat alias.
+    """
+    node = xml_root.find ("web-service")
+    if node is None:
+        node = xml_root.find ("api-service")
+    if node is None:
+        return
+
+    # Flat form: sets the global default only.
+    if node.text in ("new", "legacy"):
+        config.web_service = node.text
+        return
+
+    # Object form: default + per-group overrides.
+    default = node.get ("default")
+    if default is None:
+        default_node = node.find ("default")
+        default = default_node.text if default_node is not None else None
+    if default in ("new", "legacy"):
+        config.web_service = default
+
+    groups_node = node.find ("groups")
+    if groups_node is not None:
+        config.web_service_groups.update (_read_web_service_targets (groups_node))
+
+
 def read_quotas_configuration (xml_root):
     """Read quota information from XML_ROOT."""
 
@@ -784,6 +831,8 @@ def read_configuration_file (server, config_file, logger, config_files):
         config.allow_crawlers = read_boolean_value (xml_root, "allow-crawlers",
                                                     config.allow_crawlers, logger)
 
+        read_web_service_configuration (xml_root)
+
         config.enable_iiif = read_boolean_value (xml_root, "enable-iiif",
                                                  config.enable_iiif, logger)
 
@@ -1389,7 +1438,14 @@ def main (config_file=None, run_internal_server=True, initialize=True,
             if config.static_cache_root is not None:
                 server.create_static_error_pages()
 
-        run_simple (config.address, config.port, server,
+        # Wrap the legacy server in the per-group new/legacy dispatcher. With no
+        # route groups registered this is a no-op (everything resolves to
+        # legacy); each group PR makes its prefix live.
+        from djehuty.dispatch import build_wsgi_app
+        wsgi_app = build_wsgi_app (server, server.db,
+                                   config.web_service, config.web_service_groups)
+
+        run_simple (config.address, config.port, wsgi_app,
                     threaded=(config.maximum_workers <= 1),
                     processes=config.maximum_workers,
                     extra_files=list(config_files),
@@ -1404,6 +1460,8 @@ def main (config_file=None, run_internal_server=True, initialize=True,
 ## ----------------------------------------------------------------------------
 ## Starting point for uWSGI
 ## ----------------------------------------------------------------------------
+
+_UWSGI_APP = None
 
 def application (env, start_response):
     """The main entry point for the WSGI."""
@@ -1424,5 +1482,10 @@ def application (env, start_response):
         start_response('200 OK', [('Content-Type','text/html')])
         return [b"<p>Please set the <code>DJEHUTY_CONFIG_FILE</code> environment variable.</p>"]
 
-    server = main (config_file=config_file, run_internal_server=False)
-    return server (env, start_response)
+    global _UWSGI_APP
+    if _UWSGI_APP is None:
+        server = main (config_file=config_file, run_internal_server=False)
+        from djehuty.dispatch import build_wsgi_app
+        _UWSGI_APP = build_wsgi_app (server, server.db,
+                                     config.web_service, config.web_service_groups)
+    return _UWSGI_APP (env, start_response)
