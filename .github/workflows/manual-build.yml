@@ -1,0 +1,189 @@
+name: Manual image build
+
+# Maintainer-triggered build of a preview image from any branch or PR, pushed
+# only to ghcr.io. Use it to hand out a runnable image of in-progress work
+# (e.g. the feature branches) without cutting a release.
+#
+# The `ref` input is a PR number (e.g. `123` - works for fork PRs, via the
+# base repo's refs/pull/<N>/head) or a branch/tag/commit SHA. Leave the
+# built-in "Use workflow from" dropdown on `main` - it only selects which
+# workflow definition runs, not the code that gets built.
+#
+# Tagging (version comes from pyproject.toml on the chosen ref, prefixed `v`):
+#   mode = as-is      -> vXX.Y[.Z]-<name>       e.g. v26.4.1-nh
+#   mode = merge-main -> vXX.Y[.Z]-dev-<name>   e.g. v26.4.1-dev-nh
+#
+# `merge-main` merges the current `main` into a throwaway checkout so the image
+# reflects "this branch on top of latest main" vXX.Y[.Z] + main (dev tag) + branch.
+# The merge is never pushed back to the branch, a merge conflict fails the build.
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "PR number (e.g. 123, works for fork PRs) OR a branch/tag/commit SHA."
+        type: string
+        required: true
+      name:
+        description: "Short name for the image tag, e.g. `igsn` or `new-http` or 'sd'."
+        type: string
+        required: true
+      mode:
+        description: "Build the branch as-is, or merged on top of current main."
+        type: choice
+        required: true
+        default: as-is
+        options:
+          - as-is
+          - merge-main
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+permissions:
+  contents: read
+
+jobs:
+  docker-build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Validate the name input
+        env:
+          NAME: ${{ inputs.name }}
+        run: |
+          # Keep the tag suffix to a safe, OCI-legal slug so the computed image
+          # tag can never be malformed or injected.
+          if ! printf '%s' "$NAME" | grep -Eq '^[a-zA-Z0-9][a-zA-Z0-9._-]{0,40}$'; then
+            echo "::error::name must match ^[a-zA-Z0-9][a-zA-Z0-9._-]{0,40}$ (got: '$NAME')"
+            exit 1
+          fi
+
+      - name: Resolve the ref to build
+        id: resolve
+        env:
+          REF: ${{ inputs.ref }}
+        run: |
+          # An all-digits ref is a PR number; every PR (including forks) has a
+          # `refs/pull/<N>/head` ref in the base repo. Anything else is used as
+          # a normal branch/tag/SHA.
+          if printf '%s' "$REF" | grep -Eq '^[0-9]+$'; then
+            resolved="refs/pull/${REF}/head"
+            echo "Building PR #${REF} (${resolved})"
+          else
+            resolved="$REF"
+            echo "Building ref ${resolved}"
+          fi
+          echo "ref=${resolved}" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout the chosen ref
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ steps.resolve.outputs.ref }}
+          # merge-main needs main's history, so fetch everything.
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Merge current main (merge-main mode only)
+        if: inputs.mode == 'merge-main'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # Fetch the base repo's main explicitly; a PR-head checkout does not
+          # guarantee a local `main` branch even with full history.
+          git fetch --no-tags origin main
+          echo "Merging origin/main into ${{ inputs.ref }} (ephemeral, not pushed)..."
+          if ! git merge --no-edit --no-ff FETCH_HEAD; then
+            echo "::error::Merge conflict with main. Merge main into '${{ inputs.ref }}' and resolve before building in merge-main mode."
+            git merge --abort || true
+            exit 1
+          fi
+
+      - name: Compute image tag
+        id: tag
+        env:
+          NAME: ${{ inputs.name }}
+          MODE: ${{ inputs.mode }}
+        run: |
+          version="$(grep -m1 '^version' pyproject.toml | sed 's/.*= *"\(.*\)"/\1/')"
+          if [ -z "$version" ]; then
+            echo "::error::Could not read version from pyproject.toml"
+            exit 1
+          fi
+          if [ "$MODE" = "merge-main" ]; then
+            tag="v${version}-dev-${NAME}"
+          else
+            tag="v${version}-${NAME}"
+          fi
+          echo "Image tag: ${REGISTRY}/${IMAGE_NAME}:${tag}"
+          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+
+      - uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4
+
+      - uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Docker image
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
+        with:
+          context: .
+          file: docker/Dockerfile
+          push: false
+          load: true
+          build-args: |
+            VERSION=${{ steps.tag.outputs.version }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.tag }}
+          cache-from: type=gha
+
+      # Guard against wheels built without the bundled resources (SPARQL/HTML
+      # templates); an image missing them crashes on startup.
+      - name: Smoke test the image
+        run: |
+          IMAGE="${REGISTRY}/${IMAGE_NAME}:${{ steps.tag.outputs.tag }}"
+          docker run --rm "$IMAGE" djehuty --version
+          expected=$(find src/djehuty/web/resources src/djehuty/backup/resources src/djehuty/schema/migrations -type f | wc -l)
+          packaged=$(docker run --rm -i --entrypoint python "$IMAGE" - <<'PY'
+          import djehuty, os
+          root = os.path.dirname(djehuty.__file__)
+          dirs = ("web/resources", "backup/resources", "schema/migrations")
+          print(sum(len(files) for d in dirs
+                    for _, _, files in os.walk(os.path.join(root, *d.split("/")))))
+          PY
+          )
+          echo "resource files: ${packaged} packaged, ${expected} in src"
+          [ "$packaged" -eq "$expected" ]
+
+      - name: Push Docker image
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
+        with:
+          context: .
+          file: docker/Dockerfile
+          push: true
+          build-args: |
+            VERSION=${{ steps.tag.outputs.version }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.tag }}
+          cache-from: type=gha
+
+      - name: Summary
+        run: |
+          {
+            echo "### Manual image build"
+            echo ""
+            echo "| | |"
+            echo "|---|---|"
+            echo "| Image | \`${REGISTRY}/${IMAGE_NAME}:${{ steps.tag.outputs.tag }}\` |"
+            echo "| Ref | \`${{ inputs.ref }}\` |"
+            echo "| Mode | \`${{ inputs.mode }}\` |"
+          } >> "$GITHUB_STEP_SUMMARY"
