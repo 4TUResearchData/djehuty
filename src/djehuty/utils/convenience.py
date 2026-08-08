@@ -213,7 +213,9 @@ def deduplicate_list(alist):
     except TypeError:
         logging.error("Wrong type of %s in deduplicate_list", alist)
         return None
-def day_first_date (date_value):
+
+
+def day_first_date(date_value):
     """
     Return the partial date DATE_VALUE with its parts in day-first order, so
     2010 stays 2010, while 2010-05 becomes 05-2010 and 2010-05-17 becomes
@@ -222,22 +224,25 @@ def day_first_date (date_value):
     if not date_value:
         return ""
 
-    return "-".join (reversed (str(date_value).split("-")))
+    return "-".join(reversed(str(date_value).split("-")))
 
-def date_or_range (date_value, date_end=None, separator=" – "):
+
+def date_or_range(date_value, date_end=None, separator=" – "):
     """
     Return the day-first notation of DATE_VALUE, or of the range that starts at
     DATE_VALUE and ends at DATE_END when the latter is set.
     """
-    start = day_first_date (date_value)
-    end   = day_first_date (date_end)
+    start = day_first_date(date_value)
+    end = day_first_date(date_end)
     if not end:
         return start
 
     return f"{start}{separator}{end}"
 
-def make_citation (authors, year, title, version, item_type, doi,
-                   publisher='4TU.ResearchData', max_cited_authors=5):
+
+def make_citation(
+    authors, year, title, version, item_type, doi, publisher="4TU.ResearchData", max_cited_authors=5
+):
     """Return citation in standard Datacite format."""
     try:
         auths = [
