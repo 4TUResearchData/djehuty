@@ -52,13 +52,11 @@ jQuery(document).ready(function (){
 #related-resources tbody tr:first-child td { padding-bottom: .75em; }
 #related-resources tbody tr:nth-child(2) td { padding-top: 4px; }
 #related-resources tbody tr { border: none; }
-#physical-sample-dates tbody tr:first-child td { padding-bottom: .75em; }
-#physical-sample-dates tbody tr:nth-child(2) td { padding-top: 4px; }
-#physical-sample-dates tbody tr { border: none; }
+#physical-sample-dates tbody tr { border: none; border-bottom: solid 1pt #f0f0f0; }
 #related-resource { width: 512pt !important; border-radius: .5em !important; }
 #identifierType, #relationType { width: 125pt !important; border-radius: .5em !important; }
 #related-resources input[type="text"], #related-resources select { margin-bottom: 0; }
-/* Dates — Licence & Access style tabbed panel. */
+/* Dates — the format of the value, then the value, then what it marks. */
 #physical-sample-dates-wrapper {
     border: solid 1pt #aaa;
     border-radius: 0em .5em .5em .5em;
@@ -67,6 +65,20 @@ jQuery(document).ready(function (){
     margin-bottom: 1em;
 }
 #date-format-intro { margin: .1em 0em .7em 0em; color: #333; }
+#date-hint { margin: .2em 0em .8em 0em; color: #555; }
+#physical-sample-dates-wrapper .date-cap {
+    display: block;
+    background: none;
+    border: 0pt;
+    border-radius: 0pt;
+    padding: 0em;
+    margin: 0em 0em .35em 0em;
+    font-size: .7em;
+    font-weight: bold;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    color: #5a5a5a;
+}
 #physical-sample-dates-wrapper #date-format-tabs {
     border: none;
     border-bottom: solid 2pt #333;
@@ -81,24 +93,54 @@ jQuery(document).ready(function (){
     padding: .5em .9em;
     margin-right: .15em;
 }
-#date-hint { margin: .2em 0em .8em 0em; color: #555; }
 .date-field-grid {
     display: grid;
-    grid-template-columns: 1fr 180pt auto;
+    grid-template-columns: 1fr 175pt auto;
     gap: .8em;
     align-items: end;
 }
-#date-entry-panel label.inner-head { display: block; margin-bottom: .15em; }
+/* A range keeps its format, start and end on one line, so the type and the
+   button stay level with them instead of dropping to the bottom of the panel. */
+#date-range-fields { display: none; }
+#date-entry-panel.is-range #date-range-fields {
+    display: grid;
+    grid-template-columns: 110pt 1fr 1fr;
+    gap: .8em;
+    align-items: end;
+}
+#date-entry-panel.is-range #date-single,
+#date-entry-panel.is-range #date-single-cap { display: none; }
+#date-range-fields select.date-range-format,
 #date-entry-panel input[type="text"].date-input,
 #date-entry-panel select#dateType {
     width: 100%;
     box-sizing: border-box;
     margin-bottom: 0;
 }
+/* A select is taller than an input, which would stagger the captions above them. */
+#date-range-fields select.date-range-format,
+#date-entry-panel input[type="text"].date-input,
+#date-entry-panel select#dateType { height: 2.5em; }
+#date-entry-panel input[type="text"].date-input { font-family: monospace; }
+#date-entry-panel select#dateType { max-width: 175pt; }
 #date-entry-panel .add-date-button { align-self: end; }
-#physical-sample-dates { width: 100%; border-collapse: collapse; margin-top: .3em; }
+#physical-sample-dates { width: 100%; border-collapse: collapse; margin-top: 1.2em; }
+#physical-sample-dates thead th {
+    font-size: .7em;
+    font-weight: bold;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    color: #5a5a5a;
+    border-bottom: solid 1pt #e4e4e4;
+    padding: 0em .5em .3em .5em;
+}
 #physical-sample-dates td { vertical-align: middle; padding: .4em .5em; }
 #physical-sample-dates td:last-child { text-align: right; width: 2em; }
+@media (max-width: 900px) {
+    .date-field-grid { grid-template-columns: 1fr; }
+    #date-entry-panel.is-range #date-range-fields { grid-template-columns: 1fr; }
+    #date-entry-panel select#dateType { max-width: none; }
+}
 #categories-wrapper .subitem-checkbox { margin-left: 3em; }
 #expanded-categories { display: none; }
 #groups-wrapper h4 {
@@ -246,9 +288,9 @@ jQuery(document).ready(function (){
 </div>
 
 
-<label>Dates</label><div class="fas fa-question-circle help-icon"><span class="help-text">This property may be used to log events relevant to the physical sample. Enter the date, and select the date type.</span></div>
+<label>Dates</label><div class="fas fa-question-circle help-icon"><span class="help-text">This property may be used to log events relevant to the physical sample. Enter the date, and select the date type. A period is entered as a range, of which the start and the end are entered in the same format.</span></div>
 <div id="physical-sample-dates-wrapper">
-  <p id="date-format-intro">Choose the format matches the date you want to enter (full date, month, or year), enter the value, and select the date type:</p>
+  <p id="date-format-intro">Choose the format that matches the date you want to enter, enter the value, and select the date type:</p>
   <div id="date-format-tabs" class="options-wrapper">
     <input type="radio" name="dateFormat" id="format-day" value="day" checked="checked" />
     <label class="no-head" for="format-day">Full date</label>
@@ -256,20 +298,38 @@ jQuery(document).ready(function (){
     <label class="no-head" for="format-month">Month</label>
     <input type="radio" name="dateFormat" id="format-year" value="year" />
     <label class="no-head" for="format-year">Year</label>
+    <input type="radio" name="dateFormat" id="format-range" value="range" />
+    <label class="no-head" for="format-range">Range</label>
   </div>
   <div id="date-entry-panel">
     <p class="date-hint" id="date-hint"></p>
     <div class="date-field-grid">
       <div class="date-field">
-        <label class="inner-head">Date</label>
-        <input type="text" id="date-year" class="date-input" placeholder="yyyy" inputmode="numeric" autocomplete="off" />
-        <input type="text" id="date-month" class="date-input" placeholder="mm/yyyy" inputmode="numeric" autocomplete="off" />
-        <input type="text" id="date-day" class="date-input" placeholder="dd/mm/yyyy" inputmode="numeric" autocomplete="off" />
+        <label class="date-cap" id="date-single-cap" for="date-single">Date</label>
+        <input type="text" id="date-single" class="date-input" placeholder="dd/mm/yyyy" inputmode="numeric" autocomplete="off" />
+        <div id="date-range-fields">
+          <div class="date-range-field">
+            <label class="date-cap" for="date-range-format">Format</label>
+            <select id="date-range-format" class="date-range-format">
+              <option value="day">Full date</option>
+              <option value="month">Month</option>
+              <option value="year">Year</option>
+            </select>
+          </div>
+          <div class="date-range-field">
+            <label class="date-cap" for="date-range-start">From</label>
+            <input type="text" id="date-range-start" class="date-input date-range-input" placeholder="dd/mm/yyyy" inputmode="numeric" autocomplete="off" />
+          </div>
+          <div class="date-range-field">
+            <label class="date-cap" for="date-range-end">To</label>
+            <input type="text" id="date-range-end" class="date-input date-range-input" placeholder="dd/mm/yyyy" inputmode="numeric" autocomplete="off" />
+          </div>
+        </div>
       </div>
       <div class="date-field">
-        <label class="inner-head">Type</label>
+        <label class="date-cap" for="dateType">Date type</label>
         <select name="dateType" id="dateType">
-          <option value="" disabled="disabled" selected="selected">Date type</option>
+          <option value="" disabled="disabled" selected="selected">Choose a type</option>
           <option value="collected">Collected</option>
           <option value="created">Created</option>
           <option value="destroyed">Destroyed</option>
@@ -280,7 +340,10 @@ jQuery(document).ready(function (){
       <a class="form-button corporate-identity-standard-button add-date-button" href="#">Add</a>
     </div>
   </div>
-  <table id="physical-sample-dates"><tbody></tbody></table>
+  <table id="physical-sample-dates">
+    <thead><tr><th>Date</th><th>Type</th><th></th></tr></thead>
+    <tbody></tbody>
+  </table>
 </div>
 
 <h3 class="corporate-identity-h3">Linked resource &amp; references</h3>

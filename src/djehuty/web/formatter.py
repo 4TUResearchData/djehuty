@@ -692,6 +692,7 @@ def format_physical_sample_date_record (record):
         "uuid":          conv.value_or_none (record, "uuid"),
         "type":          conv.value_or_none (record, "date_type"),
         "date":          conv.value_or_none (record, "date"),
+        "date_end":      conv.value_or_none (record, "date_end"),
         "created_date":  conv.value_or_none (record, "created_date")
     }
 

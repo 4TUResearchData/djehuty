@@ -2,6 +2,7 @@
 This module contains procedures to validate user input.
 """
 
+import datetime
 import re
 from djehuty.utils import convenience as conv
 
@@ -378,39 +379,100 @@ def date_value (record, field_name, required=False, error_list=None):
 
     return value
 
-def partial_date_value (record, field_name, required=False, error_list=None):
+def __is_partial_date (value):
     """
-    Validation procedure for dates of partial values.  Accepts a full date
-    (YYYY-MM-DD), a year and month (YYYY-MM), or only a year (YYYY).
+    Returns True when VALUE is a year (YYYY), a year and month (YYYY-MM) or a
+    day that exists on the calendar (YYYY-MM-DD), False otherwise.
+    """
+
+    if re.match ("^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$", value) is None:
+        return False
+
+    parts = list (map (int, value.split("-")))
+    if len(parts) > 1 and not 1 <= parts[1] <= 12:
+        return False
+
+    if len(parts) > 2:
+        try:
+            datetime.date (*parts)
+        except ValueError:
+            return False
+
+    return True
+
+def partial_date_range_value (record, field_name, required=False, error_list=None):
+    """
+    Validation procedure for a date like "2023-06", or a range like
+    "2023-06/2026-06".  Both dates of a range are written in the same form.
+    Returns the start and the end, where the end is None for a single date
+    (not range).
     """
 
     value = record if field_name is None else conv.value_or_none (record, field_name)
     if value is None:
         if required:
-            return raise_or_return_error (error_list,
+            raise_or_return_error (error_list,
                         MissingRequiredField(
                             field_name = field_name,
                             message = f"Missing required value for '{field_name}'.",
                             code    = "MissingRequiredField"))
-        return None
+        return None, None
 
     if not isinstance (value, str):
-        return raise_or_return_error (error_list,
+        raise_or_return_error (error_list,
                     InvalidValueType(
                         field_name = field_name,
-                        message = f"Expected '{field_name}' in the form YYYY, YYYY-MM or YYYY-MM-DD.",
+                        message = f"Expected '{field_name}' to be a date or a range of two dates.",
                         code    = "WrongValueType"))
+        return None, None
 
-    ## Check its form: YYYY, YYYY-MM or YYYY-MM-DD.
-    pattern = "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$"
-    if re.match(pattern, value) is None:
-        return raise_or_return_error (error_list,
+    parts = value.split("/")
+    if len(parts) > 2:
+        raise_or_return_error (error_list,
                     InvalidValueType(
                         field_name = field_name,
-                        message = f"Expected '{field_name}' in the form YYYY, YYYY-MM or YYYY-MM-DD.",
+                        message = (f"Expected '{field_name}' to hold at most two dates "
+                                   "separated by a slash."),
                         code    = "WrongValueFormat"))
+        return None, None
 
-    return value
+    for part in parts:
+        if not __is_partial_date (part):
+            raise_or_return_error (error_list,
+                        InvalidValueType(
+                            field_name = field_name,
+                            message = (f"Expected '{field_name}' in the form YYYY, "
+                                       "YYYY-MM or YYYY-MM-DD."),
+                            code    = "WrongValueFormat"))
+            return None, None
+
+    start = parts[0]
+    if len(parts) == 1:
+        return start, None
+
+    end = parts[1]
+
+    ## For now: a range runs from a year to a year, or from a month to a month, but
+    ## never from one to the other.
+    if start.count("-") != end.count("-"):
+        raise_or_return_error (error_list,
+                    InvalidValueType(
+                        field_name = field_name,
+                        message = (f"Expected both dates of '{field_name}' in the "
+                                   "same form."),
+                        code    = "WrongValueFormat"))
+        return None, None
+
+    ## Comparing if date start > date end
+    if start > end:
+        raise_or_return_error (error_list,
+                    InvalidValueType(
+                        field_name = field_name,
+                        message = f"The end of '{field_name}' precedes its start.",
+                        code    = "WrongValueFormat"))
+        return None, None
+
+    return start, end
 
 def boolean_value (record, field_name, required=False, when_none=None, error_list=None):
     """
