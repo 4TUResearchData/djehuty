@@ -54,9 +54,7 @@ class TestV2PrivateAuthorDetailsApi:
         save_response(response, "v2-private-author-bad-id")
         assert response.status == 404
 
-    def test_nonexistent_author_returns_403_or_404(
-        self, admin_page: Page, save_response
-    ):
+    def test_nonexistent_author_returns_403_or_404(self, admin_page: Page, save_response):
         """Admin with a syntactically-valid id for a missing author → 403/404."""
         fake_uuid = str(uuid.uuid4())
         response = admin_page.request.get(f"/v2/account/authors/{fake_uuid}")

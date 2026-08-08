@@ -10,11 +10,11 @@ import os
 from pathlib import Path
 
 import pytest
-from playwright.sync_api import Page
-
 from helpers.collection import (
     create_draft_collection,
     fill_required_fields_and_publish_collection,
+)
+from helpers.collection import (
     get_container_uuid_from_url as get_collection_uuid_from_url,
 )
 from helpers.dataset import (
@@ -23,7 +23,7 @@ from helpers.dataset import (
 )
 from helpers.publish import fill_required_fields_and_publish
 from pages.dataset_editor_page import DatasetEditorPage
-
+from playwright.sync_api import Page
 
 # ---------------------------------------------------------------------------
 # Auto-marker: every test under tests/api/ gets @pytest.mark.api.
@@ -58,9 +58,7 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
     fixed = get_fixed_registry()
 
     if bugs:
-        terminalreporter.write_sep(
-            "=", "AS-IS API bugs still present", red=True, bold=True
-        )
+        terminalreporter.write_sep("=", "AS-IS API bugs still present", red=True, bold=True)
         for bug, count in sorted(bugs.items()):
             terminalreporter.write_line(f"  - {bug}  ({count}x)")
         terminalreporter.write_sep("-")
@@ -93,13 +91,9 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
     # GitHub Actions inline annotations.
     if os.environ.get("GITHUB_ACTIONS") == "true":
         for bug, count in sorted(bugs.items()):
-            terminalreporter.write_line(
-                f"::warning title=AS-IS API bug::{bug} ({count}x)"
-            )
+            terminalreporter.write_line(f"::warning title=AS-IS API bug::{bug} ({count}x)")
         for bug, count in sorted(fixed.items()):
-            terminalreporter.write_line(
-                f"::error title=AS-IS bug appears fixed::{bug} ({count}x)"
-            )
+            terminalreporter.write_line(f"::error title=AS-IS bug appears fixed::{bug} ({count}x)")
 
 
 # ---------------------------------------------------------------------------
@@ -175,9 +169,7 @@ def published_dataset(authenticated_page: Page, test_file: str):
             break
         authenticated_page.wait_for_timeout(3000)
 
-    assert resp and resp.status == 200, (
-        "published dataset did not become accessible in time"
-    )
+    assert resp and resp.status == 200, "published dataset did not become accessible in time"
 
     return authenticated_page, container_uuid
 
@@ -227,8 +219,6 @@ def published_collection(authenticated_page: Page):
             break
         authenticated_page.wait_for_timeout(3000)
 
-    assert resp and resp.status == 200, (
-        "published collection did not become accessible in time"
-    )
+    assert resp and resp.status == 200, "published collection did not become accessible in time"
 
     return authenticated_page, container_uuid

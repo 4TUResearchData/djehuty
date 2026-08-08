@@ -12,9 +12,8 @@ Run with:
 
 import uuid
 
-from playwright.sync_api import Page
-
 from helpers.contract import assert_status
+from playwright.sync_api import Page
 
 
 class TestV2InstitutionApi:
@@ -67,9 +66,7 @@ class TestV2InstitutionAccountApi:
 
     def test_invalid_id_returns_400(self, authenticated_page: Page, save_response):
         """An id that's neither integer nor UUID → 400."""
-        response = authenticated_page.request.get(
-            "/v2/account/institution/users/not-an-id"
-        )
+        response = authenticated_page.request.get("/v2/account/institution/users/not-an-id")
         save_response(response, "v2-institution-user-bad-id")
         assert_status(
             response,

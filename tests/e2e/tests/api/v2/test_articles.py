@@ -14,10 +14,8 @@ Run with:
 
 import uuid
 
-from playwright.sync_api import Page
-
 from helpers.contract import assert_status
-
+from playwright.sync_api import Page
 
 # ---------------------------------------------------------------------------
 # Public API
@@ -85,9 +83,7 @@ class TestV2PrivateArticlesCrud:
         dataset_uuid = data["location"].rstrip("/").split("/")[-1]
         authenticated_page.request.delete(f"/v2/account/articles/{dataset_uuid}")
 
-    def test_create_article_without_title(
-        self, authenticated_page: Page, save_response
-    ):
+    def test_create_article_without_title(self, authenticated_page: Page, save_response):
         """POST /v2/account/articles without title → 400."""
         response = authenticated_page.request.post(
             "/v2/account/articles",
@@ -143,16 +139,12 @@ class TestV2PrivateArticlesCrud:
         data = response.json()
         dataset_uuid = data["location"].rstrip("/").split("/")[-1]
 
-        delete_response = authenticated_page.request.delete(
-            f"/v2/account/articles/{dataset_uuid}"
-        )
+        delete_response = authenticated_page.request.delete(f"/v2/account/articles/{dataset_uuid}")
         save_response(delete_response, "api-delete-article")
         assert delete_response.status == 204
 
         # After delete, the private endpoint returns 200 + [] for this account.
-        get_response = authenticated_page.request.get(
-            f"/v2/account/articles/{dataset_uuid}"
-        )
+        get_response = authenticated_page.request.get(f"/v2/account/articles/{dataset_uuid}")
         save_response(get_response, "api-delete-article-verify-gone")
         assert get_response.status == 200
         assert get_response.json() == [] or get_response.body() == b"[]"
@@ -220,9 +212,7 @@ class TestV2ArticleAuthorsApi:
         save_response(response, "api-add-author")
         assert response.ok
 
-        get_response = page.request.get(
-            f"/v2/account/articles/{container_uuid}/authors"
-        )
+        get_response = page.request.get(f"/v2/account/articles/{container_uuid}/authors")
         save_response(get_response, "api-add-author-verify")
         authors = get_response.json()
         names = [a.get("full_name", "") for a in authors]
@@ -289,9 +279,7 @@ class TestV2ArticlePrivateLinksApi:
             f"/v2/account/articles/{container_uuid}/private_links",
             data={"read_only": True},
         )
-        response = page.request.get(
-            f"/v2/account/articles/{container_uuid}/private_links"
-        )
+        response = page.request.get(f"/v2/account/articles/{container_uuid}/private_links")
         save_response(response, "api-list-private-links")
         assert response.status == 200
         data = response.json()
@@ -525,9 +513,7 @@ class TestV2ArticleSubResourceDeletesApi:
     def test_delete_nonexistent_category(self, authenticated_page: Page, save_response):
         """DELETE .../categories/<category_id> on a missing article → 4xx."""
         fake_a = str(uuid.uuid4())
-        response = authenticated_page.request.delete(
-            f"/v2/account/articles/{fake_a}/categories/1"
-        )
+        response = authenticated_page.request.delete(f"/v2/account/articles/{fake_a}/categories/1")
         save_response(response, "api-delete-category-missing")
         assert 400 <= response.status < 600
 
@@ -614,9 +600,7 @@ class TestV2ArticlesApiErrors:
     def test_delete_nonexistent_article(self, authenticated_page: Page, save_response):
         """DELETE /v2/account/articles/<fake> → 404 (AS-IS: returns 500, #111)."""
         fake_uuid = str(uuid.uuid4())
-        response = authenticated_page.request.delete(
-            f"/v2/account/articles/{fake_uuid}"
-        )
+        response = authenticated_page.request.delete(f"/v2/account/articles/{fake_uuid}")
         save_response(response, "api-delete-nonexistent")
         assert_status(
             response,

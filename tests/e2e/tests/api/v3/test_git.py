@@ -27,7 +27,6 @@ import uuid
 
 from playwright.sync_api import Page
 
-
 # ---------------------------------------------------------------------------
 # REST helpers
 # ---------------------------------------------------------------------------
@@ -53,9 +52,7 @@ class TestV3GitFilesApi:
         save_response(response, "v3-git-files-post")
         assert response.status == 405
 
-    def test_nonexistent_dataset_returns_404(
-        self, authenticated_page: Page, save_response
-    ):
+    def test_nonexistent_dataset_returns_404(self, authenticated_page: Page, save_response):
         """Authenticated GET on a fake dataset → 404."""
         fake = str(uuid.uuid4())
         response = authenticated_page.request.get(f"/v3/datasets/{fake}.git/files")
@@ -83,9 +80,7 @@ class TestV3GitBranchesApi:
         save_response(response, "v3-git-branches-post")
         assert response.status == 405
 
-    def test_nonexistent_dataset_returns_404(
-        self, authenticated_page: Page, save_response
-    ):
+    def test_nonexistent_dataset_returns_404(self, authenticated_page: Page, save_response):
         """Authenticated GET on a fake dataset → 404."""
         fake = str(uuid.uuid4())
         response = authenticated_page.request.get(f"/v3/datasets/{fake}.git/branches")
@@ -130,9 +125,7 @@ class TestV3GitProtocolEndpoints:
     def test_git_info_refs_requires_auth(self, page: Page, save_response):
         """GET .../info/refs without auth → 401/403."""
         fake = str(uuid.uuid4())
-        response = page.request.get(
-            f"/v3/datasets/{fake}.git/info/refs?service=git-upload-pack"
-        )
+        response = page.request.get(f"/v3/datasets/{fake}.git/info/refs?service=git-upload-pack")
         save_response(response, "v3-git-info-refs-no-auth")
         assert response.status in (401, 403)
 

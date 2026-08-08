@@ -11,9 +11,8 @@ Run with:
     cd tests/e2e && python -m pytest tests/api/v3/test_explore.py -v
 """
 
-from playwright.sync_api import Page
-
 from helpers.contract import assert_status
+from playwright.sync_api import Page
 
 
 class TestV3ExploreApi:

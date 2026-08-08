@@ -12,9 +12,8 @@ Run with:
 
 import uuid
 
-from playwright.sync_api import Page
-
 from helpers.contract import assert_status
+from playwright.sync_api import Page
 
 
 class TestV3RoCrateListApi:
@@ -59,8 +58,6 @@ class TestV3DatasetRoCrateMetadataApi:
     def test_nonexistent_version_returns_404(self, page: Page, save_response):
         """GET on a fake (uuid, version) pair → 404."""
         fake_uuid = str(uuid.uuid4())
-        response = page.request.get(
-            f"/v3/datasets/{fake_uuid}/versions/1/ro-crate-metadata.json"
-        )
+        response = page.request.get(f"/v3/datasets/{fake_uuid}/versions/1/ro-crate-metadata.json")
         save_response(response, "v3-ro-crate-version-metadata-404")
         assert response.status == 404

@@ -18,10 +18,8 @@ Run with:
 
 import uuid
 
-from playwright.sync_api import Page
-
 from helpers.contract import assert_status
-
+from playwright.sync_api import Page
 
 # ---------------------------------------------------------------------------
 # Public read
@@ -92,9 +90,7 @@ class TestV3DatasetTagsApi:
         save_response(get_response, "api-add-tags-verify")
         tags = get_response.json()
         tag_values = [t.get("tag", t) if isinstance(t, dict) else t for t in tags]
-        assert "api-test-tag" in tag_values or any(
-            "api-test-tag" in str(t) for t in tags
-        )
+        assert "api-test-tag" in tag_values or any("api-test-tag" in str(t) for t in tags)
 
     def test_delete_tag(self, draft_dataset, save_response):
         """DELETE /v3/datasets/<uuid>/tags?tag=<value> removes a tag."""
@@ -103,9 +99,7 @@ class TestV3DatasetTagsApi:
             f"/v3/datasets/{container_uuid}/tags",
             data={"tags": ["to-delete"]},
         )
-        response = page.request.delete(
-            f"/v3/datasets/{container_uuid}/tags?tag=to-delete"
-        )
+        response = page.request.delete(f"/v3/datasets/{container_uuid}/tags?tag=to-delete")
         save_response(response, "api-delete-tag")
         assert response.ok
 
@@ -150,9 +144,7 @@ class TestV3DatasetReferencesApi:
             f"/v3/datasets/{container_uuid}/references",
             data={"references": [{"url": ref_url}]},
         )
-        response = page.request.delete(
-            f"/v3/datasets/{container_uuid}/references?url={ref_url}"
-        )
+        response = page.request.delete(f"/v3/datasets/{container_uuid}/references?url={ref_url}")
         save_response(response, "api-delete-references")
         assert response.status == 204
 
@@ -408,9 +400,7 @@ class TestV3DatasetCollaboratorsApi:
         """DELETE .../collaborators/<fake> → 204 (idempotent DELETE)."""
         page, container_uuid = draft_dataset
         fake = str(uuid.uuid4())
-        response = page.request.delete(
-            f"/v3/datasets/{container_uuid}/collaborators/{fake}"
-        )
+        response = page.request.delete(f"/v3/datasets/{container_uuid}/collaborators/{fake}")
         save_response(response, "v3-collaborator-delete-missing")
         # The SPARQL delete succeeds whether or not the collaborator exists,
         # so removing a missing collaborator is an idempotent 204.

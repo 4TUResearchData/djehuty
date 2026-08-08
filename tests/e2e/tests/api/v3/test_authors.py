@@ -11,9 +11,8 @@ Run with:
 
 import uuid
 
-from playwright.sync_api import Page
-
 from helpers.contract import assert_status
+from playwright.sync_api import Page
 
 
 class TestV3AccountsSearchApi:
@@ -64,9 +63,7 @@ class TestV3AuthorDetailsApi:
         save_response(response, "v3-author-no-auth")
         assert response.status == 403
 
-    def test_nonexistent_author_returns_404(
-        self, authenticated_page: Page, save_response
-    ):
+    def test_nonexistent_author_returns_404(self, authenticated_page: Page, save_response):
         """GET /v3/authors/<fake> authenticated → 404."""
         fake_uuid = str(uuid.uuid4())
         response = authenticated_page.request.get(f"/v3/authors/{fake_uuid}")

@@ -25,7 +25,6 @@ the assertion to be updated, which is how the suite records that the bug is gone
 import warnings
 from collections import Counter
 
-
 # Module-level registries of bug observations during a test run.
 # _BUG_REGISTRY      : bug still present (reproduced) — the expected AS-IS state.
 # _FIXED_REGISTRY    : bug no longer present (endpoint returned the corrected
@@ -65,9 +64,7 @@ def assert_status(
         )
     """
     if current_bug is None:
-        assert response.status == expected, (
-            f"Expected {expected}, got {response.status}"
-        )
+        assert response.status == expected, f"Expected {expected}, got {response.status}"
         return
 
     assert bug, "current_bug requires a bug description"
@@ -76,8 +73,7 @@ def assert_status(
     if response.status == current_bug:
         _BUG_REGISTRY[bug] += 1
         warnings.warn(
-            f"AS-IS API bug still present — {bug} "
-            f"(got {current_bug}, should be {expected})",
+            f"AS-IS API bug still present — {bug} (got {current_bug}, should be {expected})",
             stacklevel=2,
         )
         return

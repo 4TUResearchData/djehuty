@@ -77,9 +77,7 @@ class TestV3FileApi:
         save_response(response, "v3-file-no-auth")
         assert response.status == 403
 
-    def test_file_nonexistent_returns_404(
-        self, authenticated_page: Page, save_response
-    ):
+    def test_file_nonexistent_returns_404(self, authenticated_page: Page, save_response):
         """GET /v3/file/<fake-uuid> authenticated → 404."""
         fake_uuid = str(uuid.uuid4())
         response = authenticated_page.request.get(f"/v3/file/{fake_uuid}")

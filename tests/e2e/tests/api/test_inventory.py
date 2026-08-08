@@ -23,7 +23,6 @@ from pathlib import Path
 
 import pytest
 
-
 # ---------------------------------------------------------------------------
 # Endpoint inventory — keep in sync with src/djehuty/web/wsgi.py URL map.
 # (version, path_template, handler_name)
@@ -315,12 +314,10 @@ def test_inventory_totals():
     we dedupe and count it once.
     """
     assert len(V2_ENDPOINTS) == 55, (
-        f"V2 endpoint count drifted from 55 to {len(V2_ENDPOINTS)}; "
-        f"verify src/djehuty/web/wsgi.py."
+        f"V2 endpoint count drifted from 55 to {len(V2_ENDPOINTS)}; verify src/djehuty/web/wsgi.py."
     )
     assert len(V3_ENDPOINTS) == 60, (
-        f"V3 endpoint count drifted from 60 to {len(V3_ENDPOINTS)}; "
-        f"verify src/djehuty/web/wsgi.py."
+        f"V3 endpoint count drifted from 60 to {len(V3_ENDPOINTS)}; verify src/djehuty/web/wsgi.py."
     )
 
 

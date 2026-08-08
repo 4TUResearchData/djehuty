@@ -14,9 +14,8 @@ Run with:
 
 import uuid
 
-from playwright.sync_api import Page
-
 from helpers.contract import assert_status
+from playwright.sync_api import Page
 
 
 class TestV3ProfileApi:

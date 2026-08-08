@@ -14,7 +14,6 @@ import uuid
 
 from playwright.sync_api import Page
 
-
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
@@ -146,9 +145,7 @@ class TestV2PrivateCollectionsCrud:
         save_response(delete_response, "v2-delete-collection")
         assert delete_response.status == 204
 
-    def test_delete_nonexistent_collection(
-        self, authenticated_page: Page, save_response
-    ):
+    def test_delete_nonexistent_collection(self, authenticated_page: Page, save_response):
         """DELETE /v2/account/collections/<fake> → 404.
 
         Unlike the articles path (which returns 500 AS-IS, #111), the
@@ -156,9 +153,7 @@ class TestV2PrivateCollectionsCrud:
         that behaviour.
         """
         fake_uuid = str(uuid.uuid4())
-        response = authenticated_page.request.delete(
-            f"/v2/account/collections/{fake_uuid}"
-        )
+        response = authenticated_page.request.delete(f"/v2/account/collections/{fake_uuid}")
         save_response(response, "v2-delete-nonexistent-collection")
         assert response.status == 404
 
@@ -202,9 +197,7 @@ class TestV2CollectionCategoriesApi:
     def test_get_categories(self, draft_collection, save_response):
         """GET .../categories → 200, JSON array."""
         page, container_uuid = draft_collection
-        response = page.request.get(
-            f"/v2/account/collections/{container_uuid}/categories"
-        )
+        response = page.request.get(f"/v2/account/collections/{container_uuid}/categories")
         save_response(response, "v2-collection-categories")
         assert response.status == 200
         data = response.json()
@@ -222,9 +215,7 @@ class TestV2CollectionArticlesApi:
     def test_get_articles(self, draft_collection, save_response):
         """GET .../articles → 200, JSON array."""
         page, container_uuid = draft_collection
-        response = page.request.get(
-            f"/v2/account/collections/{container_uuid}/articles"
-        )
+        response = page.request.get(f"/v2/account/collections/{container_uuid}/articles")
         save_response(response, "v2-collection-articles")
         assert response.status == 200
         data = response.json()

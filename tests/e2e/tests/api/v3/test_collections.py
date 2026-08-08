@@ -45,9 +45,7 @@ class TestV3CollectionTagsApi:
             f"/v3/collections/{container_uuid}/tags",
             data={"tags": ["to-delete"]},
         )
-        response = page.request.delete(
-            f"/v3/collections/{container_uuid}/tags?tag=to-delete"
-        )
+        response = page.request.delete(f"/v3/collections/{container_uuid}/tags?tag=to-delete")
         save_response(response, "v3-collection-delete-tag")
         assert response.ok
 
@@ -112,9 +110,7 @@ class TestV3CollectionPublishApi:
         save_response(response, "v3-collection-publish-no-auth")
         assert response.status in (401, 403)
 
-    def test_publish_unprepared_collection_returns_error(
-        self, draft_collection, save_response
-    ):
+    def test_publish_unprepared_collection_returns_error(self, draft_collection, save_response):
         """A draft without required fields cannot be published → 400."""
         page, container_uuid = draft_collection
         response = page.request.post(

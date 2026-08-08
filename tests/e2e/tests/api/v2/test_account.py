@@ -46,9 +46,7 @@ class TestV2FundingSearchApi:
         save_response(response, "v2-funding-search-no-auth")
         assert response.status in (401, 403)
 
-    def test_funding_search_authenticated(
-        self, authenticated_page: Page, save_response
-    ):
+    def test_funding_search_authenticated(self, authenticated_page: Page, save_response):
         """POST /v2/account/funding/search authenticated → 200, JSON array."""
         response = authenticated_page.request.post(
             "/v2/account/funding/search",
