@@ -118,9 +118,14 @@ jobs:
           else
             tag="v${version}-${NAME}"
           fi
-          echo "Image tag: ${REGISTRY}/${IMAGE_NAME}:${tag}"
-          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
-          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          repo="$(printf '%s' "$IMAGE_NAME" | tr '[:upper:]' '[:lower:]')"
+          image="${REGISTRY}/${repo}:${tag}"
+          echo "Image: ${image}"
+          {
+            echo "tag=${tag}"
+            echo "image=${image}"
+            echo "version=${version}"
+          } >> "$GITHUB_OUTPUT"
 
       - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
 
@@ -144,14 +149,15 @@ jobs:
           load: true
           build-args: |
             VERSION=${{ steps.tag.outputs.version }}
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.tag }}
+          tags: ${{ steps.tag.outputs.image }}
           cache-from: type=gha
 
       # Guard against wheels built without the bundled resources (SPARQL/HTML
       # templates); an image missing them crashes on startup.
       - name: Smoke test the image
+        env:
+          IMAGE: ${{ steps.tag.outputs.image }}
         run: |
-          IMAGE="${REGISTRY}/${IMAGE_NAME}:${{ steps.tag.outputs.tag }}"
           docker run --rm "$IMAGE" djehuty --version
           expected=$(find src/djehuty/web/resources src/djehuty/backup/resources src/djehuty/schema/migrations -type f | wc -l)
           packaged=$(docker run --rm -i --entrypoint python "$IMAGE" - <<'PY'
@@ -173,7 +179,7 @@ jobs:
           push: true
           build-args: |
             VERSION=${{ steps.tag.outputs.version }}
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.tag }}
+          tags: ${{ steps.tag.outputs.image }}
           cache-from: type=gha
 
       - name: Summary
@@ -183,7 +189,7 @@ jobs:
             echo ""
             echo "| | |"
             echo "|---|---|"
-            echo "| Image | \`${REGISTRY}/${IMAGE_NAME}:${{ steps.tag.outputs.tag }}\` |"
+            echo "| Image | \`${{ steps.tag.outputs.image }}\` |"
             echo "| Ref | \`${{ inputs.ref }}\` |"
             echo "| Mode | \`${{ inputs.mode }}\` |"
           } >> "$GITHUB_STEP_SUMMARY"
