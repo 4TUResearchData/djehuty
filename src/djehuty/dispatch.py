@@ -35,7 +35,7 @@ def build_wsgi_app(legacy_app, db, default="new", overrides=None):
         _log.warning("New HTTP stack unavailable (%s); serving legacy only.", error)
         return legacy_app
 
-    new_app = ASGIMiddleware(create_app(db))
+    new_app = ASGIMiddleware(create_app(db, email=getattr(legacy_app, "email", None)))
     _log.info(
         "Web service: FastAPI dispatcher active (default=%s, overrides=%s).",
         default,
