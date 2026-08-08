@@ -1,8 +1,12 @@
 """Exception handlers that produce responses matching the legacy API format."""
 
+import logging
+
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, PlainTextResponse
+
+logger = logging.getLogger(__name__)
 
 
 class NotFoundError(Exception):
@@ -87,3 +91,8 @@ def register_exception_handlers(app: FastAPI):
             status_code=405,
             content=f"Acceptable methods: {exc.detail}",
         )
+
+    @app.exception_handler(Exception)
+    async def unhandled_error_handler(request: Request, exc: Exception):
+        logger.error("Unhandled error on %s %s", request.method, request.url.path, exc_info=exc)
+        return PlainTextResponse(status_code=500, content="Internal Server Error")
