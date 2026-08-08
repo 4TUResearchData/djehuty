@@ -37,6 +37,19 @@ def real_migrations_dir():
 
 
 @pytest.fixture
+def real_migration_ids(real_migrations_dir):
+    """Production migration identifiers, in application order.
+
+    Derived from disk so that adding a migration does not break these tests.
+    """
+    return [
+        path.stem
+        for path in sorted(real_migrations_dir.iterdir())
+        if path.suffix in (".ttl", ".sparql")
+    ]
+
+
+@pytest.fixture
 def tmp_migrations_dir():
     """Fresh empty migrations directory; tests populate it as needed."""
     with tempfile.TemporaryDirectory() as tmp:
@@ -82,32 +95,34 @@ def _write_migration(migrations_dir, identifier, kind, body):
 
 
 class TestFresh:
-    def test_apply_initial(self, runner_real, in_memory_dataset):
-        """Fresh upgrade seeds 0001_initial, writes a log row and the marker."""
+    def test_apply_initial(self, runner_real, in_memory_dataset, real_migration_ids):
+        """Fresh upgrade seeds every migration, writes log rows and the marker."""
         assert runner_real.current() is None
-        assert runner_real.head() == "0001_initial"
+        assert runner_real.head() == real_migration_ids[-1]
 
-        assert runner_real.upgrade() == 1
-        assert runner_real.current() == "0001_initial"
+        assert runner_real.upgrade() == len(real_migration_ids)
+        assert runner_real.current() == real_migration_ids[-1]
 
         state = in_memory_dataset.graph(URIRef(STATE_GRAPH))
         log = in_memory_dataset.graph(URIRef(MIG_GRAPH))
         assert len(state) > 1000, "0001_initial should produce >1000 triples"
         assert INIT_MARKER in state
         log_subjects = {s for s, _, _ in log.triples((None, None, MU_MIGR.Migration))}
-        assert len(log_subjects) == 1
+        assert len(log_subjects) == len(real_migration_ids)
 
 
 class TestIdempotency:
-    def test_second_upgrade_is_noop(self, runner_real):
-        assert runner_real.upgrade() == 1
+    def test_second_upgrade_is_noop(self, runner_real, real_migration_ids):
+        assert runner_real.upgrade() == len(real_migration_ids)
         assert runner_real.upgrade() == 0
         assert runner_real.verify() is True
 
 
 class TestStamp:
-    def test_stamp_head_writes_log_without_body(self, runner_real, in_memory_dataset):
-        assert runner_real.stamp("head") == 1
+    def test_stamp_head_writes_log_without_body(
+        self, runner_real, in_memory_dataset, real_migration_ids
+    ):
+        assert runner_real.stamp("head") == len(real_migration_ids)
         state = in_memory_dataset.graph(URIRef(STATE_GRAPH))
         log = in_memory_dataset.graph(URIRef(MIG_GRAPH))
         assert len(state) == 0  # body not run
@@ -120,14 +135,16 @@ class TestStamp:
 
 
 class TestDrift:
-    def test_drift_detected_after_log_tampering(self, runner_real, in_memory_dataset):
+    def test_drift_detected_after_log_tampering(
+        self, runner_real, in_memory_dataset, real_migration_ids
+    ):
         runner_real.upgrade()
         assert runner_real.verify() is True
 
-        # Tamper: replace the stored checksum with a bogus value.
+        # Tamper: replace one stored checksum with a bogus value.
         log = in_memory_dataset.graph(URIRef(MIG_GRAPH))
         cs_triples = list(log.triples((None, DJH_MIG.checksum, None)))
-        assert len(cs_triples) == 1
+        assert len(cs_triples) == len(real_migration_ids)
         subject, predicate, _ = cs_triples[0]
         log.remove((subject, predicate, None))
         log.add((subject, predicate, Literal("sha256:tampered")))
@@ -151,7 +168,7 @@ class TestAutoStamp:
         ],
     )
     def test_auto_stamps_when_already_seeded(
-        self, seed_triple, runner_real, in_memory_dataset
+        self, seed_triple, runner_real, in_memory_dataset, real_migration_ids
     ):
         # Marker present, or seeded without one (Figshare import): stamp 0001,
         # don't re-run its body, or the static data doubles up.
@@ -159,9 +176,11 @@ class TestAutoStamp:
         state.add(seed_triple)
         before = len(state)
 
-        assert runner_real.upgrade() == 1
-        assert len(state) == before  # stamped, not run
-        assert runner_real.current() == "0001_initial"
+        assert runner_real.upgrade() == len(real_migration_ids)
+        # 0001_initial was stamped rather than re-run, so its >1000 triples are
+        # absent; only the later, far smaller migrations actually ran.
+        assert len(state) - before < 1000
+        assert runner_real.current() == real_migration_ids[-1]
         assert runner_real.upgrade() == 0
 
     def test_seed_probe_never_fatal(self, runner_real, monkeypatch):
