@@ -86,6 +86,17 @@ directory = "coverage-html"
 
 [tool.ruff]
 line-length = 100
+# Paths already cleaned and enforced by ruff (extended per sub-issue).
+# `ruff check`/`ruff format` with no path args operate on these.
+include = [
+    "src/djehuty/utils/**/*.py",
+    "src/djehuty/web/config/**/*.py",
+    "src/djehuty/web/locks.py",
+    "src/djehuty/web/email_handler.py",
+    "src/djehuty/ui.py",
+    "src/djehuty/__init__.py",
+    "tests/**/*.py",
+]
 
 [tool.ruff.lint]
 select = [

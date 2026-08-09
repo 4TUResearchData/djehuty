@@ -197,16 +197,12 @@ test *args="":
         --screenshot=only-on-failure \
         --output=/app/test-results {{ args }}
 
-# Paths already cleaned and enforced by ruff (extended per sub-issue)
-lint_paths := "src/djehuty/utils" + \
-    " src/djehuty/web/config" + \
-    " src/djehuty/web/locks.py" + \
-    " src/djehuty/web/email_handler.py " + \
-    " src/djehuty/ui.py " + \
-    " src/djehuty/__init__.py " + \
-    " tests"
-
-# Lint and check formatting of cleaned paths
+# Lint and check formatting of cleaned paths (scope set by [tool.ruff] include in pyproject.toml)
 lint:
-    uv run --group lint ruff check {{ lint_paths }}
-    uv run --group lint ruff format --check {{ lint_paths }}
+    uv run --group lint ruff check
+    uv run --group lint ruff format --check
+
+# Apply ruff format/fix (scope set by [tool.ruff] include in pyproject.toml)
+format:
+    uv run --group lint ruff check --fix
+    uv run --group lint ruff format

@@ -154,6 +154,12 @@ just lint
 
 This runs `ruff check` (bugs, style errors, import sorting) and `ruff format --check` over the cleaned paths, using the Ruff version pinned in `uv.lock . CI runs the same recipe on every push and pull request, so a clean `just lint` locally means a green Lint job. 
 
+```bash
+just format
+```
+
+It applies the auto format from ruff in the files
+
 ---
 ### Contact information
 - **General**: info@djehuty.4tu.nl
