@@ -186,7 +186,26 @@ def read_storage_configuration(xml_root, logger):
     return None
 
 
-def _read_web_service_targets(node):
+def _web_service_target(text, logger, context):
+    """Normalise a web-service value to 'new'/'legacy' or None.
+
+    Strips surrounding whitespace (XML editors indent element text) and lowers
+    case before matching. A present-but-unrecognised value is logged so a typo
+    fails loudly instead of silently leaving the target on its default.
+    """
+    if text is None:
+        return None
+    value = text.strip().lower()
+    if value == "":
+        return None
+    if value in ("new", "legacy"):
+        return value
+    if logger is not None:
+        logger.warning("web-service: ignoring unrecognized %s value %r.", context, text)
+    return None
+
+
+def _read_web_service_targets(node, logger):
     """Collect {group_name: 'new'|'legacy'} from a config node.
 
     Handles both formats: XML child elements (<admin>legacy</admin>) and JSON
@@ -194,15 +213,17 @@ def _read_web_service_targets(node):
     """
     targets = {}
     for child in node:
-        if child.text in ("new", "legacy"):
-            targets[child.tag] = child.text
-    for name, value in node.attrib.items():
-        if value in ("new", "legacy"):
+        value = _web_service_target(child.text, logger, f"group '{child.tag}'")
+        if value is not None:
+            targets[child.tag] = value
+    for name, raw in node.attrib.items():
+        value = _web_service_target(raw, logger, f"group '{name}'")
+        if value is not None:
             targets[name] = value
     return targets
 
 
-def read_web_service_configuration(xml_root):
+def read_web_service_configuration(xml_root, logger):
     """Read the per-group new/legacy switch.
 
     Accepts a flat value (<web-service>new</web-service>) for the global default,
@@ -215,9 +236,12 @@ def read_web_service_configuration(xml_root):
     if node is None:
         return
 
-    # Flat form: sets the global default only.
-    if node.text in ("new", "legacy"):
-        config.web_service = node.text
+    # Flat form: a scalar value with no children or attributes. An object node
+    # has structure and only whitespace text, so it falls through below.
+    if not list(node) and not node.attrib:
+        flat = _web_service_target(node.text, logger, "default")
+        if flat is not None:
+            config.web_service = flat
         return
 
     # Object form: default + per-group overrides.
@@ -225,12 +249,13 @@ def read_web_service_configuration(xml_root):
     if default is None:
         default_node = node.find("default")
         default = default_node.text if default_node is not None else None
-    if default in ("new", "legacy"):
+    default = _web_service_target(default, logger, "default")
+    if default is not None:
         config.web_service = default
 
     groups_node = node.find("groups")
     if groups_node is not None:
-        config.web_service_groups.update(_read_web_service_targets(groups_node))
+        config.web_service_groups.update(_read_web_service_targets(groups_node, logger))
 
 
 def read_quotas_configuration(xml_root):
@@ -999,7 +1024,7 @@ def read_configuration_file(server, config_file, logger, config_files):
             xml_root, "allow-crawlers", config.allow_crawlers, logger
         )
 
-        read_web_service_configuration(xml_root)
+        read_web_service_configuration(xml_root, logger)
 
         config.enable_iiif = read_boolean_value(xml_root, "enable-iiif", config.enable_iiif, logger)
 
