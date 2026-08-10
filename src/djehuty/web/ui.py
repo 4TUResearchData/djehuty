@@ -1744,6 +1744,9 @@ def application(env, start_response):
     global _UWSGI_APP
     if _UWSGI_APP is None:
         server = main(config_file=config_file, run_internal_server=False)
+        if server is None:
+            start_response("500 Internal Server Error", [("Content-Type", "text/html")])
+            return [b"<p>djehuty failed to start. See the log for details.</p>"]
         from djehuty.dispatch import build_wsgi_app
 
         _UWSGI_APP = build_wsgi_app(
