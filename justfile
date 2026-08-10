@@ -204,5 +204,6 @@ lint:
 
 # Apply ruff format/fix (scope set by [tool.ruff] include in pyproject.toml)
 format:
-    uv run --group lint ruff check --fix
+    uv run --group lint ruff check --fix --exit-zero
     uv run --group lint ruff format
+    uv run --group lint ruff check

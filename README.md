@@ -145,7 +145,7 @@ artifacts; coverage from each shard is combined into a single report.
 
 Code style is enforced with [Ruff](https://docs.astral.sh/ruff/) and
 rolled out incrementally: only paths that have already been cleaned are
-checked (the `lint_paths` variable in the justfile), starting with
+checked (in the `include` list under `[tool.ruff]` in `pyproject.toml`), starting with
 `src/djehuty/utils/`.
 
 ```bash
