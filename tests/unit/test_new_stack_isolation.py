@@ -27,13 +27,22 @@ def _module_file(dotted: str) -> Path:
     return Path(spec.origin)
 
 
-def _imported_modules(tree: ast.AST) -> set:
+def _imported_modules(tree: ast.AST, package: str) -> set:
+    """Every module the file could reach: absolute, relative, and the
+    module.name pair of a `from x import y` (so `from djehuty.web import wsgi`
+    yields `djehuty.web.wsgi`). Relative imports are resolved against package."""
     modules = set()
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
             modules.update(alias.name for alias in node.names)
-        elif isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
-            modules.add(node.module)
+        elif isinstance(node, ast.ImportFrom):
+            base = node.module or ""
+            if node.level:
+                prefix = package.rsplit(".", node.level - 1)[0] if node.level > 1 else package
+                base = f"{prefix}.{base}" if base else prefix
+            if base:
+                modules.add(base)
+                modules.update(f"{base}.{alias.name}" for alias in node.names)
     return modules
 
 
@@ -41,7 +50,8 @@ def _imported_modules(tree: ast.AST) -> set:
 def test_new_stack_module_does_not_import_legacy_wsgi(dotted):
     path = _module_file(dotted)
     tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
-    imported = _imported_modules(tree)
+    package = dotted.rsplit(".", 1)[0]
+    imported = _imported_modules(tree, package)
     offending = {
         m for m in imported if m == LEGACY_WSGI_MODULE or m.startswith(LEGACY_WSGI_MODULE + ".")
     }
