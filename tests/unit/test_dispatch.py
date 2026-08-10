@@ -4,6 +4,8 @@ Confirms requests route to the new stack or legacy per their group toggle, and
 that a missing new stack degrades to legacy instead of failing.
 """
 
+import sys
+
 import djehuty.route_groups as rg
 from djehuty.dispatch import WebServiceDispatcher, build_wsgi_app
 from djehuty.route_groups import RouteGroup
