@@ -223,7 +223,11 @@ in production:
 
 1. Edit the production config: set `web-service.groups.api-v3 = "legacy"`.
 2. Restart the service. `/v3/` is now served by legacy `wsgi.py` again. Users are back
-   to known-good behaviour. No code change was needed.
+   to known-good behaviour. No code change was needed. Confirm the effective values in
+   the log: on startup the dispatcher logs `Web service: FastAPI dispatcher active
+   (default=..., overrides=...)`. If it does not reflect your edit, an included config
+   file also sets `web-service` — later files take precedence, and a `groups` override
+   can only be changed by an include, not cleared. Edit the file that actually wins.
 3. Reproduce and fix the bug on a branch off `new-http`. Add a test that covers
    it. Get it reviewed and merged.
 4. Deploy the new image.
