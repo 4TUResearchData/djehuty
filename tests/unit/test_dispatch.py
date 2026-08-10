@@ -43,3 +43,19 @@ def test_build_wsgi_app_returns_dispatcher_that_serves_legacy_by_default():
     app = build_wsgi_app(_legacy, db=object(), default="new", overrides={})
     assert isinstance(app, WebServiceDispatcher)
     assert _call(app, "/anything") == [b"LEGACY"]
+
+
+def test_build_wsgi_app_falls_back_when_new_stack_missing(monkeypatch):
+    """A missing a2wsgi/fastapi degrades to legacy rather than failing."""
+    monkeypatch.setitem(sys.modules, "a2wsgi", None)
+    assert build_wsgi_app(_legacy, db=object()) is _legacy
+
+
+def test_build_wsgi_app_falls_back_when_umbrella_app_fails(monkeypatch):
+    """A router that raises at registration must not take the legacy stack down."""
+    
+    def _boom(db):
+        raise RuntimeError("router registration failed")
+
+    monkeypatch.setattr("djehuty.application.create_app", _boom)
+    assert build_wsgi_app(_legacy, db=object()) is _legacy
