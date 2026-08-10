@@ -145,7 +145,7 @@ artifacts; coverage from each shard is combined into a single report.
 
 Code style is enforced with [Ruff](https://docs.astral.sh/ruff/) and
 rolled out incrementally: only paths that have already been cleaned are
-checked (the `lint_paths` variable in the justfile), starting with
+checked (in the `include` list under `[tool.ruff]` in `pyproject.toml`), starting with
 `src/djehuty/utils/`.
 
 ```bash
@@ -153,6 +153,12 @@ just lint
 ```
 
 This runs `ruff check` (bugs, style errors, import sorting) and `ruff format --check` over the cleaned paths, using the Ruff version pinned in `uv.lock . CI runs the same recipe on every push and pull request, so a clean `just lint` locally means a green Lint job. 
+
+```bash
+just format
+```
+
+It applies the auto format from ruff in the files
 
 ---
 ### Contact information

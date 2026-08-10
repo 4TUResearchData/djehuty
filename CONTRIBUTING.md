@@ -95,8 +95,7 @@ Follow existing code conventions and existing patterns such as:
     - Line length: Keep lines within the project’s limit (100 characters, enforced by Ruff).
     - Comments & docs: Write comments/docstrings in the same style.
 - **No unused code**: Remove dead or commented-out code before committing.
-- **Linting**: Run `just lint` before committing. Ruff is enforced in CI on already-cleaned paths (see `lint_paths` in the `justfile`).
-
+- **Linting**: Run `just lint` before committing (or format using `just format`).
 
 
 ### Commits
