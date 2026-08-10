@@ -4,7 +4,7 @@ Page object for the dataset editor (/my/datasets/<id>/edit).
 
 import re
 
-from playwright.sync_api import Page
+from playwright.sync_api import Page, expect
 
 from pages.base_page import BasePage
 

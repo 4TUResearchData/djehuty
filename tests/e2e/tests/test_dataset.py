@@ -20,6 +20,7 @@ from config import BASE_URL
 from helpers.accounts import get_non_admin_account_uuid
 from helpers.dataset import create_draft_dataset, get_container_uuid_from_url
 from helpers.impersonation import impersonate, stop_impersonation
+from helpers.publish import fill_required_fields_and_publish
 from pages.dataset_editor_page import DatasetEditorPage
 from playwright.sync_api import Page, expect
 
@@ -216,7 +217,9 @@ class TestKeywordMinimum:
 
         editor.delete()
 
-    def test_warning_returns_after_removing_below_minimum(self, authenticated_page: Page, screenshot):
+    def test_warning_returns_after_removing_below_minimum(
+        self, authenticated_page: Page, screenshot
+    ):
         """Removing a keyword below the minimum should bring the warning back."""
         create_draft_dataset(authenticated_page)
         editor = DatasetEditorPage(authenticated_page)
@@ -233,6 +236,40 @@ class TestKeywordMinimum:
         assert editor.get_message_text() == "Please add one more keyword."
 
         editor.delete()
+
+    def test_submit_rejects_below_minimum_keywords(self, authenticated_page: Page):
+        """Submitting for review with fewer than the minimum keywords should
+        be rejected with a tag-specific error."""
+        editor_url = create_draft_dataset(authenticated_page)
+        container_uuid = get_container_uuid_from_url(editor_url)
+
+        response = fill_required_fields_and_publish(
+            authenticated_page,
+            container_uuid,
+            tags=["one", "two", "three"],
+            expect_submit_success=False,
+        )
+
+        assert response.status == 400
+        errors = response.json()
+        tag_errors = [error for error in errors if error["field_name"] == "tag"]
+        assert len(tag_errors) == 1
+        assert "4 keywords" in tag_errors[0]["message"]
+
+    def test_submit_succeeds_at_minimum_keywords(self, authenticated_page: Page):
+        """Submitting for review with exactly the minimum keywords should not
+        raise a tag-related error."""
+        editor_url = create_draft_dataset(authenticated_page)
+        container_uuid = get_container_uuid_from_url(editor_url)
+
+        published_uuid = fill_required_fields_and_publish(
+            authenticated_page,
+            container_uuid,
+            tags=["one", "two", "three", "four"],
+            is_metadata_record=True,
+        )
+
+        assert published_uuid == container_uuid
 
 
 @pytest.mark.dataset

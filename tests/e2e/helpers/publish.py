@@ -12,6 +12,9 @@ def fill_required_fields_and_publish(
     page: Page,
     container_uuid: str,
     *,
+    tags: list[str] | None = None,
+    expect_submit_success: bool = True,
+    is_metadata_record: bool = False,
     title: str = "E2E Test Dataset",
     description: str = "<p>Test dataset for E2E tests.</p>",
     is_embargoed: bool = False,
@@ -28,8 +31,13 @@ def fill_required_fields_and_publish(
     Navigates to the dataset editor to extract group/category values,
     then submits for review and publishes via the review flow.
 
+    If expect_submit_success is False, returns the raw submit-for-review
+    response instead of asserting success and continuing to publish.
+
     Returns the container_uuid for constructing the public URL.
     """
+    if tags is None:
+        tags = ["e2e-test-1", "e2e-test-2", "e2e-test-3", "e2e-test-4"]
     # Navigate to editor to extract required values
     page.goto(f"/my/datasets/{container_uuid}/edit")
     page.wait_for_load_state("domcontentloaded")
@@ -62,7 +70,7 @@ def fill_required_fields_and_publish(
     for _attempt in range(3):
         tag_response = page.request.post(
             f"/v3/datasets/{container_uuid}/tags",
-            data={"tags": ["e2e-test"]},
+            data={"tags": tags},
         )
         if tag_response.ok:
             break
@@ -98,7 +106,7 @@ def fill_required_fields_and_publish(
         "description": description,
         "defined_type": "dataset",
         "is_embargoed": is_embargoed or is_restricted,
-        "is_metadata_record": False,
+        "is_metadata_record": is_metadata_record,
         "agreed_to_deposit_agreement": True,
         "agreed_to_publish": True,
         "categories": [category_uuid] if category_uuid else [],
@@ -128,6 +136,8 @@ def fill_required_fields_and_publish(
         f"/v3/datasets/{container_uuid}/submit-for-review",
         data=form_data,
     )
+    if not expect_submit_success:
+        return response
     assert response.ok, f"Submit failed: {response.status} {response.text()}"
 
     # Navigate to review page to set up impersonation cookies

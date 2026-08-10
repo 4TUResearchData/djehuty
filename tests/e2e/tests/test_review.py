@@ -69,7 +69,14 @@ def submit_for_review_via_api(page: Page, container_uuid: str, title: str = "Rev
     # Add required metadata via API
     page.request.post(
         f"/v3/datasets/{container_uuid}/tags",
-        data={"tags": ["e2e-review-test"]},
+        data={
+            "tags": [
+                "e2e-review-test-1",
+                "e2e-review-test-2",
+                "e2e-review-test-3",
+                "e2e-review-test-4",
+            ]
+        },
     )
     page.request.post(
         f"/v2/account/articles/{container_uuid}/authors",
