@@ -55,7 +55,7 @@ def test_build_wsgi_app_falls_back_when_new_stack_missing(monkeypatch):
 
 def test_build_wsgi_app_falls_back_when_umbrella_app_fails(monkeypatch):
     """A router that raises at registration must not take the legacy stack down."""
-    
+
     def _boom(db):
         raise RuntimeError("router registration failed")
 
