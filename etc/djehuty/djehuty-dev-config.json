@@ -24,12 +24,13 @@
       "body-font-family": "'Aspekta', sans-serif",
       "ui-font-family": "'SpaceGrotesk', sans-serif",
       "font-face": [
-        { "family": "Aspekta", "src": "/s/fonts/Aspekta-300.woff2", "format": "woff2", "weight": "300 400", "style": "normal" },
-        { "family": "Aspekta", "src": "/s/fonts/Aspekta-500.woff2", "format": "woff2", "weight": "500 700", "style": "normal" },
-        { "family": "SpaceGrotesk", "src": "/s/fonts/SpaceGrotesk-Regular.woff2", "format": "woff2", "weight": "400 700", "style": "normal" }
+        { "family": "Aspekta", "src": "/assets/fonts/Aspekta-300.woff2", "format": "woff2", "weight": "300 400", "style": "normal" },
+        { "family": "Aspekta", "src": "/assets/fonts/Aspekta-500.woff2", "format": "woff2", "weight": "500 700", "style": "normal" },
+        { "family": "SpaceGrotesk", "src": "/assets/fonts/SpaceGrotesk-Regular.woff2", "format": "woff2", "weight": "400 700", "style": "normal" }
       ]
     },
-    "custom-logo-path": "/app/src/djehuty/web/resources/static/images/4TUResearchData_Logo_Grey_WarmOrange.png",
+    "custom-assets-root": "branding",
+    "custom-logo-path": "branding/images/4TUResearchData_Logo_Grey_WarmOrange.png",
     "small-footer": "<div id=\"footer-wrapper2\">\n<p>Development instance powered by <a href=\"https://github.com/4TUResearchData/djehuty\">djehuty</a>.</p>\n</div>",
     "large-footer": "<div id=\"footer-wrapper2\">\n<p>Development instance powered by <a href=\"https://github.com/4TUResearchData/djehuty\">djehuty</a>.</p>\n</div>",
     "sandbox-message": {
