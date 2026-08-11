@@ -31,6 +31,7 @@
     },
     "custom-assets-root": "branding",
     "custom-logo-path": "branding/images/4TUResearchData_Logo_Grey_WarmOrange.png",
+    "custom-favicon-path": "branding/images/favicon.ico",
     "small-footer": "<div id=\"footer-wrapper2\">\n<p>Development instance powered by <a href=\"https://github.com/4TUResearchData/djehuty\">djehuty</a>.</p>\n</div>",
     "large-footer": "<div id=\"footer-wrapper2\">\n<p>Development instance powered by <a href=\"https://github.com/4TUResearchData/djehuty\">djehuty</a>.</p>\n</div>",
     "sandbox-message": {
