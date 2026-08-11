@@ -1,0 +1,28 @@
+{%- if fonts %}
+{%- for face in fonts.font_faces %}
+@font-face {
+    font-family: '{{face.family}}';
+    src: url('{{face.src}}') format('{{face.format}}');
+{%- if face.weight %}
+    font-weight: {{face.weight}};
+{%- endif %}
+{%- if face.style %}
+    font-style: {{face.style}};
+{%- endif %}
+{%- if face.display %}
+    font-display: {{face.display}};
+{%- endif %}
+}
+{%- endfor %}
+:root {
+{%- if fonts.body_font %}
+    --font-body: {{fonts.body_font | safe}};
+{%- endif %}
+{%- if fonts.ui_font %}
+    --font-ui: {{fonts.ui_font | safe}};
+{%- endif %}
+{%- if fonts.mono_font %}
+    --font-mono: {{fonts.mono_font | safe}};
+{%- endif %}
+}
+{%- endif %}
