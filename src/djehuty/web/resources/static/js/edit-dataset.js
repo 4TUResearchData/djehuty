@@ -522,7 +522,7 @@ function render_tags_for_dataset (dataset_uuid) {
             if (remaining > 1) {
                 message = "Please add more keywords.";
             } else if (remaining === 1) {
-                message = "Please add one more keyword.";
+                message = "Please add at least one more keyword.";
             } else {
                 message = "More keywords make a real impact in making your dataset <strong>findable</strong>.";
             }

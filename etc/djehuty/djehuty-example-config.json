@@ -31,7 +31,7 @@
     "port": "8080",
     "base-url": "http://localhost:8080",
     "storage-root": "./data",
-    "minimum-keywords-count": "4",
+    "minimum-keywords-count": "1",
     "cache-root": {
       "clear-on-start": "1",
       "#text": "./data/cache"

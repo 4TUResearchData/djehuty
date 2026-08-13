@@ -207,15 +207,18 @@ def read_quotas_configuration (xml_root):
     return None
 
 
-def read_integer_value (xml_root, path, default_value):
+def read_integer_value (xml_root, path, default_value, minimum = None):
     """Parses an integer option, falling back to default_value when absent."""
     parsed = config_value (xml_root, path, None, None)
     if parsed is None:
         return default_value
     try:
-        return int(parsed)
+        value = int(parsed)
     except (ValueError, TypeError) as error:
         raise ValueError (f"Invalid value for '{path}': '{parsed}'.") from error
+    if minimum is not None and value < minimum:
+        raise ValueError (f"Invalid value for '{path}': '{parsed}' (must be >= {minimum}).")
+    return value
 
 def read_sram_configuration (xml_root):
     """Read the SRAM configuration from XML_ROOT."""
@@ -752,7 +755,8 @@ def read_configuration_file (server, config_file, logger, config_files):
         config.base_url     = config_value (xml_root, "base-url", None, config.base_url)
         config.storage      = config_value (xml_root, "storage-root", None, config.storage)
         config.minimum_keywords_count = read_integer_value (xml_root, "minimum-keywords-count",
-                                                            config.minimum_keywords_count)
+                                                            config.minimum_keywords_count,
+                                                            minimum = 0)
         config.state_graph  = config_value (xml_root, "rdf-store/state-graph", None, config.state_graph)
         config.migrations_graph    = config_value (xml_root, "rdf-store/migrations-graph",
                                                    None, config.migrations_graph)
