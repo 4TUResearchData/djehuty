@@ -15,7 +15,7 @@ file. A JSON example is available at `etc/djehuty/djehuty-example-config.json`.
 | `port` | The port to bind a TCP socket on. |
 | `alternative-port` | A fall-back port to bind on when `port` is already in use. |
 | `base-url` | The URL on which the instance will be available to the outside world. |
-| `minimum-keywords-count` | The minimum number of keywords required to submit a dataset for review. Defaults to 4. |
+| `minimum-keywords-count` | The minimum number of keywords required to submit a dataset for review. Set to 0 to disable the requirement. Defaults to 1. |
 | `log-file` | Path to a file where log output is written. When omitted, logs go to stdout. |
 | `allow-crawlers` | Set to 1 to allow crawlers in the `robots.txt`, otherwise set to 0. |
 | `production` | Performs extra checks before starting. Enable this when running a production instance. |
