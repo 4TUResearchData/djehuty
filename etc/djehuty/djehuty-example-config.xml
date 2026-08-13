@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <djehuty>
   <maintenance-mode>0</maintenance-mode>
-  <!-- New HTTP stack switch (see doc/http-migration.md). default is new|legacy;
+  <!-- New HTTP stack switch (see docs/http-migration.md). default is new|legacy;
        list a functional group under <groups> to pin it, e.g.
-       <groups><api-v2>legacy</api-v2></groups>. The docs (/api/) are always new. -->
+       <groups><api-v2>legacy</api-v2></groups>. The API reference
+       (/api/docs, /api/redoc, /api/openapi.json) is always new. -->
   <web-service>
     <default>new</default>
     <groups/>
