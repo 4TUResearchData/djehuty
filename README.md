@@ -65,34 +65,10 @@ Djehuty needs a SPARQL 1.1 endpoint such as
 [Jena Fuseki](https://jena.apache.org/documentation/fuseki2/) to
 store its state.
 
-Copy the [example configuration](./etc/djehuty/djehuty-example-config.xml)
-and adjust it for your environment:
+See the [deployment guide](./docs/deployment.md) for the three supported ways
+to deploy it (Helm chart, container image, or Python package) along with what
+a production configuration requires and how to upgrade.
 
-```bash
-cp etc/djehuty/djehuty-example-config.xml djehuty.xml
-```
-
-JSON is also supported and recommended for new deployments
-(see [djehuty-example-config.json](./etc/djehuty/djehuty-example-config.json));
-pass it the same way with `--config-file djehuty.json`.
-
-### First run
-
-Upon first run, `djehuty` needs to initialize the database with categories,
-licences and accounts.  To do so, pass the `--initialize` option to the
-`djehuty web` command:
-
-```bash
-djehuty web --initialize --config-file djehuty.xml
-```
-
-### Subsequent runs
-
-After the database has been initialized, you can remove the `--initialize`
-option:
-```bash
-djehuty web --config-file=djehuty.xml
-```
 ## Running the tests
 
 The project includes an end-to-end test suite built with

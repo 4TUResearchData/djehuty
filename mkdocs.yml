@@ -14,6 +14,7 @@ nav:
   - Home: index.md
   - Introduction: introduction.md
   - Configuring & running djehuty: running-djehuty.md
+  - Deployment: deployment.md
   - Knowledge graph: knowledge-graph.md
   - Contributing: contributing.md
   - API: api.md

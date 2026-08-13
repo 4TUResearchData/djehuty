@@ -25,7 +25,7 @@ tar zxvf djehuty-<version>.tar.gz
 
 ## Installing the prerequisites
 
-`djehuty` needs Python (version 3.9 or higher) and Git to be installed.
+`djehuty` needs Python (version 3.10 or higher) and Git to be installed.
 Additionally, a couple of Python packages need to be installed. The following
 sections describe installing the prerequisites on various GNU/Linux
 distributions. The figure below displays the complete run-time dependencies
@@ -39,35 +39,22 @@ either [Blazegraph](https://blazegraph.com/) or
 [Virtuoso open-source edition](http://vos.openlinksw.com/owiki/wiki/VOS).
 
 If you prefer not to install dependencies manually, `djehuty` is also available
-as [container images](#pre-built-containers), which bundle all dependencies and
-are suitable for both development and production deployments.
+as [container images](#pre-built-containers), which bundle all required dependencies and are suitable for both development and production deployments.
 
 ### Optional installation requirements depending on configuration
 
 For specific features `djehuty` may require additional packages to be
 installed. Whether this is the case depends on the run-time configuration.
 When an optional package is required `djehuty` will report which one in its
-logs. There are three configuration scenarios that require additional packages:
-SAML, S3 and IIIF.
+logs. There are two such features: SAML authentication needs `python3-saml`,
+and the IIIF Image API needs `pyvips`.
 
-#### SAML
-
-When configuring the use of an identity provider via SAML, `djehuty` requires
-the `python3-saml` Python package to be installed. This package provides the
-implementation of the SAML protocol.
-
-#### S3
-
-When configuring file access in S3 buckets, `djehuty` requires the `boto3`
-Python package to be installed. This package is used to authenticate to the S3
-endpoints and to download (or stream) data.
-
-#### IIIF
-
-When enabling the IIIF functionality, `djehuty` requires the `pyvips` Python
-package to be installed. This package is used to perform image transformations.
+Both also need system libraries to be present. See [Optional dependencies](deployment.md#optional-dependencies) in the deployment guide for which ones, and how to install them.
 
 ## Installation instructions
+
+This section covers obtaining and installing the software. For running it in
+production - on Kubernetes, in containers, or as a service on a host - see the [deployment guide](deployment.md).
 
 ### Development
 
@@ -116,19 +103,10 @@ After installation, the `djehuty` program will be available.
 
 ## Pre-built containers
 
-4TU.ResearchData provides Docker container images for each `djehuty` release.
-The following table outlines the meaning of each image provided. The images are
-published to [Docker Hub](https://hub.docker.com/r/4turesearchdata/djehuty) and
-the [GitHub Container Registry](https://ghcr.io/4turesearchdata/djehuty).
-
-| Image tag | Description |
-|-----------|-------------|
-| `devel` | Image meant for development purposes. Before it executes the `djehuty` command it checks out the latest codebase. So re-running the same container image may result in running a different version of `djehuty`. |
-| `latest` | This image points to the latest `djehuty` release. It does not automatically update the `djehuty` codebase. |
-| `XX.X` | Version-specific image where the number before the dot refers to the year and the number after the dot refers to the release number. Use a specific version image when you want to upgrade at your own pace. |
-
-To build the container images for yourself, see the build instructions in the
-`docker/Dockerfile` file.
+4TU.ResearchData publishes a container image for each `djehuty` release to the
+GitHub Container Registry as `ghcr.io/4turesearchdata/djehuty`. See
+[Containers](deployment.md#containers) in the deployment guide for the
+available tags and how to run the image.
 
 ## RPM packages
 
