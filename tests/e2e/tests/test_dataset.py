@@ -196,7 +196,7 @@ class TestKeywordMinimum:
 
         assert editor.get_keyword_count() == 3
         assert editor.is_message_warning()
-        assert editor.get_message_text() == "Please add one more keyword."
+        assert editor.get_message_text() == "Please add at least one more keyword."
 
         editor.delete()
 
@@ -233,7 +233,7 @@ class TestKeywordMinimum:
 
         assert editor.get_keyword_count() == 3
         assert editor.is_message_warning()
-        assert editor.get_message_text() == "Please add one more keyword."
+        assert editor.get_message_text() == "Please add at least one more keyword."
 
         editor.delete()
 
