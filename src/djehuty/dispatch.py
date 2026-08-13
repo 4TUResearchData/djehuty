@@ -29,14 +29,17 @@ def build_wsgi_app(legacy_app, db, default="new", overrides=None):
     the new stack cannot be imported."""
     try:
         from a2wsgi import ASGIMiddleware
+
         from djehuty.application import create_app
+
         new_app = ASGIMiddleware(create_app(db))
     except ImportError as error:
         _log.warning("New HTTP stack unavailable (%s); serving legacy only.", error)
         return legacy_app
     except Exception as error:
-        _log.error("New HTTP stack failed to build (%s); serving legacy only.",
-                   error, exc_info=True)
+        _log.error(
+            "New HTTP stack failed to build (%s); serving legacy only.", error, exc_info=True
+        )
         return legacy_app
 
     _log.info(
