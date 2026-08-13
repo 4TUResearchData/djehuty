@@ -18,7 +18,7 @@
       "primary-color-active": "#9d4800",
       "primary-foreground-color": "#000000",
       "privilege-button-color": "#fce3bf",
-      "footer-background-color": "#707070"
+      "footer-background-color": "#3C3C3C"
     },
     "fonts": {
       "body-font-family": "'Aspekta', sans-serif",
@@ -30,6 +30,13 @@
       ]
     },
     "custom-assets-root": "branding",
+    "custom-stylesheet": [
+      "/assets/css/footer.css",
+      "/assets/css/palette.css",
+      "/assets/css/typography.css",
+      "/assets/css/spacing.css",
+      "/assets/css/header.css"
+    ],
     "custom-logo-path": "branding/images/4TUResearchData_Logo_Grey_WarmOrange.png",
     "custom-favicon-path": "branding/images/favicon.ico",
     "small-footer": "<div id=\"footer-wrapper2\">\n<p>Development instance powered by <a href=\"https://github.com/4TUResearchData/djehuty\">djehuty</a>.</p>\n</div>",
