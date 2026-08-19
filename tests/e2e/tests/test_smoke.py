@@ -49,6 +49,16 @@ class TestSmoke:
         screenshot(page, "portal-footer-version")
         expect(page.locator("#footer")).to_contain_text(f"Djehuty v{true_version}")
 
+    def test_theme_fonts_stylesheet_is_available(self, page: Page):
+        """The portal should load the generated per-instance font stylesheet."""
+        response = page.request.get("/theme/fonts.css")
+
+        assert response.status == 200
+        assert response.headers["content-type"].startswith("text/css")
+        assert "@font-face" in response.text()
+
+        page.goto("/portal")
+        expect(page.locator('link[href^="/theme/fonts.css"]')).to_have_count(1)
 
 @pytest.mark.smoke
 class TestPageObjects:
