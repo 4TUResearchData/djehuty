@@ -149,7 +149,7 @@ class TestExportLinks:
         screenshot(page, "export-section")
 
         expect(page.locator("#export")).to_be_visible()
-        expect(page.locator("#export h3")).to_have_text("Export as...")
+        expect(page.locator("#export h3")).to_have_text("Export as")
 
     @pytest.mark.parametrize("fmt,label", EXPORT_FORMATS)
     def test_export_link_present(self, published_dataset, fmt, label):
