@@ -20,6 +20,16 @@
       "privilege-button-color": "#fce3bf",
       "footer-background-color": "#707070"
     },
+    "fonts": {
+      "body-font-family": "",
+      "ui-font-family": "",
+      "mono-font-family": "",
+      "font-face": []
+    },
+    "custom-assets-root": "",
+    "custom-stylesheet": [],
+    "custom-logo-path": "",
+    "custom-favicon-path": "",
     "small-footer": "<div id=\"footer-wrapper2\">\n<p>This repository is powered by <a href=\"https://github.com/4TUResearchData/djehuty\">djehuty</a> built for <a href=\"https://data.4tu.nl\">4TU.ResearchData</a>.\n</p>\n</div>",
     "large-footer": "<div id=\"footer-wrapper2\">\n<p>This repository is powered by <a href=\"https://github.com/4TUResearchData/djehuty\">djehuty</a> built for <a href=\"https://data.4tu.nl\">4TU.ResearchData</a>.\n</p>\n</div>",
     "sandbox-message": {

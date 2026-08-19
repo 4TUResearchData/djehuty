@@ -6,18 +6,9 @@
     "site-description": "Djehuty development instance",
     "publisher-rors": {
       "publisher-ror": [
-        {
-          "name": "4TU.ResearchData",
-          "url": "https://ror.org/02d887280"
-        },
-        {
-          "name": "Delft University of Technology",
-          "url": "https://ror.org/02e2c7k09"
-        },
-        {
-          "name": "Eindhoven University of Technology",
-          "url": "https://ror.org/02c2kyt77"
-        }
+        { "name": "4TU.ResearchData", "url": "https://ror.org/02d887280" },
+        { "name": "Delft University of Technology", "url": "https://ror.org/02e2c7k09" },
+        { "name": "Eindhoven University of Technology", "url": "https://ror.org/02c2kyt77" }
       ]
     },
     "support-email-address": "dev@localhost",
@@ -27,49 +18,18 @@
       "primary-color-active": "#9d4800",
       "primary-foreground-color": "#000000",
       "privilege-button-color": "#fce3bf",
-      "footer-background-color": "#3C3C3C"
+      "footer-background-color": "#707070"
     },
     "fonts": {
-      "body-font-family": "'Aspekta', sans-serif",
-      "ui-font-family": "'SpaceGrotesk', sans-serif",
-      "font-face": [
-        {
-          "family": "Aspekta",
-          "src": "/assets/fonts/Aspekta-300.woff2",
-          "format": "woff2",
-          "weight": "300 400",
-          "style": "normal"
-        },
-        {
-          "family": "Aspekta",
-          "src": "/assets/fonts/Aspekta-500.woff2",
-          "format": "woff2",
-          "weight": "500 700",
-          "style": "normal"
-        },
-        {
-          "family": "SpaceGrotesk",
-          "src": "/assets/fonts/SpaceGrotesk-Regular.woff2",
-          "format": "woff2",
-          "weight": "400 700",
-          "style": "normal"
-        }
-      ]
+      "body-font-family": "",
+      "ui-font-family": "",
+      "mono-font-family": "",
+      "font-face": []
     },
-    "custom-assets-root": "branding",
-    "custom-stylesheet": [
-      "/assets/css/footer.css",
-      "/assets/css/palette.css",
-      "/assets/css/typography.css",
-      "/assets/css/spacing.css",
-      "/assets/css/header.css",
-      "/assets/css/buttons.css",
-      "/assets/css/action-bar.css",
-      "/assets/css/shapes.css",
-      "/assets/css/chips.css"
-    ],
-    "custom-logo-path": "branding/images/4TUResearchData_Logo_Grey_WarmOrange.png",
-    "custom-favicon-path": "branding/images/favicon.ico",
+    "custom-assets-root": "",
+    "custom-stylesheet": [],
+    "custom-logo-path": "",
+    "custom-favicon-path": "",
     "small-footer": "<div id=\"footer-wrapper2\">\n<p>Development instance powered by <a href=\"https://github.com/4TUResearchData/djehuty\">djehuty</a>.</p>\n</div>",
     "large-footer": "<div id=\"footer-wrapper2\">\n<p>Development instance powered by <a href=\"https://github.com/4TUResearchData/djehuty\">djehuty</a>.</p>\n</div>",
     "sandbox-message": {

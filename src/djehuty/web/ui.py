@@ -744,6 +744,9 @@ def read_custom_stylesheets(xml_root):
 
 def warn_about_unresolvable_asset(assets_root, source, description, logger):
     """Procedure to warn when SOURCE cannot be served from ASSETS_ROOT."""
+    if not source:
+        logger.warning("%s has no source configured.", description)
+        return
 
     prefix = "/assets/"
     if not source.startswith(prefix):
