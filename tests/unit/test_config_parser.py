@@ -4,10 +4,12 @@ import pytest
 
 from djehuty.web.config import config
 from djehuty.web.config.json_parser import JsonConfigElement
-from djehuty.web.ui import config_value, read_boolean_value, read_raw_xml
 from djehuty.web.ui import (
+    config_value,
+    read_boolean_value,
     read_custom_stylesheets,
     read_fonts_configuration,
+    read_raw_xml,
     warn_about_unresolvable_asset,
 )
 

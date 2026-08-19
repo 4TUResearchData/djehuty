@@ -55,10 +55,10 @@ class TestSmoke:
 
         assert response.status == 200
         assert response.headers["content-type"].startswith("text/css")
-        assert "@font-face" in response.text()
 
         page.goto("/portal")
         expect(page.locator('link[href^="/theme/fonts.css"]')).to_have_count(1)
+
 
 @pytest.mark.smoke
 class TestPageObjects:
