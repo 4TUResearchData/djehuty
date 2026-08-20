@@ -256,7 +256,7 @@ function autocomplete_funding (event, item_id) {
 function toggle_cite_collect (event, action) {
     stop_event_propagation (event);
     let other = (action === "collect") ? "cite" : "collect";
-    let label = (action === "collect") ? "Collect" : "Citation";
+    let label = (action === "collect") ? "Collect" : "Cite";
     let item = jQuery(`#${action}`);
     let other_item = jQuery(`#${other}`);
     if (item.is(":visible")) {
