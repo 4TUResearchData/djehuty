@@ -570,6 +570,7 @@ def format_collection_record (record):
         "id":                conv.value_or_none(record, "collection_id"),
         "uuid":              conv.value_or_none(record, "container_uuid"),
         "title":             conv.value_or_none(record, "title"),
+        "version":           conv.value_or_none(record, "version"),
         "doi":               conv.value_or_none(record, "doi"),
         "handle":            conv.value_or(record, "handle", ""),
         "url":               conv.value_or_none(urls, "url"),
