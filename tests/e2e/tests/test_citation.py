@@ -130,6 +130,25 @@ class TestCiteDialog:
         expect(page.locator("#cite")).to_be_hidden()
         screenshot(page, "cite-closed")
 
+    def test_cite_button_label_stays_cite(self, published_dataset, screenshot):
+        """The Cite button label should stay "Cite" regardless if open or closed."""
+        page, container_uuid = published_dataset
+        page.goto(f"/datasets/{container_uuid}")
+        page.wait_for_load_state("domcontentloaded")
+
+        # Closed
+        cite_button = page.locator("#cite-btn")
+        expect(cite_button).to_have_text("Cite")
+        cite_button.click()
+
+        # Open
+        expect(cite_button).to_have_text("Cite")
+
+        # Closed again
+        cite_button.click()
+        expect(cite_button).to_have_text("Cite")
+        screenshot(page, "cite-label-stays")
+
 
 # ---------------------------------------------------------------------------
 # Export link tests
