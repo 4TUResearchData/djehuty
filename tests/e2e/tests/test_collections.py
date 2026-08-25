@@ -1,16 +1,5 @@
 """
 Collection management tests.
-
-Covers:
-    - Create a new collection through UI
-    - View collection detail page
-    - Edit collection metadata
-    - Add/remove datasets from collection
-    - Delete collection
-    - Collection publish workflow
-
-Run with:
-    cd tests/e2e && python -m pytest tests/test_collections.py -v
 """
 
 import re
@@ -749,6 +738,110 @@ class TestCollectButton:
                     "collection. Under #218 every entry added the dataset to "
                     "whichever collection happened to be listed last."
                 )
+        finally:
+            for container_uuid in collections.values():
+                authenticated_page.request.delete(f"/v2/account/collections/{container_uuid}")
+
+    def test_collect_menu_dedupes_versions_to_latest(
+        self, authenticated_page: Page, published_dataset, screenshot
+    ):
+        """A collection with multiple published versions should appear once in
+        the collection menu, labelled with its latest version.
+        """
+        marker = uuid.uuid4().hex[:8]
+        title = f"Collect Versioned {marker}"
+        container_uuid = _create_titled_draft_collection(authenticated_page, title)
+
+        fill_required_fields_and_publish_collection(
+            authenticated_page, container_uuid, title=title
+        )
+        authenticated_page.goto(f"/my/collections/{container_uuid}/new-version-draft")
+        authenticated_page.wait_for_url("**/my/collections/*/edit")
+        fill_required_fields_and_publish_collection(
+            authenticated_page, container_uuid, title=title
+        )
+
+        try:
+            authenticated_page.goto(f"/datasets/{published_dataset}")
+            authenticated_page.wait_for_load_state("domcontentloaded")
+            authenticated_page.locator("#collect-btn").click()
+
+            entries = authenticated_page.locator("#collect-published li a").filter(
+                has_text=title
+            )
+            expect(entries.first).to_be_visible()
+            screenshot(authenticated_page, "collect-menu-deduped-versions")
+
+            assert entries.count() == 1, (
+                f"Expected exactly one entry for {title!r} across both published "
+                f"versions, got {entries.count()}: {entries.all_inner_texts()}"
+            )
+            assert "(v2)" in entries.first.inner_text(), (
+                f"Expected the deduped entry to show the latest version, got "
+                f"{entries.first.inner_text()!r}"
+            )
+        finally:
+            authenticated_page.request.delete(f"/v2/account/collections/{container_uuid}")
+
+    def test_collect_menu_separates_published_and_draft_collections(
+        self, authenticated_page: Page, published_dataset, screenshot
+    ):
+        """Draft and published collections should render in separate lists, with
+        only published entries carrying a version label.
+        """
+        marker = uuid.uuid4().hex[:8]
+        draft_title = f"Collect Draft {marker}"
+        published_title = f"Collect Published {marker}"
+
+        draft_uuid = _create_titled_draft_collection(authenticated_page, draft_title)
+        published_uuid = _create_titled_draft_collection(authenticated_page, published_title)
+        fill_required_fields_and_publish_collection(
+            authenticated_page, published_uuid, title=published_title
+        )
+
+        try:
+            authenticated_page.goto(f"/datasets/{published_dataset}")
+            authenticated_page.wait_for_load_state("domcontentloaded")
+            authenticated_page.locator("#collect-btn").click()
+            screenshot(authenticated_page, "collect-menu-draft-vs-published")
+
+            draft_entry = authenticated_page.locator("#collect-drafts li a").filter(
+                has_text=draft_title
+            )
+            published_entry = authenticated_page.locator("#collect-published li a").filter(
+                has_text=published_title
+            )
+
+            expect(draft_entry).to_be_visible()
+            expect(published_entry).to_be_visible()
+            assert "(v" not in draft_entry.inner_text()
+            assert "(v1)" in published_entry.inner_text()
+            expect(authenticated_page.locator("#collect-separator")).to_be_visible()
+        finally:
+            authenticated_page.request.delete(f"/v2/account/collections/{draft_uuid}")
+            authenticated_page.request.delete(f"/v2/account/collections/{published_uuid}")
+
+    def test_collect_menu_lists_alphabetically(
+        self, authenticated_page: Page, published_dataset, screenshot
+    ):
+        """Entries within each collection menu section should be sorted
+        alphabetically by title.
+        """
+        marker = uuid.uuid4().hex[:8]
+        titles = [f"Zebra {marker}", f"Alpha {marker}", f"Mike {marker}"]
+        collections = {t: _create_titled_draft_collection(authenticated_page, t) for t in titles}
+
+        try:
+            authenticated_page.goto(f"/datasets/{published_dataset}")
+            authenticated_page.wait_for_load_state("domcontentloaded")
+            authenticated_page.locator("#collect-btn").click()
+
+            entries = authenticated_page.locator("#collect-drafts li a")
+            expect(entries.first).to_be_visible()
+            screenshot(authenticated_page, "collect-menu-alphabetical")
+
+            texts = [t for t in entries.all_inner_texts() if marker in t]
+            assert texts == sorted(texts), f"Expected alphabetical order, got {texts}"
         finally:
             for container_uuid in collections.values():
                 authenticated_page.request.delete(f"/v2/account/collections/{container_uuid}")
