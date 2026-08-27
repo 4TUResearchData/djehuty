@@ -215,9 +215,10 @@ def read_integer_value (xml_root, path, default_value, minimum = None):
     try:
         value = int(parsed)
     except (ValueError, TypeError) as error:
-        raise ValueError (f"Invalid value for '{path}': '{parsed}'.") from error
+        raise ElementTree.ParseError (f"Invalid value for '{path}': '{parsed}'.") from error
     if minimum is not None and value < minimum:
-        raise ValueError (f"Invalid value for '{path}': '{parsed}' (must be >= {minimum}).")
+        raise ElementTree.ParseError (
+            f"Invalid value for '{path}': '{parsed}' (must be >= {minimum}).")
     return value
 
 def read_sram_configuration (xml_root):
