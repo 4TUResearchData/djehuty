@@ -65,7 +65,7 @@
 #wrapper #content #collect ul li a {
     display: inline-block;
     padding: .15em .5em;
-    border-radius: 1em;
+    border-radius: 0.5em;
     border: 1px solid #ccc;
     background: #f5f5f5;
     font-size: 10pt;
