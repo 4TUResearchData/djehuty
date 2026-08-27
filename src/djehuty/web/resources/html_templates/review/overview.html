@@ -16,8 +16,8 @@
 }
 #table-count { text-transform: lowercase; }
 #overview-table, #overview-h1 { display: none; }
-#overview-table tbody tr td:nth-child(11),
-#overview-table thead tr th:nth-child(11){
+#overview-table tbody tr td:nth-child(12),
+#overview-table thead tr th:nth-child(12){
     max-width: 8px !important;
     min-width: 8px !important;
     user-select: none;
@@ -32,6 +32,80 @@
 #spacer-link { background: none !important; width: 0px !important; cursor: default !important; }
 .normal-text { text-transform: none; }
 .fa-copy:hover { cursor: pointer; }
+
+/* Note */
+.note-container {
+  width: 200px;
+  height: auto;
+  word-wrap: break-word;
+  white-space: normal;
+  padding: 0 10px;
+}
+
+.note-panel {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.note-editor-panel textarea {
+  width: 98%;
+  min-height: 60px;
+}
+
+.note-editor-footer {
+  display: flex;
+  flex-direction: row;
+  justify-content: end;
+}
+
+.note-footer-btn {
+  border-radius: 0.125rem;
+  padding: 3px 6px ;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+  text-decoration: none;
+  border: 0;
+}
+.cursor-pointer { cursor: pointer }
+
+.add-note-wrap { width: 100% }
+.edit-note-btn { margin-left: 16px }
+
+.cancel-note-btn {
+  background: var(--gray-500);
+  margin-right: 5px;
+}
+.cancel-note-btn:hover {
+  background: var(--gray-400);
+}
+
+.see-less-btn {
+  margin-right:0.5em;
+  user-select: none;
+}
+
+.full-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.full-note-text {
+  user-select: text;
+  flex-shrink: 1;
+  min-width: 0;
+}
+
+.note-actions {
+  white-space: nowrap;
+}
+
+.block { display: block; }
+.hidden { display: none; }
 </style>
 <script nonce="{{nonce}}">
   const reviewers = [
@@ -44,7 +118,7 @@
       {%- endfor %}
   ]
 </script>
-<script src="/static/js/review-overview.js?cache=1744290797"></script>
+<script src="/static/js/review-overview.js?cache=1746515598"></script>
 {% endblock %}
 {% block submenu %}
 <ul>
@@ -90,6 +164,7 @@
       <th>Last modified</th>
       <th>Accepted</th>
       <th>Reviewer</th>
+      <th>Note</th>
       <th></th>
     </tr>
   </thead>
