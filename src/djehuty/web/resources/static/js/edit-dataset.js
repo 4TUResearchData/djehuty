@@ -512,6 +512,22 @@ function render_tags_for_dataset (dataset_uuid) {
             row.append(jQuery("<span/>").html(`${tag} &nbsp; `)).append(anchor);
             jQuery("#tags-list").append(row);
         }
+
+        let remaining = minimum_keywords_count - tags.length;
+        let message_el = jQuery("#keyword-minimum-message");
+        if (tags.length === 0) {
+            message_el.addClass("hidden");
+        } else {
+            let message;
+            if (remaining > 1) {
+                message = "Please add more keywords.";
+            } else if (remaining === 1) {
+                message = "Please add at least one more keyword.";
+            } else {
+                message = "More keywords make a real impact in making your dataset <strong>findable</strong>.";
+            }
+            message_el.html(message).removeClass("hidden").toggleClass("required-field", remaining > 0);
+        }
         jQuery("#tags-list").show();
     }).fail(function () { show_message ("failure", "<p>Failed to retrieve tags.</p>"); });
 }
@@ -1620,6 +1636,9 @@ function submit_dataset (dataset_uuid, event) {
                     } else if (message.field_name == "files") {
                         show_message ("failure", `<p>${message.message}</p>`);
                         jQuery("#dropzone-field").addClass("missing-required");
+                    } else if (message.field_name == "tag") {
+                        show_message ("failure", `<p>${message.message}</p>`);
+                        jQuery("#tag").addClass("missing-required");
                     } else {
                         jQuery(`#${message.field_name}`).addClass("missing-required");
                     }

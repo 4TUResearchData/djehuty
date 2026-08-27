@@ -43,6 +43,7 @@ class RuntimeConfiguration:  # pylint: disable=too-few-public-methods
         self.account_quotas = {}
         self.group_quotas = {}
         self.default_quota = 5000000000
+        self.minimum_keywords_count = 1
         self.depositing_domains = []
         self.delay_inserting_log_entries = False
         self.export_directory = "."

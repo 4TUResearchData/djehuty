@@ -12,6 +12,7 @@ var initial_thumbnail_file_uuid = "";
 {%- else %}
 var initial_thumbnail_file_uuid = "{{article.thumb_origin}}";
 {%- endif %}
+const minimum_keywords_count = {{minimum_keywords_count}};
 {%- if article.is_shared_with_me %}
     const is_shared_with_me = true;
     const permissions = {{permissions|tojson}};
@@ -453,7 +454,8 @@ table#files tbody tr td:nth-child(3) { width: 15px; text-align: right; }
 <input type="text" id="derived_from" name="derived_from" value="{{article["derived_from"] | default("", True)}}" />
 <label for="same_as">Same As</label><div class="fas fa-question-circle help-icon"><span class="help-text">URL of exactly the same data. This can be a copy in another location or an alternative URL that redirects to the current item.</span></div>
 <input type="text" id="same_as" name="same_as" value="{{article["same_as"] | default("", True)}}" />
-<label for="tag">Keywords</label><div class="fas fa-question-circle help-icon"><span class="help-text">Add at least 4 keywords that will help make your research more discoverable. Select the keywords from the list or manually add them. Use a semicolon (;) or hit return after each keyword you enter.</span></div><span class="required-field">&#8727;</span>
+<label for="tag">Keywords</label><div class="fas fa-question-circle help-icon"><span class="help-text">{% if minimum_keywords_count > 0 %}Add at least {{minimum_keywords_count}} keyword{% if minimum_keywords_count != 1 %}s{% endif %}{% else %}Add keywords{% endif %} that will help make your research more discoverable. Select the keywords from the list or manually add them. Use a semicolon (;) or hit return after each keyword you enter.</span></div>{% if minimum_keywords_count > 0 %}<span class="required-field">&#8727;</span>{% endif %}
+<span id="keyword-minimum-message" class="hidden keyword-minimum-message"></span>
 <div id="wrap-input-tag" class="input-with-button">
   <input type="text" id="tag" name="tag" value="" placeholder="keyword 1; keyword 2; keyword 3; keyword 4" />
   <a id="add-keyword-button" class="form-button corporate-identity-standard-button" href="#">Add keyword</a>

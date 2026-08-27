@@ -732,3 +732,5 @@ select { background-color: #fff !important; border: solid 1pt #ccc; border-radiu
     font-style: italic;
 }
 .author-orcid { height: 15px; }
+
+.keyword-minimum-message { margin-left: 5pt; color: #FF6829; }

@@ -20,6 +20,7 @@ from config import BASE_URL
 from helpers.accounts import get_non_admin_account_uuid
 from helpers.dataset import create_draft_dataset, get_container_uuid_from_url
 from helpers.impersonation import impersonate, stop_impersonation
+from helpers.publish import fill_required_fields_and_publish
 from pages.dataset_editor_page import DatasetEditorPage
 from playwright.sync_api import Page, expect
 
@@ -153,6 +154,122 @@ class TestEditDataset:
 
         # Clean up
         editor.delete()
+
+
+@pytest.mark.dataset
+class TestKeywordMinimum:
+    """Test the keyword-minimum guidance message in the dataset editor."""
+
+    def test_no_message_with_zero_keywords(self, authenticated_page: Page, screenshot):
+        """With no keywords, the guidance message should stay hidden."""
+        create_draft_dataset(authenticated_page)
+        editor = DatasetEditorPage(authenticated_page)
+        screenshot(authenticated_page, "keywords-zero")
+
+        assert editor.get_keyword_count() == 0
+        assert not editor.is_message_visible()
+
+        editor.delete()
+
+    def test_warning_message_below_minimum(self, authenticated_page: Page, screenshot):
+        """Below the minimum, the message should show and be styled as a warning."""
+        create_draft_dataset(authenticated_page)
+        editor = DatasetEditorPage(authenticated_page)
+
+        editor.add_keyword("first")
+        screenshot(authenticated_page, "keywords-one")
+
+        assert editor.is_message_visible()
+        assert editor.is_message_warning()
+        assert editor.get_message_text() == "Please add more keywords."
+
+        editor.delete()
+
+    def test_one_more_message_at_minimum_minus_one(self, authenticated_page: Page, screenshot):
+        """With exactly one keyword left to add, the message should say so."""
+        create_draft_dataset(authenticated_page)
+        editor = DatasetEditorPage(authenticated_page)
+
+        for word in ["one", "two", "three"]:
+            editor.add_keyword(word)
+        screenshot(authenticated_page, "keywords-three")
+
+        assert editor.get_keyword_count() == 3
+        assert editor.is_message_warning()
+        assert editor.get_message_text() == "Please add at least one more keyword."
+
+        editor.delete()
+
+    def test_findability_message_at_minimum(self, authenticated_page: Page, screenshot):
+        """At the minimum count, the message should switch to the findability
+        note and drop the warning style."""
+        create_draft_dataset(authenticated_page)
+        editor = DatasetEditorPage(authenticated_page)
+
+        for word in ["one", "two", "three", "four"]:
+            editor.add_keyword(word)
+        screenshot(authenticated_page, "keywords-four")
+
+        assert editor.get_keyword_count() == 4
+        assert editor.is_message_visible()
+        assert not editor.is_message_warning()
+        assert "findable" in editor.get_message_text()
+
+        editor.delete()
+
+    def test_warning_returns_after_removing_below_minimum(
+        self, authenticated_page: Page, screenshot
+    ):
+        """Removing a keyword below the minimum should bring the warning back."""
+        create_draft_dataset(authenticated_page)
+        editor = DatasetEditorPage(authenticated_page)
+
+        for word in ["one", "two", "three", "four"]:
+            editor.add_keyword(word)
+        assert not editor.is_message_warning()
+
+        editor.remove_keyword(0)
+        screenshot(authenticated_page, "keywords-removed-below-minimum")
+
+        assert editor.get_keyword_count() == 3
+        assert editor.is_message_warning()
+        assert editor.get_message_text() == "Please add at least one more keyword."
+
+        editor.delete()
+
+    def test_submit_rejects_below_minimum_keywords(self, authenticated_page: Page):
+        """Submitting for review with fewer than the minimum keywords should
+        be rejected with a tag-specific error."""
+        editor_url = create_draft_dataset(authenticated_page)
+        container_uuid = get_container_uuid_from_url(editor_url)
+
+        response = fill_required_fields_and_publish(
+            authenticated_page,
+            container_uuid,
+            tags=["one", "two", "three"],
+            expect_submit_success=False,
+        )
+
+        assert response.status == 400
+        errors = response.json()
+        tag_errors = [error for error in errors if error["field_name"] == "tag"]
+        assert len(tag_errors) == 1
+        assert "4 keywords" in tag_errors[0]["message"]
+
+    def test_submit_succeeds_at_minimum_keywords(self, authenticated_page: Page):
+        """Submitting for review with exactly the minimum keywords should not
+        raise a tag-related error."""
+        editor_url = create_draft_dataset(authenticated_page)
+        container_uuid = get_container_uuid_from_url(editor_url)
+
+        published_uuid = fill_required_fields_and_publish(
+            authenticated_page,
+            container_uuid,
+            tags=["one", "two", "three", "four"],
+            is_metadata_record=True,
+        )
+
+        assert published_uuid == container_uuid
 
 
 @pytest.mark.dataset

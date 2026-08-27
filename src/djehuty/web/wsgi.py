@@ -2403,6 +2403,7 @@ class WebServer:
                 show_codecheck = config.enable_codecheck,
                 allow_full_embargo = config.allow_full_embargo,
                 file_deposit_notice = config.file_deposit_notice,
+                minimum_keywords_count = config.minimum_keywords_count,
                 api_token  = self.token_from_request (request))
 
         except IndexError:
@@ -8182,11 +8183,15 @@ class WebServer:
                     "message": "The dataset must have at least one author."})
 
             tags = self.db.tags (item_uri     = dataset["uri"],
-                                 account_uuid = account_uuid)
-            if not tags:
+                                 account_uuid = account_uuid,
+                                 limit        = config.minimum_keywords_count + 1)
+
+            if len(tags) < config.minimum_keywords_count:
+                keyword_noun = "keyword" if config.minimum_keywords_count == 1 else "keywords"
                 errors.append({
                     "field_name": "tag",
-                    "message": "The dataset must have at least one keyword."})
+                    "message": f"The dataset must have at least "
+                               f"{config.minimum_keywords_count} {keyword_noun}."})
 
 
             categories = self.db.categories (item_uri = dataset["uri"],
