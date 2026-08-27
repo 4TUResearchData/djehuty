@@ -752,23 +752,17 @@ class TestCollectButton:
         title = f"Collect Versioned {marker}"
         container_uuid = _create_titled_draft_collection(authenticated_page, title)
 
-        fill_required_fields_and_publish_collection(
-            authenticated_page, container_uuid, title=title
-        )
+        fill_required_fields_and_publish_collection(authenticated_page, container_uuid, title=title)
         authenticated_page.goto(f"/my/collections/{container_uuid}/new-version-draft")
         authenticated_page.wait_for_url("**/my/collections/*/edit")
-        fill_required_fields_and_publish_collection(
-            authenticated_page, container_uuid, title=title
-        )
+        fill_required_fields_and_publish_collection(authenticated_page, container_uuid, title=title)
 
         try:
             authenticated_page.goto(f"/datasets/{published_dataset}")
             authenticated_page.wait_for_load_state("domcontentloaded")
             authenticated_page.locator("#collect-btn").click()
 
-            entries = authenticated_page.locator("#collect-published li a").filter(
-                has_text=title
-            )
+            entries = authenticated_page.locator("#collect-published li a").filter(has_text=title)
             expect(entries.first).to_be_visible()
             screenshot(authenticated_page, "collect-menu-deduped-versions")
 
