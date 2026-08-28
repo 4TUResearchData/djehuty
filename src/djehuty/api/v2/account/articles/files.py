@@ -153,7 +153,12 @@ def delete_private_article_file(
     from djehuty.utils.rdf import uuid_to_uri
 
     dataset = _resolve_private_dataset(db, dataset_id, account["uuid"])
-    db.delete_item_from_list(dataset["uri"], "files", URIRef(uuid_to_uri(file_id, "file")))
+    files = db.dataset_files(
+        dataset_uri=dataset["uri"], file_uuid=file_id, account_uuid=account["uuid"]
+    )
+    if not files:
+        raise NotFoundError()
+    db.delete_item_from_list(dataset["uri"], "files", URIRef(uuid_to_uri(files[0]["uuid"], "file")))
     db.cache.invalidate_by_prefix(f"{account['uuid']}_storage")
     db.cache.invalidate_by_prefix(f"{dataset['uuid']}_dataset_storage")
     return Response(status_code=204)
