@@ -35,6 +35,16 @@ def register_exception_handlers(app: FastAPI):
     async def validation_error_handler(request: Request, exc: RequestValidationError):
         errors = []
         for error in exc.errors():
+            if error["type"] == "json_invalid":
+                detail = error.get("ctx", {}).get("error", error["msg"])
+                errors.append(
+                    {
+                        "message": f"Failed to decode JSON object: {detail}",
+                        "code": "InvalidJson",
+                        "field": None,
+                    }
+                )
+                continue
             field = ".".join(str(loc) for loc in error["loc"] if loc != "body")
             errors.append(
                 {
