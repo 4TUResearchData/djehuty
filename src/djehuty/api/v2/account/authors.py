@@ -13,15 +13,14 @@ router = APIRouter(prefix="/account", tags=["V2 / Account / Authors"])
 @router.post(
     "/authors/search",
     summary="Search authors",
-    description="Search for authors by name. Used for author autocomplete. Admin-only.",
+    description="Search for authors by name. Used for author autocomplete.",
 )
 def search_authors(
     body: dict,
     account=Depends(require_auth),
     db=Depends(get_db),
 ):
-    # Legacy gates this behind may_administer and reads ``search`` from the
-    # JSON body (POST).
+    # Legacy reads ``search`` from the JSON body (POST).
     search_for = body.get("search") if isinstance(body, dict) else None
     if not isinstance(search_for, str) or len(search_for) > 255:
         raise InvalidInputError(

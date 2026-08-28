@@ -3,8 +3,8 @@
 from fastapi import APIRouter, Depends, Query
 from fastapi.responses import JSONResponse
 
-from djehuty.api.dependencies import get_db, get_token, pagination_params, require_auth
-from djehuty.api.exceptions import ForbiddenError, InvalidInputError
+from djehuty.api.dependencies import get_db, pagination_params, require_admin, require_auth
+from djehuty.api.exceptions import InvalidInputError
 from djehuty.web import formatter
 from djehuty.web.config import config
 
@@ -25,7 +25,7 @@ def get_institution(account=Depends(require_auth)):
     summary="List institution accounts",
 )
 def list_institution_accounts(
-    token: str | None = Depends(get_token),
+    account=Depends(require_admin),
     db=Depends(get_db),
     paging: dict = Depends(pagination_params),
     institution_user_id: str | None = Query(None, max_length=4096),
@@ -34,10 +34,6 @@ def list_institution_accounts(
     id_lte: int | None = Query(None, ge=0),
     id_gte: int | None = Query(None, ge=0),
 ):
-    # Legacy gates this on may_administer (admin-only listing).
-    if not token or not db.may_administer(token):
-        raise ForbiddenError("Administrator permissions required.")
-
     accounts = db.accounts(
         limit=paging["limit"],
         offset=paging["offset"],
