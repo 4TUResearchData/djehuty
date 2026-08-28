@@ -58,31 +58,33 @@ read-only routes are omitted.
   assigns it. Declining only matches reviews that have a status, so the
   reviewer-save assignment must be preserved.
 
-## Known status-code deviations
+## Status codes on missing sub-resources
 
-Not every response is byte-for-byte AS-IS. The new stack resolves a private item
-through one shared helper that raises 404 when the item is not the caller's draft,
-and it does not re-raise the uncaught exceptions that make legacy answer HTTP 500.
-Where legacy crashed, we keep the clean status rather than reintroduce the crash.
-These are conscious; reproduce a specific one only if a client depends on the exact
-legacy status.
+These reproduce legacy's status exactly, including the cases where legacy answered
+with an uncaught exception (HTTP 500). A client that branches on the status — a
+retry-on-500, a monitor that counts 500s — sees the same numbers on either stack.
 
-| Route (condition) | Legacy | New |
-|---|---|---|
-| `DELETE /account/articles/<id>/authors/<aid>` (author absent) | 500 (`StopIteration`) | 204 |
-| `DELETE /account/articles/<id>/funding/<fid>` (id absent from a non-empty list) | 500 (`StopIteration`) | 204 |
-| `GET /account/articles/<id>/files/<fid>` (file absent) | 500 (`TypeError`) | 404 |
-| `GET /articles/<id>/files/<fid>` (file absent) | 500 (`TypeError`) | 404 |
-| `DELETE /account/articles/<id>/embargo` (dataset absent) | 500 (`TypeError`) | 404 |
-| `GET /account/collections/<id>/categories` (published collection) | 500 (`TypeError`) | 404 |
-| `DELETE /account/collections/<id>/categories/<cid>` (published collection) | 403 | 404 |
+| Route (condition) | Status |
+|---|---|
+| `DELETE /account/articles/<id>/authors/<aid>` (author absent) | 500 |
+| `DELETE /account/articles/<id>/funding/<fid>` (empty list) | 404 |
+| `DELETE /account/articles/<id>/funding/<fid>` (id absent from a non-empty list) | 500 |
+| `DELETE /account/articles/<id>/files/<fid>` (file absent) | 404 |
+| `GET /account/articles/<id>/files/<fid>` (file absent) | 500 |
+| `GET /articles/<id>/files/<fid>` (file absent) | 500 |
+| `DELETE /account/articles/<id>/categories/<cid>` (unresolvable id) | 403 |
+| `DELETE /account/articles/<id>/embargo` (dataset absent) | 500 |
+| `GET /account/collections/<id>/categories` (published collection) | 500 |
+| `DELETE /account/collections/<id>/categories/<cid>` (published/unresolvable) | 403 |
 
-Reproduced to match legacy: `DELETE .../files/<fid>` and `.../funding/<fid>` on an
-empty list return 404, and `DELETE .../categories/<cid>` for an unresolvable id
-returns 403.
+## Known deviations
 
-Other conscious deviations:
+Small, conscious differences that remain — reproduce a specific one only if a
+client depends on it.
 
+- The **body** of a 500 differs: the new stack returns an empty/plain response,
+  legacy returned a Werkzeug HTML error page. The status matches; the page text
+  does not. (This has always been true of the new stack's 500s.)
 - Malformed JSON returns the legacy message (`Failed to decode JSON object: …`) but
   with a string `code` of `InvalidJson`, matching the new stack's string-code
   convention, where legacy used the integer `400`.
