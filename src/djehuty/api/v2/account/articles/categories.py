@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, Response
 from fastapi.responses import JSONResponse
 
 from djehuty.api.dependencies import get_db, require_auth
-from djehuty.api.exceptions import InvalidInputError
+from djehuty.api.exceptions import ForbiddenError, InvalidInputError
 from djehuty.api.v2.account.articles._shared import _resolve_private_dataset
 from djehuty.web import formatter
 
@@ -85,10 +85,11 @@ def delete_article_category(
             if category_id.isdigit()
             else db.category_by_id(category_uuid=category_id)
         )
-        if cat and "uuid" in cat:
-            db.delete_item_from_list(
-                dataset["uri"], "categories", URIRef(uuid_to_uri(cat["uuid"], "category"))
-            )
     except (TypeError, IndexError, KeyError):
-        pass
+        cat = None
+    if not cat or "uuid" not in cat:
+        raise ForbiddenError()
+    db.delete_item_from_list(
+        dataset["uri"], "categories", URIRef(uuid_to_uri(cat["uuid"], "category"))
+    )
     return Response(status_code=204)

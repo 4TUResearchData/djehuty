@@ -47,6 +47,9 @@ class _Db:
     def category_by_id(self, **kwargs):
         return {"uuid": CATEGORY_UUID}
 
+    def dataset_files(self, **kwargs):
+        return [{"uuid": "f" * 36}]
+
     def license_url_by_id(self, license_id):
         return None
 

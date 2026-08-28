@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, Request, Response
 from fastapi.responses import JSONResponse
 
 from djehuty.api.dependencies import get_db, require_auth
-from djehuty.api.exceptions import InvalidInputError
+from djehuty.api.exceptions import InvalidInputError, NotFoundError
 from djehuty.api.v2.account.articles._shared import _ok, _resolve_private_dataset
 from djehuty.web import formatter
 
@@ -162,6 +162,8 @@ def delete_article_funding(
         is_published=False,
         limit=10000,
     )
+    if not fundings:
+        raise NotFoundError()
     remaining = [f for f in fundings if f.get("uuid") != funding_id]
     uris = uris_from_records(remaining, "funding", "uuid")
     db.update_item_list(dataset["uuid"], account["uuid"], uris, "funding_list")
