@@ -194,10 +194,22 @@ def test_post_categories_adds_to_the_collection():
     assert listing["account_uuid"] == "acct-1"
 
 
-def test_post_categories_without_parameter_is_a_400():
+def test_post_categories_without_key_is_a_400():
     client, db = _client()
     response = client.post(
         f"/v2/account/collections/{DRAFT_UUID}/categories", json={}, headers=AUTH
+    )
+    assert response.status_code == 400
+    assert response.json()["code"] == "NoCategoriesField"
+    assert db.updated is None
+
+
+def test_post_categories_null_is_a_400():
+    client, db = _client()
+    response = client.post(
+        f"/v2/account/collections/{DRAFT_UUID}/categories",
+        json={"categories": None},
+        headers=AUTH,
     )
     assert response.status_code == 400
     assert response.json()["code"] == "MissingRequiredField"
