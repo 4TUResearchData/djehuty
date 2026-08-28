@@ -145,6 +145,9 @@ def search_private_collections(
 ):
     limit = body.limit or 10
     offset = body.offset or 0
+    if body.page is not None:
+        page_size = body.page_size or 10
+        limit, offset = page_size, (body.page - 1) * page_size
 
     records, _ = service.search_collections(
         limit=limit,
