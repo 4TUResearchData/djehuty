@@ -123,7 +123,10 @@ class CollectionService:
             limit=limit,
             offset=offset,
         )
-        return [formatter.format_collection_version_record(r) for r in records]
+        return [
+            formatter.format_collection_version_record({**r, "base_url": config.base_url})
+            for r in records
+        ]
 
     def get_collection_datasets(self, collection_id, limit=10, offset=0) -> list[dict] | None:
         """Return datasets in a collection."""
@@ -131,8 +134,9 @@ class CollectionService:
         if collection is None:
             return None
 
-        records = self.db.collection_datasets(
-            container_uri=collection["container_uri"],
+        records = self.db.datasets(
+            collection_uri=collection["uri"],
+            is_latest=True,
             limit=limit,
             offset=offset,
         )
