@@ -58,6 +58,40 @@ read-only routes are omitted.
   assigns it. Declining only matches reviews that have a status, so the
   reviewer-save assignment must be preserved.
 
+## Known status-code deviations
+
+Not every response is byte-for-byte AS-IS. The new stack resolves a private item
+through one shared helper that raises 404 when the item is not the caller's draft,
+and it does not re-raise the uncaught exceptions that make legacy answer HTTP 500.
+Where legacy crashed, we keep the clean status rather than reintroduce the crash.
+These are conscious; reproduce a specific one only if a client depends on the exact
+legacy status.
+
+| Route (condition) | Legacy | New |
+|---|---|---|
+| `DELETE /account/articles/<id>/authors/<aid>` (author absent) | 500 (`StopIteration`) | 204 |
+| `DELETE /account/articles/<id>/funding/<fid>` (id absent from a non-empty list) | 500 (`StopIteration`) | 204 |
+| `GET /account/articles/<id>/files/<fid>` (file absent) | 500 (`TypeError`) | 404 |
+| `GET /articles/<id>/files/<fid>` (file absent) | 500 (`TypeError`) | 404 |
+| `DELETE /account/articles/<id>/embargo` (dataset absent) | 500 (`TypeError`) | 404 |
+| `GET /account/collections/<id>/categories` (published collection) | 500 (`TypeError`) | 404 |
+| `DELETE /account/collections/<id>/categories/<cid>` (published collection) | 403 | 404 |
+
+Reproduced to match legacy: `DELETE .../files/<fid>` and `.../funding/<fid>` on an
+empty list return 404, and `DELETE .../categories/<cid>` for an unresolvable id
+returns 403.
+
+Other conscious deviations:
+
+- Malformed JSON returns the legacy message (`Failed to decode JSON object: …`) but
+  with a string `code` of `InvalidJson`, matching the new stack's string-code
+  convention, where legacy used the integer `400`.
+- CORS is applied by one middleware across all `/v2` routes (legacy set the headers
+  on ~8 public reads); the header *values* match legacy — any origin,
+  `Content-Type` only, all headers exposed, no credentials.
+- The `POST /*/search` endpoints read `page`/`page_size`/`limit`/`offset` but do not
+  reject mixing the two styles; the query-parameter listings still return 400.
+
 ## Deferrals
 
 - Publish does not warm the git-statistics caches. Legacy does this by calling

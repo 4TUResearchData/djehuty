@@ -396,5 +396,4 @@ def delete_article(
     except NotFoundError:
         pass
     # Legacy returns 500 for both not-found and failed deletes.
-    # Documented in doc/api-improvements.md for future correction.
     return JSONResponse(status_code=500, content="")
