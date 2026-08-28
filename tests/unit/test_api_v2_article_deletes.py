@@ -108,3 +108,32 @@ def test_delete_resolvable_category_is_204():
     )
     assert response.status_code == 204
     assert db.deleted is not None
+
+
+def test_delete_absent_author_is_500():
+    # AS-IS: legacy raises StopIteration on a missing author -> 500.
+    db = _Db()
+    response = _client(db).delete(
+        f"/v2/account/articles/{DATASET_UUID}/authors/{'x' * 36}", headers=AUTH
+    )
+    assert response.status_code == 500
+    assert db.updated is None
+
+
+def test_delete_funding_absent_from_a_non_empty_list_is_500():
+    # AS-IS: legacy raises StopIteration when the id isn't present -> 500.
+    db = _Db(fundings=[{"uuid": "other"}])
+    response = _client(db).delete(
+        f"/v2/account/articles/{DATASET_UUID}/funding/{'x' * 36}", headers=AUTH
+    )
+    assert response.status_code == 500
+    assert db.updated is None
+
+
+def test_get_absent_file_is_500():
+    # AS-IS: legacy dereferences a missing file (None) -> 500.
+    db = _Db(files=[])
+    response = _client(db).get(
+        f"/v2/account/articles/{DATASET_UUID}/files/{FILE_UUID}", headers=AUTH
+    )
+    assert response.status_code == 500

@@ -165,6 +165,9 @@ def delete_article_funding(
     if not fundings:
         raise NotFoundError()
     remaining = [f for f in fundings if f.get("uuid") != funding_id]
+    # AS-IS: legacy raises StopIteration when the id isn't present -> HTTP 500.
+    if len(remaining) == len(fundings):
+        return Response(status_code=500)
     uris = uris_from_records(remaining, "funding", "uuid")
     db.update_item_list(dataset["uuid"], account["uuid"], uris, "funding_list")
     return Response(status_code=204)

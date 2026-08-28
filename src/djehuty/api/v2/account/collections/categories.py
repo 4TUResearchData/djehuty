@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, Request, Response
 from fastapi.responses import JSONResponse
 
 from djehuty.api.dependencies import get_db, require_auth
-from djehuty.api.exceptions import InvalidInputError
+from djehuty.api.exceptions import ForbiddenError, InvalidInputError, NotFoundError
 from djehuty.api.services.request_lists import category_list_from_request_input
 from djehuty.api.v2.account.collections._shared import _resolve_private_collection
 from djehuty.web import formatter
@@ -19,7 +19,11 @@ router = APIRouter(tags=["V2 / Account / Collections / Categories"])
 def list_collection_categories(
     collection_id: str, account=Depends(require_auth), db=Depends(get_db)
 ):
-    collection = _resolve_private_collection(db, collection_id, account["uuid"])
+    try:
+        collection = _resolve_private_collection(db, collection_id, account["uuid"])
+    except NotFoundError:
+        # AS-IS: legacy dereferences a missing/published collection -> TypeError -> HTTP 500.
+        return Response(status_code=500)
     categories = db.categories(
         item_uri=collection["uri"], account_uuid=account["uuid"], is_published=False, limit=None
     )
@@ -81,17 +85,22 @@ def delete_collection_category(
 
     from djehuty.utils.rdf import uuid_to_uri
 
-    collection = _resolve_private_collection(db, collection_id, account["uuid"])
+    try:
+        collection = _resolve_private_collection(db, collection_id, account["uuid"])
+    except NotFoundError:
+        # AS-IS: legacy returns 403 when the private collection isn't found.
+        raise ForbiddenError() from None
     try:
         category = (
             db.category_by_id(category_id=int(category_id))
             if category_id.isdigit()
             else db.category_by_id(category_uuid=category_id)
         )
-        if category and "uuid" in category:
-            db.delete_item_from_list(
-                collection["uri"], "categories", URIRef(uuid_to_uri(category["uuid"], "category"))
-            )
     except (TypeError, IndexError, KeyError):
-        pass
+        category = None
+    if not category or "uuid" not in category:
+        raise ForbiddenError()
+    db.delete_item_from_list(
+        collection["uri"], "categories", URIRef(uuid_to_uri(category["uuid"], "category"))
+    )
     return Response(status_code=204)

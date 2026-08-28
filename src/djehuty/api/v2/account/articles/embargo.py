@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, Response
 from fastapi.responses import JSONResponse
 
 from djehuty.api.dependencies import get_db, require_auth
+from djehuty.api.exceptions import NotFoundError
 from djehuty.api.v2.account.articles._shared import _ok, _resolve_private_dataset
 from djehuty.web import formatter
 
@@ -35,6 +36,10 @@ def get_article_embargo(dataset_id: str, account=Depends(require_auth), db=Depen
     summary="Delete embargo",
 )
 def delete_article_embargo(dataset_id: str, account=Depends(require_auth), db=Depends(get_db)):
-    dataset = _resolve_private_dataset(db, dataset_id, account["uuid"])
+    try:
+        dataset = _resolve_private_dataset(db, dataset_id, account["uuid"])
+    except NotFoundError:
+        # AS-IS: legacy dereferences a missing dataset -> TypeError -> HTTP 500.
+        return Response(status_code=500)
     db.delete_dataset_embargo(dataset["uri"], account["uuid"])
     return Response(status_code=204)

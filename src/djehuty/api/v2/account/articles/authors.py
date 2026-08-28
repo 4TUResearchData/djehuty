@@ -107,6 +107,9 @@ def delete_article_author(
     remaining = [
         a for a in authors if str(a.get("id")) != str(author_id) and a.get("uuid") != author_id
     ]
+    # AS-IS: legacy raises StopIteration on a missing author -> HTTP 500.
+    if len(remaining) == len(authors):
+        return Response(status_code=500)
     uris = uris_from_records(remaining, "author", "uuid")
     db.update_item_list(dataset["uuid"], account["uuid"], uris, "authors")
     return Response(status_code=204)
