@@ -12,6 +12,7 @@ Run with:
 
 import uuid
 
+from helpers.contract import assert_status
 from playwright.sync_api import Page
 
 # ---------------------------------------------------------------------------
@@ -257,3 +258,30 @@ class TestV2CollectionReserveDoiApi:
         )
         save_response(response, "v2-collection-reserve-doi-no-auth")
         assert response.status in (401, 403)
+
+
+# ---------------------------------------------------------------------------
+# Category ops against a PUBLISHED collection (private resolver rejects it)
+# ---------------------------------------------------------------------------
+
+
+class TestV2PublishedCollectionCategoriesStatus:
+    """The private resolver rejects a published id; legacy then crashes (GET)
+    or refuses (DELETE). Pinned so a new/legacy flip stays invisible."""
+
+    def test_get_categories_on_published_is_500(self, published_collection, save_response):
+        page, container_uuid = published_collection
+        response = page.request.get(f"/v2/account/collections/{container_uuid}/categories")
+        save_response(response, "api-get-published-collection-categories")
+        assert_status(
+            response,
+            expected=404,
+            current_bug=500,
+            bug="dereferences a published collection -> 500",
+        )
+
+    def test_delete_category_on_published_is_403(self, published_collection, save_response):
+        page, container_uuid = published_collection
+        response = page.request.delete(f"/v2/account/collections/{container_uuid}/categories/1")
+        save_response(response, "api-delete-published-collection-category")
+        assert_status(response, expected=403)
