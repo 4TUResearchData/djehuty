@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, Response
 from fastapi.responses import JSONResponse
 
 from djehuty.api.dependencies import get_db, require_auth
+from djehuty.api.exceptions import InvalidInputError
 from djehuty.api.v2.account.articles._shared import _resolve_private_dataset
 from djehuty.web import formatter
 
@@ -35,8 +36,13 @@ def upsert_article_categories(
 ):
     from djehuty.utils.rdf import uris_from_records
 
+    if "categories" not in body:
+        raise InvalidInputError("Expected an array for 'categories'.", "NoCategoriesField")
+    if body["categories"] is None:
+        raise InvalidInputError("Missing 'categories' parameter.", "MissingRequiredField")
+
     dataset = _resolve_private_dataset(db, dataset_id, account["uuid"])
-    input_categories = body.get("categories", [])
+    input_categories = body["categories"]
 
     new_cat_records = []
     for cat_id in input_categories:

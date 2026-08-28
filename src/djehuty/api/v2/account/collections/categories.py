@@ -43,7 +43,9 @@ def upsert_collection_categories(
 ):
     from djehuty.utils.rdf import uris_from_records
 
-    if body.get("categories") is None:
+    if "categories" not in body:
+        raise InvalidInputError("Expected an array for 'categories'.", "NoCategoriesField")
+    if body["categories"] is None:
         raise InvalidInputError("Missing 'categories' parameter.", "MissingRequiredField")
 
     collection = _resolve_private_collection(db, collection_id, account["uuid"])
