@@ -311,7 +311,6 @@ def list_article_files(
     description="Returns metadata for a single file of a published article.",
     responses={
         200: _ok("File details", _ARTICLE_FILE_EXAMPLE),
-        404: {"model": ErrorResponse, "description": "Article or file not found"},
     },
 )
 def get_article_file(
@@ -321,7 +320,8 @@ def get_article_file(
 ):
     record = service.get_article_file_details(dataset_id, file_id)
     if record is None:
-        raise NotFoundError()
+        # AS-IS: legacy dereferences a missing file (None) -> TypeError -> HTTP 500.
+        return Response(status_code=500)
     return JSONResponse(content=record)
 
 

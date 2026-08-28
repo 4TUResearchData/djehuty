@@ -55,7 +55,8 @@ def get_private_article_file(
         dataset_uri=dataset["uri"], file_uuid=file_id, account_uuid=account["uuid"]
     )
     if not files:
-        raise NotFoundError()
+        # AS-IS: legacy dereferences a missing file (None) -> TypeError -> HTTP 500.
+        return Response(status_code=500)
     return JSONResponse(
         content=formatter.format_file_details_record({**files[0], "base_url": config.base_url})
     )
