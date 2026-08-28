@@ -178,7 +178,10 @@ class ArticleService:
             limit=limit,
             offset=offset,
         )
-        return [formatter.format_dataset_version_record(r) for r in records]
+        return [
+            formatter.format_dataset_version_record({**r, "base_url": config.base_url})
+            for r in records
+        ]
 
     def get_article_files(self, dataset_id, account_uuid=None) -> list[dict] | None:
         """Return files for a dataset, or None if dataset not found."""
@@ -187,7 +190,10 @@ class ArticleService:
             return None
 
         files = self.db.dataset_files(dataset_uri=dataset["uri"])
-        return [formatter.format_file_for_dataset_record(f) for f in files]
+        return [
+            formatter.format_file_for_dataset_record({**f, "base_url": config.base_url})
+            for f in files
+        ]
 
     def get_article_version_details(self, dataset_id, version) -> dict | None:
         """Return formatted article details for a specific published version."""

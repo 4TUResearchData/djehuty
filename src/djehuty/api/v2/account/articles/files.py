@@ -34,7 +34,12 @@ _FILE_EXAMPLE = {
 def list_private_article_files(dataset_id: str, account=Depends(require_auth), db=Depends(get_db)):
     dataset = _resolve_private_dataset(db, dataset_id, account["uuid"])
     files = db.dataset_files(dataset_uri=dataset["uri"], account_uuid=account["uuid"])
-    return JSONResponse(content=[formatter.format_file_for_dataset_record(f) for f in files])
+    return JSONResponse(
+        content=[
+            formatter.format_file_for_dataset_record({**f, "base_url": config.base_url})
+            for f in files
+        ]
+    )
 
 
 @router.get(
@@ -51,7 +56,9 @@ def get_private_article_file(
     )
     if not files:
         raise NotFoundError()
-    return JSONResponse(content=formatter.format_file_details_record(files[0]))
+    return JSONResponse(
+        content=formatter.format_file_details_record({**files[0], "base_url": config.base_url})
+    )
 
 
 @router.post(
