@@ -50,9 +50,10 @@ def create_app(db, email=None) -> FastAPI:
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],
+        allow_credentials=False,
         allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-        allow_headers=["Content-Type", "Authorization"],
-        expose_headers=["Number-Of-Records", "Number-Of-Returned-Records"],
+        allow_headers=["Content-Type"],
+        expose_headers=["*"],
     )
     register_exception_handlers(app)
     app.include_router(v2_router)
