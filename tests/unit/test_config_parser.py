@@ -1,6 +1,7 @@
 """Tests for configuration file parsing."""
 
 import pytest
+from defusedxml import ElementTree
 
 from djehuty.web.config import config
 from djehuty.web.config.json_parser import JsonConfigElement
@@ -40,6 +41,10 @@ class TestConfigValue:
 
     def test_none_root_returns_fallback(self):
         assert config_value(None, "port", fallback="1234") == "1234"
+
+    def test_strips_leading_and_trailing_whitespace(self):
+        root = ElementTree.fromstring("<djehuty><family>\n  Example Sans\n</family></djehuty>")
+        assert config_value(root, "family") == "Example Sans"
 
 
 class TestReadBooleanValue:

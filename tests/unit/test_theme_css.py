@@ -92,7 +92,7 @@ class TestFontsCss:
                     "display": None,
                 },
             ],
-            "body_font": "'O'Brien & Sons', sans-serif",
+            "body_font": '"O\'Brien & Sons", sans-serif',
             "ui_font": None,
             "mono_font": None,
         }
@@ -100,6 +100,6 @@ class TestFontsCss:
         css = render_fonts_css(fonts)
 
         assert "font-family: 'O\\'Brien & Sons';" in css
-        assert "--font-body: 'O'Brien & Sons', sans-serif;" in css
+        assert '--font-body: "O\'Brien & Sons", sans-serif;' in css
         assert "&amp;" not in css
         assert "&#39;" not in css and "&#x27;" not in css
