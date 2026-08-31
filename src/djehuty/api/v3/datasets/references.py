@@ -4,6 +4,7 @@ from fastapi import APIRouter, Body, Depends, Query, Response
 from fastapi.responses import JSONResponse
 
 from djehuty.api.dependencies import get_current_account, get_db, require_auth
+from djehuty.api.exceptions import InvalidInputError
 from djehuty.api.models.common import ErrorResponse
 from djehuty.api.permissions import enforce_collaborative_permissions
 from djehuty.api.v3._shared import _ok
@@ -42,24 +43,30 @@ def add_references(
         openapi_examples={
             "default": {
                 "summary": "Add reference URLs",
-                "value": {"references": ["https://doi.org/10.1234/example"]},
+                "value": {"references": [{"url": "https://doi.org/10.1234/example"}]},
             }
         },
     ),
     account=Depends(require_auth),
     db=Depends(get_db),
 ):
+    from djehuty.web import validator
+
     dataset = _resolve_dataset(db, dataset_id, account["uuid"])
     enforce_collaborative_permissions(db, account["uuid"], dataset, "dataset", "metadata_read")
-    new_refs = body.get("references", [])
+    records = body.get("references")
+    if not isinstance(records, list):
+        raise InvalidInputError("Expected a 'references' field.", "NoReferencesField")
+    new_urls: list[str] = []
+    try:
+        for record in records:
+            new_urls.append(validator.string_value(record, "url", 0, 1024, True))
+    except validator.ValidationException as error:
+        raise InvalidInputError(error.message, error.code) from error
+
     existing = db.references(item_uri=dataset["uri"], account_uuid=account["uuid"])
-    existing_urls = [r.get("url", "") for r in existing]
-    combined = existing_urls + [
-        r.get("url", r) if isinstance(r, dict) else r
-        for r in new_refs
-        if (r.get("url", r) if isinstance(r, dict) else r) not in existing_urls
-    ]
-    db.update_item_list(dataset["uuid"], account["uuid"], combined, "references")
+    urls = [r["url"] for r in existing] + new_urls
+    db.update_item_list(dataset["uuid"], account["uuid"], urls, "references")
     return Response(status_code=205)
 
 
