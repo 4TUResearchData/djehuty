@@ -22,19 +22,6 @@ _UPLOAD_CHUNK_SIZE = 4096
 
 _PICTURE_LOCATION_EXAMPLE = {"location": "https://data.4tu.nl/v3/profile/picture"}
 
-_PROFILE_EXAMPLE = {
-    "id": None,
-    "uuid": "84cae99f-a691-4af2-9d21-f5c0817c26df",
-    "first_name": "Dev",
-    "last_name": "User",
-    "full_name": None,
-    "email": "dev@djehuty.com",
-    "is_active": True,
-    "is_public": False,
-    "job_title": None,
-    "orcid_id": "",
-}
-
 _CATEGORY_EXAMPLE = {
     "id": None,
     "uuid": "a9f8d3c1-2b4e-4c6a-8d1f-3e5b7c9a0d2f",
@@ -45,18 +32,6 @@ _CATEGORY_EXAMPLE = {
     "source_id": 13555,
     "taxonomy_id": None,
 }
-
-
-@router.get(
-    "/profile",
-    summary="Get current user profile",
-    responses={
-        200: _ok("The current user's profile", _PROFILE_EXAMPLE),
-        403: {"model": ErrorResponse},
-    },
-)
-def get_profile(account=Depends(require_auth), db=Depends(get_db)):
-    return JSONResponse(content=formatter.format_account_details_record(account))
 
 
 @router.put(
