@@ -123,6 +123,29 @@ what legacy passed — watching specifically for a value legacy *transforms* fir
 wrapping in a dict, a default like `is_latest`). Fake-db unit tests will not
 catch this; only the real query does, so the UI e2e suites are the safety net.
 
+## Error-response shape parity
+
+The legacy error helpers have fixed body shapes a client can depend on, so the
+port reproduces them exactly (`wsgi.py` `error_*` methods):
+
+- **403 is uniform.** `error_403` sends its descriptive text to the audit log and
+  always returns `{"message": "Not allowed."}` to the client; the auth-failure
+  path (`error_authorization_failed`) is the separate
+  `{"message": "Invalid or unknown session token", "code": "InvalidSessionToken"}`.
+  The port keeps `ForbiddenError`'s descriptive message for the log only and
+  renders `{"message": "Not allowed."}`; `AuthorizationError` renders the token
+  body.
+- **A validation *list* is a bare array.** `error_400_list` serialises a list of
+  `{field_name, message}` errors as a top-level JSON array (used by
+  `submit-for-review`), while a single `error_400` keeps the
+  `{message, code}` object. The port's `InvalidInputError` mirrors this: a list
+  payload renders as a bare array, a string keeps the object — so a client
+  iterating the array is not handed an object.
+- **Unknown sub-resource on `GET /v3/datasets/<id>/authors/<author_uuid>` is 500.**
+  Legacy indexes `authors[0]`; an unknown author raises `IndexError` that falls
+  through to `error_500` (empty body). The missing *parent* dataset stays 404
+  (see the error-status-normalisation deviation).
+
 ## Deferrals
 
 - **Git-statistics cache warm (api-v2 side only).** The v3 publish path now
