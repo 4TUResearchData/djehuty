@@ -65,8 +65,8 @@ class CollectionSearchRequest(BaseModel):
     doi: str | None = Field(None, max_length=255)
     handle: str | None = Field(None, max_length=255)
     resource_doi: str | None = Field(None, max_length=255)
-    order: OrderField = "published_date"
-    order_direction: OrderDirection = "desc"
+    order: OrderField | None = None
+    order_direction: OrderDirection | None = None
     page: int | None = Field(None, ge=1)
     page_size: int | None = Field(None, ge=1, le=1000)
     limit: int | None = Field(None, ge=1, le=1000)
