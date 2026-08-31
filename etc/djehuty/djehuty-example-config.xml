@@ -24,24 +24,32 @@
     <footer-background-color>#707070</footer-background-color>
   </colors>
   <fonts>
-    <body-font-family></body-font-family>
-    <ui-font-family></ui-font-family>
-    <mono-font-family></mono-font-family>
-    <!--
+    <body-font-family>'Example Sans', sans-serif</body-font-family>
+    <ui-font-family>'Example UI', sans-serif</ui-font-family>
+    <mono-font-family>'Example Mono', monospace</mono-font-family>
     <font-face>
-      <family></family>
-      <src></src>
-      <format>woff2</format>
-      <weight></weight>
-      <style></style>
-      <display>swap</display>
+      <family>Example Sans</family>
+      <src>/assets/fonts/example-regular.woff2</src>
+      <weight>400</weight>
+      <style>normal</style>
     </font-face>
-    -->
+    <font-face>
+      <family>Example Sans</family>
+      <src>/assets/fonts/example-bold.woff2</src>
+      <weight>700</weight>
+    </font-face>
+    <font-face>
+      <family>Example UI</family>
+      <src>/assets/fonts/example-ui-regular.woff2</src>
+      <weight>400</weight>
+      <style>normal</style>
+    </font-face>
   </fonts>
-  <custom-assets-root></custom-assets-root>
-  <custom-stylesheet></custom-stylesheet>
-  <custom-logo-path></custom-logo-path>
-  <custom-favicon-path></custom-favicon-path>
+  <custom-assets-root>/etc/djehuty/assets</custom-assets-root>
+  <custom-stylesheet>/assets/css/palette.css</custom-stylesheet>
+  <custom-stylesheet>/assets/css/buttons.css</custom-stylesheet>
+  <custom-logo-path>/etc/djehuty/assets/images/logo.png</custom-logo-path>
+  <custom-favicon-path>/etc/djehuty/assets/images/favicon.ico</custom-favicon-path>
   <small-footer>
     <div id="footer-wrapper2">
       <p>This repository is powered by <a href="https://github.com/4TUResearchData/djehuty">djehuty</a> built for <a href="https://data.4tu.nl">4TU.ResearchData</a>.
