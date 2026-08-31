@@ -107,8 +107,10 @@ def get_dataset_author_v3(
         order=order or "order_index",
         order_direction=order_direction or "asc",
     )
+    # AS-IS: legacy indexes authors[0] and its IndexError falls through to
+    # error_500 (empty body), so an unknown author is a 500, not a 404.
     if not authors:
-        raise NotFoundError()
+        return Response(status_code=500)
     return JSONResponse(content=formatter.format_author_record_v3(authors[0]))
 
 
