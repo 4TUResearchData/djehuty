@@ -4,13 +4,16 @@ from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader
 
+from djehuty.utils.convenience import css_string
+
 TEMPLATES_DIR = (
     Path(__file__).resolve().parents[2] / "src" / "djehuty" / "web" / "resources" / "html_templates"
 )
 
 
 def render_fonts_css(fonts):
-    environment = Environment(loader=FileSystemLoader(TEMPLATES_DIR))
+    environment = Environment(loader=FileSystemLoader(TEMPLATES_DIR), autoescape=True)
+    environment.filters["css_string"] = css_string
     template = environment.get_template("fonts.css")
 
     return template.render(fonts=fonts)

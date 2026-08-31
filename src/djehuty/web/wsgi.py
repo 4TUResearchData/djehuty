@@ -39,6 +39,7 @@ from djehuty.utils.constants import (
     member_url_names,
 )
 from djehuty.utils.convenience import (
+    css_string,
     decimal_coords,
     deduplicate_list,
     html_to_plaintext,
@@ -438,6 +439,7 @@ class WebServer:
                 # For static pages.
                 "/"
             ]), autoescape = True)
+        self.jinja.filters["css_string"] = css_string
 
         self.metadata_jinja = Environment(loader = FileSystemLoader([
             os.path.join(resources_path, "resources", "metadata_templates"),
