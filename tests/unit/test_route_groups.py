@@ -59,6 +59,15 @@ def test_api_docs_stays_new_even_when_everything_is_disabled():
     assert target_for_path("/api/docs", "legacy", {"api-docs": "legacy"}) == "new"
 
 
+def test_versioned_docs_paths_belong_to_the_api_docs_group():
+    # The versioned docs UI fetches /api/openapi/<version>.json and links to
+    # /api/docs/<version>; without the prefixes these fall through to legacy
+    # (which has no /api/ routes) and 404. They must resolve to api-docs.
+    for path in ("/api/docs/v2", "/api/docs/v3", "/api/openapi/v2.json", "/api/openapi/v3.json"):
+        assert group_for_path(path).name == "api-docs"
+        assert target_for_path(path, "legacy", {"api-docs": "legacy"}) == "new"
+
+
 def test_always_new_group_ignores_the_toggle():
     groups = (RouteGroup("api-docs", prefixes=("/api/",), always_new=True),)
     assert target_for_path("/api/x", "legacy", {"api-docs": "legacy"}, groups) == "new"
