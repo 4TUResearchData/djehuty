@@ -89,13 +89,21 @@ def register_exception_handlers(app: FastAPI):
 
     @app.exception_handler(ForbiddenError)
     async def forbidden_handler(request: Request, exc: ForbiddenError):
+        # AS-IS: legacy error_403 sends the descriptive text to the audit log
+        # and always returns {"message": "Not allowed."} to the client.
+        if exc.message and exc.message != "Not allowed.":
+            logger.info("Forbidden on %s %s: %s", request.method, request.url.path, exc.message)
         return JSONResponse(
             status_code=403,
-            content={"message": exc.message},
+            content={"message": "Not allowed."},
         )
 
     @app.exception_handler(InvalidInputError)
     async def invalid_input_handler(request: Request, exc: InvalidInputError):
+        # AS-IS: legacy error_400_list serialises a list of errors as a bare
+        # JSON array; a single message keeps the {message, code} object shape.
+        if isinstance(exc.message, list):
+            return JSONResponse(status_code=400, content=exc.message)
         return JSONResponse(
             status_code=400,
             content={"message": exc.message, "code": exc.code},
