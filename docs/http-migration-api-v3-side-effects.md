@@ -88,6 +88,10 @@ invalidations a handler performs itself are noted.
 - `submit-for-review` resolves with `is_under_review=False`, so a second
   submit of an already-under-review dataset 404s and cannot create a duplicate
   review.
+- `submit-for-review` enforces the configurable keyword minimum: it fetches
+  tags with `limit=config.minimum_keywords_count + 1` (only enough to decide)
+  and appends a `tag` field error when fewer than `minimum_keywords_count` are
+  present, using the singular/plural message legacy builds.
 - `assign-reviewer`, `/reviews` and `/reviewers` check reviewer privileges by
   passing a **session token** to `may_review`/`may_review_institution` (not an
   account UUID); `/reviewers` includes `institutional_reviewer_accounts`.

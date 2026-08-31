@@ -144,12 +144,20 @@ def _submit_for_review(db, body, dataset, account_uuid):
                 }
             )
 
-        tags = db.tags(item_uri=dataset["uri"], account_uuid=account_uuid)
-        if not tags:
+        tags = db.tags(
+            item_uri=dataset["uri"],
+            account_uuid=account_uuid,
+            limit=config.minimum_keywords_count + 1,
+        )
+        if len(tags) < config.minimum_keywords_count:
+            keyword_noun = "keyword" if config.minimum_keywords_count == 1 else "keywords"
             errors.append(
                 {
                     "field_name": "tag",
-                    "message": "The dataset must have at least one keyword.",
+                    "message": (
+                        f"The dataset must have at least "
+                        f"{config.minimum_keywords_count} {keyword_noun}."
+                    ),
                 }
             )
 
