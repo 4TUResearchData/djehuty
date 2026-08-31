@@ -415,4 +415,5 @@ def normalize_doi(doi):
 
 def css_string(value):
     """Escape VALUE for safe interpolation into a single-quoted CSS string."""
-    return str(value).replace("\\", "\\\\").replace("'", "\\'")
+    escaped = str(value).replace("\\", "\\\\").replace("'", "\\'")
+    return escaped.replace("\r\n", "\\A ").replace("\n", "\\A ").replace("\r", "\\A ")

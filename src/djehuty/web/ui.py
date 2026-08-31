@@ -94,7 +94,7 @@ def config_value(xml_root, path, command_line=None, fallback=None, return_node=F
         if item is not None:
             if return_node:
                 return item
-            return item.text
+            return item.text.strip() if item.text else item.text
 
     ## Fall back to the fallback value.
     return fallback
@@ -724,6 +724,7 @@ def read_fonts_configuration(xml_root, logger):
 
         font_faces.append(
             {
+                "index": index,
                 "family": family,
                 "src": src,
                 "format": config_value(face, "format", fallback="woff2"),
@@ -775,9 +776,9 @@ def warn_about_unresolvable_asset(assets_root, source, description, logger):
 def warn_about_unresolvable_assets(assets_root, logger):
     """Procedure to warn about configured assets that cannot be served."""
     if config.fonts:
-        for index, face in enumerate(config.fonts["font_faces"]):
+        for face in config.fonts["font_faces"]:
             warn_about_unresolvable_asset(
-                assets_root, face["src"], f"Font '{face['family']}' (font-face #{index})", logger
+                assets_root, face["src"], f"Font '{face['family']}' (font-face #{face['index']})", logger
             )
 
     for stylesheet in config.custom_stylesheets:
