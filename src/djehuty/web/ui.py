@@ -705,18 +705,27 @@ def read_colors_configuration(xml_root):
             config.colors[color] = config_value(colors, color, fallback=config.colors[color])
 
 
-def read_fonts_configuration(xml_root):
-    """Procedure to parse and set the custom typography configuration."""
+def read_fonts_configuration(xml_root, logger):
+    """Procedure to parse and set the custom typography configuration.
+    """
     fonts = xml_root.find("fonts")
     if fonts is None:
         return
 
     font_faces = []
-    for face in fonts.findall("font-face"):
+    for index, face in enumerate(fonts.findall("font-face")):
+        family = config_value(face, "family")
+        src = config_value(face, "src")
+        if not family or not src:
+            logger.warning(
+                "Dropping font-face #%d: 'family' and 'src' are both required.", index
+            )
+            continue
+
         font_faces.append(
             {
-                "family": config_value(face, "family"),
-                "src": config_value(face, "src"),
+                "family": family,
+                "src": src,
                 "format": config_value(face, "format", fallback="woff2"),
                 "weight": config_value(face, "weight"),
                 "style": config_value(face, "style"),
@@ -752,7 +761,7 @@ def warn_about_unresolvable_asset(assets_root, source, description, logger):
     if not source.startswith(prefix):
         return
 
-    if assets_root is None:
+    if not assets_root:
         logger.warning("%s refers to '%s' but 'custom-assets-root' is unset.", description, source)
     elif not os.path.isfile(os.path.join(assets_root, source[len(prefix) :])):
         logger.warning(
@@ -766,9 +775,9 @@ def warn_about_unresolvable_asset(assets_root, source, description, logger):
 def warn_about_unresolvable_assets(assets_root, logger):
     """Procedure to warn about configured assets that cannot be served."""
     if config.fonts:
-        for face in config.fonts["font_faces"]:
+        for index, face in enumerate(config.fonts["font_faces"]):
             warn_about_unresolvable_asset(
-                assets_root, face["src"], f"Font '{face['family']}'", logger
+                assets_root, face["src"], f"Font '{face['family']}' (font-face #{index})", logger
             )
 
     for stylesheet in config.custom_stylesheets:
@@ -1125,7 +1134,7 @@ def read_configuration_file(server, config_file, logger, config_files):
         read_storage_configuration(xml_root, logger)
         read_quotas_configuration(xml_root)
         read_colors_configuration(xml_root)
-        read_fonts_configuration(xml_root)
+        read_fonts_configuration(xml_root, logger)
         read_upload_dataset_configuration(xml_root, logger)
 
         for include_element in xml_root.iter("include"):

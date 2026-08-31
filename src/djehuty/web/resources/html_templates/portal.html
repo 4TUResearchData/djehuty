@@ -8,7 +8,7 @@
     min-width: 275pt;
     text-align: right;
     font-size: 2em;
-    font-family: 'FiraMono', monospace;
+    font-family: var(--font-mono);
     padding: .1em .5em .1em 0em;
     border-right: solid 2pt #ccc;
 }
@@ -32,6 +32,7 @@
     width: 160pt;
     max-width: 160pt;
 }
+
 .tile-row-text a { text-decoration: none; font-size: 13pt }
 .tile-row-text {
     display: flex;
@@ -54,7 +55,7 @@
   font-size: 14pt;
   transform: translate(12%, -12%);
 }
-#new-notice { margin-top: 0em; margin-bottom: 40pt }
+#new-notice { margin-top: 0em; margin-bottom: 40pt; }
 </style>
 {% endblock %}
 {% block body %}
