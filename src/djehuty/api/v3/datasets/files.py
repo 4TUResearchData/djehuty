@@ -174,7 +174,13 @@ async def upload_file(
 
     content_type = request.headers.get("content-type", "")
     if not content_type.startswith("multipart/form-data"):
-        return Response(status_code=415)
+        # AS-IS: legacy error_415(["multipart/form-data"]) returns the
+        # supported types as a text/plain body.
+        return Response(
+            content="Supported Content-Types: ['multipart/form-data']",
+            status_code=415,
+            media_type="text/plain",
+        )
 
     content_length = request.headers.get("content-length")
     if content_length is None:
