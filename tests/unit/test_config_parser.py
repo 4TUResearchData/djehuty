@@ -90,16 +90,16 @@ class TestReadRawXml:
 
 
 class TestThemeConfiguration:
-    def test_missing_fonts_leave_fonts_unconfigured(self, monkeypatch):
+    def test_missing_fonts_leave_fonts_unconfigured(self, monkeypatch, logger):
         """Leave fonts unconfigured when the section is absent."""
         monkeypatch.setattr(config, "fonts", None)
         root = JsonConfigElement("djehuty", {})
 
-        read_fonts_configuration(root)
+        read_fonts_configuration(root, logger)
 
         assert config.fonts is None
 
-    def test_reads_font_faces_and_font_families(self, monkeypatch):
+    def test_reads_font_faces_and_font_families(self, monkeypatch, logger):
         """Read font faces, families, and default properties."""
         monkeypatch.setattr(config, "fonts", None)
         root = JsonConfigElement(
@@ -127,7 +127,7 @@ class TestThemeConfiguration:
             },
         )
 
-        read_fonts_configuration(root)
+        read_fonts_configuration(root, logger)
 
         assert config.fonts == {
             "font_faces": [
@@ -152,6 +152,37 @@ class TestThemeConfiguration:
             "ui_font": "'Example UI', sans-serif",
             "mono_font": "'Example Mono', monospace",
         }
+
+    def test_drops_font_faces_missing_family_or_src(self, monkeypatch, caplog, logger):
+        """Drop font-face entries missing a required 'family' or 'src', with a warning."""
+        monkeypatch.setattr(config, "fonts", None)
+        root = JsonConfigElement(
+            "djehuty",
+            {
+                "fonts": {
+                    "font-face": [
+                        {
+                            "family": "Example Sans",
+                            "src": "/assets/fonts/example-regular.woff2",
+                        },
+                        {
+                            "src": "/assets/fonts/missing-family.woff2",
+                        },
+                        {
+                            "family": "Missing Src",
+                        },
+                    ],
+                },
+            },
+        )
+
+        with caplog.at_level("WARNING"):
+            read_fonts_configuration(root, logger)
+
+        assert len(config.fonts["font_faces"]) == 1
+        assert config.fonts["font_faces"][0]["family"] == "Example Sans"
+        assert "font-face #1" in caplog.text
+        assert "font-face #2" in caplog.text
 
     def test_missing_custom_stylesheets_leave_list_empty(self, monkeypatch):
         """Leave custom stylesheets empty when none are configured."""
@@ -201,6 +232,17 @@ class TestAssetWarnings:
         """Warn when an asset path is configured without an assets root."""
         warn_about_unresolvable_asset(
             None,
+            "/assets/css/custom.css",
+            "Stylesheet",
+            logger,
+        )
+
+        assert "'custom-assets-root' is unset" in caplog.text
+
+    def test_warns_when_assets_root_is_empty_string(self, caplog, logger):
+        """Warn when an asset path is configured with an empty (not unset) assets root."""
+        warn_about_unresolvable_asset(
+            "",
             "/assets/css/custom.css",
             "Stylesheet",
             logger,

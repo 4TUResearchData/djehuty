@@ -78,3 +78,28 @@ class TestFontsCss:
     def test_renders_empty_stylesheet_without_font_configuration(self):
         """Render no CSS when fonts are not configured."""
         assert render_fonts_css(None).strip() == ""
+
+    def test_does_not_html_escape_font_values(self):
+        """Do not HTML-escape font values, since the output is CSS, not HTML."""
+        fonts = {
+            "font_faces": [
+                {
+                    "family": "O'Brien & Sons",
+                    "src": "/assets/fonts/obrien.woff2",
+                    "format": "woff2",
+                    "weight": None,
+                    "style": None,
+                    "display": None,
+                },
+            ],
+            "body_font": "'O'Brien & Sons', sans-serif",
+            "ui_font": None,
+            "mono_font": None,
+        }
+
+        css = render_fonts_css(fonts)
+
+        assert "font-family: 'O\\'Brien & Sons';" in css
+        assert "--font-body: 'O'Brien & Sons', sans-serif;" in css
+        assert "&amp;" not in css
+        assert "&#39;" not in css and "&#x27;" not in css
