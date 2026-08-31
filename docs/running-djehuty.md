@@ -373,7 +373,7 @@ How to use:
 </upload-dataset>
 ```
 
-## Customizing looks
+## Customizing Appearance
 
 With the following options, the instance can be branded as necessary. They are set
 directly on the root element `djehuty` in the configuration file.
@@ -393,8 +393,8 @@ directly on the root element `djehuty` in the configuration file.
 | `show-institutions` | When set to 1, it shows the list of institutions on the main page. |
 | `show-science-categories` | When set to 1, it shows the subjects (categories) on the main page. |
 | `show-latest-datasets` | When set to 1, it shows the list of latest published datasets on the main page. |
-| `colors` | Colors used in the HTML output. See [Customizing colors](#customizing-colors). |
-| `fonts` | Typography used in the HTML output. See [Customizing typography](#customizing-typography). |
+| `colors` | Colors used in the HTML output. See [Setting color styling](#setting-color-styling). |
+| `fonts` | Typography used in the HTML output. See [Setting custom fonts](#setting-custom-fonts). |
 | `custom-assets-root` | Directory served at `/assets/`, for custom fonts, stylesheets, and other assets. See [Loading custom stylesheets and assets](#loading-custom-stylesheets-and-assets). |
 | `custom-stylesheet` | Repeatable. Extra stylesheet URL loaded on every page after `djehuty`'s own CSS. See [Loading custom stylesheets and assets](#loading-custom-stylesheets-and-assets). |
 
@@ -497,7 +497,7 @@ already references.
 | Option | Description |
 |--------|-------------|
 | `body-font-family` | CSS `font-family` value used for body text. |
-| `ui-font-family` | CSS `font-family` value used for menus and other UI chrome. |
+| `ui-font-family` | CSS `font-family` value used for the top navigation menu. |
 | `mono-font-family` | CSS `font-family` value used for monospaced text. |
 | `font-face` | Repeatable. Declares a `@font-face` rule. See below. |
 
