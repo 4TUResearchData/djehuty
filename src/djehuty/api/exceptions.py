@@ -1,5 +1,7 @@
 """Exception handlers that produce responses matching the legacy API format."""
 
+import json
+
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, PlainTextResponse
@@ -37,10 +39,15 @@ def register_exception_handlers(app: FastAPI):
         for error in exc.errors():
             if error["type"] == "json_invalid":
                 detail = error.get("ctx", {}).get("error", error["msg"])
+                if getattr(exc, "body", None) is not None:
+                    try:
+                        json.loads(exc.body)
+                    except json.JSONDecodeError as decode_error:
+                        detail = str(decode_error)
                 errors.append(
                     {
                         "message": f"Failed to decode JSON object: {detail}",
-                        "code": "InvalidJson",
+                        "code": 400,
                         "field": None,
                     }
                 )

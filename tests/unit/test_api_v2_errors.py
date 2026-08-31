@@ -27,5 +27,6 @@ def test_malformed_json_body_reports_a_decode_error():
     )
     assert response.status_code == 400
     body = response.json()
-    assert body["code"] == "InvalidJson"
+    assert body["code"] == 400
     assert body["message"].startswith("Failed to decode JSON object")
+    assert "(char" in body["message"]
