@@ -258,5 +258,5 @@ systemctl restart djehuty
 ## Next steps
 
 - [Configuring `djehuty`](running-djehuty.md) - every configuration option, including identity providers, DOI registration, storage locations and branding.
-- [Introduction](introduction.md) - installing from source and the run-time dependency graph.
+- [Introduction](introduction.md) - what `djehuty` is and what it does.
 - [Contributing](contributing.md) - the development environment and a tour of the source code.

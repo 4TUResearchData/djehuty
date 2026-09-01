@@ -3,15 +3,6 @@
   heading-offset=0
 %}
 
-## Development environment
-
-{%
-  include-markdown "../README.md"
-  start="## Development environment"
-  end="## Running in production"
-  heading-offset=0
-%}
-
 ## Navigating the source code
 
 This section traces the path from invoking `djehuty` to responding to an HTTP
