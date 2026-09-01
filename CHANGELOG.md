@@ -6,6 +6,30 @@ news section (`doc/news.tex`) is regenerated at release time by `just news`.
 
 Commit links point to <https://github.com/4TUResearchData/djehuty>.
 
+## [v26.5]
+
+This release consists of 17 commits made by 3 authors.
+
+This release includes new features, bugfixes, documentation updates, and
+incremental improvements.
+
+### New features
+
+- Add custom-style support to Djehuty. ([0823985](https://github.com/4TUResearchData/djehuty/commit/0823985b089e3f98abb78e40de29547629673b32))
+
+### Documentation
+
+- Add documentation sections explaining custom-style loading. ([86d503b](https://github.com/4TUResearchData/djehuty/commit/86d503b1f48b50d7d2877740c1ec6128835378b5))
+
+### Bugfixes
+
+- Fix duplicate "collect" UI on dataset pages, and improve the UI flow. ([e05528c](https://github.com/4TUResearchData/djehuty/commit/e05528c2c552a8abf8d1165bca569dcf82a06ae5))
+- Use a consistent cite-button label. ([d4a768e](https://github.com/4TUResearchData/djehuty/commit/d4a768e74b795f64da005f32b165094b17765d4c))
+
+### Incremental improvements
+
+- Add a minimum keyword count to the metadata form. ([a294fbf](https://github.com/4TUResearchData/djehuty/commit/a294fbffef94a495cbe6180b10cb79c4a4db9e42))
+
 ## [v26.4.1]
 
 This patch release consists of 9 commits made by 3 authors.
