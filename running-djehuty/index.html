@@ -558,22 +558,44 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#customizing-looks" class="md-nav__link">
+  <a href="#customizing-appearance" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Customizing looks
+        Customizing Appearance
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Customizing looks">
+    <nav class="md-nav" aria-label="Customizing Appearance">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#customizing-colors" class="md-nav__link">
+  <a href="#setting-color-styling" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Customizing colors
+        Setting color styling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loading-custom-stylesheets-and-assets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Loading custom stylesheets and assets
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setting-custom-fonts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setting custom fonts
       
     </span>
   </a>
@@ -1027,22 +1049,44 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#customizing-looks" class="md-nav__link">
+  <a href="#customizing-appearance" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Customizing looks
+        Customizing Appearance
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Customizing looks">
+    <nav class="md-nav" aria-label="Customizing Appearance">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#customizing-colors" class="md-nav__link">
+  <a href="#setting-color-styling" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Customizing colors
+        Setting color styling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loading-custom-stylesheets-and-assets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Loading custom stylesheets and assets
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setting-custom-fonts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setting custom fonts
       
     </span>
   </a>
@@ -1801,8 +1845,9 @@ Currently you can:</p>
 <a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">  </span><span class="nt">&lt;/file-deposit&gt;</span>
 <a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="nt">&lt;/upload-dataset&gt;</span>
 </code></pre></div>
-<h2 id="customizing-looks">Customizing looks</h2>
-<p>With the following options, the instance can be branded as necessary.</p>
+<h2 id="customizing-appearance">Customizing Appearance</h2>
+<p>With the following options, the instance can be branded as necessary. They are set
+directly on the root element <code>djehuty</code> in the configuration file.</p>
 <table>
 <thead>
 <tr>
@@ -1865,11 +1910,23 @@ Currently you can:</p>
 </tr>
 <tr>
 <td><code>colors</code></td>
-<td>Colors used in the HTML output. See <a href="#customizing-colors">Customizing colors</a>.</td>
+<td>Colors used in the HTML output. See <a href="#setting-color-styling">Setting color styling</a>.</td>
+</tr>
+<tr>
+<td><code>fonts</code></td>
+<td>Typography used in the HTML output. See <a href="#setting-custom-fonts">Setting custom fonts</a>.</td>
+</tr>
+<tr>
+<td><code>custom-assets-root</code></td>
+<td>Directory served at <code>/assets/</code>, for custom fonts, stylesheets, and other assets. See <a href="#loading-custom-stylesheets-and-assets">Loading custom stylesheets and assets</a>.</td>
+</tr>
+<tr>
+<td><code>custom-stylesheet</code></td>
+<td>Repeatable. Extra stylesheet URL loaded on every page after <code>djehuty</code>'s own CSS. See <a href="#loading-custom-stylesheets-and-assets">Loading custom stylesheets and assets</a>.</td>
 </tr>
 </tbody>
 </table>
-<h3 id="customizing-colors">Customizing colors</h3>
+<h3 id="setting-color-styling">Setting color styling</h3>
 <p>The following options can be configured in the <code>colors</code> section.</p>
 <table>
 <thead>
@@ -1909,6 +1966,160 @@ Currently you can:</p>
 </tr>
 </tbody>
 </table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="p">{</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="nt">&quot;colors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="nt">&quot;primary-color&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#004A99&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">    </span><span class="nt">&quot;primary-foreground-color&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#FFFFFF&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">    </span><span class="nt">&quot;primary-color-hover&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#003366&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">    </span><span class="nt">&quot;primary-color-active&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#001F3F&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">    </span><span class="nt">&quot;privilege-button-color&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#B00020&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">    </span><span class="nt">&quot;footer-background-color&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#F2F2F2&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">    </span><span class="nt">&quot;background-color&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#FFFFFF&quot;</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="loading-custom-stylesheets-and-assets">Loading custom stylesheets and assets</h3>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Use <code>custom-stylesheet</code> to apply branding instead of patching the source code. 
+This keeps custom branding from conflicting
+with, or being overwritten by, future <code>djehuty</code> releases.</p>
+</div>
+<p>To serve font files, stylesheets, or other static assets from the instance's
+own configuration rather than patching the source code, point <code>custom-assets-root</code>
+at a filesystem directory. Its contents are served under <code>/assets/</code>.
+Relative paths are resolved against the directory of the configuration file.</p>
+<p>Additional stylesheets can then be loaded on every page with one or more
+<code>custom-stylesheet</code> elements, each pointing at a URL served
+from <code>custom-assets-root</code>. They are injected after <code>djehuty</code>'s own
+stylesheets and after <code>/theme/fonts.css</code>, so custom rules can override them.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="p">{</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="nt">&quot;custom-assets-root&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/etc/djehuty/assets&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">  </span><span class="nt">&quot;custom-stylesheet&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/assets/css/custom.css&quot;</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="p">}</span>
+</code></pre></div>
+<p>If a <code>font-face</code>'s <code>src</code> or a <code>custom-stylesheet</code> points under <code>/assets/</code>
+but <code>custom-assets-root</code> is unset, or the referenced file does not exist
+under it, <code>djehuty</code> logs a warning.</p>
+<p>Since <code>custom-stylesheet</code> entries load in the order they're configured, it's
+possible to define a palette or spacing scale as <code>:root</code> custom properties in
+an early stylesheet (e.g. <code>--warm-orange</code>, <code>--brand-space-m</code>), then reuse
+them with <code>var(...)</code> in the stylesheets loaded after it. For example, an
+instance's <code>palette.css</code>, loaded first, could define:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="p">:</span><span class="nd">root</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">    </span><span class="nv">--warm-orange</span><span class="p">:</span><span class="w">   </span><span class="mh">#F29100</span><span class="p">;</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">    </span><span class="nv">--vibrant-orange</span><span class="p">:</span><span class="w"> </span><span class="mh">#FF6829</span><span class="p">;</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="p">}</span>
+</code></pre></div>
+<p>and a <code>buttons.css</code>, loaded after it, could then reuse those variables:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="p">.</span><span class="nc">corporate-identity-standard-button</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">    </span><span class="k">background</span><span class="p">:</span><span class="w"> </span><span class="nf">var</span><span class="p">(</span><span class="nv">--warm-orange</span><span class="p">);</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="p">}</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="p">.</span><span class="nc">corporate-identity-standard-button</span><span class="p">:</span><span class="nd">hover</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">    </span><span class="k">background</span><span class="p">:</span><span class="w"> </span><span class="nf">var</span><span class="p">(</span><span class="nv">--vibrant-orange</span><span class="p">);</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="p">}</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="p">{</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">  </span><span class="nt">&quot;custom-stylesheet&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">    </span><span class="s2">&quot;/assets/css/palette.css&quot;</span><span class="p">,</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">    </span><span class="s2">&quot;/assets/css/buttons.css&quot;</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">  </span><span class="p">]</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="setting-custom-fonts">Setting custom fonts</h3>
+<p>The following options can be configured in the <code>fonts</code> element, a child of
+the root element <code>djehuty</code>. They are rendered to CSS custom properties (<code>--font-body</code>,
+<code>--font-ui</code>, <code>--font-mono</code>) served at <code>/theme/fonts.css</code>, which <code>main.css</code>
+already references.</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>body-font-family</code></td>
+<td>CSS <code>font-family</code> value used for body text.</td>
+</tr>
+<tr>
+<td><code>ui-font-family</code></td>
+<td>CSS <code>font-family</code> value used for the top navigation menu.</td>
+</tr>
+<tr>
+<td><code>mono-font-family</code></td>
+<td>CSS <code>font-family</code> value used for monospaced text.</td>
+</tr>
+<tr>
+<td><code>font-face</code></td>
+<td>Repeatable. Declares a <code>@font-face</code> rule. See below.</td>
+</tr>
+</tbody>
+</table>
+<p>Each <code>font-face</code> element accepts the following options.</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>family</code></td>
+<td>The font family name declared by this face.</td>
+</tr>
+<tr>
+<td><code>src</code></td>
+<td>URL to the font file, typically served from <code>custom-assets-root</code> under <code>/assets/</code>.</td>
+</tr>
+<tr>
+<td><code>format</code></td>
+<td>The font format, e.g. <code>woff2</code>. Defaults to <code>woff2</code>.</td>
+</tr>
+<tr>
+<td><code>weight</code></td>
+<td>The CSS <code>font-weight</code> this face applies to, e.g. <code>400</code> or <code>700</code>.</td>
+</tr>
+<tr>
+<td><code>style</code></td>
+<td>The CSS <code>font-style</code> this face applies to, e.g. <code>normal</code> or <code>italic</code>.</td>
+</tr>
+<tr>
+<td><code>display</code></td>
+<td>The CSS <code>font-display</code> value. Defaults to <code>swap</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>For example, to load a custom body typeface with a regular and a bold cut,
+and a separate family for UI elements:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="p">{</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">  </span><span class="nt">&quot;fonts&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">    </span><span class="nt">&quot;body-font-family&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&#39;Example Sans&#39;, sans-serif&quot;</span><span class="p">,</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="w">    </span><span class="nt">&quot;ui-font-family&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&#39;Example UI&#39;, sans-serif&quot;</span><span class="p">,</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="w">    </span><span class="nt">&quot;font-face&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="w">      </span><span class="p">{</span>
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="w">        </span><span class="nt">&quot;family&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Example Sans&quot;</span><span class="p">,</span>
+<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="w">        </span><span class="nt">&quot;src&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/assets/fonts/example-regular.woff2&quot;</span><span class="p">,</span>
+<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a><span class="w">        </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;400&quot;</span><span class="p">,</span>
+<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a><span class="w">        </span><span class="nt">&quot;style&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;normal&quot;</span>
+<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a><span class="w">      </span><span class="p">},</span>
+<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a><span class="w">      </span><span class="p">{</span>
+<a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a><span class="w">        </span><span class="nt">&quot;family&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Example Sans&quot;</span><span class="p">,</span>
+<a id="__codelineno-13-14" name="__codelineno-13-14" href="#__codelineno-13-14"></a><span class="w">        </span><span class="nt">&quot;src&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/assets/fonts/example-bold.woff2&quot;</span><span class="p">,</span>
+<a id="__codelineno-13-15" name="__codelineno-13-15" href="#__codelineno-13-15"></a><span class="w">        </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;700&quot;</span>
+<a id="__codelineno-13-16" name="__codelineno-13-16" href="#__codelineno-13-16"></a><span class="w">      </span><span class="p">},</span>
+<a id="__codelineno-13-17" name="__codelineno-13-17" href="#__codelineno-13-17"></a><span class="w">      </span><span class="p">{</span>
+<a id="__codelineno-13-18" name="__codelineno-13-18" href="#__codelineno-13-18"></a><span class="w">        </span><span class="nt">&quot;family&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Example UI&quot;</span><span class="p">,</span>
+<a id="__codelineno-13-19" name="__codelineno-13-19" href="#__codelineno-13-19"></a><span class="w">        </span><span class="nt">&quot;src&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/assets/fonts/example-ui-regular.woff2&quot;</span><span class="p">,</span>
+<a id="__codelineno-13-20" name="__codelineno-13-20" href="#__codelineno-13-20"></a><span class="w">        </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;400&quot;</span><span class="p">,</span>
+<a id="__codelineno-13-21" name="__codelineno-13-21" href="#__codelineno-13-21"></a><span class="w">        </span><span class="nt">&quot;style&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;normal&quot;</span>
+<a id="__codelineno-13-22" name="__codelineno-13-22" href="#__codelineno-13-22"></a><span class="w">      </span><span class="p">}</span>
+<a id="__codelineno-13-23" name="__codelineno-13-23" href="#__codelineno-13-23"></a><span class="w">    </span><span class="p">]</span>
+<a id="__codelineno-13-24" name="__codelineno-13-24" href="#__codelineno-13-24"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-13-25" name="__codelineno-13-25" href="#__codelineno-13-25"></a><span class="p">}</span>
+</code></pre></div>
 <h2 id="customizing-the-menu">Customizing the menu</h2>
 <p>The top navigation menu is defined using the <code>menu</code> XML element, which can be
 placed in a separate menu configuration file and loaded via <code>include</code> in the
@@ -1948,49 +2159,49 @@ its <code>sub-menu</code> children in a dropdown panel. A <code>sub-menu</code> 
 </tbody>
 </table>
 <h3 id="example">Example</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nt">&lt;djehuty&gt;</span>
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="nt">&lt;menu&gt;</span>
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">    </span><span class="nt">&lt;primary-menu&gt;</span>
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">      </span><span class="nt">&lt;title&gt;</span>About<span class="w"> </span>your<span class="w"> </span>Data<span class="nt">&lt;/title&gt;</span>
-<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">      </span><span class="nt">&lt;sub-menu&gt;</span>
-<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">        </span><span class="nt">&lt;title&gt;</span>Getting<span class="w"> </span>started<span class="nt">&lt;/title&gt;</span>
-<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">        </span><span class="nt">&lt;href&gt;</span>/info/about-your-data/getting-started<span class="nt">&lt;/href&gt;</span>
-<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">      </span><span class="nt">&lt;/sub-menu&gt;</span>
-<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="w">      </span><span class="nt">&lt;sub-menu&gt;</span>
-<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="w">        </span><span class="nt">&lt;title&gt;</span>Publish<span class="w"> </span>and<span class="w"> </span>Cite<span class="nt">&lt;/title&gt;</span>
-<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="w">        </span><span class="nt">&lt;href&gt;</span>/info/about-your-data/publish-cite<span class="nt">&lt;/href&gt;</span>
-<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="w">      </span><span class="nt">&lt;/sub-menu&gt;</span>
-<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="w">    </span><span class="nt">&lt;/primary-menu&gt;</span>
-<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>
-<a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a><span class="w">    </span><span class="nt">&lt;primary-menu&gt;</span>
-<a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a><span class="w">      </span><span class="nt">&lt;title&gt;</span>Collaborations<span class="nt">&lt;/title&gt;</span>
-<a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a><span class="w">      </span><span class="nt">&lt;sub-menu&gt;</span>
-<a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a><span class="w">        </span><span class="nt">&lt;title&gt;</span>Collaborations<span class="w"> </span>overview<span class="nt">&lt;/title&gt;</span>
-<a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a><span class="w">        </span><span class="nt">&lt;href&gt;</span>https://example.org/collaborations/<span class="nt">&lt;/href&gt;</span>
-<a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a><span class="w">      </span><span class="nt">&lt;/sub-menu&gt;</span>
-<a id="__codelineno-8-22" name="__codelineno-8-22" href="#__codelineno-8-22"></a><span class="w">      </span><span class="nt">&lt;sub-menu&gt;</span>
-<a id="__codelineno-8-23" name="__codelineno-8-23" href="#__codelineno-8-23"></a><span class="w">        </span><span class="nt">&lt;title&gt;</span>Digital<span class="w"> </span>Capacity<span class="w"> </span>for<span class="w"> </span>NES<span class="nt">&lt;/title&gt;</span>
-<a id="__codelineno-8-24" name="__codelineno-8-24" href="#__codelineno-8-24"></a><span class="w">        </span><span class="nt">&lt;href&gt;</span>https://example.org/digital-capacity/<span class="nt">&lt;/href&gt;</span>
-<a id="__codelineno-8-25" name="__codelineno-8-25" href="#__codelineno-8-25"></a><span class="w">        </span><span class="nt">&lt;sub-sub-menu&gt;</span>
-<a id="__codelineno-8-26" name="__codelineno-8-26" href="#__codelineno-8-26"></a><span class="w">          </span><span class="nt">&lt;title&gt;</span>Call<span class="w"> </span>1:<span class="w"> </span>Instructors<span class="nt">&lt;/title&gt;</span>
-<a id="__codelineno-8-27" name="__codelineno-8-27" href="#__codelineno-8-27"></a><span class="w">          </span><span class="nt">&lt;href&gt;</span>https://example.org/digital-capacity/call-1/<span class="nt">&lt;/href&gt;</span>
-<a id="__codelineno-8-28" name="__codelineno-8-28" href="#__codelineno-8-28"></a><span class="w">        </span><span class="nt">&lt;/sub-sub-menu&gt;</span>
-<a id="__codelineno-8-29" name="__codelineno-8-29" href="#__codelineno-8-29"></a><span class="w">        </span><span class="nt">&lt;sub-sub-menu&gt;</span>
-<a id="__codelineno-8-30" name="__codelineno-8-30" href="#__codelineno-8-30"></a><span class="w">          </span><span class="nt">&lt;title&gt;</span>Call<span class="w"> </span>2:<span class="w"> </span>Learners<span class="nt">&lt;/title&gt;</span>
-<a id="__codelineno-8-31" name="__codelineno-8-31" href="#__codelineno-8-31"></a><span class="w">          </span><span class="nt">&lt;href&gt;</span>https://example.org/digital-capacity/call-2/<span class="nt">&lt;/href&gt;</span>
-<a id="__codelineno-8-32" name="__codelineno-8-32" href="#__codelineno-8-32"></a><span class="w">        </span><span class="nt">&lt;/sub-sub-menu&gt;</span>
-<a id="__codelineno-8-33" name="__codelineno-8-33" href="#__codelineno-8-33"></a><span class="w">      </span><span class="nt">&lt;/sub-menu&gt;</span>
-<a id="__codelineno-8-34" name="__codelineno-8-34" href="#__codelineno-8-34"></a><span class="w">    </span><span class="nt">&lt;/primary-menu&gt;</span>
-<a id="__codelineno-8-35" name="__codelineno-8-35" href="#__codelineno-8-35"></a>
-<a id="__codelineno-8-36" name="__codelineno-8-36" href="#__codelineno-8-36"></a><span class="w">  </span><span class="nt">&lt;/menu&gt;</span>
-<a id="__codelineno-8-37" name="__codelineno-8-37" href="#__codelineno-8-37"></a><span class="nt">&lt;/djehuty&gt;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="nt">&lt;djehuty&gt;</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">  </span><span class="nt">&lt;menu&gt;</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">    </span><span class="nt">&lt;primary-menu&gt;</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="w">      </span><span class="nt">&lt;title&gt;</span>About<span class="w"> </span>your<span class="w"> </span>Data<span class="nt">&lt;/title&gt;</span>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="w">      </span><span class="nt">&lt;sub-menu&gt;</span>
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="w">        </span><span class="nt">&lt;title&gt;</span>Getting<span class="w"> </span>started<span class="nt">&lt;/title&gt;</span>
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="w">        </span><span class="nt">&lt;href&gt;</span>/info/about-your-data/getting-started<span class="nt">&lt;/href&gt;</span>
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a><span class="w">      </span><span class="nt">&lt;/sub-menu&gt;</span>
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a><span class="w">      </span><span class="nt">&lt;sub-menu&gt;</span>
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a><span class="w">        </span><span class="nt">&lt;title&gt;</span>Publish<span class="w"> </span>and<span class="w"> </span>Cite<span class="nt">&lt;/title&gt;</span>
+<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a><span class="w">        </span><span class="nt">&lt;href&gt;</span>/info/about-your-data/publish-cite<span class="nt">&lt;/href&gt;</span>
+<a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a><span class="w">      </span><span class="nt">&lt;/sub-menu&gt;</span>
+<a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a><span class="w">    </span><span class="nt">&lt;/primary-menu&gt;</span>
+<a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a>
+<a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a><span class="w">    </span><span class="nt">&lt;primary-menu&gt;</span>
+<a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a><span class="w">      </span><span class="nt">&lt;title&gt;</span>Collaborations<span class="nt">&lt;/title&gt;</span>
+<a id="__codelineno-14-18" name="__codelineno-14-18" href="#__codelineno-14-18"></a><span class="w">      </span><span class="nt">&lt;sub-menu&gt;</span>
+<a id="__codelineno-14-19" name="__codelineno-14-19" href="#__codelineno-14-19"></a><span class="w">        </span><span class="nt">&lt;title&gt;</span>Collaborations<span class="w"> </span>overview<span class="nt">&lt;/title&gt;</span>
+<a id="__codelineno-14-20" name="__codelineno-14-20" href="#__codelineno-14-20"></a><span class="w">        </span><span class="nt">&lt;href&gt;</span>https://example.org/collaborations/<span class="nt">&lt;/href&gt;</span>
+<a id="__codelineno-14-21" name="__codelineno-14-21" href="#__codelineno-14-21"></a><span class="w">      </span><span class="nt">&lt;/sub-menu&gt;</span>
+<a id="__codelineno-14-22" name="__codelineno-14-22" href="#__codelineno-14-22"></a><span class="w">      </span><span class="nt">&lt;sub-menu&gt;</span>
+<a id="__codelineno-14-23" name="__codelineno-14-23" href="#__codelineno-14-23"></a><span class="w">        </span><span class="nt">&lt;title&gt;</span>Digital<span class="w"> </span>Capacity<span class="w"> </span>for<span class="w"> </span>NES<span class="nt">&lt;/title&gt;</span>
+<a id="__codelineno-14-24" name="__codelineno-14-24" href="#__codelineno-14-24"></a><span class="w">        </span><span class="nt">&lt;href&gt;</span>https://example.org/digital-capacity/<span class="nt">&lt;/href&gt;</span>
+<a id="__codelineno-14-25" name="__codelineno-14-25" href="#__codelineno-14-25"></a><span class="w">        </span><span class="nt">&lt;sub-sub-menu&gt;</span>
+<a id="__codelineno-14-26" name="__codelineno-14-26" href="#__codelineno-14-26"></a><span class="w">          </span><span class="nt">&lt;title&gt;</span>Call<span class="w"> </span>1:<span class="w"> </span>Instructors<span class="nt">&lt;/title&gt;</span>
+<a id="__codelineno-14-27" name="__codelineno-14-27" href="#__codelineno-14-27"></a><span class="w">          </span><span class="nt">&lt;href&gt;</span>https://example.org/digital-capacity/call-1/<span class="nt">&lt;/href&gt;</span>
+<a id="__codelineno-14-28" name="__codelineno-14-28" href="#__codelineno-14-28"></a><span class="w">        </span><span class="nt">&lt;/sub-sub-menu&gt;</span>
+<a id="__codelineno-14-29" name="__codelineno-14-29" href="#__codelineno-14-29"></a><span class="w">        </span><span class="nt">&lt;sub-sub-menu&gt;</span>
+<a id="__codelineno-14-30" name="__codelineno-14-30" href="#__codelineno-14-30"></a><span class="w">          </span><span class="nt">&lt;title&gt;</span>Call<span class="w"> </span>2:<span class="w"> </span>Learners<span class="nt">&lt;/title&gt;</span>
+<a id="__codelineno-14-31" name="__codelineno-14-31" href="#__codelineno-14-31"></a><span class="w">          </span><span class="nt">&lt;href&gt;</span>https://example.org/digital-capacity/call-2/<span class="nt">&lt;/href&gt;</span>
+<a id="__codelineno-14-32" name="__codelineno-14-32" href="#__codelineno-14-32"></a><span class="w">        </span><span class="nt">&lt;/sub-sub-menu&gt;</span>
+<a id="__codelineno-14-33" name="__codelineno-14-33" href="#__codelineno-14-33"></a><span class="w">      </span><span class="nt">&lt;/sub-menu&gt;</span>
+<a id="__codelineno-14-34" name="__codelineno-14-34" href="#__codelineno-14-34"></a><span class="w">    </span><span class="nt">&lt;/primary-menu&gt;</span>
+<a id="__codelineno-14-35" name="__codelineno-14-35" href="#__codelineno-14-35"></a>
+<a id="__codelineno-14-36" name="__codelineno-14-36" href="#__codelineno-14-36"></a><span class="w">  </span><span class="nt">&lt;/menu&gt;</span>
+<a id="__codelineno-14-37" name="__codelineno-14-37" href="#__codelineno-14-37"></a><span class="nt">&lt;/djehuty&gt;</span>
 </code></pre></div>
 <p>Keep the menu definition in a dedicated config file and load it from the main
 configuration file using <code>include</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nt">&lt;djehuty&gt;</span>
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="nt">&lt;include&gt;</span>/etc/djehuty/djehuty-menu.xml<span class="nt">&lt;/include&gt;</span>
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="nt">&lt;/djehuty&gt;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="nt">&lt;djehuty&gt;</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="w">  </span><span class="nt">&lt;include&gt;</span>/etc/djehuty/djehuty-menu.xml<span class="nt">&lt;/include&gt;</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="nt">&lt;/djehuty&gt;</span>
 </code></pre></div>
 <h2 id="configuring-privileged-users">Configuring privileged users</h2>
 <p>By default an authenticated user may deposit data. But users can have additional
@@ -2047,18 +2258,18 @@ privileges can be configured in the <code>privileges</code> section:</p>
 <p>To enable a privilege for an account, set the value of the desired privilege to
 <code>1</code>. Privileges are disabled by default, except for
 <code>may-receive-email-notifications</code> which defaults to <code>1</code>.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="nt">&lt;privileges&gt;</span>
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">  </span><span class="nt">&lt;account</span><span class="w"> </span><span class="na">email=</span><span class="s">&quot;you@example.com&quot;</span><span class="w"> </span><span class="na">orcid=</span><span class="s">&quot;0000-0000-0000-0001&quot;</span><span class="nt">&gt;</span>
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">    </span><span class="nt">&lt;may-administer&gt;</span>1<span class="nt">&lt;/may-administer&gt;</span>
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">    </span><span class="nt">&lt;may-run-sparql-queries&gt;</span>1<span class="nt">&lt;/may-run-sparql-queries&gt;</span>
-<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">    </span><span class="nt">&lt;may-impersonate&gt;</span>1<span class="nt">&lt;/may-impersonate&gt;</span>
-<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">    </span><span class="nt">&lt;may-review&gt;</span>0<span class="nt">&lt;/may-review&gt;</span>
-<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">    </span><span class="nt">&lt;may-review-quotas&gt;</span>0<span class="nt">&lt;/may-review-quotas&gt;</span>
-<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="w">    </span><span class="nt">&lt;may-review-integrity&gt;</span>0<span class="nt">&lt;/may-review-integrity&gt;</span>
-<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="w">    </span><span class="nt">&lt;may-process-feedback&gt;</span>0<span class="nt">&lt;/may-process-feedback&gt;</span>
-<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="w">    </span><span class="nt">&lt;may-receive-email-notifications&gt;</span>1<span class="nt">&lt;/may-receive-email-notifications&gt;</span>
-<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="w">  </span><span class="nt">&lt;/account&gt;</span>
-<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="nt">&lt;/privileges&gt;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="nt">&lt;privileges&gt;</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">  </span><span class="nt">&lt;account</span><span class="w"> </span><span class="na">email=</span><span class="s">&quot;you@example.com&quot;</span><span class="w"> </span><span class="na">orcid=</span><span class="s">&quot;0000-0000-0000-0001&quot;</span><span class="nt">&gt;</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="w">    </span><span class="nt">&lt;may-administer&gt;</span>1<span class="nt">&lt;/may-administer&gt;</span>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="w">    </span><span class="nt">&lt;may-run-sparql-queries&gt;</span>1<span class="nt">&lt;/may-run-sparql-queries&gt;</span>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="w">    </span><span class="nt">&lt;may-impersonate&gt;</span>1<span class="nt">&lt;/may-impersonate&gt;</span>
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="w">    </span><span class="nt">&lt;may-review&gt;</span>0<span class="nt">&lt;/may-review&gt;</span>
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="w">    </span><span class="nt">&lt;may-review-quotas&gt;</span>0<span class="nt">&lt;/may-review-quotas&gt;</span>
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="w">    </span><span class="nt">&lt;may-review-integrity&gt;</span>0<span class="nt">&lt;/may-review-integrity&gt;</span>
+<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a><span class="w">    </span><span class="nt">&lt;may-process-feedback&gt;</span>0<span class="nt">&lt;/may-process-feedback&gt;</span>
+<a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a><span class="w">    </span><span class="nt">&lt;may-receive-email-notifications&gt;</span>1<span class="nt">&lt;/may-receive-email-notifications&gt;</span>
+<a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a><span class="w">  </span><span class="nt">&lt;/account&gt;</span>
+<a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a><span class="nt">&lt;/privileges&gt;</span>
 </code></pre></div>
 <h1 id="running-djehuty">Running <code>djehuty</code></h1>
 <p>Before running <code>djehuty</code>, consider the <a href="#configuring-djehuty">Configuring <code>djehuty</code></a>
@@ -2067,9 +2278,9 @@ where data will be stored and a way to adapt <code>djehuty</code> to your organi
 <h2 id="running-djehuty_1">Running <code>djehuty</code></h2>
 <p>Invoking <code>djehuty web</code> starts the web interface of <code>djehuty</code>. On what port it
 makes itself available can be configured in its configuration file.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>djehuty web --config-file=your-djehuty-config.json
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a># or, with the deprecated XML format:
-<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>djehuty web --config-file=your-djehuty-config.xml
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>djehuty web --config-file=your-djehuty-config.json
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a># or, with the deprecated XML format:
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>djehuty web --config-file=your-djehuty-config.xml
 </code></pre></div>
 <h2 id="running-djehuty-behind-an-nginx-reverse-proxy">Running <code>djehuty</code> behind an <code>nginx</code> reverse-proxy</h2>
 <p>While <code>djehuty</code> itself does not support SSL/TLS, it is designed to work together
@@ -2077,23 +2288,23 @@ with a reverse-proxy HTTP server like <code>nginx</code>. When <code>djehuty</co
 bind on a pre-configured address and port, which in turn can be <code>proxy_pass</code>ed
 to using <code>nginx</code>.</p>
 <p>The following snippet shows how to configure <code>nginx</code>.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">server</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">    </span><span class="kn">listen</span><span class="w">              </span><span class="mi">443</span><span class="w"> </span><span class="s">ssl</span><span class="p">;</span>
-<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">    </span><span class="kn">listen</span><span class="w">              </span><span class="s">[::]:443</span><span class="w"> </span><span class="s">ssl</span><span class="p">;</span>
-<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">    </span><span class="kn">server_name</span><span class="w">         </span><span class="s">example.domain</span><span class="p">;</span>
-<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>
-<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">    </span><span class="kn">ssl_certificate</span><span class="w">     </span><span class="s">/etc/letsencrypt/live/example.domain/fullchain.pem</span><span class="p">;</span>
-<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">    </span><span class="kn">ssl_certificate_key</span><span class="w"> </span><span class="s">/etc/letsencrypt/live/example.domain/privkey.pem</span><span class="p">;</span>
-<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>
-<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="w">    </span><span class="kn">location</span><span class="w"> </span><span class="s">/</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="w">       </span><span class="c1"># Set &#39;use-x-forwarded-for&#39; in the djehuty configuration.</span>
-<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="w">       </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">X-Forwarded-For</span><span class="w"> </span><span class="nv">$proxy_add_x_forwarded_for</span><span class="p">;</span>
-<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="w">       </span><span class="c1"># The values for address and port depend on what is configured in the</span>
-<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="w">       </span><span class="c1"># djehuty configuration file.</span>
-<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a><span class="w">       </span><span class="kn">proxy_pass</span><span class="w"> </span><span class="s">http://127.0.0.1:8080</span><span class="p">;</span>
-<a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="w">       </span><span class="kn">root</span><span class="w"> </span><span class="s">/usr/share/nginx/html</span><span class="p">;</span>
-<a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="k">server</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="w">    </span><span class="kn">listen</span><span class="w">              </span><span class="mi">443</span><span class="w"> </span><span class="s">ssl</span><span class="p">;</span>
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="w">    </span><span class="kn">listen</span><span class="w">              </span><span class="s">[::]:443</span><span class="w"> </span><span class="s">ssl</span><span class="p">;</span>
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="w">    </span><span class="kn">server_name</span><span class="w">         </span><span class="s">example.domain</span><span class="p">;</span>
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a><span class="w">    </span><span class="kn">ssl_certificate</span><span class="w">     </span><span class="s">/etc/letsencrypt/live/example.domain/fullchain.pem</span><span class="p">;</span>
+<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="w">    </span><span class="kn">ssl_certificate_key</span><span class="w"> </span><span class="s">/etc/letsencrypt/live/example.domain/privkey.pem</span><span class="p">;</span>
+<a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a>
+<a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a><span class="w">    </span><span class="kn">location</span><span class="w"> </span><span class="s">/</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a><span class="w">       </span><span class="c1"># Set &#39;use-x-forwarded-for&#39; in the djehuty configuration.</span>
+<a id="__codelineno-18-11" name="__codelineno-18-11" href="#__codelineno-18-11"></a><span class="w">       </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">X-Forwarded-For</span><span class="w"> </span><span class="nv">$proxy_add_x_forwarded_for</span><span class="p">;</span>
+<a id="__codelineno-18-12" name="__codelineno-18-12" href="#__codelineno-18-12"></a><span class="w">       </span><span class="c1"># The values for address and port depend on what is configured in the</span>
+<a id="__codelineno-18-13" name="__codelineno-18-13" href="#__codelineno-18-13"></a><span class="w">       </span><span class="c1"># djehuty configuration file.</span>
+<a id="__codelineno-18-14" name="__codelineno-18-14" href="#__codelineno-18-14"></a><span class="w">       </span><span class="kn">proxy_pass</span><span class="w"> </span><span class="s">http://127.0.0.1:8080</span><span class="p">;</span>
+<a id="__codelineno-18-15" name="__codelineno-18-15" href="#__codelineno-18-15"></a><span class="w">       </span><span class="kn">root</span><span class="w"> </span><span class="s">/usr/share/nginx/html</span><span class="p">;</span>
+<a id="__codelineno-18-16" name="__codelineno-18-16" href="#__codelineno-18-16"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-18-17" name="__codelineno-18-17" href="#__codelineno-18-17"></a><span class="p">}</span>
 </code></pre></div>
 <p>To ensure <code>djehuty</code> receives the actual client IP address so it can log this
 information, one can set the <code>use-x-forwarded-for</code> option described in
