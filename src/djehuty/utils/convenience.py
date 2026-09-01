@@ -411,3 +411,9 @@ def normalize_orcid(orcid):
 def normalize_doi(doi):
     """Procedure to make storing DOIs consistent."""
     return normalize_identifier(normalize_identifier(doi, "https://doi.org/"), "doi.org/")
+
+
+def css_string(value):
+    """Escape VALUE for safe interpolation into a single-quoted CSS string."""
+    escaped = str(value).replace("\\", "\\\\").replace("'", "\\'")
+    return escaped.replace("\r\n", "\\A ").replace("\n", "\\A ").replace("\r", "\\A ")

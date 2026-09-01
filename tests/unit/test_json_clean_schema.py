@@ -50,6 +50,64 @@ class TestCleanSchema:
         assert group.attrib["is_featured"] == "1"
 
 
+class TestFindAll:
+    def test_returns_all_repeated_children(self):
+        """Return every child stored under a repeated key."""
+        elem = JsonConfigElement(
+            "fonts",
+            {
+                "font-face": [
+                    {"family": "First"},
+                    {"family": "Second"},
+                ],
+            },
+        )
+
+        faces = elem.findall("font-face")
+
+        assert [face.find("family").text for face in faces] == ["First", "Second"]
+
+    def test_returns_all_repeated_custom_stylesheets(self):
+        """Return repeated custom stylesheet values."""
+        elem = JsonConfigElement(
+            "djehuty",
+            {
+                "custom-stylesheet": [
+                    "/assets/css/base.css",
+                    "/assets/css/overrides.css",
+                ],
+            },
+        )
+
+        stylesheets = elem.findall("custom-stylesheet")
+
+        assert [stylesheet.text for stylesheet in stylesheets] == [
+            "/assets/css/base.css",
+            "/assets/css/overrides.css",
+        ]
+
+    def test_accepts_relative_path_prefix(self):
+        """Accept ElementTree-style relative path prefixes."""
+        elem = JsonConfigElement("fonts", {"font-face": [{"family": "First"}]})
+
+        assert len(elem.findall("./font-face")) == 1
+
+    def test_returns_scalar_as_single_result(self):
+        """Return a scalar value as a single matching element."""
+        elem = JsonConfigElement("fonts", {"body-font-family": "sans-serif"})
+
+        matches = elem.findall("body-font-family")
+
+        assert len(matches) == 1
+        assert matches[0].text == "sans-serif"
+
+    def test_returns_empty_list_for_missing_path(self):
+        """Return no matches for a missing path."""
+        elem = JsonConfigElement("fonts", {})
+
+        assert elem.findall("font-face") == []
+
+
 class TestBackCompat:
     def test_at_prefix_still_recognised(self):
         elem = JsonConfigElement("account", {"@orcid": "0000-0001"})

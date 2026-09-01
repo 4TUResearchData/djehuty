@@ -2,7 +2,7 @@
 
 import pytest
 
-from djehuty.utils.convenience import strip_parenthesized_suffix
+from djehuty.utils.convenience import css_string, strip_parenthesized_suffix
 
 
 class TestStripParenthesizedSuffix:
@@ -28,3 +28,16 @@ class TestStripParenthesizedSuffix:
     @pytest.mark.parametrize("value", [None, 42])
     def test_non_string_values_pass_through(self, value):
         assert strip_parenthesized_suffix(value) is value
+
+
+class TestCssString:
+    """CSS-string escaping for values interpolated into single-quoted CSS strings."""
+
+    def test_escapes_backslashes_and_quotes(self):
+        assert css_string("O'Brien & Sons") == "O\\'Brien & Sons"
+        assert css_string("C:\\fonts") == "C:\\\\fonts"
+
+    def test_escapes_newlines(self):
+        assert css_string("Example\nSans") == "Example\\A Sans"
+        assert css_string("Example\r\nSans") == "Example\\A Sans"
+        assert css_string("Example\rSans") == "Example\\A Sans"

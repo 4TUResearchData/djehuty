@@ -1,8 +1,18 @@
 """Tests for configuration file parsing."""
 
 import pytest
+from defusedxml import ElementTree
 
-from djehuty.web.ui import config_value, read_boolean_value, read_raw_xml
+from djehuty.web.config import config
+from djehuty.web.config.json_parser import JsonConfigElement
+from djehuty.web.ui import (
+    config_value,
+    read_boolean_value,
+    read_custom_stylesheets,
+    read_fonts_configuration,
+    read_raw_xml,
+    warn_about_unresolvable_asset,
+)
 
 
 class TestConfigValue:
@@ -31,6 +41,10 @@ class TestConfigValue:
 
     def test_none_root_returns_fallback(self):
         assert config_value(None, "port", fallback="1234") == "1234"
+
+    def test_strips_leading_and_trailing_whitespace(self):
+        root = ElementTree.fromstring("<djehuty><family>\n  Example Sans\n</family></djehuty>")
+        assert config_value(root, "family") == "Example Sans"
 
 
 class TestReadBooleanValue:
@@ -78,6 +92,207 @@ class TestReadRawXml:
         content, attributes = read_raw_xml(config_root, "nonexistent", "fallback")
         assert content == "fallback"
         assert attributes is None
+
+
+class TestThemeConfiguration:
+    def test_missing_fonts_leave_fonts_unconfigured(self, monkeypatch, logger):
+        """Leave fonts unconfigured when the section is absent."""
+        monkeypatch.setattr(config, "fonts", None)
+        root = JsonConfigElement("djehuty", {})
+
+        read_fonts_configuration(root, logger)
+
+        assert config.fonts is None
+
+    def test_reads_font_faces_and_font_families(self, monkeypatch, logger):
+        """Read font faces, families, and default properties."""
+        monkeypatch.setattr(config, "fonts", None)
+        root = JsonConfigElement(
+            "djehuty",
+            {
+                "fonts": {
+                    "body-font-family": "'Example Sans', sans-serif",
+                    "ui-font-family": "'Example UI', sans-serif",
+                    "mono-font-family": "'Example Mono', monospace",
+                    "font-face": [
+                        {
+                            "family": "Example Sans",
+                            "src": "/assets/fonts/example-regular.woff2",
+                            "format": "woff2",
+                            "weight": "400",
+                            "style": "normal",
+                        },
+                        {
+                            "family": "Example Sans",
+                            "src": "/assets/fonts/example-bold.woff2",
+                            "weight": "700",
+                        },
+                    ],
+                },
+            },
+        )
+
+        read_fonts_configuration(root, logger)
+
+        assert config.fonts == {
+            "font_faces": [
+                {
+                    "index": 0,
+                    "family": "Example Sans",
+                    "src": "/assets/fonts/example-regular.woff2",
+                    "format": "woff2",
+                    "weight": "400",
+                    "style": "normal",
+                    "display": "swap",
+                },
+                {
+                    "index": 1,
+                    "family": "Example Sans",
+                    "src": "/assets/fonts/example-bold.woff2",
+                    "format": "woff2",
+                    "weight": "700",
+                    "style": None,
+                    "display": "swap",
+                },
+            ],
+            "body_font": "'Example Sans', sans-serif",
+            "ui_font": "'Example UI', sans-serif",
+            "mono_font": "'Example Mono', monospace",
+        }
+
+    def test_drops_font_faces_missing_family_or_src(self, monkeypatch, caplog, logger):
+        """Drop font-face entries missing a required 'family' or 'src', with a warning."""
+        monkeypatch.setattr(config, "fonts", None)
+        root = JsonConfigElement(
+            "djehuty",
+            {
+                "fonts": {
+                    "font-face": [
+                        {
+                            "family": "Example Sans",
+                            "src": "/assets/fonts/example-regular.woff2",
+                        },
+                        {
+                            "src": "/assets/fonts/missing-family.woff2",
+                        },
+                        {
+                            "family": "Missing Src",
+                        },
+                    ],
+                },
+            },
+        )
+
+        with caplog.at_level("WARNING"):
+            read_fonts_configuration(root, logger)
+
+        assert len(config.fonts["font_faces"]) == 1
+        assert config.fonts["font_faces"][0]["family"] == "Example Sans"
+        assert "font-face #1" in caplog.text
+        assert "font-face #2" in caplog.text
+
+    def test_missing_custom_stylesheets_leave_list_empty(self, monkeypatch):
+        """Leave custom stylesheets empty when none are configured."""
+        monkeypatch.setattr(config, "custom_stylesheets", [])
+        root = JsonConfigElement("djehuty", {})
+
+        read_custom_stylesheets(root)
+
+        assert config.custom_stylesheets == []
+
+    def test_reads_unique_trimmed_custom_stylesheets(self, monkeypatch):
+        """Trim stylesheet paths, remove duplicates, and ignore blanks."""
+        monkeypatch.setattr(config, "custom_stylesheets", [])
+        root = JsonConfigElement(
+            "djehuty",
+            {
+                "custom-stylesheet": [
+                    "/assets/css/first.css",
+                    " /assets/css/second.css ",
+                    "/assets/css/first.css",
+                    "   ",
+                ],
+            },
+        )
+
+        read_custom_stylesheets(root)
+
+        assert config.custom_stylesheets == [
+            "/assets/css/first.css",
+            "/assets/css/second.css",
+        ]
+
+
+class TestAssetWarnings:
+    def test_ignores_non_asset_url(self, caplog, logger):
+        """Ignore asset references outside the served asset path."""
+        warn_about_unresolvable_asset(
+            None,
+            "https://example.com/custom.css",
+            "Stylesheet",
+            logger,
+        )
+
+        assert caplog.records == []
+
+    def test_warns_when_assets_root_is_unset(self, caplog, logger):
+        """Warn when an asset path is configured without an assets root."""
+        warn_about_unresolvable_asset(
+            None,
+            "/assets/css/custom.css",
+            "Stylesheet",
+            logger,
+        )
+
+        assert "'custom-assets-root' is unset" in caplog.text
+
+    def test_warns_when_assets_root_is_empty_string(self, caplog, logger):
+        """Warn when an asset path is configured with an empty (not unset) assets root."""
+        warn_about_unresolvable_asset(
+            "",
+            "/assets/css/custom.css",
+            "Stylesheet",
+            logger,
+        )
+
+        assert "'custom-assets-root' is unset" in caplog.text
+
+    def test_warns_when_asset_file_is_missing(self, tmp_path, caplog, logger):
+        """Warn when a configured asset file does not exist."""
+        warn_about_unresolvable_asset(
+            str(tmp_path),
+            "/assets/css/missing.css",
+            "Stylesheet",
+            logger,
+        )
+
+        assert "does not exist under" in caplog.text
+
+    def test_does_not_warn_when_asset_file_exists(self, tmp_path, caplog, logger):
+        """Do not warn when a configured asset file exists."""
+        asset = tmp_path / "css" / "custom.css"
+        asset.parent.mkdir()
+        asset.write_text("body {}", encoding="utf-8")
+
+        warn_about_unresolvable_asset(
+            str(tmp_path),
+            "/assets/css/custom.css",
+            "Stylesheet",
+            logger,
+        )
+
+        assert caplog.records == []
+
+    def test_warns_when_asset_source_is_missing(self, tmp_path, caplog, logger):
+        """Warn when a configured asset has no source."""
+        warn_about_unresolvable_asset(
+            str(tmp_path),
+            None,
+            "Font 'Example Sans'",
+            logger,
+        )
+
+        assert "has no source configured" in caplog.text
 
 
 class TestElementAttributes:

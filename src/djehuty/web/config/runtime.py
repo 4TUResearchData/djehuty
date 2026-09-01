@@ -117,6 +117,8 @@ class RuntimeConfiguration:  # pylint: disable=too-few-public-methods
             "footer-background-color": "#707070",
             "background-color": "#ffffff",
         }
+        self.fonts = None
+        self.custom_stylesheets = []
 
 
 config = RuntimeConfiguration()
