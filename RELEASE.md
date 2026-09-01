@@ -35,7 +35,9 @@ Once approved, the container image is pushed to GHCR, the package is published t
    > [!Note]
    > Re-running is safe — the script refuses to insert a release that is already present.
 
-4. Open a PR with the `pyproject.toml`, `CHANGELOG.md`, and `doc/news.tex`
+4. Run `uv lock` to update the uv lock
+   
+5. Open a PR with the `pyproject.toml`, `CHANGELOG.md`, `configure.ac`, `uv.lock` and `doc/news.tex`
    changes and merge it to `main`.
 
    > [!WARNING]
