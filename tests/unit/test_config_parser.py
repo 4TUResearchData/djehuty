@@ -137,6 +137,7 @@ class TestThemeConfiguration:
         assert config.fonts == {
             "font_faces": [
                 {
+                    "index": 0,
                     "family": "Example Sans",
                     "src": "/assets/fonts/example-regular.woff2",
                     "format": "woff2",
@@ -145,6 +146,7 @@ class TestThemeConfiguration:
                     "display": "swap",
                 },
                 {
+                    "index": 1,
                     "family": "Example Sans",
                     "src": "/assets/fonts/example-bold.woff2",
                     "format": "woff2",
