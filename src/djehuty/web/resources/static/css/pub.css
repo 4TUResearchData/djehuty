@@ -59,6 +59,20 @@
 #download-all-files-message { display: none; border-radius: .5em; margin-top: 1em; }
 #download-all-files-message p { padding: 1em; color: #fff; }
 #collect h3, #cite h3 { margin-top: 0em; font-size: 1.25em !important; font-weight: bold; }
+#wrapper #content #collect ul { display: flex; flex-direction: column; align-items: flex-start; gap: .5em; }
+#wrapper #content #collect ul.many { flex-direction: row; flex-wrap: wrap; align-items: normal; }
+#wrapper #content #collect ul li { margin: 0em; }
+#wrapper #content #collect ul li a {
+    display: inline-block;
+    padding: .15em .5em;
+    border-radius: 0.5em;
+    border: 1px solid #ccc;
+    background: #f5f5f5;
+    font-size: 10pt;
+}
+#wrapper #content #collect ul li a:hover { background: #e5e5e5; }
+#collect-separator { margin: 1em 0em .5em 0em; font-weight: bold; color: #999; border-top: 1px solid #ccc; padding-top: .5em; }
+#collect-drafts li a { color: #999; }
 #cite-btn.close, #collect-btn.close { border-radius: .5em .5em 0em 0em !important; }
 #cite-btn.secondary, #collect-btn.secondary { background: none !important; color: #000; font-weight: normal; text-decoration: underline; border-radius: .5em .5em 0em 0em; }
 #versions-btn.old-version-style { background: #ff0 !important; }

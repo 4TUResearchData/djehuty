@@ -12,6 +12,16 @@ function add_dataset_to_collection (dataset_id, collection_id) {
     });
 }
 
+function append_collect_item (list_selector, collection, label) {
+    let item = jQuery("<a/>", { "href": "#", "class": "corporate-identity" })
+        .text(label)
+        .on("click", function (event) {
+            add_dataset_to_collection (dataset_uuid, collection.uuid);
+            stop_event_propagation (event);
+        });
+    jQuery("<li/>").append(item).appendTo(list_selector);
+}
+
 function toggle_access_request (event) {
     stop_event_propagation (event);
     let access_request_div = jQuery("#access-request-wrapper");
@@ -96,17 +106,36 @@ function render_draft_collections () {
         accept:      "application/json",
         dataType:    "json"
     }).done(function (records) {
-        jQuery("#collect ul").remove();
-        jQuery("#collect").append("<ul></ul>");
+        let published_by_uuid = {};
+        let drafts = [];
+
         for (let collection of records) {
-            let item = jQuery("<a/>", { "href": "#", "class": "corporate-identity" })
-                .text(collection.title)
-                .on("click", function (event) {
-                    add_dataset_to_collection (dataset_uuid, collection.uuid);
-                    stop_event_propagation (event);
-                });
-            jQuery("#collect ul").append(item);
+            if (collection.version == null) {
+                drafts.push(collection);
+                continue;
+            }
+            let existing = published_by_uuid[collection.uuid];
+            if (existing === undefined || collection.version > existing.version) {
+                published_by_uuid[collection.uuid] = collection;
+            }
         }
+        let published = Object.values(published_by_uuid);
+        published.sort((a, b) => a.title.localeCompare(b.title));
+        drafts.sort((a, b) => a.title.localeCompare(b.title));
+
+        jQuery("#collect-published").empty();
+        jQuery("#collect-drafts").empty();
+        jQuery("#collect-published").toggleClass("many", published.length > 10);
+        jQuery("#collect-drafts").toggleClass("many", drafts.length > 10);
+
+        for (let collection of published) {
+            append_collect_item ("#collect-published", collection, `${collection.title} (v${collection.version})`);
+        }
+        for (let collection of drafts) {
+            append_collect_item ("#collect-drafts", collection, `${collection.title}`);
+        }
+
+        jQuery("#collect-separator").toggle(drafts.length > 0);
     }).fail(function (jqXHR, textStatus, errorThrown) {
         if (jqXHR.status == 403) {
             show_message ("failure", "<p>No permission to list collections.</p>");
