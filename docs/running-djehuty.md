@@ -373,9 +373,10 @@ How to use:
 </upload-dataset>
 ```
 
-## Customizing looks
+## Customizing Appearance
 
-With the following options, the instance can be branded as necessary.
+With the following options, the instance can be branded as necessary. They are set
+directly on the root element `djehuty` in the configuration file.
 
 | Option | Description |
 |--------|-------------|
@@ -392,9 +393,12 @@ With the following options, the instance can be branded as necessary.
 | `show-institutions` | When set to 1, it shows the list of institutions on the main page. |
 | `show-science-categories` | When set to 1, it shows the subjects (categories) on the main page. |
 | `show-latest-datasets` | When set to 1, it shows the list of latest published datasets on the main page. |
-| `colors` | Colors used in the HTML output. See [Customizing colors](#customizing-colors). |
+| `colors` | Colors used in the HTML output. See [Setting color styling](#setting-color-styling). |
+| `fonts` | Typography used in the HTML output. See [Setting custom fonts](#setting-custom-fonts). |
+| `custom-assets-root` | Directory served at `/assets/`, for custom fonts, stylesheets, and other assets. See [Loading custom stylesheets and assets](#loading-custom-stylesheets-and-assets). |
+| `custom-stylesheet` | Repeatable. Extra stylesheet URL loaded on every page after `djehuty`'s own CSS. See [Loading custom stylesheets and assets](#loading-custom-stylesheets-and-assets). |
 
-### Customizing colors
+### Setting color styling
 
 The following options can be configured in the `colors` section.
 
@@ -407,6 +411,137 @@ The following options can be configured in the `colors` section.
 | `privilege-button-color` | The background color of buttons for privileged actions. |
 | `footer-background-color` | Color to use in the footer. |
 | `background-color` | Background color for the content section. |
+
+```json
+{
+  "colors": {
+    "primary-color": "#004A99",
+    "primary-foreground-color": "#FFFFFF",
+    "primary-color-hover": "#003366",
+    "primary-color-active": "#001F3F",
+    "privilege-button-color": "#B00020",
+    "footer-background-color": "#F2F2F2",
+    "background-color": "#FFFFFF"
+  }
+}
+```
+
+### Loading custom stylesheets and assets
+
+!!! tip
+    Use `custom-stylesheet` to apply branding instead of patching the source code. 
+    This keeps custom branding from conflicting
+    with, or being overwritten by, future `djehuty` releases.
+
+To serve font files, stylesheets, or other static assets from the instance's
+own configuration rather than patching the source code, point `custom-assets-root`
+at a filesystem directory. Its contents are served under `/assets/`.
+Relative paths are resolved against the directory of the configuration file.
+
+Additional stylesheets can then be loaded on every page with one or more
+`custom-stylesheet` elements, each pointing at a URL served
+from `custom-assets-root`. They are injected after `djehuty`'s own
+stylesheets and after `/theme/fonts.css`, so custom rules can override them.
+
+```json
+{
+  "custom-assets-root": "/etc/djehuty/assets",
+  "custom-stylesheet": "/assets/css/custom.css"
+}
+```
+
+If a `font-face`'s `src` or a `custom-stylesheet` points under `/assets/`
+but `custom-assets-root` is unset, or the referenced file does not exist
+under it, `djehuty` logs a warning.
+
+Since `custom-stylesheet` entries load in the order they're configured, it's
+possible to define a palette or spacing scale as `:root` custom properties in
+an early stylesheet (e.g. `--warm-orange`, `--brand-space-m`), then reuse
+them with `var(...)` in the stylesheets loaded after it. For example, an
+instance's `palette.css`, loaded first, could define:
+
+```css
+:root {
+    --warm-orange:   #F29100;
+    --vibrant-orange: #FF6829;
+}
+```
+
+and a `buttons.css`, loaded after it, could then reuse those variables:
+
+```css
+.corporate-identity-standard-button {
+    background: var(--warm-orange);
+}
+.corporate-identity-standard-button:hover {
+    background: var(--vibrant-orange);
+}
+```
+
+```json
+{
+  "custom-stylesheet": [
+    "/assets/css/palette.css",
+    "/assets/css/buttons.css"
+  ]
+}
+```
+
+### Setting custom fonts
+
+The following options can be configured in the `fonts` element, a child of
+the root element `djehuty`. They are rendered to CSS custom properties (`--font-body`,
+`--font-ui`, `--font-mono`) served at `/theme/fonts.css`, which `main.css`
+already references.
+
+| Option | Description |
+|--------|-------------|
+| `body-font-family` | CSS `font-family` value used for body text. |
+| `ui-font-family` | CSS `font-family` value used for the top navigation menu. |
+| `mono-font-family` | CSS `font-family` value used for monospaced text. |
+| `font-face` | Repeatable. Declares a `@font-face` rule. See below. |
+
+Each `font-face` element accepts the following options.
+
+| Option | Description |
+|--------|-------------|
+| `family` | The font family name declared by this face. |
+| `src` | URL to the font file, typically served from `custom-assets-root` under `/assets/`. |
+| `format` | The font format, e.g. `woff2`. Defaults to `woff2`. |
+| `weight` | The CSS `font-weight` this face applies to, e.g. `400` or `700`. |
+| `style` | The CSS `font-style` this face applies to, e.g. `normal` or `italic`. |
+| `display` | The CSS `font-display` value. Defaults to `swap`. |
+
+For example, to load a custom body typeface with a regular and a bold cut,
+and a separate family for UI elements:
+
+```json
+{
+  "fonts": {
+    "body-font-family": "'Example Sans', sans-serif",
+    "ui-font-family": "'Example UI', sans-serif",
+    "font-face": [
+      {
+        "family": "Example Sans",
+        "src": "/assets/fonts/example-regular.woff2",
+        "weight": "400",
+        "style": "normal"
+      },
+      {
+        "family": "Example Sans",
+        "src": "/assets/fonts/example-bold.woff2",
+        "weight": "700"
+      },
+      {
+        "family": "Example UI",
+        "src": "/assets/fonts/example-ui-regular.woff2",
+        "weight": "400",
+        "style": "normal"
+      }
+    ]
+  }
+}
+```
 
 ## Customizing the menu
 
