@@ -47,6 +47,7 @@ from djehuty.utils.convenience import (
     landing_page_url,
     make_citation,
     normalize_doi,
+    normalize_orcid,
     parses_to_int,
     pretty_print_size,
     self_or_value_or_none,
@@ -786,10 +787,33 @@ class WebServer:
             if record["full_name"] is None:
                 record["full_name"] = f"{record['first_name']} {record['last_name']}"
 
+            if record["email"] is not None:
+                record["email"] = record["email"].strip().casefold()
+
+            record["orcid_id"] = normalize_orcid (record["orcid_id"])
+
             if errors:
                 return None, errors
 
-            author_uuid = self.db.insert_author (**record)
+            existing_author = None
+            if record["orcid_id"]:
+                matches = self.db.authors (
+                    orcid_id=record["orcid_id"], is_active=True, order="uuid", limit=1)
+                if matches:
+                    existing_author = matches[0]
+
+            if existing_author is None and record["email"]:
+                matches = self.db.authors (
+                    email=record["email"], is_active=True, order="uuid", limit=1)
+                if matches:
+                    existing_author = matches[0]
+
+            if existing_author is not None:
+                # Reuse the active author without overwriting it with manually entered details.
+                author_uuid = existing_author["uuid"]
+            else:
+                author_uuid = self.db.insert_author (**record)
+
             if author_uuid is None:
                 return None, [{ "field_name": "authors",
                                 "message": "Unable to create author record." }]
