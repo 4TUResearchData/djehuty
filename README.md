@@ -2,24 +2,17 @@ djehuty
 =========
 
 `djehuty` is a research data repository system developed by
-[4TU.ResearchData](https://data.4tu.nl/). It is the software behind
-[data.4tu.nl](https://data.4tu.nl/), where researchers deposit, publish and
-cite datasets, software and other research output, and is also used by
-[Nikhef](https://www.nikhef.nl/).
+[4TU.ResearchData](https://data.4tu.nl/). It is utilized by
+4TU.ResearchData, at [data.4tu.nl](https://data.4tu.nl/), and
+[Nikhef](https://www.nikhef.nl/). Researchers use it to deposit, publish and
+cite datasets, software and other research output.
 
-It handles the full life cycle of a deposit: authenticating researchers through
-their institution, collecting metadata and files, sending submissions for
-review, minting persistent identifiers with DataCite and the Handle system, and
-serving the published record to readers and to machines over an API. State is
-kept as RDF in a SPARQL 1.1 store rather than a relational database, so the
-catalogue is a queryable knowledge graph.
+It covers the full life cycle of a deposit: institutional login, metadata and
+file collection, review, DOI and Handle registration, and serving the published
+record over the web and an API. State is kept as RDF in a SPARQL 1.1 store.
+Another institution can run its own instance: branding, menus, identity
+provider and storage back-ends are all configuration.
 
-`djehuty` is a Python package, distributed on
-[PyPI](https://pypi.org/project/djehuty/) and as a container image, and it can
-be deployed on Kubernetes with the
-[Helm charts](https://github.com/4TUResearchData/helm-charts). Another
-institution can run its own instance: the branding, menus, identity provider
-and storage back-ends are all configuration.
 
 ## Documentation
 
@@ -33,7 +26,6 @@ Markdown site above; new documentation should be written in `docs/`.
 
 | Page | What it covers |
 |------|----------------|
-| [Introduction](./docs/introduction.md) | What djehuty is and what it does |
 | [Configuring and running djehuty](./docs/running-djehuty.md) | Every configuration option |
 | [Deployment](./docs/deployment.md) | Deploying with Helm, containers or the Python package |
 | [Knowledge graph](./docs/knowledge-graph.md) | The RDF data model |
