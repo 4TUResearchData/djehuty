@@ -180,6 +180,7 @@ def _log_event(db, request: Request, item_uuid: str, item_type: str, event_type:
 @router.get("/datasets/{git_uuid}.git", summary="Git smart-HTTP instructions")
 def git_instructions(git_uuid: str, db=Depends(get_db)):
     from djehuty.web import validator
+    from djehuty.web.config import config
 
     if not validator.is_valid_uuid(git_uuid):
         raise NotFoundError()
@@ -191,9 +192,11 @@ def git_instructions(git_uuid: str, db=Depends(get_db)):
     except IndexError as error:
         raise NotFoundError() from error
 
+    clone_url = f"{config.base_url}/v3/datasets/{git_uuid}.git"
     return Response(
         content=(
-            "This is a Djehuty-backed git repository.\nUse git clone <url>.git for read access.\n"
+            f"This is a Djehuty-backed git repository.\n"
+            f"Use git clone {clone_url} for read access.\n"
         ),
         media_type="text/plain",
     )
