@@ -66,7 +66,8 @@ def add_references(
 
     existing = db.references(item_uri=dataset["uri"], account_uuid=account["uuid"])
     urls = [r["url"] for r in existing] + new_urls
-    db.update_item_list(dataset["uuid"], account["uuid"], urls, "references")
+    if not db.update_item_list(dataset["uuid"], account["uuid"], urls, "references"):
+        raise InvalidInputError("Updating references failed.", "UpdateFailed")
     return Response(status_code=205)
 
 
@@ -90,5 +91,6 @@ def delete_reference(
     urls = [r.get("url", "") for r in existing]
     if decoded_url in urls:
         urls.remove(decoded_url)
-        db.update_item_list(dataset["uuid"], account["uuid"], urls, "references")
+        if not db.update_item_list(dataset["uuid"], account["uuid"], urls, "references"):
+            raise InvalidInputError("Deleting a reference failed.", "DeleteFailed")
     return Response(status_code=204)
