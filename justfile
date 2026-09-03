@@ -1,8 +1,6 @@
 # Extract version from pyproject.toml
 version := `grep -m1 '^version' pyproject.toml | sed 's/.*= *"\(.*\)"/\1/'`
 
-base_url := env("BASE_URL", "https://data.4tu.nl")
-
 # Default recipe: build the Python package
 build:
     uv build --out-dir build
@@ -64,47 +62,17 @@ guix:
 news:
     python3 doc/changelog_to_news.py
 
-# Build PDF documentation
-docs-pdf:
-    cd doc && \
-    sed -e 's/@VERSION@/{{ version }}/g' -e 's|@BASE_URL@|{{ base_url }}|g' djehuty.sty.in > djehuty.sty && \
-    pdflatex -interaction=nonstopmode djehuty.tex && \
-    bibtex djehuty || true && \
-    pdflatex -interaction=nonstopmode djehuty.tex && \
-    pdflatex -interaction=nonstopmode djehuty.tex && \
-    printf "Generated djehuty.pdf.\n"
-
-# Build HTML documentation
-docs-html: docs-pdf
-    cd doc && \
-    cp -r ../src/djehuty/web/resources/static/fonts . && \
-    htlatex djehuty.tex "" "" "" " -interaction=nonstopmode" && \
-    sed -e 's#class="endfloat" />#class="endfloat">#g' \
-        -e 's#class="newline" />#class="newline">#g' \
-        -e 's#<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"  #<!DOCTYPE html>#g' \
-        -e 's#  "http://www.w3.org/TR/html4/loose.dtd"> ##g' \
-        -e 's#<br />#<br>#g' djehuty.html > index.html && \
-    printf "Generated index.html.\n"
-
-# Build Markdown documentation with MkDocs
+# Build the documentation site with MkDocs (output in site/)
 docs-md:
     uv run --group docs mkdocs build
 
-# Serve Markdown documentation locally with live reload
+# Serve the documentation site locally with live reload
 docs-md-serve:
     uv run --group docs mkdocs serve
 
 # Clean documentation build artifacts
 docs-clean:
-    cd doc && rm -rf \
-        djehuty.aux djehuty.bbl djehuty.blg djehuty.log djehuty.out \
-        djehuty.toc djehuty.xref djehuty.4ct djehuty.4tc djehuty.dvi \
-        djehuty.idv djehuty.tmp djehuty.lg djehuty.lof djehuty.lot \
-        djehuty.pdf djehuty.css djehuty.html djehuty.sty \
-        djehuty2.html djehuty3.html djehuty4.html \
-        djehuty5.html djehuty6.html djehuty7.html \
-        index.html missfont.log texput.log \
-        figures/*-.png
+    rm -rf site/
 
 # Clean all build artifacts and dev environment
 clean: docs-clean

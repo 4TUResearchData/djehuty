@@ -1,168 +1,96 @@
 djehuty
 =========
 
-This Python package provides the repository system for 4TU.ResearchData and Nikhef.
+`djehuty` is a research data repository system developed by
+[4TU.ResearchData](https://data.4tu.nl/). It is utilized by
+4TU.ResearchData, at [data.4tu.nl](https://data.4tu.nl/), and
+[Nikhef](https://www.nikhef.nl/). Researchers use it to deposit, publish and
+cite datasets, software and other research output.
 
-## Security
+It covers the full life cycle of a deposit: institutional login, metadata and
+file collection, review, DOI and Handle registration, and serving the published
+record over the web and an API. State is kept as RDF in a SPARQL 1.1 store.
+Another institution can run its own instance: branding, menus, identity
+provider and storage back-ends are all configuration.
 
-To report a vulnerability, please see [SECURITY.md](./SECURITY.md).
 
-## Development environment
+## Documentation
 
-### Prerequisites
+The documentation source lives in [`docs/`](./docs/) and is published to GitHub
+Pages at
+[4turesearchdata.github.io/djehuty](https://4turesearchdata.github.io/djehuty/).
 
-- [Git](https://git-scm.com/downloads)
-- [uv](https://docs.astral.sh/uv/getting-started/installation/)
-- [Docker](https://docs.docker.com/get-docker/) (with Compose)
-- [just](https://github.com/casey/just#installation)
+An older manual, generated from LaTeX sources in [`doc/`](./doc/), is still
+served at [djehuty.4tu.nl](https://djehuty.4tu.nl/). It is being replaced by the
+Markdown site above; new documentation should be written in `docs/`.
 
-### Getting started
+| Page | What it covers |
+|------|----------------|
+| [Configuring and running djehuty](./docs/running-djehuty.md) | Every configuration option |
+| [Deployment](./docs/deployment.md) | Deploying with Helm, containers or the Python package |
+| [Knowledge graph](./docs/knowledge-graph.md) | The RDF data model |
+| [Contributing](./docs/contributing.md) | Development workflow and a tour of the source code |
+| [API](./docs/api.md) | The HTTP API |
 
-```bash
-git clone https://github.com/4TUResearchData/djehuty.git
-cd djehuty/
-```
+### Building the documentation
 
-### Running the development environment
+The site is built with [MkDocs](https://www.mkdocs.org/) using the
+[Material](https://squidfunk.github.io/mkdocs-material/) theme. You need
+[uv](https://docs.astral.sh/uv/getting-started/installation/) and
+[just](https://github.com/casey/just#installation); the Python dependencies come
+from the `docs` group in `pyproject.toml` and are installed automatically.
 
-To spin up a fully working local instance, run:
-
-```bash
-just dev
-```
-
-This builds and starts Docker containers for djehuty and
-[Virtuoso](https://github.com/openlink/virtuoso-opensource) (SPARQL store).
-On first run, the database is automatically initialized with categories,
-licences, and a dev account with full admin privileges — no extra setup needed.
-
-Once running:
-
-- **Djehuty**: http://localhost:8080 (auto-login, no auth setup needed)
-- **Virtuoso SPARQL**: http://localhost:8890/sparql (useful for troubleshooting)
-
-Edit any Python file under `src/` and the server reloads automatically.
-
-To start the development environment with a Virtuoso database backup
-(e.g. to test against specific production data):
+To preview while you write, with live reload on every save:
 
 ```bash
-just db_backup=path/to/prod-2025-10-09_#1.bp dev
+just docs-md-serve
 ```
 
-Point `db_backup` at any one of the backup files. All siblings sharing
-the same prefix in that directory are applied in order, so a full backup
-plus its incrementals (e.g. `prod-2025-10-09_#1.bp`, `…_#2.bp`,
-`…_#3.bp`) are restored together.
+That serves the site at http://localhost:8000 and rebuilds whenever a file under
+`docs/` changes.
 
-To stop and remove the development environment, run `just clean`.
-To see all available commands, run `just --list`.
+To build the static site into `site/`:
 
-## Running in production
+```bash
+just docs-md
+```
+
+Remove the build output again with `just docs-clean`.
+
+Editing the docs is a pull request like any other — the pages are Markdown, so a
+typo fix can be made straight from the GitHub web interface. On merge to `main`,
+the [docs workflow](./.github/workflows/docs.yml) rebuilds the site and
+publishes it to GitHub Pages, so there is no manual publishing step.
+
+## Installing and running
 
 Djehuty needs a SPARQL 1.1 endpoint such as
 [Virtuoso OSE](https://github.com/openlink/virtuoso-opensource) or
 [Jena Fuseki](https://jena.apache.org/documentation/fuseki2/) to
 store its state.
 
-Copy the [example configuration](./etc/djehuty/djehuty-example-config.xml)
-and adjust it for your environment:
+See the [deployment guide](./docs/deployment.md) for the three supported ways
+to deploy it (Helm chart, container image, or Python package) along with what
+a production configuration requires and how to upgrade.
 
-```bash
-cp etc/djehuty/djehuty-example-config.xml djehuty.xml
-```
+## Contributing
 
-JSON is also supported and recommended for new deployments
-(see [djehuty-example-config.json](./etc/djehuty/djehuty-example-config.json));
-pass it the same way with `--config-file djehuty.json`.
+Contributions are welcome — code, documentation, bug reports and ideas alike.
+[CONTRIBUTING.md](./CONTRIBUTING.md) covers how to set up a development
+environment, run the test suite, and the conventions we follow for branches,
+commits and pull requests.
 
-### First run
+## Security
 
-Upon first run, `djehuty` needs to initialize the database with categories,
-licences and accounts.  To do so, pass the `--initialize` option to the
-`djehuty web` command:
+To report a vulnerability, please see [SECURITY.md](./SECURITY.md).
 
-```bash
-djehuty web --initialize --config-file djehuty.xml
-```
+## License
 
-### Subsequent runs
-
-After the database has been initialized, you can remove the `--initialize`
-option:
-```bash
-djehuty web --config-file=djehuty.xml
-```
-## Running the tests
-
-The project includes an end-to-end test suite built with
-[Playwright](https://playwright.dev/python/) and
-[pytest](https://docs.pytest.org/). Tests run against a live djehuty +
-Virtuoso stack seeded with test data — all in containers, so no host
-Python or browser setup is required.
-
-```bash
-just test
-```
-
-That single command builds the test image (with Playwright and
-chromium), brings up Virtuoso and djehuty, loads the SPARQL
-permissions, runs `--initialize`, applies the seed dataset, and runs
-the suite inside the docker network. Coverage data lands in
-`docker/coverage/`; failure screenshots in `docker/test-results/`.
-
-Filter the run with any pytest argument:
-
-```bash
-just test -m smoke              # one marker
-just test -k test_homepage      # by keyword
-just test tests/test_auth.py    # specific file
-```
-
-### Marker isolation
-
-CI runs each marker (`smoke`, `auth`, `dataset`, `admin`, `embargo`,
-`citation`, `versioning`, …) in its own job with a fresh stack, so a
-test never sees data left over from another marker. `just test` runs
-everything against one shared stack, which is faster but means a few
-state-sensitive tests can fail locally that pass in CI. When that
-happens, run the affected marker on its own:
-
-```bash
-just clean   # drop volumes for a truly fresh stack
-just test -m citation
-```
-
-### CI
-
-Tests run automatically on every push via GitHub Actions. Each runner
-in the matrix invokes `just test -m <marker>` against the same compose
-stack used locally, so a green `just test` on your laptop reproduces
-what CI sees. Screenshots are captured on failure and uploaded as
-artifacts; coverage from each shard is combined into a single report.
-
-## Linting
-
-Code style is enforced with [Ruff](https://docs.astral.sh/ruff/) and
-rolled out incrementally: only paths that have already been cleaned are
-checked (in the `include` list under `[tool.ruff]` in `pyproject.toml`), starting with
-`src/djehuty/utils/`.
-
-```bash
-just lint
-```
-
-This runs `ruff check` (bugs, style errors, import sorting) and `ruff format --check` over the cleaned paths, using the Ruff version pinned in `uv.lock . CI runs the same recipe on every push and pull request, so a clean `just lint` locally means a green Lint job. 
-
-```bash
-just format
-```
-
-It applies the auto format from ruff in the files
+`djehuty` is distributed under the GNU Affero General Public License v3.0 or
+later. See [LICENSE](./LICENSE).
 
 ---
 ### Contact information
 - **General**: info@djehuty.4tu.nl
 - **Maintainers**: a.e.wilczynska@tudelft.nl, g.kuhn@tudelft.nl, k.f.deAraujo@tudelft.nl
 - **Security issues**: security@djehuty.4tu.nl
-

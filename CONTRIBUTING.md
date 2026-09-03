@@ -62,7 +62,7 @@ We welcome contributions in the form of bug reports and feature suggestions. Her
 
 5. **Set up your development environment**
 
-    Follow the instructions in the [README](https://github.com/4TUResearchData/djehuty/blob/main/README.md) to install dependencies, configure the project, and run the required setup steps. Make sure you can build and test the project locally before starting your contribution.
+    Follow the [Development environment](#development-environment) instructions below to install the prerequisites, start a local instance, and run the tests. Make sure you can build and test the project locally before starting your contribution.
 
 6. **Work on your branch and open a PR**
 
@@ -78,6 +78,141 @@ We welcome contributions in the form of bug reports and feature suggestions. Her
     After review and approval, your PR must be squashed into a single commit using the project’s [commit message template](#commit-message-template). Once the checklist is complete, a maintainer will rebase-merge it into the main branch to keep the history clean.
 
 If you want to make a very small contribution, such as one or a few lines of code for which following the code contributions workflow is not convenient, please contact the [core maintainers](mailto:info@djehuty.4tu.nl).
+
+---
+
+## Development environment
+
+### Prerequisites
+
+- [Git](https://git-scm.com/downloads)
+- [uv](https://docs.astral.sh/uv/getting-started/installation/)
+- [Docker](https://docs.docker.com/get-docker/) (with Compose)
+- [just](https://github.com/casey/just#installation)
+
+### Getting started
+
+```bash
+git clone https://github.com/4TUResearchData/djehuty.git
+cd djehuty/
+```
+
+To install your working copy into the current Python environment:
+
+```bash
+pip install .
+```
+
+### Running the development environment
+
+To spin up a fully working local instance, run:
+
+```bash
+just dev
+```
+
+This builds and starts Docker containers for djehuty and
+[Virtuoso](https://github.com/openlink/virtuoso-opensource) (SPARQL store).
+On first run, the database is automatically initialized with categories,
+licences, and a dev account with full admin privileges — no extra setup needed.
+
+Once running:
+
+- **Djehuty**: http://localhost:8080 (auto-login, no auth setup needed)
+- **Virtuoso SPARQL**: http://localhost:8890/sparql (useful for troubleshooting)
+
+Edit any Python file under `src/` and the server reloads automatically.
+
+To start the development environment with a Virtuoso database backup
+(e.g. to test against specific production data):
+
+```bash
+just db_backup=path/to/prod-2025-10-09_#1.bp dev
+```
+
+Point `db_backup` at any one of the backup files. All siblings sharing
+the same prefix in that directory are applied in order, so a full backup
+plus its incrementals (e.g. `prod-2025-10-09_#1.bp`, `…_#2.bp`,
+`…_#3.bp`) are restored together.
+
+To stop and remove the development environment, run `just clean`.
+To see all available commands, run `just --list`.
+
+### Running the tests
+
+The project includes an end-to-end test suite built with
+[Playwright](https://playwright.dev/python/) and
+[pytest](https://docs.pytest.org/). Tests run against a live djehuty +
+Virtuoso stack seeded with test data — all in containers, so no host
+Python or browser setup is required.
+
+```bash
+just test
+```
+
+That single command builds the test image (with Playwright and
+chromium), brings up Virtuoso and djehuty, loads the SPARQL
+permissions, runs `--initialize`, applies the seed dataset, and runs
+the suite inside the docker network. Coverage data lands in
+`docker/coverage/`; failure screenshots in `docker/test-results/`.
+
+Filter the run with any pytest argument:
+
+```bash
+just test -m smoke              # one marker
+just test -k test_homepage      # by keyword
+just test tests/test_auth.py    # specific file
+```
+
+#### Marker isolation
+
+CI runs each marker (`smoke`, `auth`, `dataset`, `admin`, `embargo`,
+`citation`, `versioning`, …) in its own job with a fresh stack, so a
+test never sees data left over from another marker. `just test` runs
+everything against one shared stack, which is faster but means a few
+state-sensitive tests can fail locally that pass in CI. When that
+happens, run the affected marker on its own:
+
+```bash
+just clean   # drop volumes for a truly fresh stack
+just test -m citation
+```
+
+#### CI
+
+Tests run automatically on every push via GitHub Actions. Each runner
+in the matrix invokes `just test -m <marker>` against the same compose
+stack used locally, so a green `just test` on your laptop reproduces
+what CI sees. Screenshots are captured on failure and uploaded as
+artifacts; coverage from each shard is combined into a single report.
+
+### Linting
+
+Code style is enforced with [Ruff](https://docs.astral.sh/ruff/) and
+rolled out incrementally: only paths that have already been cleaned are
+checked (in the `include` list under `[tool.ruff]` in `pyproject.toml`),
+starting with `src/djehuty/utils/`.
+
+```bash
+just lint
+```
+
+This runs `ruff check` (bugs, style errors, import sorting) and
+`ruff format --check` over the cleaned paths, using the Ruff version pinned
+in `uv.lock`. CI runs the same recipe on every push and pull request, so a
+clean `just lint` locally means a green Lint job.
+
+```bash
+just format
+```
+
+That applies Ruff's automatic formatting and fixes to the same paths.
+
+### Building the documentation
+
+The documentation site is built with MkDocs. See
+[Documentation](https://github.com/4TUResearchData/djehuty/blob/main/README.md#documentation)
+in the README for how to build and preview it locally.
 
 ---
 
