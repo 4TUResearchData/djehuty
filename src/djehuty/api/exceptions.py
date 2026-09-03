@@ -77,6 +77,15 @@ def register_exception_handlers(app: FastAPI):
             content={"message": "This resource does not exist."},
         )
 
+    @app.exception_handler(404)
+    async def not_found_status_handler(request: Request, exc):
+        # AS-IS: legacy error_404 returns this body for an unmatched route,
+        # where Starlette's default would send {"detail": "Not Found"}.
+        return JSONResponse(
+            status_code=404,
+            content={"message": "This resource does not exist."},
+        )
+
     @app.exception_handler(AuthorizationError)
     async def authorization_handler(request: Request, exc: AuthorizationError):
         return JSONResponse(
