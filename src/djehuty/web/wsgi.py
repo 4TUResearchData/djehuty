@@ -5714,7 +5714,7 @@ class WebServer:
                     existing_authors = list(map (lambda item: URIRef(uuid_to_uri(item["uuid"], "author")),
                                                  existing_authors))
 
-                authors = existing_authors + new_authors
+                authors = list(dict.fromkeys(existing_authors + new_authors))
                 if not self.db.update_item_list (item["uuid"], account_uuid,
                                                  authors, "authors"):
                     return self.error_500 ("Adding a single author failed.")
