@@ -367,6 +367,33 @@ class TestV2ArticleAuthorsApi:
         assert authors[0].get("uuid") != first_uuid
         assert authors[0].get("is_active") is False
 
+    def test_add_existing_author_does_not_duplicate(self, draft_dataset, save_response):
+        """POST /v2/account/articles/<uuid>/authors does not duplicate an author."""
+        page, container_uuid = draft_dataset
+        before_response = page.request.get(f"/v2/account/articles/{container_uuid}/authors")
+        existing_uuid = before_response.json()[0]["uuid"]
+
+        response = page.request.post(
+            f"/v2/account/articles/{container_uuid}/authors",
+            data={
+                "authors": [
+                    {
+                        "first_name": "Dev",
+                        "last_name": "User",
+                        "email": "dev@djehuty.com",
+                    }
+                ]
+            },
+        )
+        save_response(response, "api-add-existing-author")
+        assert response.ok
+
+        get_response = page.request.get(f"/v2/account/articles/{container_uuid}/authors")
+        save_response(get_response, "api-add-existing-author-verify")
+        authors = get_response.json()
+        assert len(authors) == 1
+        assert authors[0].get("uuid") == existing_uuid
+
 
 # ---------------------------------------------------------------------------
 # Categories
