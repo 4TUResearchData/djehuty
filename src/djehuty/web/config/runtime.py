@@ -51,6 +51,8 @@ class RuntimeConfiguration:  # pylint: disable=too-few-public-methods
         self.site_description = ""
         self.site_shorttag = "4tu"
         self.support_email_address = ""
+        # The configured mail sender, shared with the HTTP API's email service.
+        self.email_interface = None
         self.startup_timestamp = 0
         self.allow_crawlers = False
         self.in_production = False
