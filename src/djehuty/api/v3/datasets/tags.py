@@ -4,6 +4,7 @@ from fastapi import APIRouter, Body, Depends, Query, Response
 from fastapi.responses import JSONResponse
 
 from djehuty.api.dependencies import get_current_account, get_db, require_auth
+from djehuty.api.exceptions import InvalidInputError
 from djehuty.api.models.common import ErrorResponse
 from djehuty.api.permissions import enforce_collaborative_permissions
 from djehuty.api.v3._shared import _ok
@@ -57,7 +58,8 @@ def add_tags(
     existing = db.tags(item_uri=dataset["uri"], account_uuid=account["uuid"], limit=10000)
     existing_values = [formatter.format_tag_record(t) for t in existing]
     combined = list(dict.fromkeys(existing_values + new_tags))  # deduplicate preserving order
-    db.update_item_list(dataset["uuid"], account["uuid"], combined, "tags")
+    if not db.update_item_list(dataset["uuid"], account["uuid"], combined, "tags"):
+        raise InvalidInputError("Updating tags failed.", "UpdateFailed")
     return Response(status_code=205)
 
 
@@ -82,5 +84,6 @@ def delete_tag(
     tag_values = [formatter.format_tag_record(t) for t in existing]
     if decoded_tag in tag_values:
         tag_values.remove(decoded_tag)
-        db.update_item_list(dataset["uuid"], account["uuid"], tag_values, "tags")
+        if not db.update_item_list(dataset["uuid"], account["uuid"], tag_values, "tags"):
+            raise InvalidInputError(f"Deleting tag '{decoded_tag}' failed.", "DeleteFailed")
     return Response(status_code=204)
