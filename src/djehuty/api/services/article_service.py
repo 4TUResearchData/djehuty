@@ -103,7 +103,7 @@ class ArticleService:
             published_since=published_since,
             resource_doi=resource_doi,
             search_for=search_for,
-            is_latest=True,
+            is_latest=False,
         )
 
         for dataset in records:
