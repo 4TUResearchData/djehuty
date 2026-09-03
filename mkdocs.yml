@@ -17,6 +17,7 @@ nav:
   - Architecture & design:
       - Knowledge graph: knowledge-graph.md
       - HTTP stack migration: http-migration.md
+      - api-v2 side-effect catalog: http-migration-api-v2-side-effects.md
   - Contributing:
       - Contributing guide: contributing.md
   - API: api.md
