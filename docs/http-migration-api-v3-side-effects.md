@@ -163,6 +163,16 @@ port reproduces them exactly (`wsgi.py` `error_*` methods):
   configures for the legacy server (`config.email_interface`). Without that
   bootstrap, sends are skipped and logged — same as a legacy instance without
   SMTP settings.
+- **The `.git` instruction *page* (`GET /v3/datasets/<uuid>.git`).** Legacy
+  negotiates for `text/html` (else 406 `Acceptable formats: text/html`) and
+  renders `git_instructions.html`, which `extends layout.html`. The api-v3 group
+  has no templating — that is the `djehuty.views` foundation, ported with
+  public-ui — so the handler returns a plain-text stub that carries the real
+  clone URL (`{config.base_url}/v3/datasets/<uuid>.git`) until then. When views
+  ports the page, reinstate the `text/html` 406 negotiation and legacy's
+  software-only URL logic (`__git_repository_url_for_dataset`). Only this
+  human-facing page defers; the smart-HTTP endpoints (`info/refs`,
+  `git-upload-pack`, `git-receive-pack`) are already reproduced.
 
 ## Method / auth ordering
 
