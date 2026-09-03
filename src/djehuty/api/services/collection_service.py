@@ -70,7 +70,7 @@ class CollectionService:
             offset=offset,
             order=order,
             order_direction=order_direction,
-            is_latest=True,
+            is_latest=False,
             account_uuid=account_uuid,
             **kwargs,
         )
