@@ -29,20 +29,19 @@ def get_email(request: Request):
 def get_token(request: Request) -> str | None:
     """Session token from the cookie or the Authorization header.
 
-    Faithful to legacy token_from_request: cookie first, then the raw
-    Authorization value, stripping a "token " prefix only if present. So both
+    Faithful to legacy token_from_request: resolve the cookie first, else the
+    raw Authorization value, then strip a "token " prefix if present. The strip
+    runs on whichever source resolved (the cookie included), so both
     `Authorization: token X` and `Authorization: X` (what Swagger sends) work.
     """
     token = request.cookies.get("djehuty_session")
-    if token is not None:
-        return token
-
-    auth = request.headers.get("Authorization")
-    if not auth:
+    if token is None:
+        token = request.headers.get("Authorization")
+    if token is None:
         return None
-    if auth.startswith("token "):
-        return auth[6:]
-    return auth
+    if token.startswith("token "):
+        token = token[6:]
+    return token
 
 
 def get_current_account(
