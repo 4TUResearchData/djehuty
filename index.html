@@ -12,7 +12,7 @@
       
       
       
-        <link rel="next" href="introduction/">
+        <link rel="next" href="running-djehuty/">
       
       
         
@@ -305,14 +305,14 @@
   
   
     <li class="md-nav__item">
-      <a href="introduction/" class="md-nav__link">
+      <a href="running-djehuty/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Introduction
+    Configuring & running djehuty
   
 
     
@@ -332,14 +332,14 @@
   
   
     <li class="md-nav__item">
-      <a href="running-djehuty/" class="md-nav__link">
+      <a href="deployment/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Configuring & running djehuty
+    Deployment
   
 
     
@@ -545,13 +545,28 @@
 
 
 <h1 id="djehuty"><code>djehuty</code></h1>
-<p>The 4TU.ResearchData and Nikhef repository system.</p>
-<p>Source code:
-<a href="https://github.com/4TUResearchData/djehuty">github.com/4TUResearchData/djehuty</a></p>
+<p><code>djehuty</code> is a research data repository system developed by
+<a href="https://data.4tu.nl/">4TU.ResearchData</a>. It is utilized by
+4TU.ResearchData, at <a href="https://data.4tu.nl/">data.4tu.nl</a>, and
+<a href="https://www.nikhef.nl/">Nikhef</a>. Researchers use it to deposit, publish and
+cite datasets, software and other research output.
+The name <code>djehuty</code> finds its inspiration in <a href="https://en.wikipedia.org/wiki/Thoth">Thoth</a>, 
+the Egyptian entity that introduced the idea of writing.</p>
+<p>The system handles the full life cycle of a deposit: authenticating researchers
+through their institution, collecting metadata and files, sending submissions
+for review, minting persistent identifiers with DataCite and the Handle system,
+and serving the published record to readers and to machines over an API. State
+is kept as RDF in a SPARQL 1.1 store rather than a relational database, so the
+catalogue is a queryable knowledge graph.</p>
+<p>Distributed as a Python package on <a href="https://pypi.org/project/djehuty/">PyPI</a>
+and as a container image, it can also be deployed on Kubernetes with the
+<a href="https://github.com/4TUResearchData/helm-charts">Helm charts</a>. Another institution
+can run its own instance: the branding, menus, identity provider and storage
+back-ends are all configuration.</p>
 <h2 id="documentation">Documentation</h2>
 <ol>
-<li><a href="introduction/">Introduction</a> — Prerequisites, installation, and container images</li>
 <li><a href="running-djehuty/">Configuring and running <code>djehuty</code></a> — Configuration reference and reverse-proxy setup</li>
+<li><a href="deployment/">Deployment</a> — Deploying with Helm, containers, or the Python package</li>
 <li><a href="knowledge-graph/">Knowledge graph</a> — RDF data model</li>
 <li><a href="contributing/">Contributing</a> — Development workflow and navigating the source code</li>
 <li><a href="api/">API</a> — Application Programming Interface</li>

@@ -1,0 +1,1248 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="The 4TU.ResearchData and Nikhef repository system">
+      
+      
+      
+      
+        <link rel="prev" href="../running-djehuty/">
+      
+      
+        <link rel="next" href="../knowledge-graph/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Deployment - djehuty</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#deploying-djehuty" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="djehuty" class="md-header__button md-logo" aria-label="djehuty" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            djehuty
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Deployment
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/4TUResearchData/djehuty" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    4TUResearchData/djehuty
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="djehuty" class="md-nav__button md-logo" aria-label="djehuty" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    djehuty
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/4TUResearchData/djehuty" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    4TUResearchData/djehuty
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../running-djehuty/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuring & running djehuty
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#before-you-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Before you start
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-production-mode-requires" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What production mode requires
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kubernetes-helm-chart" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kubernetes (Helm chart)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Kubernetes (Helm chart)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#install" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Install
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-values-file-to-start-from" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A values file to start from
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#secrets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Secrets
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-an-external-sparql-store" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using an external SPARQL store
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#upgrading-and-uninstalling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Upgrading and uninstalling
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#containers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Containers
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Containers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#image-tags" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Image tags
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#running-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running it
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#with-compose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        With Compose
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#upgrading" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Upgrading
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#python-package-pip-uv-pipx" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Python package (pip, uv, pipx)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Python package (pip, uv, pipx)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#optional-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Optional dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#running-it_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running it
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#upgrading_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Upgrading
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next steps
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../knowledge-graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Knowledge graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contact/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contact
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../news/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    News
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#before-you-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Before you start
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-production-mode-requires" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What production mode requires
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kubernetes-helm-chart" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kubernetes (Helm chart)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Kubernetes (Helm chart)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#install" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Install
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-values-file-to-start-from" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A values file to start from
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#secrets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Secrets
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-an-external-sparql-store" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using an external SPARQL store
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#upgrading-and-uninstalling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Upgrading and uninstalling
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#containers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Containers
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Containers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#image-tags" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Image tags
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#running-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running it
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#with-compose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        With Compose
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#upgrading" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Upgrading
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#python-package-pip-uv-pipx" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Python package (pip, uv, pipx)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Python package (pip, uv, pipx)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#optional-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Optional dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#running-it_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running it
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#upgrading_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Upgrading
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next steps
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="deploying-djehuty">Deploying <code>djehuty</code></h1>
+<p>There are three supported ways to deploy <code>djehuty</code>. They all run the same program with the same configuration file but they differ in it's method.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Best for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#kubernetes-helm-chart">Helm chart</a></td>
+<td>Kubernetes clusters</td>
+</tr>
+<tr>
+<td><a href="#containers">Container image</a></td>
+<td>A single host running a container runtime</td>
+</tr>
+<tr>
+<td><a href="#python-package-pip-uv-pipx">Python package</a></td>
+<td>A virtual machine or bare-metal host managed by <code>systemd</code></td>
+</tr>
+</tbody>
+</table>
+<p>For local development, none of the above: run <code>just dev</code>, which brings up <code>djehuty</code> and Virtuoso in containers with live reload. See the <a href="https://github.com/4TUResearchData/djehuty/blob/main/README.md">README</a> file.</p>
+<h2 id="before-you-start">Before you start</h2>
+<p>Whichever method you pick, the same four things have to be in place.</p>
+<p><strong>A configuration file.</strong> Copy
+<a href="https://github.com/4TUResearchData/djehuty/blob/main/etc/djehuty/djehuty-example-config.json"><code>etc/djehuty/djehuty-example-config.json</code></a> and adjust it. Every option is described in <a href="../running-djehuty/">Configuring <code>djehuty</code></a>. JSON is the recommended format; XML still works but is deprecated and will be removed in December 2026.</p>
+<p><strong>A SPARQL 1.1 store.</strong> <code>djehuty</code> keeps all of its state in an RDF store and needs both the query and the <em>update</em> endpoint. We run <a href="https://github.com/openlink/virtuoso-opensource">Virtuoso open-source edition</a>; <a href="https://jena.apache.org/documentation/fuseki2/">Jena Fuseki</a> works as well. The store must grant SPARQL Update rights to the user <code>djehuty</code> connects as.</p>
+<p><strong>Persistent storage.</strong> The <code>storage-root</code> directory holds uploaded files, the query cache and profile images. It must survive restarts, and only one <code>djehuty</code> process may write to it so keep the deployment at a single replica unless you have arranged shared storage yourself.</p>
+<p><strong>A TLS terminator in front.</strong> <code>djehuty</code> speaks plain HTTP only, by design. Put a reverse proxy or ingress in front of it and set <code>use-x-forwarded-for</code> so client IP addresses are logged correctly.</p>
+<p>The first start also has to seed the database with the reference data <code>djehuty</code> builds on: subject categories, languages, the licences a depositor can pick from, and the review states a dataset moves through. That is what <code>djehuty web --initialize</code> does. The flag is safe to leave on permanently; the seeding is skipped once the database is initialized and leaving it on is what keeps schema updates being applied on later releases.</p>
+<h2 id="what-production-mode-requires">What <code>production</code> mode requires</h2>
+<p>Setting <code>production</code> to <code>1</code> turns on extra startup checks. <code>djehuty</code> logs an error and refuses to start unless all three of these hold:</p>
+<ul>
+<li><strong>An identity provider is configured</strong>: SAML or ORCID, under <code>authentication</code>. Without one there is no way to log in.</li>
+<li><strong>An e-mail server is configured</strong>: at minimum <code>email/server</code> and <code>email/from</code>. Notifications, review requests and second-factor codes all depend on it.</li>
+<li><strong>At least one account has the <code>may-process-feedback</code> privilege.</strong> Feedback from the form has to reach someone.</li>
+</ul>
+<p>Outside production mode the same conditions are only warnings, which is why an instance that runs fine with <code>production</code> set to <code>0</code> can fail to start the
+moment you flip it to <code>1</code>.</p>
+<h2 id="kubernetes-helm-chart">Kubernetes (Helm chart)</h2>
+<p>The charts live in <a href="https://github.com/4TUResearchData/helm-charts">4TUResearchData/helm-charts</a>
+and are published at <a href="https://4turesearchdata.github.io/helm-charts/">https://4turesearchdata.github.io/helm-charts/</a>. The <code>djehuty</code> chart deploys <code>djehuty</code> itself and, by default, bundles the <code>virtuoso</code> chart as a subchart, so a single <code>helm install</code> gives you a complete stack. For Helm itself (how releases, values files and repositories work) see the <a href="https://helm.sh/docs/">Helm documentation</a>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Pre-release</p>
+<p>The charts have not had a stable release yet. Values, templates and defaults may change between versions. Pin a chart version (<code>--version</code>) and read the diff before upgrading.</p>
+</div>
+<h3 id="install">Install</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>helm<span class="w"> </span>repo<span class="w"> </span>add<span class="w"> </span>4turesearchdata<span class="w"> </span>https://4turesearchdata.github.io/helm-charts
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>helm<span class="w"> </span>repo<span class="w"> </span>update
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>helm<span class="w"> </span>install<span class="w"> </span>djehuty<span class="w"> </span>4turesearchdata/djehuty<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span>--namespace<span class="w"> </span>djehuty<span class="w"> </span>--create-namespace<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span>--values<span class="w"> </span>values.yaml
+</code></pre></div>
+<p>Without a values file you get a working throwaway instance: bundled Virtuoso, a 5 GiB <code>ReadWriteOnce</code> volume for <code>/data</code>, no ingress, and the database seeded on first boot. Reach it with a port-forward:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>kubectl<span class="w"> </span>-n<span class="w"> </span>djehuty<span class="w"> </span>port-forward<span class="w"> </span>svc/djehuty-djehuty<span class="w"> </span><span class="m">8080</span>:8080
+</code></pre></div>
+<h3 id="a-values-file-to-start-from">A values file to start from</h3>
+<p>Everything the chart accepts, with its defaults and inline comments, comes from the chart itself. Once the repository is added (see <a href="#install">Install</a>), run this from anywhere. <code>4turesearchdata/djehuty</code> names the chart in the repository, not a directory:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>helm<span class="w"> </span>show<span class="w"> </span>values<span class="w"> </span>4turesearchdata/djehuty<span class="w"> </span>&gt;<span class="w"> </span>values.yaml
+</code></pre></div>
+<p>This command prints chart-level info such as <code>image</code>, <code>ingress</code>, <code>persistence</code>, <code>secrets</code> and is documented in place by the comments in the chart.</p>
+<p>The <code>config:</code> key is where <code>djehuty</code>'s own configuration goes. The chart wraps whatever you put there in the top-level <code>djehuty</code> object and writes the result to <code>/etc/djehuty/config.json</code>. So an option that appears in <a href="https://github.com/4TUResearchData/djehuty/blob/main/etc/djehuty/djehuty-example-config.json"><code>djehuty-example-config.json</code></a> as</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span><span class="w"> </span><span class="nt">&quot;djehuty&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;site-name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Example Repository&quot;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+<p>is written in the values file as (the same keys and nesting, one level in, in YAML rather than JSON)</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nt">config</span><span class="p">:</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="nt">site-name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Example</span><span class="nv"> </span><span class="s">Repository&quot;</span>
+</code></pre></div>
+<p>Every option in <a href="../running-djehuty/">Configuring <code>djehuty</code></a> can be set this way, except two that the chart fills in itself:</p>
+<ul>
+<li><code>rdf-store</code> is always built from the <code>rdfStore.*</code> values, so setting it under <code>config:</code> has no effect.</li>
+<li><code>base-url</code> is derived from the ingress host when you leave it empty.</li>
+</ul>
+<p>Quota tables, privileged accounts and menu definitions tend to be regenerated on their own schedule, and you do not want a chart release for each change. The chart's <code>config.includes</code> mounts existing ConfigMaps or Secrets and merges them into the running configuration at startup; the <a href="https://github.com/4TUResearchData/helm-charts/blob/main/charts/djehuty/README.md">chart README</a> documents the JSON shape of each fragment.</p>
+<h3 id="secrets">Secrets</h3>
+<p>Keep sensitive values out of the ConfigMap. In <code>config:</code> you can write <code>${env:NAME}</code> or <code>${file:/path}</code>; <code>djehuty</code> resolves the reference itself when it reads the configuration at startup. Short strings go in <code>secrets.env</code>, which the chart exposes as environment variables. Multi-line material such as PEM keys and certificates goes in <code>secrets.files</code>, mounted at <code>/etc/djehuty/secrets/</code>.</p>
+<p>To use a Secret you manage yourself, set <code>secrets.existingSecret</code> to its name. The entries under <code>secrets.env</code> and <code>secrets.files</code> then only declare which keys and filenames to wire into the pod; their values are ignored.</p>
+<h3 id="using-an-external-sparql-store">Using an external SPARQL store</h3>
+<p>To point at a store you already run, disable the bundled subchart:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>helm<span class="w"> </span>install<span class="w"> </span>djehuty<span class="w"> </span>4turesearchdata/djehuty<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span>--set<span class="w"> </span>virtuoso.enabled<span class="o">=</span><span class="nb">false</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span>--set<span class="w"> </span>rdfStore.sparqlUri<span class="o">=</span>http://sparql.example.internal:8890/sparql<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span>--set<span class="w"> </span>rdfStore.sparqlUpdateUri<span class="o">=</span>http://sparql.example.internal:8890/sparql<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">  </span>--set<span class="w"> </span>rdfStore.stateGraph<span class="o">=</span>https://data.example.org
+</code></pre></div>
+<p>When <code>virtuoso.enabled</code> is true, the two URIs are derived from the subchart's Service and you should leave them empty.</p>
+<h3 id="upgrading-and-uninstalling">Upgrading and uninstalling</h3>
+<p>Back up the RDF store first, and read <a href="https://github.com/4TUResearchData/djehuty/blob/main/CHANGELOG.md">CHANGELOG.md</a> for anything in the release that needs manual action. Then:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>helm<span class="w"> </span>repo<span class="w"> </span>update
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>helm<span class="w"> </span>upgrade<span class="w"> </span>djehuty<span class="w"> </span>4turesearchdata/djehuty<span class="w"> </span>--values<span class="w"> </span>values.yaml
+</code></pre></div>
+<p>Bump <code>image.tag</code> in the values file to move to a new <code>djehuty</code> release; the chart version and the <code>djehuty</code> version move independently.</p>
+<p>To uninstall run
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>helm<span class="w"> </span>uninstall<span class="w"> </span>djehuty<span class="w"> </span>--namespace<span class="w"> </span>djehuty
+</code></pre></div>
+Make sure to back up anything you care about before uninstalling.</p>
+<h2 id="containers">Containers</h2>
+<p>Images are published to the GitHub Container Registry:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>ghcr.io/4turesearchdata/djehuty
+</code></pre></div>
+<h3 id="image-tags">Image tags</h3>
+<table>
+<thead>
+<tr>
+<th>Tag</th>
+<th>What it points at</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>latest</code></td>
+<td>The most recent release.</td>
+</tr>
+<tr>
+<td><code>XX.X</code>, <code>XX.X.Y</code></td>
+<td>A specific release, e.g. <code>26.4</code> or <code>26.4.1</code>. Use this in production so you upgrade when you choose to.</td>
+</tr>
+<tr>
+<td><code>dev</code></td>
+<td>Built from the tip of <code>main</code> on every push. Unreleased code.</td>
+</tr>
+<tr>
+<td><code>sha-&lt;commit&gt;</code></td>
+<td>The exact commit on <code>main</code> that produced the image.</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Docker Hub is no longer updated</p>
+<p>Older releases were mirrored to <a href="https://hub.docker.com/r/4turesearchdata/djehuty">Docker Hub</a>, which stopped receiving updates after <code>25.6</code>. Pull from GHCR.</p>
+</div>
+<p>The image runs as the non-root user <code>djehuty</code> (UID 7001), exposes port 8080, and its default command is:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>djehuty web --initialize --config-file /etc/djehuty/config.json
+</code></pre></div>
+<p>So a deployment amounts to mounting a configuration file at that path and a writable volume at the <code>storage-root</code> you configured. The image bundles <code>python3-saml</code>, so SAML authentication works out of the box. <code>pyvips</code> is not bundled, therefore enabling the IIIF Image API requires building your own image on top of this one, installing the <code>libvips</code> system library and the <code>pyvips</code> package.</p>
+<h3 id="running-it">Running it</h3>
+<p>Mount a configuration file at <code>/etc/djehuty/config.json</code> and a writable volume at the <code>storage-root</code> it declares:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>--name<span class="w"> </span>djehuty<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">  </span>-p<span class="w"> </span><span class="m">8080</span>:8080<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">  </span>-v<span class="w"> </span>/opt/djehuty/config.json:/etc/djehuty/config.json:ro<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">  </span>-v<span class="w"> </span>/opt/djehuty/data:/data<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">  </span>ghcr.io/4turesearchdata/djehuty:26.4.1
+</code></pre></div>
+<p>The SPARQL store has to be reachable from the container. How you arrange that is a matter of how you run containers, not of <code>djehuty</code>.</p>
+<p>Start from
+<a href="https://github.com/4TUResearchData/djehuty/blob/main/etc/djehuty/djehuty-example-config.json"><code>djehuty-example-config.json</code></a>, but three of its defaults do not survive the move into a container:</p>
+<ul>
+<li><strong><code>bind-address</code></strong> must be <code>0.0.0.0</code>. The example uses <code>127.0.0.1</code>, which means the container only listens to itself and nothing outside can reach it.</li>
+<li><strong><code>storage-root</code></strong> must be an absolute path on your mounted volume, such as <code>/data</code>. The example's relative <code>./data</code> resolves inside the image's <code>/app</code>, which the <code>djehuty</code> user cannot write to. The same goes for <code>cache-root</code>.</li>
+<li><strong><code>base-url</code></strong> is the address users see - your public URL, not the container's own address or port.</li>
+</ul>
+<p><code>${env:NAME}</code> and <code>${file:/path}</code> work here too, so secrets can come from environment variables or mounted files rather than the configuration file itself.</p>
+<h3 id="with-compose">With Compose</h3>
+<p><a href="https://github.com/4TUResearchData/djehuty/blob/main/docker/docker-compose.yaml"><code>docker/docker-compose.yaml</code></a> in the repository brings up <code>djehuty</code> and Virtuoso together. Copy it as a
+starting point and change two things:</p>
+<ul>
+<li>Replace the locally-built <code>djehuty:latest</code> with a pinned tag from GHCR.</li>
+<li>Point the volume paths at your own configuration file and data directory.</li>
+</ul>
+<p>A fresh Virtuoso needs SPARQL Update permissions before <code>djehuty</code> can write to it. Load them once - the Helm chart does this for you, but a store you bring yourself needs them:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">DB</span><span class="p">.</span><span class="n">DBA</span><span class="p">.</span><span class="n">RDF_DEFAULT_USER_PERMS_SET</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;nobody&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">7</span><span class="p">);</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="n">DB</span><span class="p">.</span><span class="n">DBA</span><span class="p">.</span><span class="n">RDF_DEFAULT_USER_PERMS_SET</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;SPARQL&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">7</span><span class="p">);</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="k">GRANT</span><span class="w"> </span><span class="n">SPARQL_UPDATE</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="ss">&quot;SPARQL&quot;</span><span class="p">;</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="k">GRANT</span><span class="w"> </span><span class="k">EXECUTE</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="ss">&quot;DB.DBA.SPARQL_INSERT_DICT_CONTENT&quot;</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="ss">&quot;SPARQL&quot;</span><span class="p">;</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="k">GRANT</span><span class="w"> </span><span class="k">EXECUTE</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="ss">&quot;DB.DBA.L_O_LOOK&quot;</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="ss">&quot;SPARQL&quot;</span><span class="p">;</span>
+</code></pre></div>
+<h3 id="upgrading">Upgrading</h3>
+<p>Back up the RDF store, read <a href="https://github.com/4TUResearchData/djehuty/blob/main/CHANGELOG.md">CHANGELOG.md</a>,then move to the new tag and recreate the container. Because the image's command keeps <code>--initialize</code>, any schema updates the release carries are applied when the container starts.</p>
+<h2 id="python-package-pip-uv-pipx">Python package (pip, uv, pipx)</h2>
+<p><code>djehuty</code> is on PyPI as <a href="https://pypi.org/project/djehuty/"><code>djehuty</code></a> and requires Python 3.10 or newer.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>pip<span class="w"> </span>install<span class="w"> </span>djehuty<span class="w">          </span><span class="c1"># into a virtual environment</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>uv<span class="w"> </span>tool<span class="w"> </span>install<span class="w"> </span>djehuty<span class="w">      </span><span class="c1"># or as an isolated tool</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>pipx<span class="w"> </span>install<span class="w"> </span>djehuty
+</code></pre></div>
+<p>That gives you the <code>djehuty</code> command. Verify with <code>djehuty --version</code>.</p>
+<h3 id="optional-dependencies">Optional dependencies</h3>
+<p>Two features need packages that are not installed by default, because they pull in system libraries most deployments do not need. <code>djehuty</code> logs which one is missing when a configured feature cannot start.</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Package</th>
+<th>System libraries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SAML 2.0 authentication</td>
+<td><code>python3-saml</code></td>
+<td><code>libxmlsec1</code>, <code>pkg-config</code></td>
+</tr>
+<tr>
+<td>IIIF Image API</td>
+<td><code>pyvips</code></td>
+<td><code>libvips</code></td>
+</tr>
+</tbody>
+</table>
+<p>Install the system libraries with your distribution's package manager first, then <code>pip install python3-saml</code> or <code>pip install pyvips</code> into the same environment.</p>
+<h3 id="running-it_1">Running it</h3>
+<p>Put the configuration file you prepared somewhere the account running <code>djehuty</code> can read it. <code>/etc/djehuty/djehuty.json</code> below is only a convention; you can use whatever path you like.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>djehuty<span class="w"> </span>web<span class="w"> </span>--initialize<span class="w"> </span>--config-file<span class="w"> </span>/etc/djehuty/djehuty.json
+</code></pre></div>
+<p>Keep <code>--initialize</code> on for subsequent runs too. The seeding step is skipped once the database is initialized, and the flag is what makes <code>djehuty</code> apply schema updates from a new release at startup.</p>
+<p>To run it as a service, adapt
+<a href="https://github.com/4TUResearchData/djehuty/blob/main/etc/djehuty.service"><code>etc/djehuty.service</code></a>:</p>
+<p>Three things in the shipped unit need changing before it will suit a current install:</p>
+<ul>
+<li>It points at <code>/usr/bin/djehuty</code>. Use wherever your install put the binary - <code>which djehuty</code> will tell you, and it differs between a system-wide <code>pip install</code>, <code>uv tool install</code> and a virtual environment.</li>
+<li>It passes <code>--config-file=/etc/djehuty/djehuty.xml</code>, the deprecated XML format. Point it at your JSON configuration instead.</li>
+</ul>
+<p>Run the unit as a dedicated unprivileged user that owns <code>storage-root</code>.</p>
+<p>Put <code>nginx</code> in front for TLS. There is a working server block in <a href="../running-djehuty/#running-djehuty-behind-an-nginx-reverse-proxy">Running <code>djehuty</code> behind an <code>nginx</code> reverse-proxy</a>.</p>
+<h3 id="upgrading_1">Upgrading</h3>
+<p>Back up the RDF store, read <a href="https://github.com/4TUResearchData/djehuty/blob/main/CHANGELOG.md">CHANGELOG.md</a>, then upgrade the package and restart:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>pip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span>djehuty
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>systemctl<span class="w"> </span>restart<span class="w"> </span>djehuty
+</code></pre></div>
+<h2 id="next-steps">Next steps</h2>
+<ul>
+<li><a href="../running-djehuty/">Configuring <code>djehuty</code></a> — every configuration option, including identity providers, DOI registration, storage locations and branding.</li>
+<li><a href="../contributing/">Contributing</a> — the development environment and a tour of the source code.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.top", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
