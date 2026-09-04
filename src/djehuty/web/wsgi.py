@@ -751,6 +751,26 @@ class WebServer:
 
         return git_repository_url
 
+    def __active_author_matching_identifiers (self, email=None, orcid_id=None, exclude_author_uuid=None):
+        """Returns an active author matching an email address or ORCID."""
+        if email:
+            email = email.strip().casefold()
+        orcid_id = normalize_orcid (orcid_id)
+
+        if orcid_id:
+            matches = self.db.authors (
+                orcid_id=orcid_id, is_active=True, order="uuid", limit=2)
+            if matches and matches[0]["uuid"] != exclude_author_uuid:
+                return matches[0]
+
+        if email:
+            matches = self.db.authors (
+                email=email, is_active=True, order="uuid", limit=2)
+            if matches and matches[0]["uuid"] != exclude_author_uuid:
+                return matches[0]
+
+        return None
+
     def __author_list_from_request_input (self, parameters, created_by=None):
         """Returns a list with author objects and a list of error messages."""
 
@@ -787,26 +807,11 @@ class WebServer:
             if record["full_name"] is None:
                 record["full_name"] = f"{record['first_name']} {record['last_name']}"
 
-            if record["email"] is not None:
-                record["email"] = record["email"].strip().casefold()
-
-            record["orcid_id"] = normalize_orcid (record["orcid_id"])
-
             if errors:
                 return None, errors
 
-            existing_author = None
-            if record["orcid_id"]:
-                matches = self.db.authors (
-                    orcid_id=record["orcid_id"], is_active=True, order="uuid", limit=1)
-                if matches:
-                    existing_author = matches[0]
-
-            if existing_author is None and record["email"]:
-                matches = self.db.authors (
-                    email=record["email"], is_active=True, order="uuid", limit=1)
-                if matches:
-                    existing_author = matches[0]
+            existing_author = self.__active_author_matching_identifiers (
+                email=record["email"], orcid_id=record["orcid_id"])
 
             if existing_author is not None:
                 # Reuse the active author without overwriting it with manually entered details.
@@ -994,10 +999,10 @@ class WebServer:
         response.status_code = 405
         return response
 
-    def error_409 (self):
+    def error_409 (self, message="The resource is already available."):
         """Procedure to respond with HTTP 409."""
-        response = self.response (json.dumps({
-            "message": "The resource is already available."
+        response = self.response(json.dumps({
+            "message": message
         }))
         response.status_code = 409
         return response
@@ -7405,6 +7410,16 @@ class WebServer:
                     "email":      validator.string_value (record, "email", 0, 255),
                     "orcid":      validator.string_value (record, "orcid", 0, 255)
                 }
+
+                existing_author = self.__active_author_matching_identifiers (
+                    email=parameters["email"],
+                    orcid_id=parameters["orcid"],
+                    exclude_author_uuid=author_uuid)
+                if existing_author is not None:
+                    return self.error_409 (
+                        "An active author with this email address or ORCID already exists. "
+                        "Remove this manual author and select the existing author from "
+                        "the autocomplete.")
 
                 if not self.db.update_author (author_uuid, account_uuid, **parameters):
                     return self.error_500 ()
