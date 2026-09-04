@@ -14,9 +14,11 @@ Run with:
     cd tests/e2e && python -m pytest tests/test_files.py -v
 """
 
+import os
 import re
 from pathlib import Path
 
+import boto3
 import pytest
 from helpers.dataset import create_draft_dataset
 from pages.dataset_editor_page import DatasetEditorPage
@@ -38,6 +40,27 @@ def test_file(tmp_path: Path) -> str:
     return str(file_path)
 
 
+@pytest.fixture(scope="session")
+def minio_client():
+    """Connect to MinIO and create the test bucket when needed."""
+    bucket_name = os.environ["E2E_MINIO_BUCKET"]
+    client = boto3.client(
+        "s3",
+        endpoint_url=os.environ["E2E_MINIO_ENDPOINT"],
+        aws_access_key_id=os.environ["E2E_MINIO_ACCESS_KEY"],
+        aws_secret_access_key=os.environ["E2E_MINIO_SECRET_KEY"],
+    )
+
+    bucket_names = {
+        bucket["Name"]
+        for bucket in client.list_buckets()["Buckets"]
+    }
+    if bucket_name not in bucket_names:
+        client.create_bucket(Bucket=bucket_name)
+
+    return client, bucket_name
+
+
 @pytest.fixture()
 def dataset_with_file(authenticated_page: Page, test_file: str):
     """Create a draft dataset, upload a test file, and yield (url, editor).
@@ -53,6 +76,42 @@ def dataset_with_file(authenticated_page: Page, test_file: str):
     authenticated_page.goto(url)
     authenticated_page.wait_for_load_state("domcontentloaded")
     DatasetEditorPage(authenticated_page).delete()
+
+
+@pytest.fixture()
+def dataset_with_s3_file(dataset_with_file, minio_client):
+    """Move an uploaded file from local storage to MinIO."""
+    _, editor = dataset_with_file
+    client, bucket_name = minio_client
+
+    download_url = editor.get_file_download_url()
+    assert download_url is not None
+
+    file_uuid = download_url.rstrip("/").rsplit("/", 1)[-1]
+    object_key = f"{editor.container_uuid}_{file_uuid}"
+    local_file = Path("/djehuty-data") / object_key
+
+    assert local_file.is_file()
+    file_content = local_file.read_bytes()
+
+    client.put_object(
+        Bucket=bucket_name,
+        Key=object_key,
+        Body=file_content,
+    )
+
+    try:
+        local_file.unlink()
+        assert not local_file.exists()
+        yield editor.page, download_url
+    finally:
+        if not local_file.exists():
+            local_file.write_bytes(file_content)
+
+        client.delete_object(
+            Bucket=bucket_name,
+            Key=object_key,
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -184,6 +243,65 @@ class TestFileDownload:
         download = download_info.value
         screenshot(page, "after-download")
         assert download.suggested_filename == TEST_FILE_NAME
+
+    def test_download_file_from_s3(self, dataset_with_s3_file):
+        """A file stored only in S3 can be downloaded."""
+        page, download_url = dataset_with_s3_file
+
+        response = page.request.get(download_url)
+
+        assert response.status == 200
+        assert response.body() == TEST_FILE_CONTENT
+        assert response.headers.get("accept-ranges") == "bytes"
+
+    def test_resume_download_from_s3(self, dataset_with_s3_file):
+        """An interrupted S3 download can continue from the next byte."""
+        page, download_url = dataset_with_s3_file
+        resume_from = 10
+
+        first_response = page.request.get(
+            download_url,
+            headers={"Range": f"bytes=0-{resume_from - 1}"},
+        )
+
+        assert first_response.status == 206
+        assert first_response.body() == TEST_FILE_CONTENT[:resume_from]
+
+        etag = first_response.headers.get("etag")
+        assert etag is not None
+
+        resumed_response = page.request.get(
+            download_url,
+            headers={
+                "Range": f"bytes={resume_from}-",
+                "If-Range": etag,
+            },
+        )
+
+        assert resumed_response.status == 206
+        assert resumed_response.body() == TEST_FILE_CONTENT[resume_from:]
+
+        expected_range = (
+            f"bytes {resume_from}-{len(TEST_FILE_CONTENT) - 1}"
+            f"/{len(TEST_FILE_CONTENT)}"
+        )
+        assert resumed_response.headers.get("content-range") == expected_range
+
+        downloaded_content = first_response.body() + resumed_response.body()
+        assert downloaded_content == TEST_FILE_CONTENT
+
+    def test_download_file_from_s3_rejects_out_of_bounds_range(self, dataset_with_s3_file):
+        """An S3 download rejects a range beyond the end of the file."""
+        page, download_url = dataset_with_s3_file
+        file_size = len(TEST_FILE_CONTENT)
+
+        response = page.request.get(
+            download_url,
+            headers={"Range": f"bytes={file_size}-"},
+        )
+
+        assert response.status == 416
+        assert response.headers.get("content-range") == f"bytes */{file_size}"
 
     def test_download_all_files_as_zip(self, dataset_with_file, screenshot):
         """The 'download all files' zip link should work for draft datasets."""

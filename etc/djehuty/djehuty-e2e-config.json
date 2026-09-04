@@ -1,0 +1,22 @@
+{
+  "djehuty": {
+    "bind-address": "0.0.0.0",
+    "storage-root": "/data",
+    "include": [
+      "djehuty-dev-config.json"
+    ],
+    "storage": {
+      "location": [
+        "/data"
+      ],
+      "s3-bucket": [
+        {
+          "name": "test-bucket",
+          "key-id": "minioadmin",
+          "secret-key": "minioadmin",
+          "endpoint": "http://minio:9000"
+        }
+      ]
+    }
+  }
+}
