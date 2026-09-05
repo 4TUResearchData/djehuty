@@ -14,14 +14,27 @@ services:
         INSTALL_DEV: "1"
     environment:
       COVERAGE_FILE: /coverage/.coverage
-    # $$ escapes compose interpolation so the container shell expands
-    # DJEHUTY_CONFIG from the environment (set on the dev compose service).
+      DJEHUTY_CONFIG: /config/djehuty/djehuty-e2e-config.json
+    # $$ escapes Compose interpolation so the container shell
+    # expands DJEHUTY_CONFIG from this service's environment.
     command:
       - sh
       - -c
       - exec coverage run -m djehuty.ui web --initialize --config-file "$$DJEHUTY_CONFIG"
     volumes:
       - ./coverage:/coverage
+
+  minio:
+    image: minio/minio:RELEASE.2025-01-20T14-49-07Z
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: ["server", "/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:9000/minio/health/live"]
+      interval: 5s
+      retries: 12
+      start_period: 10s
 
   seed:
     image: openlink/virtuoso-opensource-7:7.2.13
@@ -42,11 +55,17 @@ services:
     depends_on:
       seed:
         condition: service_completed_successfully
+      minio:
+        condition: service_healthy
     environment:
       E2E_BASE_URL: http://djehuty:8080
       E2E_SPARQL_URL: http://virtuoso:8890/sparql
       E2E_SPARQL_GRAPH: djehuty://local
       E2E_AUTO_LOGIN_EMAIL: dev@djehuty.com
+      E2E_MINIO_ENDPOINT:   http://minio:9000
+      E2E_MINIO_ACCESS_KEY: minioadmin
+      E2E_MINIO_SECRET_KEY: minioadmin
+      E2E_MINIO_BUCKET:     test-bucket
       # Source tree is mounted read-only; keep pytest from trying to
       # write a cache or .pyc files into it.
       PYTHONDONTWRITEBYTECODE: "1"
@@ -54,6 +73,7 @@ services:
     volumes:
       - ../tests:/app/tests:ro
       - ./test-results:/app/test-results
+      - djehuty-data:/djehuty-data
     working_dir: /app/tests/e2e
     entrypoint: []
     command:
