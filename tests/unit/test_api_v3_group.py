@@ -432,12 +432,16 @@ def test_dataset_tags_add_reads_full_existing_list():
     assert kwargs.get("limit") == 10000
 
 
-def test_dataset_tags_delete_reads_full_existing_list():
+def test_dataset_tags_delete_absent_tag_is_404():
+    # Deleting a tag that isn't present answers 404 (matching the collections
+    # handler and the error-status-normalisation deviation), not a 204 success.
+    # The full list is still read first (limit=10000) so a real removal never
+    # truncates it.
     db = _TagsDB()
     client = TestClient(create_app(db))
     resp = client.delete(
         f"/v3/datasets/{_DATASET_UUID}/tags", params={"tag": "sometag"}, headers=_AUTH
     )
-    assert resp.status_code == 204
+    assert resp.status_code == 404
     _, _, kwargs = _last_call(db, "tags")
     assert kwargs.get("limit") == 10000
