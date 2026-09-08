@@ -52,7 +52,7 @@ def _swagger_html(urls: list, primary: str) -> str:
     return _SWAGGER_HTML.replace("__URLS__", json.dumps(urls)).replace("__PRIMARY__", primary)
 
 
-def _version_schema(app: FastAPI, prefix: str, label: str) -> dict:
+def version_schema(app: FastAPI, prefix: str, label: str) -> dict:
     """Return the OpenAPI schema filtered to paths under a version prefix."""
     full = app.openapi()
     schema = dict(full)
@@ -67,8 +67,8 @@ def _register_version_docs(app: FastAPI, version: str) -> None:
     """Register a version's filtered schema and its bookmarkable docs page."""
 
     @app.get(f"/api/openapi/{version}.json", include_in_schema=False)
-    def version_schema(version=version) -> JSONResponse:
-        return JSONResponse(_version_schema(app, f"/{version}", version))
+    def version_schema_endpoint(version=version) -> JSONResponse:
+        return JSONResponse(version_schema(app, f"/{version}", version))
 
     @app.get(f"/api/docs/{version}", include_in_schema=False)
     def version_docs(version=version) -> HTMLResponse:

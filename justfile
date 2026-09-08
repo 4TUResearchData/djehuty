@@ -70,6 +70,10 @@ docs-md:
 docs-md-serve:
     uv run --group docs mkdocs serve
 
+# Export the OpenAPI schema(s) for the static API docs: just openapi [out_dir]
+openapi out="site/api":
+    uv run python -m djehuty.api.export_openapi {{ out }}
+
 # Clean documentation build artifacts
 docs-clean:
     rm -rf site/
