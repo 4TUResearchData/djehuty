@@ -135,7 +135,7 @@ class ArticleService:
                 published_since=published_since,
                 resource_doi=resource_doi,
                 search_for=search_for,
-                is_latest=True,
+                is_latest=False,
                 return_count=True,
             )
             total_count = value_or(count_result, 0, {"datasets": 0}).get("datasets", 0)
