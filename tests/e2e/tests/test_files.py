@@ -41,20 +41,17 @@ def test_file(tmp_path: Path) -> str:
 
 
 @pytest.fixture(scope="session")
-def minio_client():
-    """Connect to MinIO and create the test bucket when needed."""
-    bucket_name = os.environ["E2E_MINIO_BUCKET"]
+def s3_client():
+    """Connect to the S3 test service and create the test bucket when needed."""
+    bucket_name = os.environ["E2E_S3_BUCKET"]
     client = boto3.client(
         "s3",
-        endpoint_url=os.environ["E2E_MINIO_ENDPOINT"],
-        aws_access_key_id=os.environ["E2E_MINIO_ACCESS_KEY"],
-        aws_secret_access_key=os.environ["E2E_MINIO_SECRET_KEY"],
+        endpoint_url=os.environ["E2E_S3_ENDPOINT"],
+        aws_access_key_id=os.environ["E2E_S3_ACCESS_KEY"],
+        aws_secret_access_key=os.environ["E2E_S3_SECRET_KEY"],
     )
 
-    bucket_names = {
-        bucket["Name"]
-        for bucket in client.list_buckets()["Buckets"]
-    }
+    bucket_names = {bucket["Name"] for bucket in client.list_buckets()["Buckets"]}
     if bucket_name not in bucket_names:
         client.create_bucket(Bucket=bucket_name)
 
@@ -79,10 +76,10 @@ def dataset_with_file(authenticated_page: Page, test_file: str):
 
 
 @pytest.fixture()
-def dataset_with_s3_file(dataset_with_file, minio_client):
-    """Move an uploaded file from local storage to MinIO."""
+def dataset_with_s3_file(dataset_with_file, s3_client):
+    """Move an uploaded file from local storage to S3."""
     _, editor = dataset_with_file
-    client, bucket_name = minio_client
+    client, bucket_name = s3_client
 
     download_url = editor.get_file_download_url()
     assert download_url is not None
@@ -282,8 +279,7 @@ class TestFileDownload:
         assert resumed_response.body() == TEST_FILE_CONTENT[resume_from:]
 
         expected_range = (
-            f"bytes {resume_from}-{len(TEST_FILE_CONTENT) - 1}"
-            f"/{len(TEST_FILE_CONTENT)}"
+            f"bytes {resume_from}-{len(TEST_FILE_CONTENT) - 1}/{len(TEST_FILE_CONTENT)}"
         )
         assert resumed_response.headers.get("content-range") == expected_range
 

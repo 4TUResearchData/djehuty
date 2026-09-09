@@ -12,9 +12,9 @@
       "s3-bucket": [
         {
           "name": "test-bucket",
-          "key-id": "minioadmin",
-          "secret-key": "minioadmin",
-          "endpoint": "http://minio:9000"
+          "key-id": "test",
+          "secret-key": "test",
+          "endpoint": "http://floci:4566"
         }
       ]
     }
