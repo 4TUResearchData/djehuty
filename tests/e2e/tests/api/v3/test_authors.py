@@ -172,11 +172,7 @@ class TestV3AuthorDetailsApi:
         edited_authors = edited_authors_response.json()
         assert len(edited_authors) == 2
 
-        edited_author = next(
-            author
-            for author in edited_authors
-            if author["uuid"] != matching_uuid
-        )
+        edited_author = next(author for author in edited_authors if author["uuid"] != matching_uuid)
         assert edited_author.get("is_active") is False
         edited_uuid = edited_author["uuid"]
         assert edited_uuid != matching_uuid
