@@ -759,13 +759,13 @@ class WebServer:
 
         if orcid_id:
             matches = self.db.authors (
-                orcid_id=orcid_id, is_active=True, order="uuid", limit=2)
+                orcid_id=orcid_id, is_active=True, order="uuid", limit=1)
             if matches and matches[0]["uuid"] != exclude_author_uuid:
                 return matches[0]
 
         if email:
             matches = self.db.authors (
-                email=email, is_active=True, order="uuid", limit=2)
+                email=email, is_active=True, order="uuid", limit=1)
             if matches and matches[0]["uuid"] != exclude_author_uuid:
                 return matches[0]
 
