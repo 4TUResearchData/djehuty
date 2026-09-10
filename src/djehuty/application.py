@@ -40,16 +40,26 @@ _SWAGGER_HTML = """<!DOCTYPE html>
       dom_id: "#swagger-ui",
       deepLinking: true,
       presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
-      layout: "StandaloneLayout",
+      layout: "StandaloneLayout",__SUBMIT__
     });
   </script>
 </body>
 </html>"""
 
 
-def swagger_html(urls: list, primary: str) -> str:
-    """Render the Swagger UI page for the given schema URLs."""
-    return _SWAGGER_HTML.replace("__URLS__", json.dumps(urls)).replace("__PRIMARY__", primary)
+def swagger_html(urls: list, primary: str, allow_submit: bool = True) -> str:
+    """Render the Swagger UI page for the given schema URLs.
+
+    With allow_submit False the page drops "Try it out". A copy of these docs
+    published away from a running instance has no API to send requests to, so
+    the button would fail on every endpoint.
+    """
+    submit = "" if allow_submit else "\n      supportedSubmitMethods: [],"
+    return (
+        _SWAGGER_HTML.replace("__URLS__", json.dumps(urls))
+        .replace("__PRIMARY__", primary)
+        .replace("__SUBMIT__", submit)
+    )
 
 
 def version_schema(app: FastAPI, prefix: str, label: str) -> dict:

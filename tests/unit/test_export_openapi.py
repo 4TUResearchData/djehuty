@@ -38,6 +38,14 @@ def documents():
 def exported(tmp_path_factory):
     out_dir = tmp_path_factory.mktemp("api")
     write_documents(out_dir, SERVER_URL)
+    write_index(out_dir, SERVER_URL)
+    return out_dir
+
+
+@pytest.fixture(scope="module")
+def exported_without_server(tmp_path_factory):
+    out_dir = tmp_path_factory.mktemp("api-no-server")
+    write_documents(out_dir)
     write_index(out_dir)
     return out_dir
 
@@ -62,10 +70,24 @@ def test_version_documents_are_strict_subsets_of_the_combined_one(documents):
 
 
 def test_every_document_points_at_the_given_server(documents):
-    # The published docs are served from another origin than the API, so a
-    # relative default would send "Try it out" to the documentation host.
     for schema in documents.values():
         assert [server["url"] for server in schema["servers"]] == [SERVER_URL]
+
+
+def test_documents_name_no_instance_by_default():
+    # djehuty is deployed by more than one institution, so an export that was
+    # not told where the API lives must not guess.
+    for schema in build_documents().values():
+        assert "servers" not in schema
+
+
+def test_index_offers_try_it_out_only_with_a_server(exported, exported_without_server):
+    # Without a server the published page has no API to reach, so the submit
+    # button would fail on every endpoint.
+    with_server = (exported / "index.html").read_text(encoding="utf-8")
+    without_server = (exported_without_server / "index.html").read_text(encoding="utf-8")
+    assert "supportedSubmitMethods" not in with_server
+    assert "supportedSubmitMethods: []" in without_server
 
 
 def test_written_documents_are_valid_openapi_json(exported):
