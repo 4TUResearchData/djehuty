@@ -1,6 +1,6 @@
 """Dataset author endpoints for the v3 API."""
 
-from fastapi import APIRouter, Body, Depends, Query, Response
+from fastapi import APIRouter, Body, Depends, Path, Query, Response
 from fastapi.responses import JSONResponse
 
 from djehuty.api.dependencies import get_db, require_auth
@@ -11,6 +11,16 @@ from djehuty.api.v3._shared import _ok
 from djehuty.web import formatter
 
 router = APIRouter(tags=["V3 / Datasets / Authors"])
+
+# A djehuty dataset is versioned: the "container" is its identity across all
+# versions. container_uuid is that version-independent id (the public
+# /datasets/<id> URL and the concept DOI use it), as opposed to a single
+# version's uuid.
+_CONTAINER_UUID_DESC = (
+    "The dataset's version-independent container UUID — stable across every "
+    "version (the public /datasets/<id> URL and concept DOI use it), as opposed "
+    "to a single version's uuid."
+)
 
 _AUTHOR_EXAMPLE = {
     "uuid": "07d6e6ce-b1bf-43ca-86e6-7a3ab8bc8416",
@@ -29,7 +39,7 @@ _AUTHOR_EXAMPLE = {
     responses={200: _ok("The dataset's authors", [_AUTHOR_EXAMPLE]), 403: {"model": ErrorResponse}},
 )
 def list_dataset_authors_v3(
-    container_uuid: str,
+    container_uuid: str = Path(..., description=_CONTAINER_UUID_DESC),
     account=Depends(require_auth),
     db=Depends(get_db),
     order: str | None = Query(None, max_length=32),
@@ -72,8 +82,8 @@ def list_dataset_authors_v3(
     responses={200: _ok("A single author", _AUTHOR_EXAMPLE), 403: {"model": ErrorResponse}},
 )
 def get_dataset_author_v3(
-    container_uuid: str,
-    author_uuid: str,
+    container_uuid: str = Path(..., description=_CONTAINER_UUID_DESC),
+    author_uuid: str = Path(..., description="The author's UUID within the dataset."),
     account=Depends(require_auth),
     db=Depends(get_db),
     order: str | None = Query(None, max_length=32),
@@ -120,7 +130,7 @@ def get_dataset_author_v3(
     responses={205: {"description": "Authors reordered"}, 403: {"model": ErrorResponse}},
 )
 def reorder_authors(
-    container_uuid: str,
+    container_uuid: str = Path(..., description=_CONTAINER_UUID_DESC),
     body: dict = Body(
         ...,
         openapi_examples={

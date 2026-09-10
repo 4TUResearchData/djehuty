@@ -8,7 +8,7 @@ from djehuty.api.exceptions import InvalidInputError, NotFoundError
 from djehuty.api.models.common import ErrorResponse
 from djehuty.api.permissions import enforce_collaborative_permissions
 from djehuty.api.v3._shared import _ok
-from djehuty.api.v3.datasets._shared import _resolve_any_dataset, _resolve_dataset
+from djehuty.api.v3.datasets._shared import DatasetId, _resolve_any_dataset, _resolve_dataset
 from djehuty.web import formatter
 
 router = APIRouter(tags=["V3 / Datasets / Tags"])
@@ -22,7 +22,7 @@ _TAGS_EXAMPLE = ["climate", "oceanography"]
     responses={200: _ok("The dataset's tags", _TAGS_EXAMPLE)},
 )
 def list_tags(
-    dataset_id: str, db=Depends(get_db), account: dict | None = Depends(get_current_account)
+    dataset_id: DatasetId, db=Depends(get_db), account: dict | None = Depends(get_current_account)
 ):
     dataset = _resolve_any_dataset(db, dataset_id, account)
     if account:
@@ -37,7 +37,7 @@ def list_tags(
     responses={205: {"description": "Tags added"}, 403: {"model": ErrorResponse}},
 )
 def add_tags(
-    dataset_id: str,
+    dataset_id: DatasetId,
     body: dict = Body(
         ...,
         openapi_examples={
@@ -69,7 +69,7 @@ def add_tags(
     responses={204: {"description": "Tag removed"}, 403: {"model": ErrorResponse}},
 )
 def delete_tag(
-    dataset_id: str,
+    dataset_id: DatasetId,
     tag: str = Query(..., max_length=1024),
     account=Depends(require_auth),
     db=Depends(get_db),

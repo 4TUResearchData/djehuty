@@ -14,7 +14,7 @@ from djehuty.api.dependencies import (
 from djehuty.api.exceptions import ForbiddenError, InvalidInputError, NotFoundError
 from djehuty.api.models.common import ErrorResponse
 from djehuty.api.v3._shared import _ok
-from djehuty.api.v3.datasets._shared import _resolve_dataset
+from djehuty.api.v3.datasets._shared import DatasetId, _resolve_dataset
 from djehuty.web.config import config
 from djehuty.web.locks import Locks
 
@@ -42,7 +42,7 @@ _LOCATION_EXAMPLE = {
     responses={204: {"description": "Submitted for review"}, 403: {"model": ErrorResponse}},
 )
 def submit_for_review(
-    dataset_id: str,
+    dataset_id: DatasetId,
     body: dict = Body(
         ...,
         openapi_examples={
@@ -353,7 +353,7 @@ def _warm_git_statistics_caches(db, dataset):
     responses={201: _ok("Dataset published", _LOCATION_EXAMPLE), 403: {"model": ErrorResponse}},
 )
 def publish_dataset(
-    dataset_id: str,
+    dataset_id: DatasetId,
     account=Depends(require_auth),
     db=Depends(get_db),
     impersonator_token: str | None = Depends(get_impersonator_token),
@@ -467,7 +467,7 @@ def publish_dataset(
     },
 )
 def decline_dataset(
-    dataset_id: str,
+    dataset_id: DatasetId,
     account=Depends(require_auth),
     db=Depends(get_db),
     impersonator_token: str | None = Depends(get_impersonator_token),

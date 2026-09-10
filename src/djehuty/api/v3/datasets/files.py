@@ -13,7 +13,7 @@ from djehuty.api.exceptions import ForbiddenError, InvalidInputError, NotFoundEr
 from djehuty.api.models.common import ErrorResponse
 from djehuty.api.permissions import enforce_collaborative_permissions
 from djehuty.api.v3._shared import _ok
-from djehuty.api.v3.datasets._shared import _resolve_dataset
+from djehuty.api.v3.datasets._shared import DatasetId, _resolve_dataset
 from djehuty.web import formatter
 from djehuty.web.config import config
 from djehuty.web.locks import Locks
@@ -51,7 +51,7 @@ _UPLOAD_LOCATION_EXAMPLE = {
     },
 )
 def list_image_files(
-    dataset_id: str, request: Request, account=Depends(require_auth), db=Depends(get_db)
+    dataset_id: DatasetId, request: Request, account=Depends(require_auth), db=Depends(get_db)
 ):
     from djehuty.web import validator
 
@@ -116,7 +116,7 @@ _EMPTY_FILE_MD5 = "d41d8cd98f00b204e9800998ecf8427e"
     },
 )
 async def upload_file(
-    dataset_id: str,
+    dataset_id: DatasetId,
     request: Request,
     account=Depends(require_auth),
     db=Depends(get_db),
@@ -322,7 +322,7 @@ async def upload_file(
     responses={205: {"description": "Thumbnail updated"}, 403: {"model": ErrorResponse}},
 )
 def update_thumbnail(
-    dataset_id: str,
+    dataset_id: DatasetId,
     body: dict = Body(
         ...,
         openapi_examples={
