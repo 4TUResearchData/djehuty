@@ -75,12 +75,26 @@ def list_collections(
     paging: dict = Depends(pagination_params),
     order: OrderField = Query("published_date"),
     order_direction: OrderDirection = Query("desc"),
+    institution: int | None = Query(None, description="Filter by institution ID"),
+    group: int | None = Query(None, description="Filter by group ID"),
+    published_since: str | None = Query(None, max_length=32, description="ISO 8601 date"),
+    modified_since: str | None = Query(None, max_length=32, description="ISO 8601 date"),
+    resource_doi: str | None = Query(None, max_length=255),
+    doi: str | None = Query(None, max_length=255),
+    handle: str | None = Query(None, max_length=255),
 ):
     records = service.list_collections(
         limit=paging["limit"],
         offset=paging["offset"],
         order=order,
         order_direction=order_direction,
+        institution=institution,
+        groups=group,
+        published_since=published_since,
+        modified_since=modified_since,
+        resource_doi=resource_doi,
+        doi=doi,
+        handle=handle,
     )
     return JSONResponse(content=records)
 
