@@ -1,6 +1,20 @@
 """Shared helpers for the v3 datasets sub-resources."""
 
+from typing import Annotated
+
+from fastapi import Path
+
 from djehuty.api.exceptions import NotFoundError
+
+DatasetId = Annotated[
+    str,
+    Path(
+        description=(
+            "The dataset — its version-independent container UUID, or a numeric "
+            "legacy id; both resolve to the same dataset."
+        )
+    ),
+]
 
 
 def _resolve_any_dataset(db, dataset_id, account=None):
