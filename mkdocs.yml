@@ -18,9 +18,10 @@ nav:
       - Knowledge graph: knowledge-graph.md
       - HTTP stack migration: http-migration.md
       - api-v2 side-effect catalog: http-migration-api-v2-side-effects.md
+      - api-v3 side-effect catalog: http-migration-api-v3-side-effects.md
   - Contributing:
       - Contributing guide: contributing.md
-  - API: api.md
+  - API: api/index.html
   - Contact: contact.md
   - News: news.md
 

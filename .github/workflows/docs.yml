@@ -4,10 +4,10 @@ name: Docs
 # Builds the MkDocs documentation and the static API reference, then
 # publishes both to the gh-pages branch, which GitHub Pages serves.
 
-# `mkdocs build` wipes and recreates `site/`, so the API reference is
-# written into site/api/ *after* it. When the ontology docs exist, add
-# them the same way (site/ontology/) before the publish step runs, so the
-# whole site is assembled and published atomically in one go.
+# The API reference is generated into docs/api/ *before* mkdocs runs, so
+# mkdocs copies it into site/api/ and resolves the nav link to it relative
+# to each page. When the ontology docs exist, generate them the same way,
+# so the whole site is assembled and published atomically in one go.
 
 
 on:
@@ -50,12 +50,12 @@ jobs:
       - name: Install just
         uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3  # v4
 
-      - name: Build Markdown documentation
-        run: just docs-md
-
-      # Must run after docs-md: mkdocs build empties site/ first
+      # Must run before docs-md: mkdocs copies docs/api/ into the site
       - name: Build API reference
         run: just openapi
+
+      - name: Build Markdown documentation
+        run: just docs-md
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453  # v4.1.0
