@@ -1,13 +1,12 @@
 name: Docs
 
 
-# Builds the MkDocs documentation and publishes it to the gh-pages
-# branch, which GitHub Pages serves.
+# Builds the MkDocs documentation and the static API reference, then
+# publishes both to the gh-pages branch, which GitHub Pages serves.
 
-# Only the Markdown docs are built here for now! When the API docs
-# (Swagger/OpenAPI) and ontology docs exist, add their build steps
-# here too, writing into their own subfolder of `site/` (e.g.
-# site/api/, site/ontology/) before the publish step runs, so the
+# `mkdocs build` wipes and recreates `site/`, so the API reference is
+# written into site/api/ *after* it. When the ontology docs exist, add
+# them the same way (site/ontology/) before the publish step runs, so the
 # whole site is assembled and published atomically in one go.
 
 
@@ -22,6 +21,12 @@ on:
       - 'CHANGELOG.md'
       - 'pyproject.toml'
       - 'uv.lock'
+      # The API reference is generated from the route definitions, so it
+      # goes stale when an endpoint changes, not only when docs/ changes
+      - 'src/djehuty/api/**'
+      - 'src/djehuty/application.py'
+      - 'justfile'
+      - '.github/workflows/docs.yml'
   workflow_dispatch:
 
 concurrency:
@@ -45,8 +50,12 @@ jobs:
       - name: Install just
         uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3  # v4
 
-      - name: Build documentation
+      - name: Build Markdown documentation
         run: just docs-md
+
+      # Must run after docs-md: mkdocs build empties site/ first
+      - name: Build API reference
+        run: just openapi
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453  # v4.1.0
