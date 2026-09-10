@@ -1,15 +1,16 @@
-"""Write the OpenAPI schema(s) to disk for the static API documentation.
+"""Write the OpenAPI schemas and a static Swagger UI page to disk.
 
-The runtime docs at /api/docs ask the live app for its schema. GitHub Pages has
-no app, so CI runs this module to dump the same schema to files that a static
-Swagger UI reads.
+The runtime docs at /api/docs ask the live app for its schema. The published
+documentation has no app behind it, so CI runs this module to dump the same
+schemas to files and render a page that reads them. That page pulls Swagger UI
+from a CDN, so no asset bundle has to be copied into the site.
 """
 
 import argparse
 import json
 from pathlib import Path
 
-from djehuty.application import API_VERSIONS, create_app, version_schema
+from djehuty.application import API_VERSIONS, create_app, swagger_html, version_schema
 
 
 def build_documents(server_url: str) -> dict[str, dict]:
@@ -39,6 +40,21 @@ def write_documents(out_dir: Path, server_url: str) -> list[Path]:
     return written
 
 
+def write_index(out_dir: Path) -> Path:
+    """Write the Swagger UI page that reads the exported schemas.
+
+    The schema URLs are relative to the page, so the directory can be published
+    under any path without rewriting them.
+    """
+    urls = [
+        {"url": f"swagger-{version}.json", "name": version} for version in reversed(API_VERSIONS)
+    ]
+    urls.append({"url": "swagger.json", "name": "all"})
+    filepath = out_dir / "index.html"
+    filepath.write_text(swagger_html(urls, API_VERSIONS[-1]), encoding="utf-8")
+    return filepath
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Export the djehuty OpenAPI schemas.")
     parser.add_argument("out_dir", type=Path, help="directory to write the JSON files into")
@@ -48,7 +64,9 @@ def main() -> None:
         help="base URL the published docs send requests to (default: %(default)s)",
     )
     args = parser.parse_args()
-    for path in write_documents(args.out_dir, args.server_url):
+    paths = write_documents(args.out_dir, args.server_url)
+    paths.append(write_index(args.out_dir))
+    for path in paths:
         print(f"wrote {path}")
 
 

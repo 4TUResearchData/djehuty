@@ -47,7 +47,7 @@ _SWAGGER_HTML = """<!DOCTYPE html>
 </html>"""
 
 
-def _swagger_html(urls: list, primary: str) -> str:
+def swagger_html(urls: list, primary: str) -> str:
     """Render the Swagger UI page for the given schema URLs."""
     return _SWAGGER_HTML.replace("__URLS__", json.dumps(urls)).replace("__PRIMARY__", primary)
 
@@ -73,7 +73,7 @@ def _register_version_docs(app: FastAPI, version: str) -> None:
     @app.get(f"/api/docs/{version}", include_in_schema=False)
     def version_docs(version=version) -> HTMLResponse:
         return HTMLResponse(
-            _swagger_html([{"url": f"/api/openapi/{version}.json", "name": version}], version)
+            swagger_html([{"url": f"/api/openapi/{version}.json", "name": version}], version)
         )
 
 
@@ -127,7 +127,7 @@ def create_app(db, email=None) -> FastAPI:
     def swagger_ui() -> HTMLResponse:
         urls = [{"url": f"/api/openapi/{v}.json", "name": v} for v in reversed(API_VERSIONS)]
         urls.append({"url": "/api/openapi.json", "name": "all"})
-        return HTMLResponse(_swagger_html(urls, API_VERSIONS[-1]))
+        return HTMLResponse(swagger_html(urls, API_VERSIONS[-1]))
 
     for _version in API_VERSIONS:
         _register_version_docs(app, _version)
