@@ -1,6 +1,6 @@
 """Authenticated /v2/account/authors endpoints (author search and details)."""
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Body, Depends
 from fastapi.responses import JSONResponse
 
 from djehuty.api.dependencies import get_db, require_auth
@@ -16,7 +16,15 @@ router = APIRouter(prefix="/account", tags=["V2 / Account / Authors"])
     description="Search for authors by name. Used for author autocomplete.",
 )
 def search_authors(
-    body: dict,
+    body: dict = Body(
+        ...,
+        openapi_examples={
+            "default": {
+                "summary": "Search authors by name",
+                "value": {"search": "Lovelace"},
+            }
+        },
+    ),
     account=Depends(require_auth),
     db=Depends(get_db),
 ):
