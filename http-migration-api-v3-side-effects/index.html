@@ -1,0 +1,1207 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="The 4TU.ResearchData and Nikhef repository system">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>api-v3 side-effect catalog - djehuty</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#api-v3-side-effect-catalog" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="djehuty" class="md-header__button md-logo" aria-label="djehuty" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            djehuty
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              api-v3 side-effect catalog
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/4TUResearchData/djehuty" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    4TUResearchData/djehuty
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="djehuty" class="md-nav__button md-logo" aria-label="djehuty" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    djehuty
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/4TUResearchData/djehuty" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    4TUResearchData/djehuty
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../running-djehuty/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuring & running djehuty
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture & design
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture & design
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../knowledge-graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Knowledge graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../http-migration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HTTP stack migration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../http-migration-api-v2-side-effects/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    api-v2 side-effect catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contact/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contact
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../news/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    News
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#datasets-publication-and-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Datasets — publication and review
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#datasets-sub-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Datasets — sub-resources
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#collections-sub-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Collections — sub-resources
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#profile-and-account" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Profile and account
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reviews-and-admin" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reviews and admin
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#git-smart-http-and-statistics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Git — smart-HTTP and statistics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#behaviours-pinned-by-unit-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Behaviours pinned by unit tests
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#argument-shape-parity-a-silent-failure-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Argument-shape parity (a silent-failure class)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-response-shape-parity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error-response shape parity
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deferrals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deferrals
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#method-auth-ordering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Method / auth ordering
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conscious-deviations-from-legacy-as-is-exceptions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conscious deviations from legacy (AS-IS exceptions)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="api-v3-side-effect-catalog">api-v3 side-effect catalog</h1>
+<p>The side effects — writes, cache invalidations, e-mails, external-service
+calls, filesystem and git writes — that each v3 route must reproduce from its
+legacy handler. This is scaffolding for the HTTP migration (see
+<code>http-migration.md</code>); the new stack implements every row, and the unit tests
+pin the ones that are easy to get wrong. Delete this file when the v3 legacy
+handlers are removed.</p>
+<p>The method is described in <code>http-migration.md</code> under "Rules of the road";
+read-only routes are omitted. Cache invalidations that live <em>inside</em> a shared
+<code>database.py</code> method travel with the db call automatically (the new stack holds
+the same <code>SparqlInterface</code>), so they are not re-listed per route — only the
+invalidations a handler performs itself are noted.</p>
+<h2 id="datasets-publication-and-review">Datasets — publication and review</h2>
+<table>
+<thead>
+<tr>
+<th>Route</th>
+<th>Side effects</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PUT /v3/datasets/&lt;id&gt;/submit-for-review</code></td>
+<td><code>update_dataset</code> (full field set incl. category <code>update_item_list</code>), <code>insert_review</code>; reviewer-pool e-mail <code>submitted_for_review_notification</code>; depositor e-mail <code>dataset_submitted</code> (production, non-preproduction only). Held under the <code>SUBMIT_DATASET</code> process lock across resolve + both writes.</td>
+</tr>
+<tr>
+<td><code>POST /v3/datasets/&lt;id&gt;/publish</code></td>
+<td>Production only, for <code>version in (None, new_version)</code>: DataCite DOI reserve (<code>POST /dois</code>) + <code>update_dataset</code> (container/versioned DOI, <code>is_first_online</code>), then DataCite <code>PUT /dois/&lt;doi&gt;</code> with <code>event=publish</code> — via <code>services.datacite</code>. Always: <code>update_review</code> (assign reviewer), <code>publish_dataset</code>; git-statistics cache warm for software datasets (languages + contributors); owner e-mail <code>dataset_approved</code>; reviewer-pool e-mail <code>published_dataset_notification</code>.</td>
+</tr>
+<tr>
+<td><code>POST /v3/datasets/&lt;id&gt;/decline</code></td>
+<td><code>decline_dataset</code>; owner e-mail <code>dataset_declined</code>; reviewer-pool e-mail <code>declined_dataset_notification</code>.</td>
+</tr>
+<tr>
+<td><code>POST /v3/collections/&lt;id&gt;/publish</code></td>
+<td>Production only, per version: DataCite reserve + <code>update_collection</code> (DOI, <code>is_first_online</code>) + DataCite <code>PUT /dois/&lt;doi&gt;</code>, via <code>services.datacite</code>. Always: <code>publish_collection</code>.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="datasets-sub-resources">Datasets — sub-resources</h2>
+<table>
+<thead>
+<tr>
+<th>Route</th>
+<th>Side effects</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>POST /v3/datasets/&lt;id&gt;/collaborators</code></td>
+<td><code>insert_collaborator</code> (triple insert + list attach + <code>datasets_&lt;collaborator_account&gt;</code> invalidation for the first collaborator).</td>
+</tr>
+<tr>
+<td><code>PUT /v3/datasets/&lt;id&gt;/collaborators/&lt;cid&gt;</code></td>
+<td><code>update_collaborator</code> (SPARQL update; no cache invalidation).</td>
+</tr>
+<tr>
+<td><code>DELETE /v3/datasets/&lt;id&gt;/collaborators/&lt;cid&gt;</code></td>
+<td><code>delete_collaborator</code> (invalidates <code>datasets_&lt;dataset_uuid&gt;</code>, <code>datasets</code>).</td>
+</tr>
+<tr>
+<td><code>POST /v3/datasets/&lt;id&gt;/upload</code></td>
+<td><code>insert_file</code>, chunked write to <code>storage/&lt;dataset_id&gt;_&lt;file_uuid&gt;</code> (0o600 → 0o400), handle.net PID registration (<code>services.handles</code>), <code>update_file</code>. MD5 strict-check cleanup: <code>delete_item_from_list</code> + <code>&lt;account&gt;_storage</code> and <code>&lt;dataset_uuid&gt;_dataset_storage</code> invalidations + <code>os.remove</code>. Held under the <code>FILE_LIST</code> lock around the insert.</td>
+</tr>
+<tr>
+<td><code>PUT /v3/datasets/&lt;id&gt;/update-thumbnail</code></td>
+<td><code>dataset_update_thumb</code> (clear or set); thumbnail written to <code>thumbnail_storage/&lt;dataset_uuid&gt;.&lt;ext&gt;</code> via <code>services.imaging</code>.</td>
+</tr>
+<tr>
+<td><code>POST/DELETE /v3/datasets/&lt;id&gt;/references</code></td>
+<td><code>update_item_list(..., "references")</code>.</td>
+</tr>
+<tr>
+<td><code>POST/DELETE /v3/datasets/&lt;id&gt;/tags</code></td>
+<td><code>update_item_list(..., "tags")</code>.</td>
+</tr>
+<tr>
+<td><code>POST /v3/datasets/&lt;id&gt;/reorder-authors</code></td>
+<td><code>reorder_authors</code>.</td>
+</tr>
+<tr>
+<td><code>POST /v3/collections/&lt;id&gt;/reorder-authors</code></td>
+<td><code>reorder_authors</code>.</td>
+</tr>
+<tr>
+<td><code>PUT /v3/authors/&lt;uuid&gt;</code></td>
+<td><code>update_author</code>.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="collections-sub-resources">Collections — sub-resources</h2>
+<table>
+<thead>
+<tr>
+<th>Route</th>
+<th>Side effects</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>POST/DELETE /v3/collections/&lt;id&gt;/references</code></td>
+<td><code>update_item_list(..., "references")</code>.</td>
+</tr>
+<tr>
+<td><code>POST/DELETE /v3/collections/&lt;id&gt;/tags</code></td>
+<td><code>update_item_list(..., "tags")</code>.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="profile-and-account">Profile and account</h2>
+<table>
+<thead>
+<tr>
+<th>Route</th>
+<th>Side effects</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PUT /v3/profile</code></td>
+<td><code>update_account</code> (full field set; invalidates <code>group</code>, <code>accounts</code>); when categories given, <code>delete_account_property</code> + <code>insert_item_list</code>.</td>
+</tr>
+<tr>
+<td><code>POST /v3/profile/picture</code></td>
+<td>Multipart save to <code>profile_images_storage/&lt;account_uuid&gt;</code> (0o600), dimension gate (&gt;800×800 → <code>os.remove</code> + 400), <code>update_account(profile_image=...)</code>.</td>
+</tr>
+<tr>
+<td><code>DELETE /v3/profile/picture</code></td>
+<td><code>os.remove(profile_image)</code>, <code>delete_account_property(..., "profile_image")</code>.</td>
+</tr>
+<tr>
+<td><code>POST /v3/profile/quota-request</code></td>
+<td><code>insert_quota_request</code>; quota-reviewer e-mail <code>quota_request</code>.</td>
+</tr>
+<tr>
+<td><code>PUT /v3/receive-from-ssi</code></td>
+<td><code>insert_account</code> (when the e-mail is new), <code>insert_session</code>, <code>insert_dataset</code>. Gated on <code>config.ssi_psk</code>.</td>
+</tr>
+<tr>
+<td><code>GET /v3/redirect-from-ssi/&lt;id&gt;/&lt;token&gt;</code></td>
+<td>Sets the <code>djehuty_session</code> cookie (302 redirect; <code>secure</code> in production, no httponly/samesite — AS-IS).</td>
+</tr>
+</tbody>
+</table>
+<h2 id="reviews-and-admin">Reviews and admin</h2>
+<table>
+<thead>
+<tr>
+<th>Route</th>
+<th>Side effects</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PUT /v3/datasets/&lt;id&gt;/assign-reviewer/&lt;rid&gt;</code></td>
+<td><code>update_review(status="assigned")</code> (invalidates <code>datasets_&lt;author_account&gt;</code>, <code>reviews</code>). Reviewer privilege checked on the <strong>cookie</strong> session.</td>
+</tr>
+<tr>
+<td><code>POST /v3/datasets/&lt;id&gt;/repair_md5s</code></td>
+<td>Per missing-checksum file: recompute MD5 from disk + <code>update_file</code> (invalidates <code>&lt;account&gt;_storage</code>, <code>&lt;dataset_uuid&gt;_dataset_storage</code>). Admin (cookie) only.</td>
+</tr>
+<tr>
+<td><code>GET /v3/explore/clear-cache</code></td>
+<td>Invalidates <code>explorer_properties</code>, <code>explorer_types</code>, <code>explorer_property_types</code>. Admin.</td>
+</tr>
+<tr>
+<td><code>GET /v3/admin/accounts/clear-cache</code></td>
+<td>Invalidates <code>accounts</code>. Admin.</td>
+</tr>
+<tr>
+<td><code>GET /v3/admin/reviews/clear-cache</code></td>
+<td>Invalidates <code>reviews</code>. Admin.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="git-smart-http-and-statistics">Git — smart-HTTP and statistics</h2>
+<table>
+<thead>
+<tr>
+<th>Route</th>
+<th>Side effects</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET /v3/datasets/&lt;git_uuid&gt;.git/info/refs</code></td>
+<td><code>__git_create_repository</code>: <code>pygit2.init_repository(storage/&lt;git_uuid&gt;.git, bare)</code> + append <code>[http] receivepack = true</code> to the repo config (unconditional, before dispatch). On the upload-pack service path, the <code>gitDownload</code> log entry (see below). Unauthenticated.</td>
+</tr>
+<tr>
+<td><code>POST /v3/datasets/&lt;git_uuid&gt;.git/git-upload-pack</code></td>
+<td><code>insert_log_entry(event_type="gitDownload")</code>; git http-backend read (no repo write). Unauthenticated.</td>
+</tr>
+<tr>
+<td><code>POST /v3/datasets/&lt;git_uuid&gt;.git/git-receive-pack</code></td>
+<td>git http-backend push → objects/refs written to <code>storage/&lt;git_uuid&gt;.git</code>. <strong>Deviation:</strong> the port requires a session token + <code>may_write</code> (legacy is unauthenticated); see deviations.</td>
+</tr>
+<tr>
+<td><code>PUT /v3/datasets/&lt;id&gt;.git/set-default-branch</code></td>
+<td><code>set_head</code> + <code>references.compress()</code>; <code>update_dataset_git_uuid</code> when the dataset lacks a <code>git_uuid</code>.</td>
+</tr>
+<tr>
+<td><code>GET /v3/datasets/&lt;id&gt;.git/{branches,files}</code></td>
+<td>Incidental: HEAD-guess write (<code>set_head</code> + <code>compress</code>) when HEAD is unresolvable; <code>git_uuid</code> auto-assignment when absent.</td>
+</tr>
+<tr>
+<td><code>GET /v3/datasets/&lt;git_uuid&gt;.git/languages</code></td>
+<td>Cache store <code>git_languages</code> key <code>&lt;git_uuid&gt;_&lt;target&gt;</code>; possible HEAD-guess write. Warmed by publish.</td>
+</tr>
+<tr>
+<td><code>GET /v3/datasets/&lt;git_uuid&gt;.git/contributors</code></td>
+<td>Cache store <code>git_contributors</code> key <code>&lt;git_uuid&gt;_&lt;target&gt;</code>; possible HEAD-guess write. Warmed by publish.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="behaviours-pinned-by-unit-tests">Behaviours pinned by unit tests</h2>
+<ul>
+<li>Collaborator PUT/DELETE call <code>update_collaborator</code>/<code>delete_collaborator</code>
+  with the legacy positional signature (<code>dataset_uuid</code>, <code>collaborator_uuid</code>,
+  the six boolean permissions / the two identifiers) — not keyword arguments
+  the db layer does not accept.</li>
+<li>The collaborator listing calls <code>db.collaborators(dataset_uuid)</code> with no
+  account filter, so it returns the whole list, not just the caller's row.</li>
+<li><code>submit-for-review</code> resolves with <code>is_under_review=False</code>, so a second
+  submit of an already-under-review dataset 404s and cannot create a duplicate
+  review.</li>
+<li><code>submit-for-review</code> enforces the configurable keyword minimum: it fetches
+  tags with <code>limit=config.minimum_keywords_count + 1</code> (only enough to decide)
+  and appends a <code>tag</code> field error when fewer than <code>minimum_keywords_count</code> are
+  present, using the singular/plural message legacy builds.</li>
+<li><code>assign-reviewer</code>, <code>/reviews</code> and <code>/reviewers</code> check reviewer privileges by
+  passing a <strong>session token</strong> to <code>may_review</code>/<code>may_review_institution</code> (not an
+  account UUID); <code>/reviewers</code> includes <code>institutional_reviewer_accounts</code>.</li>
+<li>The <code>SUBMIT_DATASET</code> and <code>FILE_LIST</code> locks are a single process-wide <code>Locks</code>
+  instance created at import, never re-instantiated per request (a fresh
+  <code>Locks()</code> re-runs <code>__init__</code> and replaces the held lock objects).</li>
+<li>codemeta and ro-crates pass <code>git_url</code> to the formatters, so software records
+  keep their repository URL.</li>
+<li><code>datasets/search</code> passes <code>search_for</code> to <code>db.datasets</code> as the structured
+  <code>{"operator", "search_for": [tokens], "scope"}</code> form legacy builds — not the
+  raw string. <code>db.datasets</code> builds its full-text SPARQL filter from that shape;
+  a bare string makes the filter a no-op, so every query matches everything
+  (see "Argument-shape parity" below).</li>
+</ul>
+<h2 id="argument-shape-parity-a-silent-failure-class">Argument-shape parity (a silent-failure class)</h2>
+<p>The database interface (<code>db.*</code>, <code>SparqlInterface</code>) is shared and unchanged, so
+the port must hand each <code>db</code> method arguments in the <strong>exact shape</strong> the legacy
+handler did. This is easy to miss because a wrong <em>shape</em> (not a wrong value)
+usually raises nothing — the SPARQL builder just produces a query that filters
+differently, and the endpoint returns wrong data with a 200.</p>
+<p>The one that shipped and was caught by the legacy <code>/search</code> page driving
+<code>/v3/datasets/search</code>: the port passed <code>search_for</code> as a raw string where
+legacy passed the tokenised <code>{operator, search_for: [tokens], scope}</code> dict, so
+the full-text filter matched nothing and every search returned all datasets.</p>
+<p>Guard against the whole class the same way: for any ported endpoint a legacy UI
+page or its JavaScript calls (grep <code>src/djehuty/web/resources/static/js</code> for the
+route), diff every argument the port passes to a shared <code>db.*</code> method against
+what legacy passed — watching specifically for a value legacy <em>transforms</em> first
+(tokenising, splitting a comma string to a list, int-casting, <code>array_value</code>,
+wrapping in a dict, a default like <code>is_latest</code>). Fake-db unit tests will not
+catch this; only the real query does, so the UI e2e suites are the safety net.</p>
+<h2 id="error-response-shape-parity">Error-response shape parity</h2>
+<p>The legacy error helpers have fixed body shapes a client can depend on, so the
+port reproduces them exactly (<code>wsgi.py</code> <code>error_*</code> methods):</p>
+<ul>
+<li><strong>403 is uniform.</strong> <code>error_403</code> sends its descriptive text to the audit log and
+  always returns <code>{"message": "Not allowed."}</code> to the client; the auth-failure
+  path (<code>error_authorization_failed</code>) is the separate
+  <code>{"message": "Invalid or unknown session token", "code": "InvalidSessionToken"}</code>.
+  The port keeps <code>ForbiddenError</code>'s descriptive message for the log only and
+  renders <code>{"message": "Not allowed."}</code>; <code>AuthorizationError</code> renders the token
+  body.</li>
+<li><strong>A validation <em>list</em> is a bare array.</strong> <code>error_400_list</code> serialises a list of
+  <code>{field_name, message}</code> errors as a top-level JSON array (used by
+  <code>submit-for-review</code>), while a single <code>error_400</code> keeps the
+  <code>{message, code}</code> object. The port's <code>InvalidInputError</code> mirrors this: a list
+  payload renders as a bare array, a string keeps the object — so a client
+  iterating the array is not handed an object.</li>
+<li><strong>Unknown sub-resource on <code>GET /v3/datasets/&lt;id&gt;/authors/&lt;author_uuid&gt;</code> is 500.</strong>
+  Legacy indexes <code>authors[0]</code>; an unknown author raises <code>IndexError</code> that falls
+  through to <code>error_500</code> (empty body). The missing <em>parent</em> dataset stays 404
+  (see the error-status-normalisation deviation).</li>
+</ul>
+<h2 id="deferrals">Deferrals</h2>
+<ul>
+<li><strong>Git-statistics cache warm (api-v2 side only).</strong> The v3 publish path now
+  warms the <code>git_languages</code>/<code>git_contributors</code> caches through
+  <code>services.git.languages_summary</code>/<code>contributors</code> (the same cache prefixes and
+  payloads legacy writes), closing the api-v2 deferral for software published
+  via v3. The api-v2 publish port (<code>api/v2/account/articles/publishing.py</code>)
+  still does not warm — it predates the shared git service. Remove this note
+  once the v2 publish path calls the same <code>services.git</code> warm.</li>
+<li>The new stack sends e-mail through the same <code>EmailInterface</code> that ui.py
+  configures for the legacy server (<code>config.email_interface</code>). Without that
+  bootstrap, sends are skipped and logged — same as a legacy instance without
+  SMTP settings.</li>
+<li><strong>The <code>.git</code> instruction <em>page</em> (<code>GET /v3/datasets/&lt;uuid&gt;.git</code>).</strong> Legacy
+  negotiates for <code>text/html</code> (else 406 <code>Acceptable formats: text/html</code>) and
+  renders <code>git_instructions.html</code>, which <code>extends layout.html</code>. The api-v3 group
+  has no templating — that is the <code>djehuty.views</code> foundation, ported with
+  public-ui — so the handler returns a plain-text stub that carries the real
+  clone URL (<code>{config.base_url}/v3/datasets/&lt;uuid&gt;.git</code>) until then. When views
+  ports the page, reinstate the <code>text/html</code> 406 negotiation and legacy's
+  software-only URL logic (<code>__git_repository_url_for_dataset</code>). Only this
+  human-facing page defers; the smart-HTTP endpoints (<code>info/refs</code>,
+  <code>git-upload-pack</code>, <code>git-receive-pack</code>) are already reproduced.</li>
+</ul>
+<h2 id="method-auth-ordering">Method / auth ordering</h2>
+<p>The legacy handlers do not all check the HTTP method before authentication, and
+that order is observable: an endpoint that checks auth first answers an
+unauthenticated request to the <em>wrong</em> method with 403, where a framework that
+routes by method first would answer 405. Two families exist in <code>wsgi.py</code>:</p>
+<ul>
+<li><strong>Method-first</strong> — every handler built on <code>default_error_handling</code> /
+  <code>default_authenticated_error_handling</code> (groups, statistics, explore, git REST
+  endpoints, reviews, reviewers, redirect-from-ssi, and most others). These
+  reject the method (405) before auth, so FastAPI's native routing matches them
+  and there is nothing to reproduce.</li>
+<li><strong>Custom-ordered</strong> — four handlers check auth or config <em>before</em> the method:
+  <code>accounts_search</code>, <code>receive_from_ssi</code>, <code>dataset_collaborators</code>, and the
+  <code>dataset</code>/<code>collection</code> references handlers. FastAPI would return 405 on a
+  wrong method here where legacy returns 403 (or, for SSI, 404 when <code>ssi_psk</code>
+  is unset). Where a checked-in AS-IS contract test pins the legacy status, the
+  port reproduces it exactly (<code>accounts_search</code> and <code>receive_from_ssi</code> register
+  the extra method on one <code>api_route</code> and enforce the legacy order inside).
+  Where nothing — no client, no e2e test — depends on the legacy status
+  (<code>collaborators</code>, <code>references</code> on an unauthenticated wrong method), the port
+  keeps FastAPI's 405, which is the more correct answer; see the deviations
+  below.</li>
+</ul>
+<h2 id="conscious-deviations-from-legacy-as-is-exceptions">Conscious deviations from legacy (AS-IS exceptions)</h2>
+<p>These are intentional differences, safe because they do not change a
+client-visible success path or a persisted side effect:</p>
+<ul>
+<li><strong>Git smart-HTTP is unauthenticated, matching legacy.</strong> <code>git-receive-pack</code>
+  and <code>info/refs?service=git-receive-pack</code> accept the push with no token — a
+  draft dataset carrying the <code>git_uuid</code> must exist, nothing more (an earlier
+  port hardened this to require a token + <code>may_write</code>, which broke <code>git push</code>
+  for real clients and the e2e git suite; reverted). <code>git-upload-pack</code> is
+  likewise open and records the <code>gitDownload</code> log entry. Only the <em>REST</em> git
+  endpoints (<code>.git/branches</code>, <code>.git/files</code>, <code>.git/set-default-branch</code>) require
+  an authenticated owner/collaborator, as legacy does.</li>
+<li><strong>Wrong-method status on the custom-ordered handlers.</strong> For <code>collaborators</code>
+  and the <code>references</code> handlers, an unauthenticated request with an unsupported
+  method gets 405 from the port versus 403 from legacy, and an authenticated
+  unsupported method gets 405 versus legacy's trailing 500. No client or e2e
+  test depends on the legacy quirk, and 405 is the more accurate answer.</li>
+<li><strong><code>dataset</code>/<code>collection</code> references and dataset <code>tags</code> GET is anonymous-capable.</strong>
+  Legacy requires a token for every method on these; the port lets an
+  unauthenticated GET resolve a <em>published</em> item. Reads only; no write path or
+  persisted side effect differs.</li>
+<li><strong>SSI redirect cookie flags</strong> match legacy exactly (no <code>httponly</code>, no
+  <code>samesite</code>); the hardened flags an earlier port added were reverted.</li>
+<li><strong>Error-status normalisation.</strong> Several handlers return 400/404 where legacy
+  returned an uncaught-exception 500 (e.g. deleting a non-existent reference,
+  malformed paging). The success paths and all persisted side effects are
+  identical; only the error status differs, and the AS-IS e2e suite records
+  these as warnings rather than failures.</li>
+<li><strong>Thumbnail / image detection</strong> uses the same <code>services.imaging</code> extraction as
+  legacy; where the port filters image files by extension rather than the DB
+  <code>is_image</code> flag, the persisted set is unchanged.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.top", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
