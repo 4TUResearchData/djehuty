@@ -572,8 +572,14 @@ function update_author (author_uuid, dataset_uuid) {
     }).done(function () {
         cancel_edit_author (author_uuid, dataset_uuid);
         render_authors_for_dataset (dataset_uuid);
-    }).fail(function () {
-        show_message ("failure", "<p>Failed to update author details.</p>");
+    }).fail(function (jqXHR) {
+        let message = "Failed to update author details.";
+        if (jqXHR.status === 409 &&
+            jqXHR.responseJSON &&
+            jqXHR.responseJSON.message) {
+            message = jqXHR.responseJSON.message;
+        }
+        show_message ("failure", jQuery("<p/>").text(message));
     });
 }
 

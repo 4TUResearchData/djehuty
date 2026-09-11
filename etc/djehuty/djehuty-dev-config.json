@@ -70,6 +70,7 @@
           "first_name": "Dev",
           "last_name": "User",
           "email": "dev@djehuty.com",
+          "orcid": "0000-0000-0000-0001",
           "may-administer": "1",
           "may-run-sparql-queries": "1",
           "may-impersonate": "1",
