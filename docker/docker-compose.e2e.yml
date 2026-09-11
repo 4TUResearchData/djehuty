@@ -14,14 +14,18 @@ services:
         INSTALL_DEV: "1"
     environment:
       COVERAGE_FILE: /coverage/.coverage
-    # $$ escapes compose interpolation so the container shell expands
-    # DJEHUTY_CONFIG from the environment (set on the dev compose service).
+      DJEHUTY_CONFIG: /config/djehuty/djehuty-e2e-config.json
+    # $$ escapes Compose interpolation so the container shell
+    # expands DJEHUTY_CONFIG from this service's environment.
     command:
       - sh
       - -c
       - exec coverage run -m djehuty.ui web --initialize --config-file "$$DJEHUTY_CONFIG"
     volumes:
       - ./coverage:/coverage
+
+  floci:
+    image: floci/floci:2.0.1
 
   seed:
     image: openlink/virtuoso-opensource-7:7.2.13
@@ -42,11 +46,17 @@ services:
     depends_on:
       seed:
         condition: service_completed_successfully
+      floci:
+        condition: service_healthy
     environment:
       E2E_BASE_URL: http://djehuty:8080
       E2E_SPARQL_URL: http://virtuoso:8890/sparql
       E2E_SPARQL_GRAPH: djehuty://local
       E2E_AUTO_LOGIN_EMAIL: dev@djehuty.com
+      E2E_S3_ENDPOINT:   http://floci:4566
+      E2E_S3_ACCESS_KEY: test
+      E2E_S3_SECRET_KEY: test
+      E2E_S3_BUCKET:     test-bucket
       # Source tree is mounted read-only; keep pytest from trying to
       # write a cache or .pyc files into it.
       PYTHONDONTWRITEBYTECODE: "1"
@@ -54,6 +64,7 @@ services:
     volumes:
       - ../tests:/app/tests:ro
       - ./test-results:/app/test-results
+      - djehuty-data:/djehuty-data
     working_dir: /app/tests/e2e
     entrypoint: []
     command:
