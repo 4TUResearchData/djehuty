@@ -1,0 +1,6825 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Djehuty (v2)",
+    "summary": "Research data repository for 4TU.ResearchData",
+    "description": "The djehuty REST API for 4TU.ResearchData.\n\n## Authentication\n\nProtected endpoints in both **v2** and **v3** need an API token in the\n`Authorization` header. Both of these forms are accepted:\n\n```\nAuthorization: token YOUR_TOKEN\nAuthorization: YOUR_TOKEN\n```\n\n### Getting a token\n\nLog in, open your [Dashboard](/my/dashboard), and under **Sessions and API\ntokens** choose **Create API token**. Your current session token works too, and\nstays valid until you log out.\n\n### Using it\n\nIn these docs, click **Authorize** (the lock) and paste the token; it is then\nsent with every request. From the command line:\n\n```\ncurl -H \"Authorization: token YOUR_TOKEN\" https://data.4tu.nl/v2/account\ncurl -H \"Authorization: token YOUR_TOKEN\" https://data.4tu.nl/v3/profile\n```\n",
+    "version": "26.5"
+  },
+  "paths": {
+    "/v2/articles": {
+      "get": {
+        "tags": [
+          "V2 / Articles"
+        ],
+        "summary": "List public articles",
+        "description": "Returns a paginated list of published articles (datasets). Use query parameters to filter and sort results.",
+        "operationId": "list_articles_v2_articles_get",
+        "parameters": [
+          {
+            "name": "order",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "published_date",
+                "modified_date",
+                "created_date",
+                "title",
+                "defined_type",
+                "group_id",
+                "size"
+              ],
+              "type": "string",
+              "description": "Field to sort by",
+              "default": "published_date",
+              "title": "Order"
+            },
+            "description": "Field to sort by"
+          },
+          {
+            "name": "order_direction",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "type": "string",
+              "description": "Sort direction",
+              "default": "desc",
+              "title": "Order Direction"
+            },
+            "description": "Sort direction"
+          },
+          {
+            "name": "categories",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 512
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Comma-separated category IDs",
+              "title": "Categories"
+            },
+            "description": "Comma-separated category IDs"
+          },
+          {
+            "name": "doi",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 255
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Doi"
+            }
+          },
+          {
+            "name": "handle",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 255
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Handle"
+            }
+          },
+          {
+            "name": "group_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by group ID",
+              "title": "Group Id"
+            },
+            "description": "Filter by group ID"
+          },
+          {
+            "name": "institution",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by institution ID",
+              "title": "Institution"
+            },
+            "description": "Filter by institution ID"
+          },
+          {
+            "name": "item_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by content type ID",
+              "title": "Item Type"
+            },
+            "description": "Filter by content type ID"
+          },
+          {
+            "name": "modified_since",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 32
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ISO 8601 date",
+              "title": "Modified Since"
+            },
+            "description": "ISO 8601 date"
+          },
+          {
+            "name": "published_since",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 32
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ISO 8601 date",
+              "title": "Published Since"
+            },
+            "description": "ISO 8601 date"
+          },
+          {
+            "name": "resource_doi",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 255
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Resource Doi"
+            }
+          },
+          {
+            "name": "search_for",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 1024
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Search query",
+              "title": "Search For"
+            },
+            "description": "Search query"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Page number (1-based). Mutually exclusive with offset.",
+              "title": "Page"
+            },
+            "description": "Page number (1-based). Mutually exclusive with offset."
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 1000,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Number of items per page. Used with `page`.",
+              "title": "Page Size"
+            },
+            "description": "Number of items per page. Used with `page`."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Maximum number of results to return.",
+              "title": "Limit"
+            },
+            "description": "Maximum number of results to return."
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Number of results to skip.",
+              "title": "Offset"
+            },
+            "description": "Number of results to skip."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of articles",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ArticleSummary"
+                  },
+                  "title": "Response List Articles V2 Articles Get"
+                },
+                "example": [
+                  {
+                    "uuid": "4f8a9423-83fc-4263-9bb7-2aa83d73865d",
+                    "title": "Measurement data of a Low Speed Field Test of Tractor Semitrailer combinations",
+                    "doi": "10.4121/4f8a9423-83fc-4263-9bb7-2aa83d73865d.v1",
+                    "url": "https://data.4tu.nl/v2/articles/4f8a9423-83fc-4263-9bb7-2aa83d73865d",
+                    "published_date": "2024-07-26T10:39:57",
+                    "defined_type": 3,
+                    "defined_type_name": "dataset",
+                    "group_id": 28589,
+                    "url_private_api": "https://data.4tu.nl/v2/account/articles/4f8a9423-83fc-4263-9bb7-2aa83d73865d",
+                    "url_public_api": "https://data.4tu.nl/v2/articles/4f8a9423-83fc-4263-9bb7-2aa83d73865d",
+                    "url_private_html": "https://data.4tu.nl/my/datasets/4f8a9423-83fc-4263-9bb7-2aa83d73865d/edit",
+                    "url_public_html": "https://data.4tu.nl/datasets/4f8a9423-83fc-4263-9bb7-2aa83d73865d/1"
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/articles/search": {
+      "post": {
+        "tags": [
+          "V2 / Articles"
+        ],
+        "summary": "Search articles",
+        "description": "Search published articles using full-text search with optional filters. Supports boolean operators (AND, OR) and field-specific search (e.g. `:title:wind turbine`).\n\nResults include authors for each matching article.\n\nResponse headers `Number-Of-Records` and `Number-Of-Returned-Records` indicate total matches and returned count for pagination.",
+        "operationId": "search_articles_v2_articles_search_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ArticleSearchRequest"
+              },
+              "examples": {
+                "keyword": {
+                  "summary": "Search for a keyword",
+                  "value": {
+                    "search_for": "djehuty"
+                  }
+                },
+                "filtered": {
+                  "summary": "Keyword with a filter and paging",
+                  "value": {
+                    "search_for": "wind turbine",
+                    "published_since": "2024-01-01",
+                    "limit": 100
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Search results with pagination headers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ArticleSummary"
+                  },
+                  "type": "array",
+                  "title": "Response Search Articles V2 Articles Search Post"
+                },
+                "example": [
+                  {
+                    "uuid": "4f8a9423-83fc-4263-9bb7-2aa83d73865d",
+                    "title": "Measurement data of a Low Speed Field Test of Tractor Semitrailer combinations",
+                    "doi": "10.4121/4f8a9423-83fc-4263-9bb7-2aa83d73865d.v1",
+                    "url": "https://data.4tu.nl/v2/articles/4f8a9423-83fc-4263-9bb7-2aa83d73865d",
+                    "published_date": "2024-07-26T10:39:57",
+                    "defined_type": 3,
+                    "defined_type_name": "dataset",
+                    "group_id": 28589,
+                    "url_private_api": "https://data.4tu.nl/v2/account/articles/4f8a9423-83fc-4263-9bb7-2aa83d73865d",
+                    "url_public_api": "https://data.4tu.nl/v2/articles/4f8a9423-83fc-4263-9bb7-2aa83d73865d",
+                    "url_private_html": "https://data.4tu.nl/my/datasets/4f8a9423-83fc-4263-9bb7-2aa83d73865d/edit",
+                    "url_public_html": "https://data.4tu.nl/datasets/4f8a9423-83fc-4263-9bb7-2aa83d73865d/1"
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid search parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/articles/{dataset_id}": {
+      "get": {
+        "tags": [
+          "V2 / Articles"
+        ],
+        "summary": "Get article details",
+        "description": "Returns full details for a published article, including authors, files, categories, and funding.",
+        "operationId": "get_article_v2_articles__dataset_id__get",
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Article details",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": {
+                  "uuid": "342efadc-66f8-4e9b-9d27-da7b28b849d2",
+                  "title": "Source code of the 4TU.ResearchData repository",
+                  "doi": "10.4121/342efadc-66f8-4e9b-9d27-da7b28b849d2.v1",
+                  "url": "https://data.4tu.nl/v2/articles/4f8a9423-83fc-4263-9bb7-2aa83d73865d",
+                  "published_date": "2024-07-26T10:39:57",
+                  "defined_type": 9,
+                  "defined_type_name": "software",
+                  "group_id": 28586,
+                  "description": "<p>This dataset contains the source code of the 4TU.ResearchData repository (djehuty).</p>",
+                  "license": {
+                    "value": 1,
+                    "name": "CC BY 4.0",
+                    "url": "https://creativecommons.org/licenses/by/4.0/"
+                  },
+                  "tags": [
+                    "research data",
+                    "repository"
+                  ],
+                  "references": [
+                    "https://github.com/4TUResearchData/djehuty"
+                  ],
+                  "categories": [
+                    {
+                      "id": 13622,
+                      "uuid": "01fddd41-68d2-4e28-9d9c-18347847e7d1",
+                      "title": "Mining and Extraction of Energy Resources"
+                    }
+                  ],
+                  "authors": [
+                    {
+                      "uuid": "8f7a1a2b-1c3d-4e5f-9a0b-1c2d3e4f5a6b",
+                      "full_name": "Roel Janssen",
+                      "orcid_id": "0000-0003-1249-2967"
+                    }
+                  ],
+                  "files": [
+                    {
+                      "uuid": "d3e1c325-7fa9-4cb9-884e-0b9cd2059292",
+                      "name": "djehuty-0.0.1.tar.gz",
+                      "size": 3713709,
+                      "is_link_only": false,
+                      "download_url": "https://data.4tu.nl/file/342efadc-66f8-4e9b-9d27-da7b28b849d2/d3e1c325-7fa9-4cb9-884e-0b9cd2059292",
+                      "supplied_md5": "910e9b0f79a0af548f59b3d8a56c3bf4",
+                      "computed_md5": "910e9b0f79a0af548f59b3d8a56c3bf4"
+                    }
+                  ],
+                  "custom_fields": [],
+                  "timeline": {
+                    "posted": "2023-03-20T11:29:10",
+                    "firstOnline": "2023-03-20T11:29:10"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Article not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/articles/{dataset_id}/versions": {
+      "get": {
+        "tags": [
+          "V2 / Articles"
+        ],
+        "summary": "List article versions",
+        "description": "Returns all versions of a published article.",
+        "operationId": "list_article_versions_v2_articles__dataset_id__versions_get",
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of versions",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": [
+                  {
+                    "version": 1,
+                    "url": "https://data.4tu.nl/v2/articles/342efadc-66f8-4e9b-9d27-da7b28b849d2/versions/1"
+                  }
+                ]
+              }
+            }
+          },
+          "404": {
+            "description": "Article not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/articles/{dataset_id}/files": {
+      "get": {
+        "tags": [
+          "V2 / Articles"
+        ],
+        "summary": "List files for an article",
+        "description": "Returns all files associated with a published article.",
+        "operationId": "list_article_files_v2_articles__dataset_id__files_get",
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of files",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": [
+                  {
+                    "uuid": "d3e1c325-7fa9-4cb9-884e-0b9cd2059292",
+                    "name": "djehuty-0.0.1.tar.gz",
+                    "size": 3713709,
+                    "is_link_only": false,
+                    "download_url": "https://data.4tu.nl/file/342efadc-66f8-4e9b-9d27-da7b28b849d2/d3e1c325-7fa9-4cb9-884e-0b9cd2059292",
+                    "supplied_md5": "910e9b0f79a0af548f59b3d8a56c3bf4",
+                    "computed_md5": "910e9b0f79a0af548f59b3d8a56c3bf4"
+                  }
+                ]
+              }
+            }
+          },
+          "404": {
+            "description": "Article not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/articles/{dataset_id}/files/{file_id}": {
+      "get": {
+        "tags": [
+          "V2 / Articles"
+        ],
+        "summary": "Get a file's details",
+        "description": "Returns metadata for a single file of a published article.",
+        "operationId": "get_article_file_v2_articles__dataset_id__files__file_id__get",
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          },
+          {
+            "name": "file_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "File Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "File details",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": {
+                  "uuid": "d3e1c325-7fa9-4cb9-884e-0b9cd2059292",
+                  "name": "djehuty-0.0.1.tar.gz",
+                  "size": 3713709,
+                  "is_link_only": false,
+                  "download_url": "https://data.4tu.nl/file/342efadc-66f8-4e9b-9d27-da7b28b849d2/d3e1c325-7fa9-4cb9-884e-0b9cd2059292",
+                  "supplied_md5": "910e9b0f79a0af548f59b3d8a56c3bf4",
+                  "computed_md5": "910e9b0f79a0af548f59b3d8a56c3bf4"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/articles/{dataset_id}/versions/{version}": {
+      "get": {
+        "tags": [
+          "V2 / Articles"
+        ],
+        "summary": "Get article version details",
+        "description": "Returns full details for a specific published version of an article.",
+        "operationId": "get_article_version_v2_articles__dataset_id__versions__version__get",
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Version"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Versioned article details",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": {
+                  "uuid": "342efadc-66f8-4e9b-9d27-da7b28b849d2",
+                  "title": "Source code of the 4TU.ResearchData repository",
+                  "doi": "10.4121/342efadc-66f8-4e9b-9d27-da7b28b849d2.v1",
+                  "url": "https://data.4tu.nl/v2/articles/4f8a9423-83fc-4263-9bb7-2aa83d73865d",
+                  "published_date": "2024-07-26T10:39:57",
+                  "defined_type": 9,
+                  "defined_type_name": "software",
+                  "group_id": 28586,
+                  "description": "<p>This dataset contains the source code of the 4TU.ResearchData repository (djehuty).</p>",
+                  "license": {
+                    "value": 1,
+                    "name": "CC BY 4.0",
+                    "url": "https://creativecommons.org/licenses/by/4.0/"
+                  },
+                  "tags": [
+                    "research data",
+                    "repository"
+                  ],
+                  "references": [
+                    "https://github.com/4TUResearchData/djehuty"
+                  ],
+                  "categories": [
+                    {
+                      "id": 13622,
+                      "uuid": "01fddd41-68d2-4e28-9d9c-18347847e7d1",
+                      "title": "Mining and Extraction of Energy Resources"
+                    }
+                  ],
+                  "authors": [
+                    {
+                      "uuid": "8f7a1a2b-1c3d-4e5f-9a0b-1c2d3e4f5a6b",
+                      "full_name": "Roel Janssen",
+                      "orcid_id": "0000-0003-1249-2967"
+                    }
+                  ],
+                  "files": [
+                    {
+                      "uuid": "d3e1c325-7fa9-4cb9-884e-0b9cd2059292",
+                      "name": "djehuty-0.0.1.tar.gz",
+                      "size": 3713709,
+                      "is_link_only": false,
+                      "download_url": "https://data.4tu.nl/file/342efadc-66f8-4e9b-9d27-da7b28b849d2/d3e1c325-7fa9-4cb9-884e-0b9cd2059292",
+                      "supplied_md5": "910e9b0f79a0af548f59b3d8a56c3bf4",
+                      "computed_md5": "910e9b0f79a0af548f59b3d8a56c3bf4"
+                    }
+                  ],
+                  "custom_fields": [],
+                  "timeline": {
+                    "posted": "2023-03-20T11:29:10",
+                    "firstOnline": "2023-03-20T11:29:10"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Article version not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/articles/{dataset_id}/versions/{version}/embargo": {
+      "get": {
+        "tags": [
+          "V2 / Articles"
+        ],
+        "summary": "Get embargo info for an article version",
+        "operationId": "get_article_version_embargo_v2_articles__dataset_id__versions__version__embargo_get",
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Version"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Embargo record",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": {
+                  "is_embargoed": true,
+                  "embargo_date": "2039-06-30",
+                  "embargo_type": "article",
+                  "embargo_title": "Under embargo",
+                  "embargo_reason": "<p>Need consent to publish the data</p>",
+                  "embargo_options": []
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Article version not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/articles/{dataset_id}/versions/{version}/confidentiality": {
+      "get": {
+        "tags": [
+          "V2 / Articles"
+        ],
+        "summary": "Get confidentiality info for an article version",
+        "operationId": "get_article_version_confidentiality_v2_articles__dataset_id__versions__version__confidentiality_get",
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Version"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Confidentiality record",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Article version not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/articles/{dataset_id}/versions/{version}/update_thumb": {
+      "put": {
+        "tags": [
+          "V2 / Articles"
+        ],
+        "summary": "Update the thumbnail for an article version",
+        "description": "Regenerate the dataset thumbnail from a specific uploaded file. Requires the dataset to be owned by the authenticated user. Request body: ``{\"file_id\": \"<uuid>\"}``.",
+        "operationId": "update_article_version_thumb_v2_articles__dataset_id__versions__version__update_thumb_put",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Version"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "205": {
+            "description": "Thumbnail regenerated; client should reset its form"
+          },
+          "400": {
+            "description": "Missing or invalid file_id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Article, version, or file not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Thumbnail generation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/collections": {
+      "get": {
+        "tags": [
+          "V2 / Collections"
+        ],
+        "summary": "List public collections",
+        "operationId": "list_collections_v2_collections_get",
+        "parameters": [
+          {
+            "name": "order",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "published_date",
+                "modified_date",
+                "created_date",
+                "title",
+                "defined_type",
+                "group_id",
+                "size"
+              ],
+              "type": "string",
+              "default": "published_date",
+              "title": "Order"
+            }
+          },
+          {
+            "name": "order_direction",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "type": "string",
+              "default": "desc",
+              "title": "Order Direction"
+            }
+          },
+          {
+            "name": "institution",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by institution ID",
+              "title": "Institution"
+            },
+            "description": "Filter by institution ID"
+          },
+          {
+            "name": "group",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by group ID",
+              "title": "Group"
+            },
+            "description": "Filter by group ID"
+          },
+          {
+            "name": "published_since",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 32
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ISO 8601 date",
+              "title": "Published Since"
+            },
+            "description": "ISO 8601 date"
+          },
+          {
+            "name": "modified_since",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 32
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ISO 8601 date",
+              "title": "Modified Since"
+            },
+            "description": "ISO 8601 date"
+          },
+          {
+            "name": "resource_doi",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 255
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Resource Doi"
+            }
+          },
+          {
+            "name": "doi",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 255
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Doi"
+            }
+          },
+          {
+            "name": "handle",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 255
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Handle"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Page number (1-based). Mutually exclusive with offset.",
+              "title": "Page"
+            },
+            "description": "Page number (1-based). Mutually exclusive with offset."
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 1000,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Number of items per page. Used with `page`.",
+              "title": "Page Size"
+            },
+            "description": "Number of items per page. Used with `page`."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Maximum number of results to return.",
+              "title": "Limit"
+            },
+            "description": "Maximum number of results to return."
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Number of results to skip.",
+              "title": "Offset"
+            },
+            "description": "Number of results to skip."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of collections",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CollectionSummary"
+                  },
+                  "title": "Response List Collections V2 Collections Get"
+                },
+                "example": [
+                  {
+                    "uuid": "07a08d2a-1f7f-4e2b-8c9a-4d5e6f7a8b9c",
+                    "title": "4TU.ResearchData featured datasets",
+                    "doi": "10.4121/c.6453243.v3",
+                    "url": "https://data.4tu.nl/v2/collections/07a08d2a-1f7f-4e2b-8c9a-4d5e6f7a8b9c",
+                    "published_date": "2024-05-14T09:12:03",
+                    "timeline": {
+                      "posted": "2024-05-14T09:12:03"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/collections/search": {
+      "post": {
+        "tags": [
+          "V2 / Collections"
+        ],
+        "summary": "Search collections",
+        "operationId": "search_collections_v2_collections_search_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CollectionSearchRequest"
+              },
+              "examples": {
+                "keyword": {
+                  "summary": "Search for a keyword",
+                  "value": {
+                    "search_for": "climate"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CollectionSummary"
+                  },
+                  "type": "array",
+                  "title": "Response Search Collections V2 Collections Search Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/collections/{collection_id}": {
+      "get": {
+        "tags": [
+          "V2 / Collections"
+        ],
+        "summary": "Get collection details",
+        "operationId": "get_collection_v2_collections__collection_id__get",
+        "parameters": [
+          {
+            "name": "collection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Collection Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Collection details",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": {
+                  "uuid": "07a08d2a-1f7f-4e2b-8c9a-4d5e6f7a8b9c",
+                  "title": "4TU.ResearchData featured datasets",
+                  "doi": "10.4121/c.6453243.v3",
+                  "url": "https://data.4tu.nl/v2/collections/07a08d2a-1f7f-4e2b-8c9a-4d5e6f7a8b9c",
+                  "published_date": "2024-05-14T09:12:03",
+                  "timeline": {
+                    "posted": "2024-05-14T09:12:03"
+                  },
+                  "version": 3,
+                  "description": "<p>A curated collection of featured datasets.</p>",
+                  "categories": [
+                    {
+                      "id": 13622,
+                      "uuid": "01fddd41-68d2-4e28-9d9c-18347847e7d1",
+                      "title": "Mining and Extraction of Energy Resources"
+                    }
+                  ],
+                  "references": [],
+                  "tags": [
+                    "featured"
+                  ],
+                  "created_date": "2024-05-14T09:12:03",
+                  "modified_date": "2024-05-14T09:12:03"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/collections/{collection_id}/versions": {
+      "get": {
+        "tags": [
+          "V2 / Collections"
+        ],
+        "summary": "List collection versions",
+        "operationId": "list_collection_versions_v2_collections__collection_id__versions_get",
+        "parameters": [
+          {
+            "name": "collection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Collection Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of versions",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": [
+                  {
+                    "version": 3,
+                    "url": "https://data.4tu.nl/v2/collections/07a08d2a-1f7f-4e2b-8c9a-4d5e6f7a8b9c/versions/3"
+                  },
+                  {
+                    "version": 2,
+                    "url": "https://data.4tu.nl/v2/collections/07a08d2a-1f7f-4e2b-8c9a-4d5e6f7a8b9c/versions/2"
+                  }
+                ]
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/collections/{collection_id}/versions/{version}": {
+      "get": {
+        "tags": [
+          "V2 / Collections"
+        ],
+        "summary": "Get collection version",
+        "operationId": "get_collection_version_v2_collections__collection_id__versions__version__get",
+        "parameters": [
+          {
+            "name": "collection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Collection Id"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Version"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/collections/{collection_id}/articles": {
+      "get": {
+        "tags": [
+          "V2 / Collections"
+        ],
+        "summary": "List collection articles",
+        "operationId": "list_collection_articles_v2_collections__collection_id__articles_get",
+        "parameters": [
+          {
+            "name": "collection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Collection Id"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Page number (1-based). Mutually exclusive with offset.",
+              "title": "Page"
+            },
+            "description": "Page number (1-based). Mutually exclusive with offset."
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 1000,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Number of items per page. Used with `page`.",
+              "title": "Page Size"
+            },
+            "description": "Number of items per page. Used with `page`."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Maximum number of results to return.",
+              "title": "Limit"
+            },
+            "description": "Maximum number of results to return."
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Number of results to skip.",
+              "title": "Offset"
+            },
+            "description": "Number of results to skip."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/categories": {
+      "get": {
+        "tags": [
+          "V2 / Categories"
+        ],
+        "summary": "List all research categories",
+        "description": "Returns the full category taxonomy used for classifying datasets and collections. Categories are hierarchical; use `parent_id` to build a tree.",
+        "operationId": "list_categories_v2_categories_get",
+        "responses": {
+          "200": {
+            "description": "List of categories",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Category"
+                  },
+                  "type": "array",
+                  "title": "Response List Categories V2 Categories Get"
+                },
+                "example": [
+                  {
+                    "id": 13622,
+                    "uuid": "01fddd41-68d2-4e28-9d9c-18347847e7d1",
+                    "title": "Mining and Extraction of Energy Resources",
+                    "parent_id": 13620,
+                    "parent_uuid": "6e5bdc69-96db-41e4-ac0b-18812b46c49c"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/licenses": {
+      "get": {
+        "tags": [
+          "V2 / Licenses"
+        ],
+        "summary": "List all available licenses",
+        "description": "Returns all licenses that can be applied to datasets and collections.",
+        "operationId": "list_licenses_v2_licenses_get",
+        "responses": {
+          "200": {
+            "description": "List of licenses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/License"
+                  },
+                  "type": "array",
+                  "title": "Response List Licenses V2 Licenses Get"
+                },
+                "example": [
+                  {
+                    "value": 1,
+                    "name": "CC BY 4.0",
+                    "url": "https://creativecommons.org/licenses/by/4.0/",
+                    "type": "data"
+                  },
+                  {
+                    "value": 2,
+                    "name": "CC0 1.0",
+                    "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+                    "type": "data"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/account": {
+      "get": {
+        "tags": [
+          "V2 / Account"
+        ],
+        "summary": "Get current account details",
+        "description": "Returns the profile of the currently authenticated user.",
+        "operationId": "get_account_v2_account_get",
+        "responses": {
+          "200": {
+            "description": "Account details",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": {
+                  "uuid": "2a795ead-f99c-499b-9134-da4fadee4936",
+                  "first_name": "Dev",
+                  "last_name": "User",
+                  "is_active": true,
+                  "is_public": false,
+                  "orcid_id": ""
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Invalid or missing session token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Session token": []
+          }
+        ]
+      }
+    },
+    "/v2/account/authors/search": {
+      "post": {
+        "tags": [
+          "V2 / Account / Authors"
+        ],
+        "summary": "Search authors",
+        "description": "Search for authors by name. Used for author autocomplete.",
+        "operationId": "search_authors_v2_account_authors_search_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": true,
+                "type": "object",
+                "title": "Body"
+              },
+              "examples": {
+                "default": {
+                  "summary": "Search authors by name",
+                  "value": {
+                    "search": "Lovelace"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Session token": []
+          }
+        ]
+      }
+    },
+    "/v2/account/authors/{author_id}": {
+      "get": {
+        "tags": [
+          "V2 / Account / Authors"
+        ],
+        "summary": "Get author details",
+        "operationId": "get_author_v2_account_authors__author_id__get",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "author_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Author Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/account/funding/search": {
+      "post": {
+        "tags": [
+          "V2 / Account / Funding"
+        ],
+        "summary": "Search funding",
+        "operationId": "search_funding_v2_account_funding_search_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": true,
+                "type": "object",
+                "title": "Body"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Session token": []
+          }
+        ]
+      }
+    },
+    "/v2/account/institution": {
+      "get": {
+        "tags": [
+          "V2 / Account / Institution"
+        ],
+        "summary": "Get institution details",
+        "operationId": "get_institution_v2_account_institution_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Session token": []
+          }
+        ]
+      }
+    },
+    "/v2/account/institution/accounts": {
+      "get": {
+        "tags": [
+          "V2 / Account / Institution"
+        ],
+        "summary": "List institution accounts",
+        "operationId": "list_institution_accounts_v2_account_institution_accounts_get",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "institution_user_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 4096
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Institution User Id"
+            }
+          },
+          {
+            "name": "is_active",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 1,
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Is Active"
+            }
+          },
+          {
+            "name": "email",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 4096
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Email"
+            }
+          },
+          {
+            "name": "id_lte",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Id Lte"
+            }
+          },
+          {
+            "name": "id_gte",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Id Gte"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Page number (1-based). Mutually exclusive with offset.",
+              "title": "Page"
+            },
+            "description": "Page number (1-based). Mutually exclusive with offset."
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 1000,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Number of items per page. Used with `page`.",
+              "title": "Page Size"
+            },
+            "description": "Number of items per page. Used with `page`."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Maximum number of results to return.",
+              "title": "Limit"
+            },
+            "description": "Maximum number of results to return."
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Number of results to skip.",
+              "title": "Offset"
+            },
+            "description": "Number of results to skip."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/account/institution/users/{account_id}": {
+      "get": {
+        "tags": [
+          "V2 / Account / Institution"
+        ],
+        "summary": "Get institution user",
+        "operationId": "get_institution_account_v2_account_institution_users__account_id__get",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "account_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Account Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/account/articles": {
+      "get": {
+        "tags": [
+          "V2 / Account / Articles"
+        ],
+        "summary": "List own draft articles",
+        "description": "Returns the authenticated user's draft (unpublished) articles.",
+        "operationId": "list_private_articles_v2_account_articles_get",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Page number (1-based). Mutually exclusive with offset.",
+              "title": "Page"
+            },
+            "description": "Page number (1-based). Mutually exclusive with offset."
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 1000,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Number of items per page. Used with `page`.",
+              "title": "Page Size"
+            },
+            "description": "Number of items per page. Used with `page`."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Maximum number of results to return.",
+              "title": "Limit"
+            },
+            "description": "Maximum number of results to return."
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Number of results to skip.",
+              "title": "Offset"
+            },
+            "description": "Number of results to skip."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of draft articles",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "V2 / Account / Articles"
+        ],
+        "summary": "Create a new article",
+        "description": "Create a new draft article (dataset). Returns the location URL of the newly created article.",
+        "operationId": "create_article_v2_account_articles_post",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Body"
+              },
+              "examples": {
+                "minimal": {
+                  "summary": "Title only",
+                  "value": {
+                    "title": "Example dataset"
+                  }
+                },
+                "with_metadata": {
+                  "summary": "Title and description",
+                  "value": {
+                    "title": "Example dataset",
+                    "description": "A short description."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Article created",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": {
+                  "location": "https://data.4tu.nl/v2/account/articles/d7b3daa5-45e2-47b0-9910-0f7fa6a995b1",
+                  "warnings": []
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/account/articles/search": {
+      "post": {
+        "tags": [
+          "V2 / Account / Articles"
+        ],
+        "summary": "Search own articles",
+        "operationId": "search_private_articles_v2_account_articles_search_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": true,
+                "type": "object",
+                "title": "Body"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Search results",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Session token": []
+          }
+        ]
+      }
+    },
+    "/v2/account/articles/{dataset_id}": {
+      "get": {
+        "tags": [
+          "V2 / Account / Articles"
+        ],
+        "summary": "Get own article details",
+        "operationId": "get_private_article_v2_account_articles__dataset_id__get",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Article details",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "V2 / Account / Articles"
+        ],
+        "summary": "Update an article",
+        "operationId": "update_article_v2_account_articles__dataset_id__put",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Article updated",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "V2 / Account / Articles"
+        ],
+        "summary": "Delete a draft article",
+        "operationId": "delete_article_v2_account_articles__dataset_id__delete",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "204": {
+            "description": "Article deleted"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/account/articles/{dataset_id}/authors": {
+      "get": {
+        "tags": [
+          "V2 / Account / Articles / Authors"
+        ],
+        "summary": "List article authors",
+        "operationId": "list_article_authors_v2_account_articles__dataset_id__authors_get",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of authors",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": [
+                  {
+                    "uuid": "08f4d496-67b5-4b7c-b2d2-923458d1f450",
+                    "full_name": "John Doe",
+                    "is_active": false,
+                    "orcid_id": ""
+                  }
+                ]
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "V2 / Account / Articles / Authors"
+        ],
+        "summary": "Replace dataset authors",
+        "operationId": "upsert_article_authors_v2_account_articles__dataset_id__authors_put",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "V2 / Account / Articles / Authors"
+        ],
+        "summary": "Add authors to dataset",
+        "operationId": "upsert_article_authors_v2_account_articles__dataset_id__authors_post",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/account/articles/{dataset_id}/authors/{author_id}": {
+      "delete": {
+        "tags": [
+          "V2 / Account / Articles / Authors"
+        ],
+        "summary": "Remove an author",
+        "operationId": "delete_article_author_v2_account_articles__dataset_id__authors__author_id__delete",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          },
+          {
+            "name": "author_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Author Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/account/articles/{dataset_id}/categories": {
+      "get": {
+        "tags": [
+          "V2 / Account / Articles / Categories"
+        ],
+        "summary": "List article categories",
+        "operationId": "list_article_categories_v2_account_articles__dataset_id__categories_get",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "V2 / Account / Articles / Categories"
+        ],
+        "summary": "Replace categories",
+        "operationId": "upsert_article_categories_v2_account_articles__dataset_id__categories_put",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "V2 / Account / Articles / Categories"
+        ],
+        "summary": "Add categories",
+        "operationId": "upsert_article_categories_v2_account_articles__dataset_id__categories_post",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/account/articles/{dataset_id}/categories/{category_id}": {
+      "delete": {
+        "tags": [
+          "V2 / Account / Articles / Categories"
+        ],
+        "summary": "Remove a category",
+        "operationId": "delete_article_category_v2_account_articles__dataset_id__categories__category_id__delete",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          },
+          {
+            "name": "category_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Category Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/account/articles/{dataset_id}/files": {
+      "get": {
+        "tags": [
+          "V2 / Account / Articles / Files"
+        ],
+        "summary": "List article files",
+        "operationId": "list_private_article_files_v2_account_articles__dataset_id__files_get",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of files",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": [
+                  {
+                    "uuid": "d112d0cd-bc15-4f8e-9013-930750fc017a",
+                    "name": "README.md",
+                    "size": 3696,
+                    "is_link_only": false,
+                    "is_incomplete": false,
+                    "download_url": "https://data.4tu.nl/file/d7b3daa5-45e2-47b0-9910-0f7fa6a995b1/d112d0cd-bc15-4f8e-9013-930750fc017a",
+                    "computed_md5": "c5b36584a0d62d28e9bf9e6892d9ebac"
+                  }
+                ]
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "V2 / Account / Articles / Files"
+        ],
+        "summary": "Register a file or link",
+        "operationId": "create_article_file_v2_account_articles__dataset_id__files_post",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "V2 / Account / Articles / Files"
+        ],
+        "summary": "Remove all files",
+        "operationId": "delete_all_article_files_v2_account_articles__dataset_id__files_delete",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/account/articles/{dataset_id}/files/{file_id}": {
+      "get": {
+        "tags": [
+          "V2 / Account / Articles / Files"
+        ],
+        "summary": "Get file details",
+        "operationId": "get_private_article_file_v2_account_articles__dataset_id__files__file_id__get",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          },
+          {
+            "name": "file_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "File Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "File details",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": {
+                  "uuid": "d112d0cd-bc15-4f8e-9013-930750fc017a",
+                  "name": "README.md",
+                  "size": 3696,
+                  "is_link_only": false,
+                  "is_incomplete": false,
+                  "download_url": "https://data.4tu.nl/file/d7b3daa5-45e2-47b0-9910-0f7fa6a995b1/d112d0cd-bc15-4f8e-9013-930750fc017a",
+                  "computed_md5": "c5b36584a0d62d28e9bf9e6892d9ebac"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "V2 / Account / Articles / Files"
+        ],
+        "summary": "Delete a file",
+        "operationId": "delete_private_article_file_v2_account_articles__dataset_id__files__file_id__delete",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          },
+          {
+            "name": "file_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "File Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/account/articles/{dataset_id}/embargo": {
+      "get": {
+        "tags": [
+          "V2 / Account / Articles / Embargo"
+        ],
+        "summary": "Get embargo details",
+        "operationId": "get_article_embargo_v2_account_articles__dataset_id__embargo_get",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Embargo details",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": {
+                  "is_embargoed": false,
+                  "embargo_type": "file",
+                  "embargo_title": "",
+                  "embargo_reason": "",
+                  "embargo_options": []
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "V2 / Account / Articles / Embargo"
+        ],
+        "summary": "Delete embargo",
+        "operationId": "delete_article_embargo_v2_account_articles__dataset_id__embargo_delete",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/account/articles/{dataset_id}/private_links": {
+      "get": {
+        "tags": [
+          "V2 / Account / Articles / Links"
+        ],
+        "summary": "List private links",
+        "operationId": "list_private_links_v2_account_articles__dataset_id__private_links_get",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of private links",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": [
+                  {
+                    "id": "8G2fkfIJP0",
+                    "is_active": true,
+                    "expires_date": "2032-01-01T00:00:00"
+                  }
+                ]
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "V2 / Account / Articles / Links"
+        ],
+        "summary": "Create a private link",
+        "operationId": "create_private_link_v2_account_articles__dataset_id__private_links_post",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "default": {},
+                "title": "Body"
+              },
+              "examples": {
+                "with_expiry": {
+                  "summary": "Link that expires",
+                  "value": {
+                    "expires_date": "2032-01-01",
+                    "read_only": false
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Private link created",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": {
+                  "location": "https://data.4tu.nl/private_datasets/8G2fkfIJP0"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/account/articles/{dataset_id}/private_links/{link_id}": {
+      "get": {
+        "tags": [
+          "V2 / Account / Articles / Links"
+        ],
+        "summary": "Get private link",
+        "operationId": "get_private_link_v2_account_articles__dataset_id__private_links__link_id__get",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          },
+          {
+            "name": "link_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Link Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "V2 / Account / Articles / Links"
+        ],
+        "summary": "Update private link",
+        "operationId": "update_private_link_v2_account_articles__dataset_id__private_links__link_id__put",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          },
+          {
+            "name": "link_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Link Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "V2 / Account / Articles / Links"
+        ],
+        "summary": "Delete a private link",
+        "operationId": "delete_private_link_v2_account_articles__dataset_id__private_links__link_id__delete",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          },
+          {
+            "name": "link_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Link Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/account/articles/{dataset_id}/funding": {
+      "get": {
+        "tags": [
+          "V2 / Account / Articles / Funding"
+        ],
+        "summary": "List funding",
+        "operationId": "list_article_funding_v2_account_articles__dataset_id__funding_get",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of funding",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": [
+                  {
+                    "uuid": "6f605fe1-e87a-43f5-8b67-70ebe3f9b868",
+                    "title": "Example cases fund",
+                    "grant_code": "EXA-001",
+                    "funder_name": "Example",
+                    "url": "https://example.exa"
+                  }
+                ]
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "V2 / Account / Articles / Funding"
+        ],
+        "summary": "Replace funding records",
+        "operationId": "upsert_article_funding_v2_account_articles__dataset_id__funding_put",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "V2 / Account / Articles / Funding"
+        ],
+        "summary": "Add funding records (appends)",
+        "operationId": "upsert_article_funding_v2_account_articles__dataset_id__funding_post",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/account/articles/{dataset_id}/funding/{funding_id}": {
+      "delete": {
+        "tags": [
+          "V2 / Account / Articles / Funding"
+        ],
+        "summary": "Remove funding",
+        "operationId": "delete_article_funding_v2_account_articles__dataset_id__funding__funding_id__delete",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          },
+          {
+            "name": "funding_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Funding Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/account/articles/{dataset_id}/reserve_doi": {
+      "post": {
+        "tags": [
+          "V2 / Account / Articles / Publishing"
+        ],
+        "summary": "Reserve a DOI",
+        "operationId": "reserve_doi_v2_account_articles__dataset_id__reserve_doi_post",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reserved DOI",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": {
+                  "doi": "10.5074/d7b3daa5-45e2-47b0-9910-0f7fa6a995b1"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/account/articles/{dataset_id}/publish": {
+      "post": {
+        "tags": [
+          "V2 / Account / Articles / Publishing"
+        ],
+        "summary": "Publish an article",
+        "description": "Publish a draft article. Requires reviewer permissions (via the review-impersonation cookie or the calling account's token). In production this reserves the container and version DOIs at DataCite and pushes their metadata; the DOI flow is skipped in dev/preproduction. Sends the approval e-mail to the owner and a notification to the reviewers.",
+        "operationId": "publish_article_v2_account_articles__dataset_id__publish_post",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "201": {
+            "description": "Article published",
+            "content": {
+              "application/json": {
+                "example": {
+                  "location": "https://data.4tu.nl/review/published/9ce6daa5-45e2-47b0-9910-3976"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Reviewer permissions required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Publication backend error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/account/collections": {
+      "post": {
+        "tags": [
+          "V2 / Account / Collections"
+        ],
+        "summary": "Create a new draft collection",
+        "operationId": "create_collection_v2_account_collections_post",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Body"
+              },
+              "examples": {
+                "minimal": {
+                  "summary": "Title only",
+                  "value": {
+                    "title": "Example collection"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Collection created",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": {
+                  "location": "https://data.4tu.nl/v2/account/collections/08b702d6-98a0-4081-9445-5aeae720cfa8"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "V2 / Account / Collections"
+        ],
+        "summary": "List own draft collections",
+        "operationId": "list_private_collections_v2_account_collections_get",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Page number (1-based). Mutually exclusive with offset.",
+              "title": "Page"
+            },
+            "description": "Page number (1-based). Mutually exclusive with offset."
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 1000,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Number of items per page. Used with `page`.",
+              "title": "Page Size"
+            },
+            "description": "Number of items per page. Used with `page`."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Maximum number of results to return.",
+              "title": "Limit"
+            },
+            "description": "Maximum number of results to return."
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Number of results to skip.",
+              "title": "Offset"
+            },
+            "description": "Number of results to skip."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/account/collections/{collection_id}": {
+      "delete": {
+        "tags": [
+          "V2 / Account / Collections"
+        ],
+        "summary": "Delete a draft collection",
+        "operationId": "delete_collection_v2_account_collections__collection_id__delete",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "collection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Collection Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "V2 / Account / Collections"
+        ],
+        "summary": "Get own collection details",
+        "operationId": "get_private_collection_v2_account_collections__collection_id__get",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "collection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Collection Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "V2 / Account / Collections"
+        ],
+        "summary": "Update collection metadata",
+        "operationId": "update_private_collection_v2_account_collections__collection_id__put",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "collection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Collection Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/account/collections/search": {
+      "post": {
+        "tags": [
+          "V2 / Account / Collections"
+        ],
+        "summary": "Search own collections",
+        "operationId": "search_private_collections_v2_account_collections_search_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CollectionSearchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Session token": []
+          }
+        ]
+      }
+    },
+    "/v2/account/collections/{collection_id}/authors": {
+      "get": {
+        "tags": [
+          "V2 / Account / Collections / Authors"
+        ],
+        "summary": "List collection authors",
+        "operationId": "list_collection_authors_v2_account_collections__collection_id__authors_get",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "collection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Collection Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "V2 / Account / Collections / Authors"
+        ],
+        "summary": "Replace collection authors",
+        "operationId": "upsert_collection_authors_v2_account_collections__collection_id__authors_put",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "collection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Collection Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "V2 / Account / Collections / Authors"
+        ],
+        "summary": "Add authors to collection",
+        "operationId": "upsert_collection_authors_v2_account_collections__collection_id__authors_post",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "collection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Collection Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/account/collections/{collection_id}/authors/{author_id}": {
+      "delete": {
+        "tags": [
+          "V2 / Account / Collections / Authors"
+        ],
+        "summary": "Remove author",
+        "operationId": "delete_collection_author_v2_account_collections__collection_id__authors__author_id__delete",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "collection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Collection Id"
+            }
+          },
+          {
+            "name": "author_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Author Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/account/collections/{collection_id}/categories": {
+      "get": {
+        "tags": [
+          "V2 / Account / Collections / Categories"
+        ],
+        "summary": "List collection categories",
+        "operationId": "list_collection_categories_v2_account_collections__collection_id__categories_get",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "collection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Collection Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "V2 / Account / Collections / Categories"
+        ],
+        "summary": "Replace categories",
+        "operationId": "upsert_collection_categories_v2_account_collections__collection_id__categories_put",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "collection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Collection Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "V2 / Account / Collections / Categories"
+        ],
+        "summary": "Add categories",
+        "operationId": "upsert_collection_categories_v2_account_collections__collection_id__categories_post",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "collection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Collection Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/account/collections/{collection_id}/categories/{category_id}": {
+      "delete": {
+        "tags": [
+          "V2 / Account / Collections / Categories"
+        ],
+        "summary": "Remove category",
+        "operationId": "delete_collection_category_v2_account_collections__collection_id__categories__category_id__delete",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "collection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Collection Id"
+            }
+          },
+          {
+            "name": "category_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Category Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/account/collections/{collection_id}/articles": {
+      "get": {
+        "tags": [
+          "V2 / Account / Collections / Articles"
+        ],
+        "summary": "List collection articles (private)",
+        "operationId": "list_private_collection_articles_v2_account_collections__collection_id__articles_get",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "collection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Collection Id"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Page number (1-based). Mutually exclusive with offset.",
+              "title": "Page"
+            },
+            "description": "Page number (1-based). Mutually exclusive with offset."
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 1000,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Number of items per page. Used with `page`.",
+              "title": "Page Size"
+            },
+            "description": "Number of items per page. Used with `page`."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Maximum number of results to return.",
+              "title": "Limit"
+            },
+            "description": "Maximum number of results to return."
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Number of results to skip.",
+              "title": "Offset"
+            },
+            "description": "Number of results to skip."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "V2 / Account / Collections / Articles"
+        ],
+        "summary": "Replace collection articles",
+        "operationId": "upsert_collection_articles_v2_account_collections__collection_id__articles_put",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "collection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Collection Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "V2 / Account / Collections / Articles"
+        ],
+        "summary": "Add articles to collection",
+        "operationId": "upsert_collection_articles_v2_account_collections__collection_id__articles_post",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "collection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Collection Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/account/collections/{collection_id}/articles/{article_id}": {
+      "delete": {
+        "tags": [
+          "V2 / Account / Collections / Articles"
+        ],
+        "summary": "Remove article from collection",
+        "operationId": "delete_collection_article_v2_account_collections__collection_id__articles__article_id__delete",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "collection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Collection Id"
+            }
+          },
+          {
+            "name": "article_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Article Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/account/collections/{collection_id}/funding": {
+      "get": {
+        "tags": [
+          "V2 / Account / Collections / Funding"
+        ],
+        "summary": "List funding",
+        "operationId": "list_collection_funding_v2_account_collections__collection_id__funding_get",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "collection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Collection Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/account/collections/{collection_id}/funding/{funding_id}": {
+      "delete": {
+        "tags": [
+          "V2 / Account / Collections / Funding"
+        ],
+        "summary": "Remove funding",
+        "operationId": "delete_collection_funding_v2_account_collections__collection_id__funding__funding_id__delete",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "collection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Collection Id"
+            }
+          },
+          {
+            "name": "funding_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Funding Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/account/collections/{collection_id}/reserve_doi": {
+      "post": {
+        "tags": [
+          "V2 / Account / Collections / Publishing"
+        ],
+        "summary": "Reserve DOI",
+        "operationId": "reserve_collection_doi_v2_account_collections__collection_id__reserve_doi_post",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "collection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Collection Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/account/applications/authorize": {
+      "get": {
+        "tags": [
+          "V2 / Account"
+        ],
+        "summary": "OAuth authorize (stub)",
+        "description": "Not implemented; always returns 404.",
+        "operationId": "oauth_authorize_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Not implemented",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "V2 / Account"
+        ],
+        "summary": "OAuth authorize (stub)",
+        "description": "Not implemented; always returns 404.",
+        "operationId": "oauth_authorize_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Not implemented",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/token": {
+      "get": {
+        "tags": [
+          "V2 / Account"
+        ],
+        "summary": "OAuth token (stub)",
+        "description": "Not implemented; always returns 404.",
+        "operationId": "oauth_token_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Not implemented",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "V2 / Account"
+        ],
+        "summary": "OAuth token (stub)",
+        "description": "Not implemented; always returns 404.",
+        "operationId": "oauth_token_put",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Not implemented",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "V2 / Account"
+        ],
+        "summary": "OAuth token (stub)",
+        "description": "Not implemented; always returns 404.",
+        "operationId": "oauth_token_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Not implemented",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "V2 / Account"
+        ],
+        "summary": "OAuth token (stub)",
+        "description": "Not implemented; always returns 404.",
+        "operationId": "oauth_token_delete",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Not implemented",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ArticleSearchRequest": {
+        "properties": {
+          "search_for": {
+            "anyOf": [
+              {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  }
+                ],
+                "maxLength": 1024
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Search For",
+            "description": "Search query. Supports boolean operators (AND, OR) and field-specific search with ``:field:`` syntax (e.g. ``:title:wind turbine``).",
+            "examples": [
+              "wind turbine measurements"
+            ]
+          },
+          "institution": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Institution",
+            "description": "Filter by institution ID"
+          },
+          "group_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Group Id",
+            "description": "Filter by group ID"
+          },
+          "published_since": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 32
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Published Since",
+            "description": "ISO 8601 date. Return only articles published after this date.",
+            "examples": [
+              "2025-01-01"
+            ]
+          },
+          "modified_since": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 32
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Modified Since",
+            "description": "ISO 8601 date. Return only articles modified after this date."
+          },
+          "item_type": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Item Type",
+            "description": "Filter by content type ID"
+          },
+          "categories": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 512
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Categories",
+            "description": "Comma-separated list of category IDs to filter by",
+            "examples": [
+              "13,42"
+            ]
+          },
+          "doi": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Doi",
+            "description": "Filter by exact DOI"
+          },
+          "handle": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Handle",
+            "description": "Filter by handle"
+          },
+          "resource_doi": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resource Doi"
+          },
+          "order": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "published_date",
+                  "modified_date",
+                  "created_date",
+                  "title",
+                  "defined_type",
+                  "group_id",
+                  "size"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Order",
+            "description": "Field to sort results by"
+          },
+          "order_direction": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "asc",
+                  "desc"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Order Direction",
+            "description": "Sort direction"
+          },
+          "page": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page",
+            "description": "Page number (1-based)"
+          },
+          "page_size": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 1000.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page Size",
+            "description": "Results per page"
+          },
+          "limit": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 1000.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Limit",
+            "description": "Maximum results to return"
+          },
+          "offset": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Offset",
+            "description": "Number of results to skip"
+          }
+        },
+        "type": "object",
+        "title": "ArticleSearchRequest",
+        "description": "Request body for ``POST /v2/articles/search``.",
+        "examples": [
+          {
+            "limit": 10,
+            "order": "published_date",
+            "order_direction": "desc",
+            "search_for": "wind turbine"
+          }
+        ]
+      },
+      "ArticleSummary": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id",
+            "description": "Numeric article identifier"
+          },
+          "uuid": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uuid",
+            "description": "Container UUID"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title",
+            "description": "Article title",
+            "examples": [
+              "Wind tunnel measurements"
+            ]
+          },
+          "doi": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Doi",
+            "description": "DOI",
+            "examples": [
+              "10.4121/12345678-abcd-1234"
+            ]
+          },
+          "handle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Handle"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url",
+            "description": "Canonical URL"
+          },
+          "published_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Published Date",
+            "description": "Publication date (ISO 8601)"
+          },
+          "thumb": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Thumb",
+            "description": "Thumbnail URL"
+          },
+          "defined_type": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Defined Type",
+            "description": "Content type ID"
+          },
+          "defined_type_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Defined Type Name",
+            "description": "Content type name",
+            "examples": [
+              "dataset"
+            ]
+          },
+          "group_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Group Id",
+            "description": "Institutional group ID"
+          },
+          "url_private_api": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url Private Api"
+          },
+          "url_public_api": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url Public Api"
+          },
+          "url_private_html": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url Private Html"
+          },
+          "url_public_html": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url Public Html"
+          },
+          "timeline": {
+            "$ref": "#/components/schemas/Timeline"
+          },
+          "resource_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resource Title"
+          },
+          "resource_doi": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resource Doi"
+          },
+          "authors": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/Author"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Authors"
+          }
+        },
+        "type": "object",
+        "title": "ArticleSummary",
+        "description": "Article summary as returned by list and search endpoints.\n\nThis matches the Figshare v2 ``articles`` response format.",
+        "examples": [
+          {
+            "defined_type": 3,
+            "defined_type_name": "dataset",
+            "doi": "10.4121/12345678-abcd-1234",
+            "id": 12345678,
+            "published_date": "2025-06-01T12:00:00",
+            "timeline": {
+              "firstOnline": "2025-06-02",
+              "posted": "2025-06-01"
+            },
+            "title": "Wind tunnel measurements of a scaled wind turbine",
+            "uuid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+          }
+        ]
+      },
+      "Author": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id"
+          },
+          "uuid": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uuid"
+          },
+          "full_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Full Name"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active",
+            "default": false
+          },
+          "url_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url Name"
+          },
+          "orcid_id": {
+            "type": "string",
+            "title": "Orcid Id",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "title": "Author",
+        "description": "Author as returned in article listings."
+      },
+      "Body_upload_own_profile_picture_v3_profile_picture_post": {
+        "properties": {
+          "file": {
+            "anyOf": [
+              {
+                "type": "string",
+                "contentMediaType": "application/octet-stream"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "title": "Body_upload_own_profile_picture_v3_profile_picture_post"
+      },
+      "Category": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id",
+            "description": "Numeric category identifier"
+          },
+          "uuid": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uuid",
+            "description": "UUID of the category"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title",
+            "description": "Category title",
+            "examples": [
+              "Electrical Engineering"
+            ]
+          },
+          "parent_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Id",
+            "description": "Parent category ID (null for root categories)"
+          },
+          "parent_uuid": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Uuid",
+            "description": "Parent category UUID"
+          },
+          "path": {
+            "type": "string",
+            "title": "Path",
+            "description": "Full path from root to this category",
+            "default": ""
+          },
+          "source_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Id",
+            "description": "Identifier from the source taxonomy"
+          },
+          "taxonomy_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Taxonomy Id",
+            "description": "Taxonomy system identifier"
+          }
+        },
+        "type": "object",
+        "title": "Category",
+        "description": "A research category from the classification taxonomy.",
+        "examples": [
+          {
+            "id": 13,
+            "parent_id": 2,
+            "parent_uuid": "f0e1d2c3-b4a5-6789-0fed-cba987654321",
+            "path": "Engineering / Electrical Engineering",
+            "source_id": "4009",
+            "taxonomy_id": 1,
+            "title": "Electrical Engineering",
+            "uuid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+          }
+        ]
+      },
+      "CollectionSearchRequest": {
+        "properties": {
+          "search_for": {
+            "anyOf": [
+              {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  }
+                ],
+                "maxLength": 1024
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Search For"
+          },
+          "institution": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Institution"
+          },
+          "group_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Group Id"
+          },
+          "published_since": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 32
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Published Since"
+          },
+          "modified_since": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 32
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Modified Since"
+          },
+          "categories": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 512
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Categories"
+          },
+          "doi": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Doi"
+          },
+          "handle": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Handle"
+          },
+          "resource_doi": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resource Doi"
+          },
+          "order": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "published_date",
+                  "modified_date",
+                  "created_date",
+                  "title",
+                  "defined_type",
+                  "group_id",
+                  "size"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Order"
+          },
+          "order_direction": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "asc",
+                  "desc"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Order Direction"
+          },
+          "page": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page"
+          },
+          "page_size": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 1000.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page Size"
+          },
+          "limit": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 1000.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Limit"
+          },
+          "offset": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Offset"
+          }
+        },
+        "type": "object",
+        "title": "CollectionSearchRequest",
+        "description": "Request body for ``POST /v2/collections/search``."
+      },
+      "CollectionSummary": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id",
+            "description": "Numeric collection identifier"
+          },
+          "uuid": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uuid",
+            "description": "Container UUID"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title",
+            "description": "Collection title"
+          },
+          "doi": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Doi",
+            "description": "DOI"
+          },
+          "handle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Handle"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          },
+          "published_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Published Date"
+          },
+          "thumb": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Thumb"
+          },
+          "group_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Group Id"
+          },
+          "url_private_api": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url Private Api"
+          },
+          "url_public_api": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url Public Api"
+          },
+          "url_private_html": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url Private Html"
+          },
+          "url_public_html": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url Public Html"
+          },
+          "timeline": {
+            "$ref": "#/components/schemas/Timeline"
+          },
+          "resource_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resource Title"
+          },
+          "resource_doi": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resource Doi"
+          }
+        },
+        "type": "object",
+        "title": "CollectionSummary",
+        "description": "Collection summary as returned by list endpoints.",
+        "examples": [
+          {
+            "doi": "10.4121/9876543-fedc-ba09",
+            "id": 9876543,
+            "published_date": "2025-04-01T10:00:00",
+            "title": "Wind energy research data collection",
+            "uuid": "f1e2d3c4-b5a6-7890-fedc-ba0987654321"
+          }
+        ]
+      },
+      "ErrorResponse": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "Human-readable error description"
+          },
+          "code": {
+            "type": "string",
+            "title": "Code",
+            "description": "Machine-readable error code"
+          }
+        },
+        "type": "object",
+        "required": [
+          "message",
+          "code"
+        ],
+        "title": "ErrorResponse",
+        "description": "Standard error response.",
+        "examples": [
+          {
+            "code": "MissingRequiredField",
+            "message": "Missing required value for 'title'."
+          }
+        ]
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "License": {
+        "properties": {
+          "value": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value",
+            "description": "Numeric license identifier"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name",
+            "description": "License name",
+            "examples": [
+              "CC BY 4.0"
+            ]
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url",
+            "description": "URL to the full license text",
+            "examples": [
+              "https://creativecommons.org/licenses/by/4.0/"
+            ]
+          },
+          "type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Type",
+            "description": "License type classification (djehuty extension)",
+            "examples": [
+              "data",
+              "software"
+            ]
+          }
+        },
+        "type": "object",
+        "title": "License",
+        "description": "A license that can be applied to datasets and collections.",
+        "examples": [
+          {
+            "name": "CC BY 4.0",
+            "type": "data",
+            "url": "https://creativecommons.org/licenses/by/4.0/",
+            "value": 1
+          }
+        ]
+      },
+      "Timeline": {
+        "properties": {
+          "posted": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Posted"
+          },
+          "firstOnline": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Firstonline"
+          },
+          "revision": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revision"
+          },
+          "submission": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Submission"
+          },
+          "publisherPublication": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Publisherpublication"
+          }
+        },
+        "type": "object",
+        "title": "Timeline",
+        "description": "Publication timeline for datasets and collections.",
+        "examples": [
+          {
+            "firstOnline": "2025-03-16",
+            "posted": "2025-03-15"
+          }
+        ]
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "Session token": {
+        "type": "apiKey",
+        "description": "Your session token. Paste the token value; `token YOUR_TOKEN` also works.",
+        "in": "header",
+        "name": "Authorization"
+      }
+    }
+  }
+}

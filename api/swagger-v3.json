@@ -1,0 +1,6642 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Djehuty (v3)",
+    "summary": "Research data repository for 4TU.ResearchData",
+    "description": "The djehuty REST API for 4TU.ResearchData.\n\n## Authentication\n\nProtected endpoints in both **v2** and **v3** need an API token in the\n`Authorization` header. Both of these forms are accepted:\n\n```\nAuthorization: token YOUR_TOKEN\nAuthorization: YOUR_TOKEN\n```\n\n### Getting a token\n\nLog in, open your [Dashboard](/my/dashboard), and under **Sessions and API\ntokens** choose **Create API token**. Your current session token works too, and\nstays valid until you log out.\n\n### Using it\n\nIn these docs, click **Authorize** (the lock) and paste the token; it is then\nsent with every request. From the command line:\n\n```\ncurl -H \"Authorization: token YOUR_TOKEN\" https://data.4tu.nl/v2/account\ncurl -H \"Authorization: token YOUR_TOKEN\" https://data.4tu.nl/v3/profile\n```\n",
+    "version": "26.5"
+  },
+  "paths": {
+    "/v3/datasets": {
+      "get": {
+        "tags": [
+          "V3 / Datasets"
+        ],
+        "summary": "List public datasets",
+        "description": "Returns a paginated list of published datasets. Supports filtering by categories, groups, institution, DOI, and more.\n\nSet `return_count=true` to get a count of matching datasets instead of the results.",
+        "operationId": "list_datasets_v3_datasets_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 1000,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Offset"
+            }
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "published_date",
+                "modified_date",
+                "created_date",
+                "title",
+                "defined_type",
+                "group_id",
+                "size"
+              ],
+              "type": "string",
+              "description": "Field to sort by",
+              "default": "published_date",
+              "title": "Order"
+            },
+            "description": "Field to sort by"
+          },
+          {
+            "name": "order_direction",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "type": "string",
+              "description": "Sort direction",
+              "default": "desc",
+              "title": "Order Direction"
+            },
+            "description": "Sort direction"
+          },
+          {
+            "name": "categories",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 512
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Comma-separated category IDs",
+              "title": "Categories"
+            },
+            "description": "Comma-separated category IDs"
+          },
+          {
+            "name": "group_ids",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 512
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Comma-separated group IDs",
+              "title": "Group Ids"
+            },
+            "description": "Comma-separated group IDs"
+          },
+          {
+            "name": "doi",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 255
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Doi"
+            }
+          },
+          {
+            "name": "handle",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 255
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Handle"
+            }
+          },
+          {
+            "name": "institution",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Institution"
+            }
+          },
+          {
+            "name": "item_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Item Type"
+            }
+          },
+          {
+            "name": "modified_since",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 32
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ISO 8601 date",
+              "title": "Modified Since"
+            },
+            "description": "ISO 8601 date"
+          },
+          {
+            "name": "published_since",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 32
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ISO 8601 date",
+              "title": "Published Since"
+            },
+            "description": "ISO 8601 date"
+          },
+          {
+            "name": "resource_doi",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 255
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Resource Doi"
+            }
+          },
+          {
+            "name": "return_count",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "If true, return count instead of results",
+              "title": "Return Count"
+            },
+            "description": "If true, return count instead of results"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of datasets or count object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ArticleSummary"
+                  },
+                  "title": "Response List Datasets V3 Datasets Get"
+                },
+                "example": [
+                  {
+                    "uuid": "27e6a01d-3f09-4d90-ae02-1d749ae9efb8",
+                    "title": "Coastal water temperature measurements",
+                    "doi": "10.4121/27e6a01d-3f09-4d90-ae02-1d749ae9efb8.v1",
+                    "url": "https://data.4tu.nl/v2/articles/27e6a01d-3f09-4d90-ae02-1d749ae9efb8",
+                    "published_date": "2026-07-03T10:48:50",
+                    "defined_type": 3,
+                    "defined_type_name": "dataset",
+                    "group_id": 28586,
+                    "url_private_api": "https://data.4tu.nl/v2/account/articles/27e6a01d-3f09-4d90-ae02-1d749ae9efb8",
+                    "url_public_api": "https://data.4tu.nl/v2/articles/27e6a01d-3f09-4d90-ae02-1d749ae9efb8",
+                    "url_private_html": "https://data.4tu.nl/my/datasets/27e6a01d-3f09-4d90-ae02-1d749ae9efb8/edit",
+                    "url_public_html": "https://data.4tu.nl/datasets/27e6a01d-3f09-4d90-ae02-1d749ae9efb8/1",
+                    "timeline": {
+                      "posted": "2026-07-03T10:48:50"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/datasets/search": {
+      "post": {
+        "tags": [
+          "V3 / Datasets"
+        ],
+        "summary": "Search datasets",
+        "description": "Search published datasets using full-text search with optional filters.\n\nSupports boolean operators (AND, OR) and field-specific search.",
+        "operationId": "search_datasets_v3_datasets_search_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ArticleSearchRequest"
+              },
+              "examples": {
+                "keyword": {
+                  "summary": "Full-text search",
+                  "value": {
+                    "search_for": "climate",
+                    "limit": 10
+                  }
+                },
+                "filtered": {
+                  "summary": "Search with filters",
+                  "value": {
+                    "search_for": "ocean",
+                    "group_id": 28586,
+                    "categories": "13555",
+                    "limit": 10
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Search results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ArticleSummary"
+                  },
+                  "type": "array",
+                  "title": "Response Search Datasets V3 Datasets Search Post"
+                },
+                "example": [
+                  {
+                    "uuid": "27e6a01d-3f09-4d90-ae02-1d749ae9efb8",
+                    "title": "Coastal water temperature measurements",
+                    "doi": "10.4121/27e6a01d-3f09-4d90-ae02-1d749ae9efb8.v1",
+                    "url": "https://data.4tu.nl/v2/articles/27e6a01d-3f09-4d90-ae02-1d749ae9efb8",
+                    "published_date": "2026-07-03T10:48:50",
+                    "defined_type": 3,
+                    "defined_type_name": "dataset",
+                    "group_id": 28586,
+                    "url_private_api": "https://data.4tu.nl/v2/account/articles/27e6a01d-3f09-4d90-ae02-1d749ae9efb8",
+                    "url_public_api": "https://data.4tu.nl/v2/articles/27e6a01d-3f09-4d90-ae02-1d749ae9efb8",
+                    "url_private_html": "https://data.4tu.nl/my/datasets/27e6a01d-3f09-4d90-ae02-1d749ae9efb8/edit",
+                    "url_public_html": "https://data.4tu.nl/datasets/27e6a01d-3f09-4d90-ae02-1d749ae9efb8/1",
+                    "timeline": {
+                      "posted": "2026-07-03T10:48:50"
+                    },
+                    "authors": [
+                      {
+                        "uuid": "07d6e6ce-b1bf-43ca-86e6-7a3ab8bc8416",
+                        "full_name": "Ada Lovelace",
+                        "is_active": true,
+                        "orcid_id": ""
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid search parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/datasets/{dataset_id}/submit-for-review": {
+      "put": {
+        "tags": [
+          "V3 / Datasets / Publishing"
+        ],
+        "summary": "Submit dataset for review",
+        "description": "Submit a draft dataset for curator review before publication. Performs metadata validation, persists the supplied metadata (``db.update_dataset``), and registers a review record (``db.insert_review``).",
+        "operationId": "submit_for_review_v3_datasets__dataset_id__submit_for_review_put",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The dataset \u2014 its version-independent container UUID, or a numeric legacy id; both resolve to the same dataset.",
+              "title": "Dataset Id"
+            },
+            "description": "The dataset \u2014 its version-independent container UUID, or a numeric legacy id; both resolve to the same dataset."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Body"
+              },
+              "examples": {
+                "dataset": {
+                  "summary": "Submit an open dataset",
+                  "value": {
+                    "title": "Coastal water temperature measurements",
+                    "description": "<p>Hourly measurements collected in 2025.</p>",
+                    "defined_type": "dataset",
+                    "is_embargoed": false,
+                    "is_metadata_record": false,
+                    "agreed_to_deposit_agreement": true,
+                    "agreed_to_publish": true,
+                    "categories": [
+                      "a9f8d3c1-2b4e-4c6a-8d1f-3e5b7c9a0d2f"
+                    ],
+                    "group_id": 28586,
+                    "license_id": 2,
+                    "publisher": "4TU.ResearchData",
+                    "language": "en"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "204": {
+            "description": "Submitted for review"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/datasets/{dataset_id}/publish": {
+      "post": {
+        "tags": [
+          "V3 / Datasets / Publishing"
+        ],
+        "summary": "Publish a dataset",
+        "description": "Publish a draft dataset. Requires reviewer permissions on the impersonator cookie session or, when absent, the calling session. In production this reserves and registers the DOIs with DataCite before publishing.",
+        "operationId": "publish_dataset_v3_datasets__dataset_id__publish_post",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The dataset \u2014 its version-independent container UUID, or a numeric legacy id; both resolve to the same dataset.",
+              "title": "Dataset Id"
+            },
+            "description": "The dataset \u2014 its version-independent container UUID, or a numeric legacy id; both resolve to the same dataset."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "201": {
+            "description": "Dataset published",
+            "content": {
+              "application/json": {
+                "example": {
+                  "location": "https://data.4tu.nl/published/27e6a01d-3f09-4d90-ae02-1d749ae9efb8"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/datasets/{dataset_id}/decline": {
+      "post": {
+        "tags": [
+          "V3 / Datasets / Publishing"
+        ],
+        "summary": "Decline a dataset (reviewer)",
+        "description": "Decline a dataset that was submitted for review. Requires reviewer privileges.",
+        "operationId": "decline_dataset_v3_datasets__dataset_id__decline_post",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The dataset \u2014 its version-independent container UUID, or a numeric legacy id; both resolve to the same dataset.",
+              "title": "Dataset Id"
+            },
+            "description": "The dataset \u2014 its version-independent container UUID, or a numeric legacy id; both resolve to the same dataset."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "201": {
+            "description": "Dataset declined",
+            "content": {
+              "application/json": {
+                "example": {
+                  "location": "https://data.4tu.nl/review/overview"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/datasets/{dataset_id}/references": {
+      "get": {
+        "tags": [
+          "V3 / Datasets / References"
+        ],
+        "summary": "List dataset references",
+        "operationId": "list_references_v3_datasets__dataset_id__references_get",
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The dataset \u2014 its version-independent container UUID, or a numeric legacy id; both resolve to the same dataset.",
+              "title": "Dataset Id"
+            },
+            "description": "The dataset \u2014 its version-independent container UUID, or a numeric legacy id; both resolve to the same dataset."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The dataset's references",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": [
+                  "https://doi.org/10.1234/example"
+                ]
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "V3 / Datasets / References"
+        ],
+        "summary": "Add references",
+        "operationId": "add_references_v3_datasets__dataset_id__references_post",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The dataset \u2014 its version-independent container UUID, or a numeric legacy id; both resolve to the same dataset.",
+              "title": "Dataset Id"
+            },
+            "description": "The dataset \u2014 its version-independent container UUID, or a numeric legacy id; both resolve to the same dataset."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Body"
+              },
+              "examples": {
+                "default": {
+                  "summary": "Add reference URLs",
+                  "value": {
+                    "references": [
+                      {
+                        "url": "https://doi.org/10.1234/example"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "205": {
+            "description": "References added"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "V3 / Datasets / References"
+        ],
+        "summary": "Delete a reference",
+        "operationId": "delete_reference_v3_datasets__dataset_id__references_delete",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The dataset \u2014 its version-independent container UUID, or a numeric legacy id; both resolve to the same dataset.",
+              "title": "Dataset Id"
+            },
+            "description": "The dataset \u2014 its version-independent container UUID, or a numeric legacy id; both resolve to the same dataset."
+          },
+          {
+            "name": "url",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 1024,
+              "title": "Url"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "204": {
+            "description": "Reference removed"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/datasets/{dataset_id}/tags": {
+      "get": {
+        "tags": [
+          "V3 / Datasets / Tags"
+        ],
+        "summary": "List dataset tags",
+        "operationId": "list_tags_v3_datasets__dataset_id__tags_get",
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The dataset \u2014 its version-independent container UUID, or a numeric legacy id; both resolve to the same dataset.",
+              "title": "Dataset Id"
+            },
+            "description": "The dataset \u2014 its version-independent container UUID, or a numeric legacy id; both resolve to the same dataset."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The dataset's tags",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": [
+                  "climate",
+                  "oceanography"
+                ]
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "V3 / Datasets / Tags"
+        ],
+        "summary": "Add tags",
+        "operationId": "add_tags_v3_datasets__dataset_id__tags_post",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The dataset \u2014 its version-independent container UUID, or a numeric legacy id; both resolve to the same dataset.",
+              "title": "Dataset Id"
+            },
+            "description": "The dataset \u2014 its version-independent container UUID, or a numeric legacy id; both resolve to the same dataset."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Body"
+              },
+              "examples": {
+                "default": {
+                  "summary": "Add keywords",
+                  "value": {
+                    "tags": [
+                      "climate",
+                      "oceanography"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "205": {
+            "description": "Tags added"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "V3 / Datasets / Tags"
+        ],
+        "summary": "Delete a tag",
+        "operationId": "delete_tag_v3_datasets__dataset_id__tags_delete",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The dataset \u2014 its version-independent container UUID, or a numeric legacy id; both resolve to the same dataset.",
+              "title": "Dataset Id"
+            },
+            "description": "The dataset \u2014 its version-independent container UUID, or a numeric legacy id; both resolve to the same dataset."
+          },
+          {
+            "name": "tag",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 1024,
+              "title": "Tag"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "204": {
+            "description": "Tag removed"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/datasets/{dataset_id}/image-files": {
+      "get": {
+        "tags": [
+          "V3 / Datasets / Files"
+        ],
+        "summary": "List image files",
+        "operationId": "list_image_files_v3_datasets__dataset_id__image_files_get",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The dataset \u2014 its version-independent container UUID, or a numeric legacy id; both resolve to the same dataset.",
+              "title": "Dataset Id"
+            },
+            "description": "The dataset \u2014 its version-independent container UUID, or a numeric legacy id; both resolve to the same dataset."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The dataset's image files",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": [
+                  {
+                    "uuid": "9b1c3f2a-4d5e-6f70-8192-a3b4c5d6e7f8",
+                    "name": "map-overview.png",
+                    "size": 248193,
+                    "is_link_only": false,
+                    "is_incomplete": false,
+                    "download_url": "https://data.4tu.nl/file/27e6a01d-3f09-4d90-ae02-1d749ae9efb8/9b1c3f2a-4d5e-6f70-8192-a3b4c5d6e7f8",
+                    "supplied_md5": "0cc175b9c0f1b6a831c399e269772661",
+                    "computed_md5": "0cc175b9c0f1b6a831c399e269772661"
+                  }
+                ]
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/datasets/{dataset_id}/upload": {
+      "post": {
+        "tags": [
+          "V3 / Datasets / Files"
+        ],
+        "summary": "Upload a file to a dataset",
+        "description": "Stream-upload a single file into a draft dataset.\n\nRequest body must be ``multipart/form-data`` with one file part.\n\nQuery parameters:\n- ``strict_check=1`` \u2014 reject empty files, duplicate MD5s, and MD5 mismatches; the ``md5`` parameter becomes required.\n- ``md5`` \u2014 32-character hex MD5 of the file's contents (required when ``strict_check=1``).\n\nResponses:\n- ``200`` \u2014 file accepted, ``{\"location\": \"<base>/v3/file/<uuid>\"}``\n- ``400`` \u2014 empty file, malformed body, or MD5 mismatch\n- ``403`` \u2014 account has no quota or no permission to edit dataset\n- ``409`` \u2014 duplicate file (only when ``strict_check=1``)\n- ``413`` \u2014 file exceeds remaining quota\n- ``415`` \u2014 not multipart/form-data",
+        "operationId": "upload_file_v3_datasets__dataset_id__upload_post",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The dataset \u2014 its version-independent container UUID, or a numeric legacy id; both resolve to the same dataset.",
+              "title": "Dataset Id"
+            },
+            "description": "The dataset \u2014 its version-independent container UUID, or a numeric legacy id; both resolve to the same dataset."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "File accepted",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": {
+                  "location": "https://data.4tu.nl/v3/file/9b1c3f2a-4d5e-6f70-8192-a3b4c5d6e7f8"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/datasets/{dataset_id}/update-thumbnail": {
+      "put": {
+        "tags": [
+          "V3 / Datasets / Files"
+        ],
+        "summary": "Set or clear the dataset thumbnail",
+        "operationId": "update_thumbnail_v3_datasets__dataset_id__update_thumbnail_put",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The dataset \u2014 its version-independent container UUID, or a numeric legacy id; both resolve to the same dataset.",
+              "title": "Dataset Id"
+            },
+            "description": "The dataset \u2014 its version-independent container UUID, or a numeric legacy id; both resolve to the same dataset."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Body"
+              },
+              "examples": {
+                "set": {
+                  "summary": "Set thumbnail from an image file",
+                  "value": {
+                    "uuid": "9b1c3f2a-4d5e-6f70-8192-a3b4c5d6e7f8"
+                  }
+                },
+                "clear": {
+                  "summary": "Clear the thumbnail",
+                  "value": {
+                    "uuid": ""
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "205": {
+            "description": "Thumbnail updated"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/datasets/{container_uuid}/authors": {
+      "get": {
+        "tags": [
+          "V3 / Datasets / Authors"
+        ],
+        "summary": "List dataset authors (v3)",
+        "operationId": "list_dataset_authors_v3_v3_datasets__container_uuid__authors_get",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "container_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The dataset's version-independent container UUID \u2014 stable across every version (the public /datasets/<id> URL and concept DOI use it), as opposed to a single version's uuid.",
+              "title": "Container Uuid"
+            },
+            "description": "The dataset's version-independent container UUID \u2014 stable across every version (the public /datasets/<id> URL and concept DOI use it), as opposed to a single version's uuid."
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 32
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Order"
+            }
+          },
+          {
+            "name": "order_direction",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(asc|desc)$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Order Direction"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 10000,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The dataset's authors",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": [
+                  {
+                    "uuid": "07d6e6ce-b1bf-43ca-86e6-7a3ab8bc8416",
+                    "first_name": "Ada",
+                    "last_name": "Lovelace",
+                    "full_name": "Ada Lovelace",
+                    "is_editable": false
+                  }
+                ]
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/datasets/{container_uuid}/authors/{author_uuid}": {
+      "get": {
+        "tags": [
+          "V3 / Datasets / Authors"
+        ],
+        "summary": "Get a single dataset author (v3)",
+        "operationId": "get_dataset_author_v3_v3_datasets__container_uuid__authors__author_uuid__get",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "container_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The dataset's version-independent container UUID \u2014 stable across every version (the public /datasets/<id> URL and concept DOI use it), as opposed to a single version's uuid.",
+              "title": "Container Uuid"
+            },
+            "description": "The dataset's version-independent container UUID \u2014 stable across every version (the public /datasets/<id> URL and concept DOI use it), as opposed to a single version's uuid."
+          },
+          {
+            "name": "author_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The author's UUID within the dataset.",
+              "title": "Author Uuid"
+            },
+            "description": "The author's UUID within the dataset."
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 32
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Order"
+            }
+          },
+          {
+            "name": "order_direction",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(asc|desc)$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Order Direction"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 10000,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A single author",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": {
+                  "uuid": "07d6e6ce-b1bf-43ca-86e6-7a3ab8bc8416",
+                  "first_name": "Ada",
+                  "last_name": "Lovelace",
+                  "full_name": "Ada Lovelace",
+                  "is_editable": false
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/datasets/{container_uuid}/reorder-authors": {
+      "post": {
+        "tags": [
+          "V3 / Datasets / Authors"
+        ],
+        "summary": "Reorder authors",
+        "operationId": "reorder_authors_v3_datasets__container_uuid__reorder_authors_post",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "container_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The dataset's version-independent container UUID \u2014 stable across every version (the public /datasets/<id> URL and concept DOI use it), as opposed to a single version's uuid.",
+              "title": "Container Uuid"
+            },
+            "description": "The dataset's version-independent container UUID \u2014 stable across every version (the public /datasets/<id> URL and concept DOI use it), as opposed to a single version's uuid."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Body"
+              },
+              "examples": {
+                "move_up": {
+                  "summary": "Move an author up",
+                  "value": {
+                    "author": "07d6e6ce-b1bf-43ca-86e6-7a3ab8bc8416",
+                    "direction": "up"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "205": {
+            "description": "Authors reordered"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/datasets/{container_uuid}/collaborators": {
+      "get": {
+        "tags": [
+          "V3 / Datasets / Collaborators"
+        ],
+        "summary": "List collaborators",
+        "operationId": "list_collaborators_v3_datasets__container_uuid__collaborators_get",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "container_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Container Uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The dataset's collaborators",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": [
+                  {
+                    "uuid": "5b8f2d1a-9c3e-4f7b-8a2d-1e6c4b9f0a3d",
+                    "account_uuid": "84cae99f-a691-4af2-9d21-f5c0817c26df",
+                    "first_name": "Dev",
+                    "last_name": "User",
+                    "email": "dev@djehuty.com",
+                    "metadata_read": true,
+                    "metadata_edit": true,
+                    "data_read": true,
+                    "data_edit": false,
+                    "data_remove": false,
+                    "is_supervisor": false,
+                    "group_id": 28586,
+                    "group_name": "Delft University of Technology",
+                    "is_inferred": false
+                  }
+                ]
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "V3 / Datasets / Collaborators"
+        ],
+        "summary": "Add collaborator",
+        "operationId": "add_collaborator_v3_datasets__container_uuid__collaborators_post",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "container_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Container Uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Body"
+              },
+              "examples": {
+                "add": {
+                  "summary": "Add a collaborator account",
+                  "value": {
+                    "account": "84cae99f-a691-4af2-9d21-f5c0817c26df",
+                    "metadata": {
+                      "read": true,
+                      "edit": true
+                    },
+                    "data": {
+                      "read": true,
+                      "edit": false,
+                      "remove": false
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "205": {
+            "description": "Collaborator added"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/datasets/{container_uuid}/collaborators/{collaborator_uuid}": {
+      "put": {
+        "tags": [
+          "V3 / Datasets / Collaborators"
+        ],
+        "summary": "Update collaborator",
+        "operationId": "update_collaborator_v3_datasets__container_uuid__collaborators__collaborator_uuid__put",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "container_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Container Uuid"
+            }
+          },
+          {
+            "name": "collaborator_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Collaborator Uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Body"
+              },
+              "examples": {
+                "grant": {
+                  "summary": "Grant read/edit permissions",
+                  "value": {
+                    "metadata": {
+                      "read": true,
+                      "edit": true
+                    },
+                    "data": {
+                      "read": true,
+                      "edit": false,
+                      "remove": false
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "204": {
+            "description": "Collaborator saved"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "V3 / Datasets / Collaborators"
+        ],
+        "summary": "Remove collaborator",
+        "operationId": "delete_collaborator_v3_datasets__container_uuid__collaborators__collaborator_uuid__delete",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "container_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Container Uuid"
+            }
+          },
+          {
+            "name": "collaborator_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Collaborator Uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "204": {
+            "description": "Collaborator removed"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/datasets/{dataset_id}/doi-badge.svg": {
+      "get": {
+        "tags": [
+          "V3 / Datasets / Badges"
+        ],
+        "summary": "DOI badge SVG (latest version)",
+        "operationId": "get_doi_badge_v3_datasets__dataset_id__doi_badge_svg_get",
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/datasets/{dataset_id}/doi-badge-v{version}.svg": {
+      "get": {
+        "tags": [
+          "V3 / Datasets / Badges"
+        ],
+        "summary": "DOI badge SVG for a specific version",
+        "operationId": "get_doi_badge_versioned_v3_datasets__dataset_id__doi_badge_v_version__svg_get",
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Version"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/collections/{container_uuid}/reorder-authors": {
+      "post": {
+        "tags": [
+          "V3 / Collections"
+        ],
+        "summary": "Reorder collection authors",
+        "operationId": "collection_reorder_authors_v3_collections__container_uuid__reorder_authors_post",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "container_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Container Uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Body"
+              },
+              "examples": {
+                "move_up": {
+                  "summary": "Move an author up",
+                  "value": {
+                    "author": "07d6e6ce-b1bf-43ca-86e6-7a3ab8bc8416",
+                    "direction": "up"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "205": {
+            "description": "Authors reordered"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/collections/{collection_id}/publish": {
+      "post": {
+        "tags": [
+          "V3 / Collections"
+        ],
+        "summary": "Publish a draft collection",
+        "operationId": "publish_collection_v3_collections__collection_id__publish_post",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "collection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Collection Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "201": {
+            "description": "Collection published",
+            "content": {
+              "application/json": {
+                "example": {
+                  "location": "https://data.4tu.nl/published/6f9b2c1e-3a4d-5b6c-7d8e-9f0a1b2c3d4e"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/collections/{collection_id}/references": {
+      "get": {
+        "tags": [
+          "V3 / Collections / References"
+        ],
+        "summary": "List collection references",
+        "operationId": "list_collection_references_v3_collections__collection_id__references_get",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "collection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Collection Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The collection's references",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": [
+                  "https://doi.org/10.1234/example"
+                ]
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "V3 / Collections / References"
+        ],
+        "summary": "Add references to a collection",
+        "operationId": "add_collection_references_v3_collections__collection_id__references_post",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "collection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Collection Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Body"
+              },
+              "examples": {
+                "default": {
+                  "summary": "Add reference URLs",
+                  "value": {
+                    "references": [
+                      {
+                        "url": "https://doi.org/10.1234/example"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "205": {
+            "description": "References added"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "V3 / Collections / References"
+        ],
+        "summary": "Delete a collection reference",
+        "operationId": "delete_collection_reference_v3_collections__collection_id__references_delete",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "collection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Collection Id"
+            }
+          },
+          {
+            "name": "url",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 1024,
+              "title": "Url"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "204": {
+            "description": "Reference removed"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/collections/{collection_id}/tags": {
+      "get": {
+        "tags": [
+          "V3 / Collections / Tags"
+        ],
+        "summary": "List collection tags",
+        "operationId": "list_collection_tags_v3_collections__collection_id__tags_get",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "collection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Collection Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The collection's tags",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": [
+                  "climate",
+                  "oceanography"
+                ]
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "V3 / Collections / Tags"
+        ],
+        "summary": "Add tags to a collection",
+        "operationId": "add_collection_tags_v3_collections__collection_id__tags_post",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "collection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Collection Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Body"
+              },
+              "examples": {
+                "default": {
+                  "summary": "Add keywords",
+                  "value": {
+                    "tags": [
+                      "climate",
+                      "oceanography"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "205": {
+            "description": "Tags added"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "V3 / Collections / Tags"
+        ],
+        "summary": "Delete a collection tag",
+        "operationId": "delete_collection_tag_v3_collections__collection_id__tags_delete",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "collection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Collection Id"
+            }
+          },
+          {
+            "name": "tag",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 1024,
+              "title": "Tag"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "204": {
+            "description": "Tag removed"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/profile": {
+      "put": {
+        "tags": [
+          "V3 / Profile"
+        ],
+        "summary": "Update current user profile",
+        "operationId": "update_profile_v3_profile_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": true,
+                "type": "object",
+                "title": "Body"
+              },
+              "examples": {
+                "default": {
+                  "summary": "Update name and job title",
+                  "value": {
+                    "first_name": "Ada",
+                    "last_name": "Lovelace",
+                    "job_title": "Research Data Steward",
+                    "email": "ada@example.org"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "204": {
+            "description": "Profile updated"
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Session token": []
+          }
+        ]
+      }
+    },
+    "/v3/profile/categories": {
+      "get": {
+        "tags": [
+          "V3 / Profile"
+        ],
+        "summary": "Get profile categories",
+        "operationId": "get_profile_categories_v3_profile_categories_get",
+        "responses": {
+          "200": {
+            "description": "The current user's categories",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": [
+                  {
+                    "uuid": "a9f8d3c1-2b4e-4c6a-8d1f-3e5b7c9a0d2f",
+                    "title": "Oceanography",
+                    "path": "/13431/13555",
+                    "source_id": 13555
+                  }
+                ]
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Session token": []
+          }
+        ]
+      }
+    },
+    "/v3/profile/quota-request": {
+      "post": {
+        "tags": [
+          "V3 / Profile"
+        ],
+        "summary": "Submit a quota request",
+        "operationId": "submit_quota_request_v3_profile_quota_request_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": true,
+                "type": "object",
+                "title": "Body"
+              },
+              "examples": {
+                "default": {
+                  "summary": "Request more storage",
+                  "value": {
+                    "new-quota": 100,
+                    "reason": "Large imaging dataset for project X."
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "204": {
+            "description": "Quota request submitted"
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Session token": []
+          }
+        ]
+      }
+    },
+    "/v3/profile/picture": {
+      "get": {
+        "tags": [
+          "V3 / Profile"
+        ],
+        "summary": "Get own profile picture",
+        "operationId": "get_own_profile_picture_v3_profile_picture_get",
+        "responses": {
+          "200": {
+            "description": "Profile picture image",
+            "content": {
+              "application/json": {
+                "schema": {}
+              },
+              "image/*": {}
+            }
+          }
+        },
+        "security": [
+          {
+            "Session token": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "V3 / Profile"
+        ],
+        "summary": "Upload own profile picture",
+        "operationId": "upload_own_profile_picture_v3_profile_picture_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_own_profile_picture_v3_profile_picture_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Location of the uploaded picture",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": {
+                  "location": "https://data.4tu.nl/v3/profile/picture"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Session token": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "V3 / Profile"
+        ],
+        "summary": "Delete own profile picture",
+        "operationId": "delete_own_profile_picture_v3_profile_picture_delete",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "204": {
+            "description": "Profile picture removed"
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Session token": []
+          }
+        ]
+      }
+    },
+    "/v3/profile/picture/{account_uuid}": {
+      "get": {
+        "tags": [
+          "V3 / Profile"
+        ],
+        "summary": "Get profile picture for an account",
+        "operationId": "get_profile_picture_for_account_v3_profile_picture__account_uuid__get",
+        "parameters": [
+          {
+            "name": "account_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Account Uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Profile picture image",
+            "content": {
+              "application/json": {
+                "schema": {}
+              },
+              "image/*": {}
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/reviews": {
+      "get": {
+        "tags": [
+          "V3 / Reviews"
+        ],
+        "summary": "List reviews",
+        "operationId": "list_reviews_v3_reviews_get",
+        "responses": {
+          "200": {
+            "description": "Review records",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": [
+                  {
+                    "uuid": "669c6802-75eb-44e2-a6f8-ea7a5a8d0f34",
+                    "container_uuid": "b07402ed-978b-439a-abb1-7f27c69d174e",
+                    "dataset_title": "Coastal water temperature measurements",
+                    "dataset_uuid": "8ffc3b0f-ec65-4dab-bae1-49ff984c2995",
+                    "dataset_version": 1,
+                    "group_name": "Delft University of Technology",
+                    "has_published_version": 1,
+                    "modified_date": "2026-07-03T09:33:38",
+                    "published_date": "2026-07-03T09:33:40",
+                    "request_date": "2026-07-03T09:33:38",
+                    "reviewer_email": "dev@djehuty.com",
+                    "reviewer_first_name": "Ada",
+                    "reviewer_last_name": "Lovelace",
+                    "status": "approved",
+                    "submitter_email": "dev@djehuty.com",
+                    "submitter_first_name": "Ada",
+                    "submitter_last_name": "Lovelace"
+                  }
+                ]
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/reviewers": {
+      "get": {
+        "tags": [
+          "V3 / Reviews"
+        ],
+        "summary": "List reviewers",
+        "operationId": "list_reviewers_v3_reviewers_get",
+        "responses": {
+          "200": {
+            "description": "Reviewer accounts",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": [
+                  {
+                    "uuid": "84cae99f-a691-4af2-9d21-f5c0817c26df",
+                    "first_name": "Dev",
+                    "last_name": "User",
+                    "is_active": true,
+                    "is_public": false,
+                    "orcid_id": ""
+                  }
+                ]
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/datasets/{dataset_uuid}/assign-reviewer/{reviewer_uuid}": {
+      "put": {
+        "tags": [
+          "V3 / Reviews"
+        ],
+        "summary": "Assign reviewer",
+        "operationId": "assign_reviewer_v3_datasets__dataset_uuid__assign_reviewer__reviewer_uuid__put",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Uuid"
+            }
+          },
+          {
+            "name": "reviewer_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Reviewer Uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "204": {
+            "description": "Reviewer assigned"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/datasets/top/{item_type}": {
+      "get": {
+        "tags": [
+          "V3 / Statistics"
+        ],
+        "summary": "Get top datasets by type",
+        "operationId": "datasets_top_v3_datasets_top__item_type__get",
+        "parameters": [
+          {
+            "name": "item_type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Item Type"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Top datasets for the requested metric",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": [
+                  {
+                    "container_uuid": "27e6a01d-3f09-4d90-ae02-1d749ae9efb8",
+                    "dataset_id": 12873,
+                    "title": "Coastal water temperature measurements",
+                    "downloads": 4567,
+                    "figshare_url": "https://data.4tu.nl/articles/27e6a01d-3f09-4d90-ae02-1d749ae9efb8"
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/datasets/timeline/{item_type}": {
+      "get": {
+        "tags": [
+          "V3 / Statistics"
+        ],
+        "summary": "Get dataset timeline",
+        "operationId": "datasets_timeline_v3_datasets_timeline__item_type__get",
+        "parameters": [
+          {
+            "name": "item_type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Item Type"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Time-series counts for the requested metric",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": [
+                  {
+                    "dataset_id": 12873,
+                    "date": "2026-05",
+                    "views": 214
+                  },
+                  {
+                    "dataset_id": 12873,
+                    "date": "2026-06",
+                    "views": 189
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/explore/types": {
+      "get": {
+        "tags": [
+          "V3 / Explore"
+        ],
+        "summary": "List data model types",
+        "operationId": "explore_types_v3_explore_types_get",
+        "responses": {
+          "200": {
+            "description": "RDF type URIs",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": [
+                  "https://ontologies.data.4tu.nl/djehuty/0.0.1/Dataset",
+                  "https://ontologies.data.4tu.nl/djehuty/0.0.1/Author",
+                  "https://ontologies.data.4tu.nl/djehuty/0.0.1/Category"
+                ]
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Session token": []
+          }
+        ]
+      }
+    },
+    "/v3/explore/properties": {
+      "get": {
+        "tags": [
+          "V3 / Explore"
+        ],
+        "summary": "List data model properties",
+        "operationId": "explore_properties_v3_explore_properties_get",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "uri",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 255,
+              "title": "Uri"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Predicate URIs for the given type",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": [
+                  "https://ontologies.data.4tu.nl/djehuty/0.0.1/title"
+                ]
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/explore/property_value_types": {
+      "get": {
+        "tags": [
+          "V3 / Explore"
+        ],
+        "summary": "List property value types",
+        "operationId": "explore_property_value_types_v3_explore_property_value_types_get",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 255,
+              "title": "Type"
+            }
+          },
+          {
+            "name": "property",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 255,
+              "title": "Property"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Value type URIs for the given property",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": [
+                  "http://www.w3.org/2001/XMLSchema#string"
+                ]
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/explore/clear-cache": {
+      "get": {
+        "tags": [
+          "V3 / Explore"
+        ],
+        "summary": "Clear explorer cache",
+        "operationId": "explore_clear_cache_v3_explore_clear_cache_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "204": {
+            "description": "Explorer cache cleared"
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Session token": []
+          }
+        ]
+      }
+    },
+    "/v3/admin/files-integrity-statistics": {
+      "get": {
+        "tags": [
+          "V3 / Admin"
+        ],
+        "summary": "File integrity statistics",
+        "operationId": "files_integrity_statistics_v3_admin_files_integrity_statistics_get",
+        "responses": {
+          "200": {
+            "description": "Storage integrity summary",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": {
+                  "number_of_links": 3,
+                  "number_of_files": 1204,
+                  "number_of_bytes": 89123456789,
+                  "number_of_accessible_files": 1201,
+                  "number_of_inaccessible_files": 3,
+                  "number_of_incomplete_metadata": 1,
+                  "percentage_accessible": 99.75,
+                  "incomplete_metadata": [
+                    "9b1c3f2a-4d5e-6f70-8192-a3b4c5d6e7f8"
+                  ],
+                  "missing_files": [
+                    "/data/storage/27e6a01d_9b1c3f2a"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/admin/accounts/clear-cache": {
+      "get": {
+        "tags": [
+          "V3 / Admin"
+        ],
+        "summary": "Clear accounts cache",
+        "operationId": "admin_clear_accounts_cache_v3_admin_accounts_clear_cache_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "204": {
+            "description": "Accounts cache cleared"
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Session token": []
+          }
+        ]
+      }
+    },
+    "/v3/admin/reviews/clear-cache": {
+      "get": {
+        "tags": [
+          "V3 / Admin"
+        ],
+        "summary": "Clear reviews cache",
+        "operationId": "admin_clear_reviews_cache_v3_admin_reviews_clear_cache_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "204": {
+            "description": "Reviews cache cleared"
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Session token": []
+          }
+        ]
+      }
+    },
+    "/v3/datasets/{container_uuid}/repair_md5s": {
+      "post": {
+        "tags": [
+          "V3 / Admin"
+        ],
+        "summary": "Recompute MD5 checksums for files missing them",
+        "operationId": "repair_md5s_v3_datasets__container_uuid__repair_md5s_post",
+        "parameters": [
+          {
+            "name": "container_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Container Uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "201": {
+            "description": "Checksums regenerated",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "The MD5 sums have been regenerated."
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/receive-from-ssi": {
+      "get": {
+        "tags": [
+          "V3 / SSI"
+        ],
+        "summary": "Receive dataset from SSI",
+        "operationId": "receive_from_ssi_v3_receive_from_ssi_put",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "302": {
+            "description": "Redirect to the newly created draft dataset editor"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "V3 / SSI"
+        ],
+        "summary": "Receive dataset from SSI",
+        "operationId": "receive_from_ssi_v3_receive_from_ssi_put",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "302": {
+            "description": "Redirect to the newly created draft dataset editor"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "V3 / SSI"
+        ],
+        "summary": "Receive dataset from SSI",
+        "operationId": "receive_from_ssi_v3_receive_from_ssi_put",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "302": {
+            "description": "Redirect to the newly created draft dataset editor"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "V3 / SSI"
+        ],
+        "summary": "Receive dataset from SSI",
+        "operationId": "receive_from_ssi_v3_receive_from_ssi_put",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "302": {
+            "description": "Redirect to the newly created draft dataset editor"
+          }
+        }
+      }
+    },
+    "/v3/redirect-from-ssi/{container_uuid}/{token}": {
+      "get": {
+        "tags": [
+          "V3 / SSI"
+        ],
+        "summary": "Complete SSI redirect",
+        "operationId": "redirect_from_ssi_v3_redirect_from_ssi__container_uuid___token__get",
+        "parameters": [
+          {
+            "name": "container_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Container Uuid"
+            }
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "302": {
+            "description": "Set the session cookie and redirect to the dataset editor"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/ro-crates": {
+      "get": {
+        "tags": [
+          "V3 / RO-Crates"
+        ],
+        "summary": "List RO-Crate enabled datasets",
+        "operationId": "list_ro_crates_v3_ro_crates_get",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Page"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Page Size"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Offset"
+            }
+          },
+          {
+            "name": "modified_since",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 32
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Modified Since"
+            }
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 255
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Order"
+            }
+          },
+          {
+            "name": "order_direction",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 8
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Order Direction"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "RO-Crate records",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": [
+                  {
+                    "@context": "https://w3id.org/ro/crate/1.1/context",
+                    "@graph": [
+                      {
+                        "@id": "ro-crate-metadata.json",
+                        "@type": "CreativeWork",
+                        "conformsTo": {
+                          "@id": "https://w3id.org/ro/crate/1.1"
+                        },
+                        "about": {
+                          "@id": "./"
+                        }
+                      },
+                      {
+                        "@id": "./",
+                        "@type": "Dataset",
+                        "identifier": "https://doi.org/10.4121/27e6a01d-3f09-4d90-ae02-1d749ae9efb8.v1",
+                        "datePublished": "2026-07-03T10:48:50",
+                        "name": "Coastal water temperature measurements",
+                        "description": "Hourly measurements collected in 2025.",
+                        "keywords": [
+                          "climate",
+                          "oceanography"
+                        ],
+                        "license": {
+                          "@id": "https://spdx.org/licenses/CC-BY-4.0"
+                        },
+                        "author": [
+                          {
+                            "@type": "Person",
+                            "givenName": "Ada",
+                            "familyName": "Lovelace"
+                          }
+                        ],
+                        "hasPart": [
+                          {
+                            "@id": "9b1c3f2a-4d5e-6f70-8192-a3b4c5d6e7f8"
+                          }
+                        ]
+                      },
+                      {
+                        "@id": "9b1c3f2a-4d5e-6f70-8192-a3b4c5d6e7f8",
+                        "@type": "File",
+                        "name": "measurements.csv",
+                        "contentSize": "248193",
+                        "contentUrl": "https://data.4tu.nl/file/27e6a01d-3f09-4d90-ae02-1d749ae9efb8/9b1c3f2a-4d5e-6f70-8192-a3b4c5d6e7f8"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/datasets/{container_uuid}/ro-crate-metadata.json": {
+      "get": {
+        "tags": [
+          "V3 / RO-Crates"
+        ],
+        "summary": "Get RO-Crate metadata for a dataset",
+        "operationId": "get_ro_crate_metadata_v3_datasets__container_uuid__ro_crate_metadata_json_get",
+        "parameters": [
+          {
+            "name": "container_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Container Uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "RO-Crate metadata document",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": {
+                  "@context": "https://w3id.org/ro/crate/1.1/context",
+                  "@graph": [
+                    {
+                      "@id": "ro-crate-metadata.json",
+                      "@type": "CreativeWork",
+                      "conformsTo": {
+                        "@id": "https://w3id.org/ro/crate/1.1"
+                      },
+                      "about": {
+                        "@id": "./"
+                      }
+                    },
+                    {
+                      "@id": "./",
+                      "@type": "Dataset",
+                      "identifier": "https://doi.org/10.4121/27e6a01d-3f09-4d90-ae02-1d749ae9efb8.v1",
+                      "datePublished": "2026-07-03T10:48:50",
+                      "name": "Coastal water temperature measurements",
+                      "description": "Hourly measurements collected in 2025.",
+                      "keywords": [
+                        "climate",
+                        "oceanography"
+                      ],
+                      "license": {
+                        "@id": "https://spdx.org/licenses/CC-BY-4.0"
+                      },
+                      "author": [
+                        {
+                          "@type": "Person",
+                          "givenName": "Ada",
+                          "familyName": "Lovelace"
+                        }
+                      ],
+                      "hasPart": [
+                        {
+                          "@id": "9b1c3f2a-4d5e-6f70-8192-a3b4c5d6e7f8"
+                        }
+                      ]
+                    },
+                    {
+                      "@id": "9b1c3f2a-4d5e-6f70-8192-a3b4c5d6e7f8",
+                      "@type": "File",
+                      "name": "measurements.csv",
+                      "contentSize": "248193",
+                      "contentUrl": "https://data.4tu.nl/file/27e6a01d-3f09-4d90-ae02-1d749ae9efb8/9b1c3f2a-4d5e-6f70-8192-a3b4c5d6e7f8"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/datasets/{container_uuid}/versions/{version}/ro-crate-metadata.json": {
+      "get": {
+        "tags": [
+          "V3 / RO-Crates"
+        ],
+        "summary": "Get RO-Crate metadata for a specific dataset version",
+        "operationId": "get_versioned_ro_crate_metadata_v3_datasets__container_uuid__versions__version__ro_crate_metadata_json_get",
+        "parameters": [
+          {
+            "name": "container_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Container Uuid"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Version"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "RO-Crate metadata document",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": {
+                  "@context": "https://w3id.org/ro/crate/1.1/context",
+                  "@graph": [
+                    {
+                      "@id": "ro-crate-metadata.json",
+                      "@type": "CreativeWork",
+                      "conformsTo": {
+                        "@id": "https://w3id.org/ro/crate/1.1"
+                      },
+                      "about": {
+                        "@id": "./"
+                      }
+                    },
+                    {
+                      "@id": "./",
+                      "@type": "Dataset",
+                      "identifier": "https://doi.org/10.4121/27e6a01d-3f09-4d90-ae02-1d749ae9efb8.v1",
+                      "datePublished": "2026-07-03T10:48:50",
+                      "name": "Coastal water temperature measurements",
+                      "description": "Hourly measurements collected in 2025.",
+                      "keywords": [
+                        "climate",
+                        "oceanography"
+                      ],
+                      "license": {
+                        "@id": "https://spdx.org/licenses/CC-BY-4.0"
+                      },
+                      "author": [
+                        {
+                          "@type": "Person",
+                          "givenName": "Ada",
+                          "familyName": "Lovelace"
+                        }
+                      ],
+                      "hasPart": [
+                        {
+                          "@id": "9b1c3f2a-4d5e-6f70-8192-a3b4c5d6e7f8"
+                        }
+                      ]
+                    },
+                    {
+                      "@id": "9b1c3f2a-4d5e-6f70-8192-a3b4c5d6e7f8",
+                      "@type": "File",
+                      "name": "measurements.csv",
+                      "contentSize": "248193",
+                      "contentUrl": "https://data.4tu.nl/file/27e6a01d-3f09-4d90-ae02-1d749ae9efb8/9b1c3f2a-4d5e-6f70-8192-a3b4c5d6e7f8"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/codemeta": {
+      "get": {
+        "tags": [
+          "V3 / Codemeta"
+        ],
+        "summary": "List published software in codemeta format",
+        "operationId": "list_codemeta_v3_codemeta_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 1000,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 255
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Order"
+            }
+          },
+          {
+            "name": "order_direction",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(asc|desc)$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Order Direction"
+            }
+          },
+          {
+            "name": "modified_since",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 32
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Modified Since"
+            }
+          },
+          {
+            "name": "doi",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 255
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Doi"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Published software as CodeMeta records",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": [
+                  {
+                    "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
+                    "@type": "SoftwareSourceCode",
+                    "name": "Wave model toolkit",
+                    "license": "https://spdx.org/licenses/MIT",
+                    "dateCreated": "2026-01-12T09:00:00",
+                    "datePublished": "2026-02-01T09:00:00",
+                    "dateModified": "2026-02-01T09:00:00",
+                    "identifier": "10.4121/12345678-abcd-1234.v1",
+                    "description": [
+                      "Wave model toolkit",
+                      "A toolkit for coastal wave modelling."
+                    ],
+                    "keywords": [
+                      "oceanography",
+                      "modelling"
+                    ],
+                    "author": [
+                      {
+                        "@type": "Person",
+                        "givenName": "Ada",
+                        "familyName": "Lovelace"
+                      }
+                    ],
+                    "referencePublication": [],
+                    "version": 1
+                  }
+                ]
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/authors/{author_uuid}": {
+      "get": {
+        "tags": [
+          "V3 / Authors"
+        ],
+        "summary": "Get author details",
+        "operationId": "get_author_details_v3_authors__author_uuid__get",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "author_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Author Uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Author details",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": {
+                  "uuid": "07d6e6ce-b1bf-43ca-86e6-7a3ab8bc8416",
+                  "first_name": "Ada",
+                  "last_name": "Lovelace",
+                  "full_name": "Ada Lovelace",
+                  "is_editable": false
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "V3 / Authors"
+        ],
+        "summary": "Update author details",
+        "operationId": "update_author_details_v3_authors__author_uuid__put",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "author_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Author Uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Body"
+              },
+              "examples": {
+                "default": {
+                  "summary": "Update author name and identifiers",
+                  "value": {
+                    "first_name": "Ada",
+                    "last_name": "Lovelace",
+                    "email": "ada@example.org",
+                    "orcid": "0000-0002-1825-0097"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "204": {
+            "description": "Author updated"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/groups": {
+      "get": {
+        "tags": [
+          "V3 / Groups"
+        ],
+        "summary": "List institutional groups",
+        "operationId": "list_groups_v3_groups_get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Id"
+            }
+          },
+          {
+            "name": "parent_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Parent Id"
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Name"
+            }
+          },
+          {
+            "name": "association",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Association"
+            }
+          },
+          {
+            "name": "is_featured",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Is Featured"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Offset"
+            }
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Order"
+            }
+          },
+          {
+            "name": "order_direction",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Order Direction"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Institutional groups",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": [
+                  {
+                    "id": 28585,
+                    "parent_id": 0,
+                    "name": "4TU.ResearchData",
+                    "association": "4tu.nl",
+                    "is_featured": false
+                  },
+                  {
+                    "id": 28586,
+                    "parent_id": 28585,
+                    "name": "Delft University of Technology",
+                    "association": "tudelft.nl",
+                    "is_featured": true
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/accounts/search": {
+      "get": {
+        "tags": [
+          "V3 / Accounts"
+        ],
+        "summary": "Search accounts",
+        "description": "Search for user accounts (autocomplete for adding collaborators).",
+        "operationId": "search_accounts_v3_accounts_search_get",
+        "responses": {
+          "200": {
+            "description": "Matching accounts",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": [
+                  {
+                    "uuid": "84cae99f-a691-4af2-9d21-f5c0817c26df",
+                    "first_name": "Dev",
+                    "last_name": "User",
+                    "email": "dev@djehuty.com",
+                    "is_active": true,
+                    "is_public": false,
+                    "orcid_id": ""
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Session token": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "V3 / Accounts"
+        ],
+        "summary": "Search accounts",
+        "description": "Search for user accounts (autocomplete for adding collaborators).",
+        "operationId": "search_accounts_v3_accounts_search_get",
+        "responses": {
+          "200": {
+            "description": "Matching accounts",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": [
+                  {
+                    "uuid": "84cae99f-a691-4af2-9d21-f5c0817c26df",
+                    "first_name": "Dev",
+                    "last_name": "User",
+                    "email": "dev@djehuty.com",
+                    "is_active": true,
+                    "is_public": false,
+                    "orcid_id": ""
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Session token": []
+          }
+        ]
+      }
+    },
+    "/v3/tags/search": {
+      "post": {
+        "tags": [
+          "V3 / Tags"
+        ],
+        "summary": "Search tags",
+        "operationId": "search_tags_v3_tags_search_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": true,
+                "type": "object",
+                "title": "Body"
+              },
+              "examples": {
+                "default": {
+                  "summary": "Search previously used tags",
+                  "value": {
+                    "search_for": "climate"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Matching tags",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": [
+                  "climate",
+                  "climatology"
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/file/{file_id}": {
+      "get": {
+        "tags": [
+          "V3 / Files"
+        ],
+        "summary": "Get file details by id",
+        "operationId": "get_file_details_v3_file__file_id__get",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "file_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "File Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "File metadata",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": {
+                  "uuid": "9b1c3f2a-4d5e-6f70-8192-a3b4c5d6e7f8",
+                  "name": "measurements.csv",
+                  "size": 248193,
+                  "is_link_only": false,
+                  "download_url": "https://data.4tu.nl/file/27e6a01d-3f09-4d90-ae02-1d749ae9efb8/9b1c3f2a-4d5e-6f70-8192-a3b4c5d6e7f8",
+                  "supplied_md5": "0cc175b9c0f1b6a831c399e269772661",
+                  "computed_md5": "0cc175b9c0f1b6a831c399e269772661"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/datasets/{dataset_id}.git/files": {
+      "get": {
+        "tags": [
+          "V3 / Git"
+        ],
+        "summary": "List files in default branch",
+        "operationId": "git_files_v3_datasets__dataset_id__git_files_get",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "File names in the default branch",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": [
+                  "README.md",
+                  "analysis.py"
+                ]
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/datasets/{dataset_id}.git/branches": {
+      "get": {
+        "tags": [
+          "V3 / Git"
+        ],
+        "summary": "List branches + default",
+        "operationId": "git_branches_v3_datasets__dataset_id__git_branches_get",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Local branches and the default branch",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": {
+                  "default-branch": "main",
+                  "branches": [
+                    "main",
+                    "dev"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/datasets/{dataset_id}.git/set-default-branch": {
+      "put": {
+        "tags": [
+          "V3 / Git"
+        ],
+        "summary": "Set the repository's default branch",
+        "operationId": "git_set_default_branch_v3_datasets__dataset_id__git_set_default_branch_put",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Body"
+              },
+              "examples": {
+                "default": {
+                  "summary": "Set the default branch",
+                  "value": {
+                    "branch": "main"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "204": {
+            "description": "Default branch set"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/datasets/{git_uuid}.git": {
+      "get": {
+        "tags": [
+          "V3 / Git"
+        ],
+        "summary": "Git smart-HTTP instructions",
+        "operationId": "git_instructions_v3_datasets__git_uuid__git_get",
+        "parameters": [
+          {
+            "name": "git_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Git Uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/datasets/{git_uuid}.git/info/refs": {
+      "get": {
+        "tags": [
+          "V3 / Git"
+        ],
+        "summary": "git info/refs",
+        "operationId": "git_info_refs_v3_datasets__git_uuid__git_info_refs_get",
+        "parameters": [
+          {
+            "name": "git_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Git Uuid"
+            }
+          },
+          {
+            "name": "service",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 16
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Service"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/datasets/{git_uuid}.git/git-upload-pack": {
+      "post": {
+        "tags": [
+          "V3 / Git"
+        ],
+        "summary": "git-upload-pack",
+        "operationId": "git_upload_pack_v3_datasets__git_uuid__git_git_upload_pack_post",
+        "parameters": [
+          {
+            "name": "git_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Git Uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/datasets/{git_uuid}.git/git-receive-pack": {
+      "post": {
+        "tags": [
+          "V3 / Git"
+        ],
+        "summary": "git-receive-pack",
+        "operationId": "git_receive_pack_v3_datasets__git_uuid__git_git_receive_pack_post",
+        "parameters": [
+          {
+            "name": "git_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Git Uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/datasets/{git_uuid}.git/languages": {
+      "get": {
+        "tags": [
+          "V3 / Git"
+        ],
+        "summary": "Languages in default branch",
+        "operationId": "git_languages_v3_datasets__git_uuid__git_languages_get",
+        "parameters": [
+          {
+            "name": "git_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Git Uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bytes per language in the default branch",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": {
+                  "Python": 51234,
+                  "Other": 220
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/datasets/{git_uuid}.git/contributors": {
+      "get": {
+        "tags": [
+          "V3 / Git"
+        ],
+        "summary": "Contributor statistics",
+        "operationId": "git_contributors_v3_datasets__git_uuid__git_contributors_get",
+        "parameters": [
+          {
+            "name": "git_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Git Uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GitHub-style commit statistics per author e-mail",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": [
+                  {
+                    "total": 42,
+                    "additions": 1200,
+                    "deletions": 34,
+                    "weeks": [
+                      {
+                        "w": 1704668400,
+                        "a": 100,
+                        "d": 3,
+                        "c": 2
+                      }
+                    ],
+                    "author": {
+                      "name": "Ada Lovelace",
+                      "email": "ada@example.org"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/datasets/{git_uuid}.git/zip": {
+      "get": {
+        "tags": [
+          "V3 / Git"
+        ],
+        "summary": "Default branch as zip",
+        "operationId": "git_zip_v3_datasets__git_uuid__git_zip_get",
+        "parameters": [
+          {
+            "name": "git_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Git Uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ArticleSearchRequest": {
+        "properties": {
+          "search_for": {
+            "anyOf": [
+              {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  }
+                ],
+                "maxLength": 1024
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Search For",
+            "description": "Search query. Supports boolean operators (AND, OR) and field-specific search with ``:field:`` syntax (e.g. ``:title:wind turbine``).",
+            "examples": [
+              "wind turbine measurements"
+            ]
+          },
+          "institution": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Institution",
+            "description": "Filter by institution ID"
+          },
+          "group_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Group Id",
+            "description": "Filter by group ID"
+          },
+          "published_since": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 32
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Published Since",
+            "description": "ISO 8601 date. Return only articles published after this date.",
+            "examples": [
+              "2025-01-01"
+            ]
+          },
+          "modified_since": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 32
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Modified Since",
+            "description": "ISO 8601 date. Return only articles modified after this date."
+          },
+          "item_type": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Item Type",
+            "description": "Filter by content type ID"
+          },
+          "categories": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 512
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Categories",
+            "description": "Comma-separated list of category IDs to filter by",
+            "examples": [
+              "13,42"
+            ]
+          },
+          "doi": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Doi",
+            "description": "Filter by exact DOI"
+          },
+          "handle": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Handle",
+            "description": "Filter by handle"
+          },
+          "resource_doi": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resource Doi"
+          },
+          "order": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "published_date",
+                  "modified_date",
+                  "created_date",
+                  "title",
+                  "defined_type",
+                  "group_id",
+                  "size"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Order",
+            "description": "Field to sort results by"
+          },
+          "order_direction": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "asc",
+                  "desc"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Order Direction",
+            "description": "Sort direction"
+          },
+          "page": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page",
+            "description": "Page number (1-based)"
+          },
+          "page_size": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 1000.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page Size",
+            "description": "Results per page"
+          },
+          "limit": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 1000.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Limit",
+            "description": "Maximum results to return"
+          },
+          "offset": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Offset",
+            "description": "Number of results to skip"
+          }
+        },
+        "type": "object",
+        "title": "ArticleSearchRequest",
+        "description": "Request body for ``POST /v2/articles/search``.",
+        "examples": [
+          {
+            "limit": 10,
+            "order": "published_date",
+            "order_direction": "desc",
+            "search_for": "wind turbine"
+          }
+        ]
+      },
+      "ArticleSummary": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id",
+            "description": "Numeric article identifier"
+          },
+          "uuid": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uuid",
+            "description": "Container UUID"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title",
+            "description": "Article title",
+            "examples": [
+              "Wind tunnel measurements"
+            ]
+          },
+          "doi": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Doi",
+            "description": "DOI",
+            "examples": [
+              "10.4121/12345678-abcd-1234"
+            ]
+          },
+          "handle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Handle"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url",
+            "description": "Canonical URL"
+          },
+          "published_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Published Date",
+            "description": "Publication date (ISO 8601)"
+          },
+          "thumb": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Thumb",
+            "description": "Thumbnail URL"
+          },
+          "defined_type": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Defined Type",
+            "description": "Content type ID"
+          },
+          "defined_type_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Defined Type Name",
+            "description": "Content type name",
+            "examples": [
+              "dataset"
+            ]
+          },
+          "group_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Group Id",
+            "description": "Institutional group ID"
+          },
+          "url_private_api": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url Private Api"
+          },
+          "url_public_api": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url Public Api"
+          },
+          "url_private_html": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url Private Html"
+          },
+          "url_public_html": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url Public Html"
+          },
+          "timeline": {
+            "$ref": "#/components/schemas/Timeline"
+          },
+          "resource_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resource Title"
+          },
+          "resource_doi": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resource Doi"
+          },
+          "authors": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/Author"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Authors"
+          }
+        },
+        "type": "object",
+        "title": "ArticleSummary",
+        "description": "Article summary as returned by list and search endpoints.\n\nThis matches the Figshare v2 ``articles`` response format.",
+        "examples": [
+          {
+            "defined_type": 3,
+            "defined_type_name": "dataset",
+            "doi": "10.4121/12345678-abcd-1234",
+            "id": 12345678,
+            "published_date": "2025-06-01T12:00:00",
+            "timeline": {
+              "firstOnline": "2025-06-02",
+              "posted": "2025-06-01"
+            },
+            "title": "Wind tunnel measurements of a scaled wind turbine",
+            "uuid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+          }
+        ]
+      },
+      "Author": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id"
+          },
+          "uuid": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uuid"
+          },
+          "full_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Full Name"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active",
+            "default": false
+          },
+          "url_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url Name"
+          },
+          "orcid_id": {
+            "type": "string",
+            "title": "Orcid Id",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "title": "Author",
+        "description": "Author as returned in article listings."
+      },
+      "Body_upload_own_profile_picture_v3_profile_picture_post": {
+        "properties": {
+          "file": {
+            "anyOf": [
+              {
+                "type": "string",
+                "contentMediaType": "application/octet-stream"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "title": "Body_upload_own_profile_picture_v3_profile_picture_post"
+      },
+      "Category": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id",
+            "description": "Numeric category identifier"
+          },
+          "uuid": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uuid",
+            "description": "UUID of the category"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title",
+            "description": "Category title",
+            "examples": [
+              "Electrical Engineering"
+            ]
+          },
+          "parent_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Id",
+            "description": "Parent category ID (null for root categories)"
+          },
+          "parent_uuid": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Uuid",
+            "description": "Parent category UUID"
+          },
+          "path": {
+            "type": "string",
+            "title": "Path",
+            "description": "Full path from root to this category",
+            "default": ""
+          },
+          "source_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Id",
+            "description": "Identifier from the source taxonomy"
+          },
+          "taxonomy_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Taxonomy Id",
+            "description": "Taxonomy system identifier"
+          }
+        },
+        "type": "object",
+        "title": "Category",
+        "description": "A research category from the classification taxonomy.",
+        "examples": [
+          {
+            "id": 13,
+            "parent_id": 2,
+            "parent_uuid": "f0e1d2c3-b4a5-6789-0fed-cba987654321",
+            "path": "Engineering / Electrical Engineering",
+            "source_id": "4009",
+            "taxonomy_id": 1,
+            "title": "Electrical Engineering",
+            "uuid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+          }
+        ]
+      },
+      "CollectionSearchRequest": {
+        "properties": {
+          "search_for": {
+            "anyOf": [
+              {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  }
+                ],
+                "maxLength": 1024
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Search For"
+          },
+          "institution": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Institution"
+          },
+          "group_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Group Id"
+          },
+          "published_since": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 32
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Published Since"
+          },
+          "modified_since": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 32
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Modified Since"
+          },
+          "categories": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 512
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Categories"
+          },
+          "doi": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Doi"
+          },
+          "handle": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Handle"
+          },
+          "resource_doi": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resource Doi"
+          },
+          "order": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "published_date",
+                  "modified_date",
+                  "created_date",
+                  "title",
+                  "defined_type",
+                  "group_id",
+                  "size"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Order"
+          },
+          "order_direction": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "asc",
+                  "desc"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Order Direction"
+          },
+          "page": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page"
+          },
+          "page_size": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 1000.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page Size"
+          },
+          "limit": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 1000.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Limit"
+          },
+          "offset": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Offset"
+          }
+        },
+        "type": "object",
+        "title": "CollectionSearchRequest",
+        "description": "Request body for ``POST /v2/collections/search``."
+      },
+      "CollectionSummary": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id",
+            "description": "Numeric collection identifier"
+          },
+          "uuid": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uuid",
+            "description": "Container UUID"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title",
+            "description": "Collection title"
+          },
+          "doi": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Doi",
+            "description": "DOI"
+          },
+          "handle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Handle"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          },
+          "published_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Published Date"
+          },
+          "thumb": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Thumb"
+          },
+          "group_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Group Id"
+          },
+          "url_private_api": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url Private Api"
+          },
+          "url_public_api": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url Public Api"
+          },
+          "url_private_html": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url Private Html"
+          },
+          "url_public_html": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url Public Html"
+          },
+          "timeline": {
+            "$ref": "#/components/schemas/Timeline"
+          },
+          "resource_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resource Title"
+          },
+          "resource_doi": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resource Doi"
+          }
+        },
+        "type": "object",
+        "title": "CollectionSummary",
+        "description": "Collection summary as returned by list endpoints.",
+        "examples": [
+          {
+            "doi": "10.4121/9876543-fedc-ba09",
+            "id": 9876543,
+            "published_date": "2025-04-01T10:00:00",
+            "title": "Wind energy research data collection",
+            "uuid": "f1e2d3c4-b5a6-7890-fedc-ba0987654321"
+          }
+        ]
+      },
+      "ErrorResponse": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "Human-readable error description"
+          },
+          "code": {
+            "type": "string",
+            "title": "Code",
+            "description": "Machine-readable error code"
+          }
+        },
+        "type": "object",
+        "required": [
+          "message",
+          "code"
+        ],
+        "title": "ErrorResponse",
+        "description": "Standard error response.",
+        "examples": [
+          {
+            "code": "MissingRequiredField",
+            "message": "Missing required value for 'title'."
+          }
+        ]
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "License": {
+        "properties": {
+          "value": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value",
+            "description": "Numeric license identifier"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name",
+            "description": "License name",
+            "examples": [
+              "CC BY 4.0"
+            ]
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url",
+            "description": "URL to the full license text",
+            "examples": [
+              "https://creativecommons.org/licenses/by/4.0/"
+            ]
+          },
+          "type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Type",
+            "description": "License type classification (djehuty extension)",
+            "examples": [
+              "data",
+              "software"
+            ]
+          }
+        },
+        "type": "object",
+        "title": "License",
+        "description": "A license that can be applied to datasets and collections.",
+        "examples": [
+          {
+            "name": "CC BY 4.0",
+            "type": "data",
+            "url": "https://creativecommons.org/licenses/by/4.0/",
+            "value": 1
+          }
+        ]
+      },
+      "Timeline": {
+        "properties": {
+          "posted": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Posted"
+          },
+          "firstOnline": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Firstonline"
+          },
+          "revision": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revision"
+          },
+          "submission": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Submission"
+          },
+          "publisherPublication": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Publisherpublication"
+          }
+        },
+        "type": "object",
+        "title": "Timeline",
+        "description": "Publication timeline for datasets and collections.",
+        "examples": [
+          {
+            "firstOnline": "2025-03-16",
+            "posted": "2025-03-15"
+          }
+        ]
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "Session token": {
+        "type": "apiKey",
+        "description": "Your session token. Paste the token value; `token YOUR_TOKEN` also works.",
+        "in": "header",
+        "name": "Authorization"
+      }
+    }
+  }
+}
