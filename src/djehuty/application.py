@@ -40,19 +40,29 @@ _SWAGGER_HTML = """<!DOCTYPE html>
       dom_id: "#swagger-ui",
       deepLinking: true,
       presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
-      layout: "StandaloneLayout",
+      layout: "StandaloneLayout",__SUBMIT__
     });
   </script>
 </body>
 </html>"""
 
 
-def _swagger_html(urls: list, primary: str) -> str:
-    """Render the Swagger UI page for the given schema URLs."""
-    return _SWAGGER_HTML.replace("__URLS__", json.dumps(urls)).replace("__PRIMARY__", primary)
+def swagger_html(urls: list, primary: str, allow_submit: bool = True) -> str:
+    """Render the Swagger UI page for the given schema URLs.
+
+    With allow_submit False the page drops "Try it out". A copy of these docs
+    published away from a running instance has no API to send requests to, so
+    the button would fail on every endpoint.
+    """
+    submit = "" if allow_submit else "\n      supportedSubmitMethods: [],"
+    return (
+        _SWAGGER_HTML.replace("__URLS__", json.dumps(urls))
+        .replace("__PRIMARY__", primary)
+        .replace("__SUBMIT__", submit)
+    )
 
 
-def _version_schema(app: FastAPI, prefix: str, label: str) -> dict:
+def version_schema(app: FastAPI, prefix: str, label: str) -> dict:
     """Return the OpenAPI schema filtered to paths under a version prefix."""
     full = app.openapi()
     schema = dict(full)
@@ -66,14 +76,17 @@ def _version_schema(app: FastAPI, prefix: str, label: str) -> dict:
 def _register_version_docs(app: FastAPI, version: str) -> None:
     """Register a version's filtered schema and its bookmarkable docs page."""
 
+    # No endpoint parameters: each handler closes over `version` from this call.
+    # A `version=version` default would make FastAPI expose it as a query
+    # parameter and reflect it into the page (XSS, py/reflective-xss).
     @app.get(f"/api/openapi/{version}.json", include_in_schema=False)
-    def version_schema(version=version) -> JSONResponse:
-        return JSONResponse(_version_schema(app, f"/{version}", version))
+    def version_schema_endpoint() -> JSONResponse:
+        return JSONResponse(version_schema(app, f"/{version}", version))
 
     @app.get(f"/api/docs/{version}", include_in_schema=False)
-    def version_docs(version=version) -> HTMLResponse:
+    def version_docs() -> HTMLResponse:
         return HTMLResponse(
-            _swagger_html([{"url": f"/api/openapi/{version}.json", "name": version}], version)
+            swagger_html([{"url": f"/api/openapi/{version}.json", "name": version}], version)
         )
 
 
@@ -127,7 +140,7 @@ def create_app(db, email=None) -> FastAPI:
     def swagger_ui() -> HTMLResponse:
         urls = [{"url": f"/api/openapi/{v}.json", "name": v} for v in reversed(API_VERSIONS)]
         urls.append({"url": "/api/openapi.json", "name": "all"})
-        return HTMLResponse(_swagger_html(urls, API_VERSIONS[-1]))
+        return HTMLResponse(swagger_html(urls, API_VERSIONS[-1]))
 
     for _version in API_VERSIONS:
         _register_version_docs(app, _version)
