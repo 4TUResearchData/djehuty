@@ -3555,7 +3555,7 @@
           "V3 / SSI"
         ],
         "summary": "Receive dataset from SSI",
-        "operationId": "receive_from_ssi_v3_receive_from_ssi_put",
+        "operationId": "receive_from_ssi_v3_receive_from_ssi_get",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -3575,7 +3575,7 @@
           "V3 / SSI"
         ],
         "summary": "Receive dataset from SSI",
-        "operationId": "receive_from_ssi_v3_receive_from_ssi_put",
+        "operationId": "receive_from_ssi_v3_receive_from_ssi_get",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -3595,7 +3595,7 @@
           "V3 / SSI"
         ],
         "summary": "Receive dataset from SSI",
-        "operationId": "receive_from_ssi_v3_receive_from_ssi_put",
+        "operationId": "receive_from_ssi_v3_receive_from_ssi_get",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -3615,7 +3615,7 @@
           "V3 / SSI"
         ],
         "summary": "Receive dataset from SSI",
-        "operationId": "receive_from_ssi_v3_receive_from_ssi_put",
+        "operationId": "receive_from_ssi_v3_receive_from_ssi_get",
         "responses": {
           "200": {
             "description": "Successful Response",
