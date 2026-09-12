@@ -63,3 +63,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./site
+          # Re-write the custom-domain file on every deploy. The publish dir is
+          # force-pushed to gh-pages, so without this each deploy deletes CNAME
+          # and GitHub drops the djehuty.4tu.nl mapping (the site 404s).
+          cname: djehuty.4tu.nl
