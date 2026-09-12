@@ -5,47 +5,157 @@ not going live: the dispatcher in djehuty.web.ui picks new vs legacy per request
 """
 
 import importlib.metadata
+import json
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse, JSONResponse
 
 from djehuty.api.exceptions import register_exception_handlers
 from djehuty.api.v2.router import router as v2_router
+from djehuty.api.v3.router import router as v3_router
+from djehuty.web.config import config
+
+# The API versions served here, oldest first. This single list drives the docs
+# selector, the per-version docs pages, and the per-version schemas. Adding a
+# version (or retiring one) is a one-line change here plus its router include.
+API_VERSIONS = ["v2", "v3"]
+
+_SWAGGER_HTML = """<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Djehuty API</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css"/>
+  <link rel="shortcut icon" href="https://data.4tu.nl/static/favicon.ico"/>
+</head>
+<body>
+  <div id="swagger-ui"></div>
+  <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-standalone-preset.js"></script>
+  <script>
+    window.ui = SwaggerUIBundle({
+      urls: __URLS__,
+      "urls.primaryName": "__PRIMARY__",
+      dom_id: "#swagger-ui",
+      deepLinking: true,
+      presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
+      layout: "StandaloneLayout",__SUBMIT__
+    });
+  </script>
+</body>
+</html>"""
+
+
+def swagger_html(urls: list, primary: str, allow_submit: bool = True) -> str:
+    """Render the Swagger UI page for the given schema URLs.
+
+    With allow_submit False the page drops "Try it out". A copy of these docs
+    published away from a running instance has no API to send requests to, so
+    the button would fail on every endpoint.
+    """
+    submit = "" if allow_submit else "\n      supportedSubmitMethods: [],"
+    return (
+        _SWAGGER_HTML.replace("__URLS__", json.dumps(urls))
+        .replace("__PRIMARY__", primary)
+        .replace("__SUBMIT__", submit)
+    )
+
+
+def version_schema(app: FastAPI, prefix: str, label: str) -> dict:
+    """Return the OpenAPI schema filtered to paths under a version prefix."""
+    full = app.openapi()
+    schema = dict(full)
+    schema["info"] = {**full["info"], "title": f"{full['info']['title']} ({label})"}
+    schema["paths"] = {
+        path: item for path, item in full["paths"].items() if path.startswith(prefix)
+    }
+    return schema
+
+
+def _register_version_docs(app: FastAPI, version: str) -> None:
+    """Register a version's filtered schema and its bookmarkable docs page."""
+
+    # No endpoint parameters: each handler closes over `version` from this call.
+    # A `version=version` default would make FastAPI expose it as a query
+    # parameter and reflect it into the page (XSS, py/reflective-xss).
+    @app.get(f"/api/openapi/{version}.json", include_in_schema=False)
+    def version_schema_endpoint() -> JSONResponse:
+        return JSONResponse(version_schema(app, f"/{version}", version))
+
+    @app.get(f"/api/docs/{version}", include_in_schema=False)
+    def version_docs() -> HTMLResponse:
+        return HTMLResponse(
+            swagger_html([{"url": f"/api/openapi/{version}.json", "name": version}], version)
+        )
+
 
 _DESCRIPTION = """\
-The djehuty REST API for 4TU.ResearchData.
+Public data needs no token. For example, listing datasets:
+
+```
+curl {base_url}/v2/articles
+```
 
 ## Authentication
 
-Protected endpoints need a session token in the `Authorization` header. Both of
-these are accepted:
+Protected endpoints in both **v2** and **v3** need an API token in the
+`Authorization` header. Both of these forms are accepted:
 
 ```
 Authorization: token YOUR_TOKEN
 Authorization: YOUR_TOKEN
 ```
 
-In these docs, click **Authorize** (the lock) and paste the token; it is then
-sent with every request. From the command line:
+### Getting a token
+
+Tokens come from your account on the repository (deployed djehuty), not from this page: sign in,
+open your dashboard, and under **Sessions and API tokens** create one. The
+session token issued when you sign in works too, and stays valid until you sign
+out.
+
+### Using it
+
+Send the token in the `Authorization` header on every request:
 
 ```
-curl -H "Authorization: token YOUR_TOKEN" https://data.4tu.nl/v2/account
+curl -H "Authorization: token YOUR_TOKEN" {base_url}/v2/account
+curl -H "Authorization: token YOUR_TOKEN" {base_url}/v3/profile
 ```
+
+When this reference is opened on a running instance, the **Authorize** button
+(the lock) also lets you paste a token and try requests from the page directly.
 """
 
 
-def create_app(db, email=None) -> FastAPI:
+def create_app(db, email=None, base_url=None) -> FastAPI:
+    # The example URLs in the docs default to this instance's configured address;
+    # example.com stands in when nothing is configured (the generic reference
+    # built in CI). An explicit base_url (the exporter's --server-url) wins.
+    resolved_base_url = base_url or config.base_url or "https://example.com"
     app = FastAPI(
         title="Djehuty",
-        summary="Research data repository for 4TU.ResearchData",
-        description=_DESCRIPTION,
+        summary="Djehuty",
+        description=_DESCRIPTION.replace("{base_url}", resolved_base_url),
         version=importlib.metadata.version("djehuty"),
-        docs_url="/api/docs",
+        docs_url=None,
         redoc_url="/api/redoc",
         openapi_url="/api/openapi.json",
     )
     app.state.db = db
     app.state.email = email
+
+    # Combined docs at /api/docs with a version selector (latest first, plus
+    # "all"); bookmarkable per-version docs at /api/docs/<version>.
+    @app.get("/api/docs", include_in_schema=False)
+    def swagger_ui() -> HTMLResponse:
+        urls = [{"url": f"/api/openapi/{v}.json", "name": v} for v in reversed(API_VERSIONS)]
+        urls.append({"url": "/api/openapi.json", "name": "all"})
+        return HTMLResponse(swagger_html(urls, API_VERSIONS[-1]))
+
+    for _version in API_VERSIONS:
+        _register_version_docs(app, _version)
 
     app.add_middleware(
         CORSMiddleware,
@@ -57,4 +167,5 @@ def create_app(db, email=None) -> FastAPI:
     )
     register_exception_handlers(app)
     app.include_router(v2_router)
+    app.include_router(v3_router)
     return app

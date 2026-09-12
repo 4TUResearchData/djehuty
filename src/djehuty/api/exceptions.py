@@ -1,10 +1,13 @@
 """Exception handlers that produce responses matching the legacy API format."""
 
 import json
+import logging
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, PlainTextResponse
+
+logger = logging.getLogger(__name__)
 
 
 class NotFoundError(Exception):
@@ -74,6 +77,15 @@ def register_exception_handlers(app: FastAPI):
             content={"message": "This resource does not exist."},
         )
 
+    @app.exception_handler(404)
+    async def not_found_status_handler(request: Request, exc):
+        # AS-IS: legacy error_404 returns this body for an unmatched route,
+        # where Starlette's default would send {"detail": "Not Found"}.
+        return JSONResponse(
+            status_code=404,
+            content={"message": "This resource does not exist."},
+        )
+
     @app.exception_handler(AuthorizationError)
     async def authorization_handler(request: Request, exc: AuthorizationError):
         return JSONResponse(
@@ -86,13 +98,21 @@ def register_exception_handlers(app: FastAPI):
 
     @app.exception_handler(ForbiddenError)
     async def forbidden_handler(request: Request, exc: ForbiddenError):
+        # AS-IS: legacy error_403 sends the descriptive text to the audit log
+        # and always returns {"message": "Not allowed."} to the client.
+        if exc.message and exc.message != "Not allowed.":
+            logger.info("Forbidden on %s %s: %s", request.method, request.url.path, exc.message)
         return JSONResponse(
             status_code=403,
-            content={"message": exc.message},
+            content={"message": "Not allowed."},
         )
 
     @app.exception_handler(InvalidInputError)
     async def invalid_input_handler(request: Request, exc: InvalidInputError):
+        # AS-IS: legacy error_400_list serialises a list of errors as a bare
+        # JSON array; a single message keeps the {message, code} object shape.
+        if isinstance(exc.message, list):
+            return JSONResponse(status_code=400, content=exc.message)
         return JSONResponse(
             status_code=400,
             content={"message": exc.message, "code": exc.code},
@@ -104,3 +124,8 @@ def register_exception_handlers(app: FastAPI):
             status_code=405,
             content=f"Acceptable methods: {exc.detail}",
         )
+
+    @app.exception_handler(Exception)
+    async def unhandled_error_handler(request: Request, exc: Exception):
+        logger.error("Unhandled error on %s %s", request.method, request.url.path, exc_info=exc)
+        return PlainTextResponse(status_code=500, content="Internal Server Error")

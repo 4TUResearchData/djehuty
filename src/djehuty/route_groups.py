@@ -23,8 +23,14 @@ class RouteGroup:
 # One entry per group; each group's PR appends its own.
 ROUTE_GROUPS: tuple = (
     # always_new: the docs stay available even when everything else is legacy.
-    RouteGroup("api-docs", exact=("/api/docs", "/api/redoc", "/api/openapi.json"), always_new=True),
+    RouteGroup(
+        "api-docs",
+        exact=("/api/docs", "/api/redoc", "/api/openapi.json"),
+        prefixes=("/api/docs/", "/api/openapi/"),
+        always_new=True,
+    ),
     RouteGroup("api-v2", prefixes=("/v2/",)),
+    RouteGroup("api-v3", prefixes=("/v3/",)),
 )
 
 
