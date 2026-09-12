@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Djehuty",
-    "summary": "Research data repository for 4TU.ResearchData",
-    "description": "The djehuty REST API for 4TU.ResearchData.\n\nPublic data needs no token. For example, listing datasets:\n\n```\ncurl https://example.com/v2/articles\n```\n\n## Authentication\n\nProtected endpoints in both **v2** and **v3** need an API token in the\n`Authorization` header. Both of these forms are accepted:\n\n```\nAuthorization: token YOUR_TOKEN\nAuthorization: YOUR_TOKEN\n```\n\n### Getting a token\n\nTokens come from your account on the repository (deployed djehuty), not from this page: sign in,\nopen your dashboard, and under **Sessions and API tokens** create one. The\nsession token issued when you sign in works too, and stays valid until you sign\nout.\n\n### Using it\n\nSend the token in the `Authorization` header on every request:\n\n```\ncurl -H \"Authorization: token YOUR_TOKEN\" https://example.com/v2/account\ncurl -H \"Authorization: token YOUR_TOKEN\" https://example.com/v3/profile\n```\n\nWhen this reference is opened on a running instance, the **Authorize** button\n(the lock) also lets you paste a token and try requests from the page directly.\n",
+    "summary": "Djehuty",
+    "description": "Public data needs no token. For example, listing datasets:\n\n```\ncurl https://example.com/v2/articles\n```\n\n## Authentication\n\nProtected endpoints in both **v2** and **v3** need an API token in the\n`Authorization` header. Both of these forms are accepted:\n\n```\nAuthorization: token YOUR_TOKEN\nAuthorization: YOUR_TOKEN\n```\n\n### Getting a token\n\nTokens come from your account on the repository (deployed djehuty), not from this page: sign in,\nopen your dashboard, and under **Sessions and API tokens** create one. The\nsession token issued when you sign in works too, and stays valid until you sign\nout.\n\n### Using it\n\nSend the token in the `Authorization` header on every request:\n\n```\ncurl -H \"Authorization: token YOUR_TOKEN\" https://example.com/v2/account\ncurl -H \"Authorization: token YOUR_TOKEN\" https://example.com/v3/profile\n```\n\nWhen this reference is opened on a running instance, the **Authorize** button\n(the lock) also lets you paste a token and try requests from the page directly.\n",
     "version": "26.5"
   },
   "paths": {
@@ -9053,7 +9053,7 @@
           "V3 / SSI"
         ],
         "summary": "Receive dataset from SSI",
-        "operationId": "receive_from_ssi_v3_receive_from_ssi_put",
+        "operationId": "receive_from_ssi_v3_receive_from_ssi_get",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -9073,7 +9073,7 @@
           "V3 / SSI"
         ],
         "summary": "Receive dataset from SSI",
-        "operationId": "receive_from_ssi_v3_receive_from_ssi_put",
+        "operationId": "receive_from_ssi_v3_receive_from_ssi_get",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -9093,7 +9093,7 @@
           "V3 / SSI"
         ],
         "summary": "Receive dataset from SSI",
-        "operationId": "receive_from_ssi_v3_receive_from_ssi_put",
+        "operationId": "receive_from_ssi_v3_receive_from_ssi_get",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -9113,7 +9113,7 @@
           "V3 / SSI"
         ],
         "summary": "Receive dataset from SSI",
-        "operationId": "receive_from_ssi_v3_receive_from_ssi_put",
+        "operationId": "receive_from_ssi_v3_receive_from_ssi_get",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -10071,7 +10071,7 @@
         ],
         "summary": "Search accounts",
         "description": "Search for user accounts (autocomplete for adding collaborators).",
-        "operationId": "search_accounts_v3_accounts_search_post",
+        "operationId": "search_accounts_v3_accounts_search_get",
         "responses": {
           "200": {
             "description": "Matching accounts",
@@ -10125,7 +10125,7 @@
         ],
         "summary": "Search accounts",
         "description": "Search for user accounts (autocomplete for adding collaborators).",
-        "operationId": "search_accounts_v3_accounts_search_post",
+        "operationId": "search_accounts_v3_accounts_search_get",
         "responses": {
           "200": {
             "description": "Matching accounts",
