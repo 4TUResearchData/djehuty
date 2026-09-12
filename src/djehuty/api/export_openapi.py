@@ -17,11 +17,14 @@ def build_documents(server_url: str | None = None) -> dict[str, dict]:
     """Return {file stem: schema} for the combined and per-version documents.
 
     Without a server_url no `servers` entry is written, so paths stay relative
-    and resolve against whichever instance serves them. djehuty is deployed by
-    more than one institution, so this module names none of them.
+    and resolve against whichever instance serves them, and the example URLs in
+    the description fall back to a placeholder host. djehuty is deployed by more
+    than one institution, so this module names none of them.
     """
-    # None is the database: nothing is queried while the schema is built.
-    app = create_app(None)
+    # None is the database: nothing is queried while the schema is built. The
+    # server_url also drives the example URLs in the description, so prose and
+    # the `servers` entry stay in step.
+    app = create_app(None, base_url=server_url)
     documents = {"swagger": app.openapi()}
     for version in API_VERSIONS:
         documents[f"swagger-{version}"] = version_schema(app, f"/{version}", version)
