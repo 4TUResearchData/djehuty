@@ -12,9 +12,14 @@ import re
 import pytest
 
 from djehuty.api.export_openapi import build_documents, write_documents, write_index
-from djehuty.application import API_VERSIONS
+from djehuty.application import API_VERSIONS, create_app
+from djehuty.web.config import config
 
 SERVER_URL = "https://example.org"
+
+
+def _description(app):
+    return app.openapi()["info"]["description"]
 
 
 def _stems():
@@ -115,3 +120,27 @@ def test_index_urls_are_relative(exported):
     for url in _index_urls(exported):
         assert not url.startswith("/"), url
         assert "://" not in url, url
+
+
+def test_description_uses_the_configured_base_url(monkeypatch):
+    # A deployed instance advertises its own address in the example URLs, so
+    # readers copy commands that already point at the right host.
+    monkeypatch.setattr(config, "base_url", "https://api.test.example")
+    description = _description(create_app(None))
+    assert "https://api.test.example/v2/articles" in description
+    assert "{base_url}" not in description
+
+
+def test_description_falls_back_to_example_com_without_config(monkeypatch):
+    # The generic published reference (built in CI, no config) names no instance.
+    monkeypatch.setattr(config, "base_url", None)
+    description = _description(create_app(None))
+    assert "https://example.com/v2/articles" in description
+
+
+def test_explicit_base_url_overrides_the_configured_one(monkeypatch):
+    # The exporter's --server-url wins, keeping the prose and `servers` in step.
+    monkeypatch.setattr(config, "base_url", "https://configured.example")
+    description = _description(create_app(None, base_url="https://override.example"))
+    assert "https://override.example/v2/articles" in description
+    assert "configured.example" not in description
