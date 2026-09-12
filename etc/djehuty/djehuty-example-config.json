@@ -3,7 +3,9 @@
     "maintenance-mode": "0",
     "web-service": {
       "default": "new",
-      "groups": {}
+      "groups": {
+        "api-v2": "new"
+      }
     },
     "site-name": "Djehuty example instance",
     "site-shorttag": "example-shorttag",
