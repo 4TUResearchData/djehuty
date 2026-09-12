@@ -14,6 +14,7 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from djehuty.api.exceptions import register_exception_handlers
 from djehuty.api.v2.router import router as v2_router
 from djehuty.api.v3.router import router as v3_router
+from djehuty.web.config import config
 
 # The API versions served here, oldest first. This single list drives the docs
 # selector, the per-version docs pages, and the per-version schemas. Adding a
@@ -91,7 +92,11 @@ def _register_version_docs(app: FastAPI, version: str) -> None:
 
 
 _DESCRIPTION = """\
-The djehuty REST API for 4TU.ResearchData.
+Public data needs no token. For example, listing datasets:
+
+```
+curl {base_url}/v2/articles
+```
 
 ## Authentication
 
@@ -105,27 +110,34 @@ Authorization: YOUR_TOKEN
 
 ### Getting a token
 
-Log in, open your [Dashboard](/my/dashboard), and under **Sessions and API
-tokens** choose **Create API token**. Your current session token works too, and
-stays valid until you log out.
+Tokens come from your account on the repository (deployed djehuty), not from this page: sign in,
+open your dashboard, and under **Sessions and API tokens** create one. The
+session token issued when you sign in works too, and stays valid until you sign
+out.
 
 ### Using it
 
-In these docs, click **Authorize** (the lock) and paste the token; it is then
-sent with every request. From the command line:
+Send the token in the `Authorization` header on every request:
 
 ```
-curl -H "Authorization: token YOUR_TOKEN" https://data.4tu.nl/v2/account
-curl -H "Authorization: token YOUR_TOKEN" https://data.4tu.nl/v3/profile
+curl -H "Authorization: token YOUR_TOKEN" {base_url}/v2/account
+curl -H "Authorization: token YOUR_TOKEN" {base_url}/v3/profile
 ```
+
+When this reference is opened on a running instance, the **Authorize** button
+(the lock) also lets you paste a token and try requests from the page directly.
 """
 
 
-def create_app(db, email=None) -> FastAPI:
+def create_app(db, email=None, base_url=None) -> FastAPI:
+    # The example URLs in the docs default to this instance's configured address;
+    # example.com stands in when nothing is configured (the generic reference
+    # built in CI). An explicit base_url (the exporter's --server-url) wins.
+    resolved_base_url = base_url or config.base_url or "https://example.com"
     app = FastAPI(
         title="Djehuty",
-        summary="Research data repository for 4TU.ResearchData",
-        description=_DESCRIPTION,
+        summary="Djehuty",
+        description=_DESCRIPTION.replace("{base_url}", resolved_base_url),
         version=importlib.metadata.version("djehuty"),
         docs_url=None,
         redoc_url="/api/redoc",
