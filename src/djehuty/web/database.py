@@ -638,7 +638,7 @@ class SparqlInterface:
     def authors (self, first_name=None, full_name=None, group_id=None,
                  author_id=None, institution_id=None, is_active=None,
                  is_public=None, job_title=None, last_name=None,
-                 orcid_id=None, url_name=None, limit=10, order=None,
+                 orcid_id=None, email=None, url_name=None, limit=10, order=None,
                  order_direction=None, item_uri=None, search_for=None,
                  account_uuid=None, item_type="dataset", is_published=True,
                  author_uuid=None):
@@ -656,6 +656,7 @@ class SparqlInterface:
         filters += rdf.sparql_filter ("last_name",      last_name,  escape=True)
         filters += rdf.sparql_filter ("full_name",      full_name,  escape=True)
         filters += rdf.sparql_filter ("orcid_id",       orcid_id,   escape=True)
+        filters += rdf.sparql_filter ("email",          email,      escape=True)
         filters += rdf.sparql_filter ("url_name",       url_name,   escape=True)
 
         if search_for is not None:
@@ -1563,6 +1564,8 @@ class SparqlInterface:
         last_name  = conv.strip_string (last_name)
         full_name  = conv.strip_string (full_name)
         email      = conv.strip_string (email)
+        if email:
+            email = email.casefold()
 
         rdf.add (graph, author_uri, RDF.type,                   rdf.DJHT["Author"], "uri")
         rdf.add (graph, author_uri, rdf.DJHT["id"],             author_id)
