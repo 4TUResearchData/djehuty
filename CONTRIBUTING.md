@@ -27,7 +27,7 @@ We welcome contributions in the form of bug reports and feature suggestions. Her
 
 2. **Submit a New Issue**
 
-    If you don’t find an existing issue, create a new one [using the appropriate template](#issue-template). Add relevant labels if applicable.
+    If you don’t find an existing issue, create a new one using the appropriate template. Add relevant labels if applicable.
 
 3. **Provide Useful Information**
 
@@ -49,7 +49,7 @@ We welcome contributions in the form of bug reports and feature suggestions. Her
     Before you start work, **search the [issue tracker](https://github.com/4TUResearchData/djehuty/issues)** to see if your idea is already being discussed.
 
     - If you find a relevant issue, comment to say you’re taking it on and, if possible, assign yourself. If you cannot assign, leave a comment like “Working on this” so maintainers know.
-    - If no issue exists, open a new issue using the [issue template](#issue-template) and include: a short, descriptive title; a brief explanation of the problem or feature and why it’s needed.
+    - If no issue exists, open a new issue using the issue template and include: a short, descriptive title; a brief explanation of the problem or feature and why it’s needed.
       - ⚠️ **IMPORTANT**: **Do not discuss security-related aspects**: to report a vulnerability, please see [SECURITY.md](https://github.com/4TUResearchData/djehuty/blob/main/SECURITY.md)
 
 3. **Work from a fork**
@@ -70,12 +70,12 @@ We welcome contributions in the form of bug reports and feature suggestions. Her
     - Commits must be verified, see the [commit signature verification guide](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification) for more details.
     - Once your work is ready for review, open a Pull Request (PR) against the main project repository.
       - Provide a clear description of what you changed and link the related issue.
-      - Use the [PR template](#pull-request-template) and check the approval checklist before submitting.
+      - Use the PR template - you will see it once you open a PR,  and check the approval checklist before submitting.
       - ⚠️ **IMPORTANT**: **Do not open a PR for a security issue**: to report a vulnerability, please see [SECURITY.md](https://github.com/4TUResearchData/djehuty/blob/main/SECURITY.md)
 
 7. **Final approval and merge**
 
-    After review and approval, your PR must be squashed into a single commit using the project’s [commit message template](#commit-message-template). Once the checklist is complete, a maintainer will rebase-merge it into the main branch to keep the history clean.
+    After review and approval, your PR must be squashed into a single commit. Once the checklist is complete, a maintainer will rebase-merge it into the main branch to keep the history clean.
 
 If you want to make a very small contribution, such as one or a few lines of code for which following the code contributions workflow is not convenient, please contact the [core maintainers](mailto:info@djehuty.4tu.nl).
 
@@ -216,228 +216,22 @@ in the README for how to build and preview it locally.
 
 ---
 
-## Conventions
 
+## Commits
 
-### Code conventions
+Pull requests are squashed before merging.
+Keep changes focused, avoid unrelated modifications, and use clear commit messages. 
+When possible follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) convention:
 
-Follow existing code conventions and existing patterns such as:
-
-- **Naming conventions**: Follow existing patterns for variables, functions, classes, and file names.
-    - Use snake_case for functions and variables.
-    - Be descriptive but concise in names.
-- **Indentation**: Use the same indentation style (tabs vs. spaces, number of spaces) already present in the codebase.
-    - Line length: Keep lines within the project’s limit (100 characters, enforced by Ruff).
-    - Comments & docs: Write comments/docstrings in the same style.
-- **No unused code**: Remove dead or commented-out code before committing.
-- **Linting**: Run `just lint` before committing (or format using `just format`).
-
-
-### Commits
-
-All **commits will be squashed into a single commit** before merging into main. This has two purposes:
-
-- **Clean history**: The main branch stays tidy.
-- **Readable log**: Each merge commit clearly tells the story of a completed change.
-
-When planning a change remember to:
-
-- **Limit the scope**: Keep the diff as small as possible so reviewers can understand the change quickly.
-- **Avoid commit noise**: Don’t include generated files, formatting-only changes, or experimental code unless they are the sole purpose of the commit.
-
-For the **squashed commit message** please also have a look at the [commit message template](#commit-message-template).
-
-
-### Branch Naming Conventions
-
-Branches must follow a **consistent naming scheme** to make collaboration, reviews, and automation easier.
-Use the following pattern:
-
-```markdown
-wip-<type>-<issue-number>-<short-description>
-```
-
-```markdown
-- wip = prefix for “Work in Progress”
-- type = category of change (bug, feat, impr, docs, chore)
-- issue-number = the GitHub issue number related to the work (if applicable)
-- short-description = a brief, kebab-case summary of the change
-```
-#### Example of branch name:
-
-| Type  | Branch name example               | When to use                      |
-| ----- |-----------------------------------| -------------------------------- |
-| bug   | wip-bug-123-fix-login-crash       | Bug fixes                        |
-| feat  | wip-feat-007-add-endpoint         | New features                     |
-| impr  | wip-impr-321-optimize-query       | Improvements, refactors, cleanup |
-| docs  | wip-docs-789-update-install-guide | Documentation updates            |
-| chore | wip-chore-101-bump-dependencies   | Maintenance or config updates    |
+- `feat: add search filters`
+- `fix: prevent duplicate uploads`
+- `docs: improve contributing guide`
 
 ---
 
 ## Releases
 
 Releases are handled by maintainers and automated by GitHub Actions. See [RELEASE.md](https://github.com/4TUResearchData/djehuty/blob/main/RELEASE.md) for the step-by-step procedure.
-
----
-
-## Templates
-
-### Issue Template
-
-#### 🐞 Bug
-Use when something is **broken** or misbehaving (broken functionality).
-
-```markdown
-**Describe the bug**
-A clear and short description of the bug.
-
-** Steps to Reproduce**
-Steps to reproduce the behavior:
-
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
-
-**Expected behavior**
-A clear and short description of what you expected to happen.
-
-**Screenshots**
-If applicable, add screenshots to help explain the problem.
-
-**Your personal set up:**
- - Smartphone or Desktop
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
-
-**Additional context**
-Add any other context about the problem here.
-```
-
-
-#### 🪴 **Improvement**
-Use when you want to refine an **existing functionality** (enhance functionality).
-
-```markdown
-**Summary**
-A clear and short description of the enhancement.
-
-**Current Behavior**
-Brief description of the existing behavior or limitation.
-
-**Proposed Improvement**
-How you suggest to improve it.
-
-**Additional Notes**
-References, related issues, examples.
-```
-
-#### 🚀 **New Feature**
-Use when you would like to introduce a **new idea**.
-
-```markdown
-**Summary**
-A short description the functionality and who will use it.
-
-**Is your feature request related to a problem? **
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
-
-**Describe the solution you'd like**
-A clear and concise description of what you want to happen. 
-
-Suggestion: if possible, describe who will benefit from the functionality and for what reason.
-Example:
-- As a "data steward", I want "to do ..." so that "i can ....".
-- As a "researcher", I want "to do ..." so that "i can ....".
-- As a "reviewer", I want "to do ..." so that "i can ....".
-
-**Additional Context**
-Designs, diagrams, examples, screenshots etc.
-```
----
-### Pull Request Template
-Regardless of the issue type, **use the PR template below**. Note that some PRs may not be associated with an issue.
-
-```markdown
-**Summary**
-A clear and short description of the change. Please provide what and why.
-
-**Changes**
-- filename: description of key update. Keep it concise.
-
-**Approval Checklist**
-- [ ] I agree to follow _Djehuty's_ [code of conduct](https://github.com/4TUResearchData/djehuty?tab=coc-ov-file#readme).
-- [ ] I have read and I have follow the [code contribution workflow](https://github.com/4TUResearchData/djehuty/blob/main/CONTRIBUTING.md).
-- [ ] Code style and conventions were respected.
-- [ ] Documentation has been updated where needed (README, docs, or examples).
-- [ ] Review approved by at least one maintainer.
-- [ ] Merge readiness (PR is squashed into a single commit and follows the [commit template](https://github.com/4TUResearchData/djehuty/blob/main/CONTRIBUTING.md#commit-message-template)).
-
-**Issue Reference (optional - PRs may not be associated with an issue)**
-Closes #ISSUE_NUMBER
-
-**Screenshots (optional)**
-Before/After visuals, UI changes, or relevant logs.
-
-**Notes (optional)**
-Additional context, caveats, or follow-up tasks.
-```
----
-
-### Commit Message Template
-
-The **commits in djehuty have a specific format**. By being detailed in your commit message, you help specific changes to the software be more traceable, and if necessary, revertible.
-
-The commits should be clear and focused. In the commit message:
-
-- The first line provides a general idea of what change has been done and in which part of code.
-- The following lines give a one-line summary of changes made to each individual file with the commit.
-- If a line extends 80 characters, a line break should be introduced.
-- Imperative mood (e.g. “Add test for …”, “Implement error handling …”, “Fix UUID validator …”) is used to describe the changes made.
-
-The message follows the format:
-```markdown
-[folder]:[subfolder]: <Describe a change in one line>
-* [path to 1st file changed]: <Describe change in the file>
-* [path to 2nd file changed]: <Describe change in the file>
-* [path to 3rd file changed]: <Describe change in the file>
-```
-...
-
-Example of a commit message:
-```markdown
-web: html_templates: Add keyword autocomplete options.
-* src/djehuty/web/resources/html_templates/depositor/edit-dataset.html: Add
-  ID for displaying keyword autocomplete and edit help text.
-* src/djehuty/web/resources/static/js/edit-dataset.js: Load keyword
-  autocomplete options when typing a keyword.
-* src/djehuty/web/resources/html_templates/depositor/edit-collection.html: Add
-  ID for displaying keyword autocomplete and edit help text.
-* src/djehuty/web/resources/static/js/edit-collection.js: Load keyword
-  autocomplete options when typing a keyword.
-* src/djehuty/web/resources/static/js/utils.js: Add method to search keyword
-  options and load them as an autocomplete dropdown.
-```
-
----
-
-## Label Guide
-
-To help indicate the status of issue or pull request discussions, maintainers will [apply labels](https://github.com/4TUResearchData/djehuty/labels) to each as described below:
-
-| Label | When to use |
-|-------|-------------|
-| 🐞 ![bug](https://img.shields.io/badge/bug-red?style=flat) | Something is broken or behaves unexpectedly|
-| 🪴 ![improvement](https://img.shields.io/badge/improvement-d4c5f9?style=flat) | Refining current functionality |
-| 🚀 ![new feature](https://img.shields.io/badge/new_feature-mediumseagreen?style=flat) | Introducing functionality that did not previously exist  |
-| 📚 ![documentation](https://img.shields.io/badge/documentation-0075ca?style=flat) | Docs updates, corrections, or additions |
-| 🔧 ![refactor](https://img.shields.io/badge/refactor-c2e0c6?style=flat) | Internal code restructuring without changing external behavior |
-| 🌱 ![good first issue](https://img.shields.io/badge/good_first_issue-ABE6E4?style=flat) | Beginner-friendly tasks with clear steps |
-| 💬 ![needs discussion](https://img.shields.io/badge/needs_discussion-moccasin?style=flat) | Further clarification or consensus is required |
-| ⛔ ![blocked](https://img.shields.io/badge/blocked-indianred?style=flat) | Waiting on dependencies, or prerequisites |
-| ![wontfix](https://img.shields.io/badge/wontfix-FFF?style=flat) | This will not be worked on
-| ![duplicate](https://img.shields.io/badge/duplicate-lightgray?style=flat) | Waiting on dependencies, or prerequisites |
 
 ---
 
