@@ -28,13 +28,14 @@ def search_authors(
     account=Depends(require_auth),
     db=Depends(get_db),
 ):
-    # Legacy reads ``search`` from the JSON body (POST).
-    search_for = body.get("search") if isinstance(body, dict) else None
-    if not isinstance(search_for, str) or len(search_for) > 255:
-        raise InvalidInputError(
-            "Field 'search' is required and must be a string of <= 255 chars.",
-            "BadSearch",
-        )
+    from djehuty.web import validator
+
+    # Legacy reads and validates ``search`` from the JSON body the same way
+    # (wsgi.py api_private_authors_search), so the error code and message match.
+    try:
+        search_for = validator.string_value(body, "search", 0, 255, True)
+    except validator.ValidationException as error:
+        raise InvalidInputError(error.message, error.code) from error
 
     records = db.authors(search_for=search_for, limit=10)
     return JSONResponse(content=[formatter.format_author_details_record(r) for r in records])
