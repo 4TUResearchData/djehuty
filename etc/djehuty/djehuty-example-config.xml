@@ -7,7 +7,9 @@
        (/api/docs, /api/redoc, /api/openapi.json) is always new. -->
   <web-service>
     <default>new</default>
-    <groups/>
+    <groups>
+      <api-v2>new</api-v2>
+    </groups>
   </web-service>
   <site-name>Djehuty example instance</site-name>
   <site-shorttag>example-shorttag</site-shorttag>
