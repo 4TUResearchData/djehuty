@@ -144,3 +144,19 @@ def test_explicit_base_url_overrides_the_configured_one(monkeypatch):
     description = _description(create_app(None, base_url="https://override.example"))
     assert "https://override.example/v2/articles" in description
     assert "configured.example" not in description
+
+
+def test_schema_documents_400_not_the_phantom_422():
+    # register_exception_handlers turns every RequestValidationError into a 400,
+    # so the published schema must advertise the 400 that occurs, never FastAPI's
+    # auto-generated 422 that never can.
+    saw_400 = False
+    for schema in build_documents().values():
+        for path_item in schema["paths"].values():
+            for operation in path_item.values():
+                if not isinstance(operation, dict):
+                    continue
+                responses = operation.get("responses", {})
+                assert "422" not in responses
+                saw_400 = saw_400 or "400" in responses
+    assert saw_400, "no operation documents the 400 that a validation error produces"
