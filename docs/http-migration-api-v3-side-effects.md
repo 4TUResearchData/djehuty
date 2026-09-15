@@ -222,9 +222,8 @@ client-visible success path or a persisted side effect:
   persisted side effect differs.
 - **SSI redirect cookie flags** match legacy exactly (no `httponly`, no
   `samesite`); the hardened flags an earlier port added were reverted.
-- **Error-status normalisation.** Several handlers return 400/404 where legacy
-  returned an uncaught-exception 500 (e.g. deleting a non-existent tag or
-  reference now returns 404, malformed paging returns 400). The success paths
+- **Error-status normalisation.** A few handlers return 400/404 where legacy
+  returned an uncaught-exception 500 (e.g. malformed paging). The success paths
   and all persisted side effects are identical; only the error status differs,
   and the AS-IS e2e suite records these as warnings rather than failures.
 - **Thumbnail / image detection** uses the same `services.imaging` extraction as
