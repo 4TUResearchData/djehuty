@@ -4,7 +4,7 @@ from fastapi import APIRouter, Body, Depends, Query, Response
 from fastapi.responses import JSONResponse
 
 from djehuty.api.dependencies import get_current_account, get_db, require_auth
-from djehuty.api.exceptions import InvalidInputError, NotFoundError
+from djehuty.api.exceptions import InvalidInputError
 from djehuty.api.models.common import ErrorResponse
 from djehuty.api.permissions import enforce_collaborative_permissions
 from djehuty.api.v3._shared import _ok
@@ -82,11 +82,10 @@ def delete_tag(
     # Read the full existing list before writing it back (see the add path).
     existing = db.tags(item_uri=dataset["uri"], account_uuid=account["uuid"], limit=10000)
     tag_values = [formatter.format_tag_record(t) for t in existing]
-    # AS-IS: legacy 500s on an absent tag; the port answers 404, matching the
-    # collections handler and the error-status-normalisation deviation.
-    if decoded_tag not in tag_values:
-        raise NotFoundError()
-    tag_values.remove(decoded_tag)
-    if not db.update_item_list(dataset["uuid"], account["uuid"], tag_values, "tags"):
-        raise InvalidInputError(f"Deleting tag '{decoded_tag}' failed.", "DeleteFailed")
-    return Response(status_code=204)
+    # AS-IS: legacy removes the tag and 204s on success; an absent tag or a
+    # failed update_item_list both fall through to a 500 (error_500, empty body).
+    if decoded_tag in tag_values:
+        tag_values.remove(decoded_tag)
+        if db.update_item_list(dataset["uuid"], account["uuid"], tag_values, "tags"):
+            return Response(status_code=204)
+    return Response(status_code=500)
