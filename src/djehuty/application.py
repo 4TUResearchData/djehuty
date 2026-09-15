@@ -128,6 +128,42 @@ When this reference is opened on a running instance, the **Authorize** button
 (the lock) also lets you paste a token and try requests from the page directly.
 """
 
+_BAD_REQUEST_RESPONSE = {
+    "description": "Bad Request",
+    "content": {
+        "application/json": {
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "message": {"type": "string"},
+                    "code": {"type": "string"},
+                },
+            }
+        }
+    },
+}
+
+
+def _install_openapi_override(app: FastAPI) -> None:
+    """Document the 400 a RequestValidationError becomes, not FastAPI's 422.
+
+    register_exception_handlers turns every RequestValidationError into a 400, so
+    the auto-generated 422 can never occur. Swap it for the 400 that does, so the
+    published schema matches the responses clients actually receive.
+    """
+    base_openapi = app.openapi
+
+    def openapi():
+        schema = base_openapi()
+        for path_item in schema.get("paths", {}).values():
+            for operation in path_item.values():
+                responses = operation.get("responses") if isinstance(operation, dict) else None
+                if isinstance(responses, dict) and responses.pop("422", None) is not None:
+                    responses.setdefault("400", _BAD_REQUEST_RESPONSE)
+        return schema
+
+    app.openapi = openapi
+
 
 def create_app(db, email=None, base_url=None) -> FastAPI:
     # The example URLs in the docs default to this instance's configured address;
@@ -168,4 +204,5 @@ def create_app(db, email=None, base_url=None) -> FastAPI:
     register_exception_handlers(app)
     app.include_router(v2_router)
     app.include_router(v3_router)
+    _install_openapi_override(app)
     return app
