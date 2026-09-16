@@ -154,6 +154,15 @@ class SparqlInterface:
 
         return template.render ({ **args, **parameters })
 
+    def __date_datatype (self, date):
+        """Returns the datatype matching the precision of the partial date DATE."""
+
+        if date is None:
+            return None
+
+        ## A year (YYYY), a year and month (YYYY-MM) or a full date (YYYY-MM-DD).
+        return {4: XSD.gYear, 7: XSD.gYearMonth}.get (len (date), XSD.date)
+
     def __run_logged_query (self, query):
         """Passthrough for '__run_query' that handles the audit log feature."""
 
@@ -3534,7 +3543,8 @@ class SparqlInterface:
             if self.add_date_to_physical_sample (container_uuid,
                                                  conv.value_or (date, "date_type", "other"),
                                                  conv.value_or_none (date, "date"),
-                                                 account_uuid) is None:
+                                                 account_uuid,
+                                                 conv.value_or_none (date, "date_end")) is None:
                 self.log.error ("Failed to copy date %s into draft %s.",
                                 conv.value_or_none (date, "uuid"), draft_uuid)
 
@@ -3617,8 +3627,13 @@ class SparqlInterface:
         })
         return self.__run_query (query)
 
-    def add_date_to_physical_sample (self, container_uuid, date_type, date, account_uuid):
-        """Adds a date to a physical sample."""
+    def add_date_to_physical_sample (self, container_uuid, date_type, date,
+                                     account_uuid, date_end=None):
+        """Adds a date or a range of dates to a physical sample.
+
+        Set DATE_END for a range, where DATE is the start.  The two are stored
+        apart so that both stay real dates.
+        """
 
         graph          = Graph()
         uri            = rdf.unique_node ("physical-sample-date")
@@ -3626,13 +3641,10 @@ class SparqlInterface:
         current_time   = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
         date_uuid      = rdf.uri_to_uuid (uri)
 
-        ## Pick a datatype that matches the depositor entered, so
-        ## year (YYYY), a year and month (YYYY-MM) or a full date (YYYY-MM-DD).
-        date_datatype = {4: XSD.gYear, 7: XSD.gYearMonth}.get (len (date), XSD.date)
-
         rdf.add (graph, uri, rdf.DJHT["created_date"], current_time, XSD.dateTime)
         rdf.add (graph, uri, rdf.DJHT["date_type"],    date_type_uri, "uri")
-        rdf.add (graph, uri, rdf.DJHT["date"],         date, date_datatype)
+        rdf.add (graph, uri, rdf.DJHT["date"],         date, self.__date_datatype (date))
+        rdf.add (graph, uri, rdf.DJHT["date_end"],     date_end, self.__date_datatype (date_end))
         rdf.add (graph, uri, RDF.type,                 rdf.DJHT["PhysicalSampleDate"], "uri")
 
         if not self.add_triples_from_graph (graph):
