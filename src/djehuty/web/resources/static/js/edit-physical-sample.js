@@ -37,6 +37,8 @@ function gather_form_data (container_uuid) {
         "sample_owner_email":     or_null(jQuery("#sample_owner_email").val()),
         "group_id":               group_id,
         "categories":             category_ids,
+        "agreed_to_deposit_agreement": jQuery("#deposit_agreement").prop("checked"),
+        "agreed_to_publish":      jQuery("#publish_agreement").prop("checked"),
     };
     return form_data;
 }

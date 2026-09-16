@@ -38,6 +38,12 @@ DELETE {
     {%- if sample_owner_email is not none %}
     ?physical_sample djht:sample_owner_email     ?sample_owner_email .
     {%- endif%}
+    {%- if agreed_to_deposit_agreement is not none %}
+    ?physical_sample djht:agreed_to_deposit_agreement ?agreed_to_deposit_agreement .
+    {%- endif%}
+    {%- if agreed_to_publish is not none %}
+    ?physical_sample djht:agreed_to_publish      ?agreed_to_publish .
+    {%- endif%}
     {% if modified_date is not none %}
     ?physical_sample djht:modified_date          ?modified_date .
     {%- endif%}
@@ -83,6 +89,10 @@ INSERT {
     ?physical_sample djht:sample_owner_name           {{sample_owner_name | safe}} .
     {%- endif%}{% if sample_owner_email is not none %}
     ?physical_sample djht:sample_owner_email          {{sample_owner_email | safe}} .
+    {%- endif%}{% if agreed_to_deposit_agreement is not none %}
+    ?physical_sample djht:agreed_to_deposit_agreement {{agreed_to_deposit_agreement | safe}} .
+    {%- endif%}{% if agreed_to_publish is not none %}
+    ?physical_sample djht:agreed_to_publish           {{agreed_to_publish | safe}} .
     {%- endif%}{% if modified_date is not none %}
     ?physical_sample djht:modified_date          "{{modified_date | safe}}"^^xsd:dateTime .
     {%- endif%}
@@ -113,6 +123,8 @@ WHERE {
     OPTIONAL { ?physical_sample   djht:latitude              ?latitude . }
     OPTIONAL { ?physical_sample   djht:sample_owner_name          ?sample_owner_name . }
     OPTIONAL { ?physical_sample   djht:sample_owner_email         ?sample_owner_email . }
+    OPTIONAL { ?physical_sample   djht:agreed_to_deposit_agreement ?agreed_to_deposit_agreement . }
+    OPTIONAL { ?physical_sample   djht:agreed_to_publish          ?agreed_to_publish . }
     OPTIONAL { ?physical_sample   djht:group_id              ?group_id . }
     OPTIONAL { ?physical_sample   djht:modified_date         ?modified_date . }
 
