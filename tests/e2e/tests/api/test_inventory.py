@@ -257,6 +257,54 @@ V3_ENDPOINTS = [
     # SSI
     ("/v3/receive-from-ssi", "api_v3_receive_from_ssi"),
     ("/v3/redirect-from-ssi/<container_uuid>/<token>", "api_v3_redirect_from_ssi"),
+    # Physical samples (IGSN)
+    ("/v3/physical-samples", "api_v3_physical_sample_details"),
+    ("/v3/physical-samples/<container_uuid>", "api_v3_physical_sample_details"),
+    ("/v3/physical-samples/<container_uuid>/creators", "api_v3_physical_sample_creators"),
+    (
+        "/v3/physical-samples/<container_uuid>/creators/<creator_uuid>",
+        "api_v3_physical_sample_creator_delete",
+    ),
+    (
+        "/v3/physical-samples/<container_uuid>/reorder-creators",
+        "api_v3_physical_sample_creators_reorder",
+    ),
+    ("/v3/physical-samples/<container_uuid>/dates", "api_v3_physical_sample_dates"),
+    (
+        "/v3/physical-samples/<container_uuid>/dates/<date_uuid>",
+        "api_v3_physical_sample_date_delete",
+    ),
+    (
+        "/v3/physical-samples/<container_uuid>/related-resources",
+        "api_v3_physical_sample_related_resources",
+    ),
+    (
+        "/v3/physical-samples/<container_uuid>/related-resources/<resource_uuid>",
+        "api_v3_physical_sample_related_resource_delete",
+    ),
+    ("/v3/physical-samples/<container_uuid>/tags", "api_v3_physical_sample_tags"),
+    (
+        "/v3/physical-samples/<container_uuid>/categories",
+        "api_v3_physical_sample_categories",
+    ),
+    (
+        "/v3/physical-samples/<container_uuid>/private_links",
+        "api_private_physical_sample_private_links",
+    ),
+    (
+        "/v3/physical-samples/<container_uuid>/private_links/<link_id>",
+        "api_private_physical_sample_private_links_details",
+    ),
+    (
+        "/v3/physical-samples/<container_uuid>/submit-for-review",
+        "api_v3_physical_sample_submit",
+    ),
+    ("/v3/physical-samples/<container_uuid>/publish", "api_v3_physical_sample_publish"),
+    ("/v3/physical-samples/<container_uuid>/decline", "api_v3_physical_sample_decline"),
+    (
+        "/v3/physical-samples/<container_uuid>/assign-reviewer/<reviewer_uuid>",
+        "api_v3_physical_samples_assign_reviewer",
+    ),
 ]
 
 
@@ -308,7 +356,7 @@ def _routes_from_wsgi():
 
 @pytest.mark.api_inventory
 def test_inventory_totals():
-    """Sanity: 55 unique V2 + 60 V3 = 115 routes.
+    """Sanity: 55 unique V2 + 77 V3 = 132 routes.
 
     Note: wsgi.py registers ``/v2/collections`` twice (both to ``api_collections``);
     we dedupe and count it once.
@@ -316,8 +364,8 @@ def test_inventory_totals():
     assert len(V2_ENDPOINTS) == 55, (
         f"V2 endpoint count drifted from 55 to {len(V2_ENDPOINTS)}; verify src/djehuty/web/wsgi.py."
     )
-    assert len(V3_ENDPOINTS) == 60, (
-        f"V3 endpoint count drifted from 60 to {len(V3_ENDPOINTS)}; verify src/djehuty/web/wsgi.py."
+    assert len(V3_ENDPOINTS) == 77, (
+        f"V3 endpoint count drifted from 77 to {len(V3_ENDPOINTS)}; verify src/djehuty/web/wsgi.py."
     )
 
 
