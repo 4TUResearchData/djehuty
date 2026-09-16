@@ -452,7 +452,11 @@ def datacite_physical_sample_tree (parameters, debug=False):
         ## persisted copy so it is not written twice.
         if date_type == 'Issued':
             continue
-        maker.child (dates_element, 'date', {'dateType': date_type}, str (date_value)[:10])
+        ## DataCite writes a range as the two dates with a slash between them.
+        date_end = value_or_none (entry, 'date_end')
+        if date_end:
+            date_value = f"{date_value}/{date_end}"
+        maker.child (dates_element, 'date', {'dateType': date_type}, str (date_value))
 
     #10 alternateIdentifiers
     if 'alternate_identifier' in item:
