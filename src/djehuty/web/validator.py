@@ -378,6 +378,40 @@ def date_value (record, field_name, required=False, error_list=None):
 
     return value
 
+def partial_date_value (record, field_name, required=False, error_list=None):
+    """
+    Validation procedure for dates of partial values.  Accepts a full date
+    (YYYY-MM-DD), a year and month (YYYY-MM), or only a year (YYYY).
+    """
+
+    value = record if field_name is None else conv.value_or_none (record, field_name)
+    if value is None:
+        if required:
+            return raise_or_return_error (error_list,
+                        MissingRequiredField(
+                            field_name = field_name,
+                            message = f"Missing required value for '{field_name}'.",
+                            code    = "MissingRequiredField"))
+        return None
+
+    if not isinstance (value, str):
+        return raise_or_return_error (error_list,
+                    InvalidValueType(
+                        field_name = field_name,
+                        message = f"Expected '{field_name}' in the form YYYY, YYYY-MM or YYYY-MM-DD.",
+                        code    = "WrongValueType"))
+
+    ## Check its form: YYYY, YYYY-MM or YYYY-MM-DD.
+    pattern = "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$"
+    if re.match(pattern, value) is None:
+        return raise_or_return_error (error_list,
+                    InvalidValueType(
+                        field_name = field_name,
+                        message = f"Expected '{field_name}' in the form YYYY, YYYY-MM or YYYY-MM-DD.",
+                        code    = "WrongValueFormat"))
+
+    return value
+
 def boolean_value (record, field_name, required=False, when_none=None, error_list=None):
     """
     Validation procedure for boolean values.  If FIELD_NAME is None, it expects
