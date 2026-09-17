@@ -3,8 +3,6 @@
 
 A clear and short description of the change. Please provide what and why.
 
-**Changes**
-- filename: description of key update. Keep it concise.
 
 **Approval Checklist**
 - [ ] I agree to follow _Djehuty's_ [code of conduct](https://github.com/4TUResearchData/djehuty?tab=coc-ov-file#readme).
