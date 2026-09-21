@@ -117,6 +117,18 @@
     <repository-id><!-- Repository ID received from DataCite for the IGSN repository. --></repository-id>
     <password><!-- Password for this repository ID. --></password>
     <prefix>10.XXXXX</prefix>
+    <!-- Turn the physical-sample UI on or off without removing the credentials
+         above.  Defaults to enabled when the prefix is set. -->
+    <enabled>1</enabled>
+    <!-- Restrict the physical-sample UI to accounts whose e-mail domain is
+         listed here.  Leave empty to allow every depositor. -->
+    <allowed-domains>
+      <domain>tudelft.nl</domain>
+      <domain>tue.nl</domain>
+      <domain>utwente.nl</domain>
+      <domain>wur.nl</domain>
+      <domain>4tu.nl</domain>
+    </allowed-domains>
   </igsn>
   <handle>
     <url>https://epic-pid.storage.surfsara.nl:800X/api/handles</url>
