@@ -7888,9 +7888,16 @@ class WebServer:
         lon = self_or_value_or_none (sample, "longitude")
         lat_valid, lon_valid = decimal_coords (lat, lon)
 
-        ## A sample is published "now"; the IGSN's Issued date and publication
-        ## year follow from that.
-        published_date = date.today().isoformat()
+        ## A physical sample is published once and keeps that publication date.
+        ## Use the Issued date recorded at first publication so that
+        ## re-publishing a correction does not overwrite the IGSN's
+        ## publicationYear/Issued with the current date.  Fall back to today
+        ## only when it is somehow missing.
+        issued_date = next (
+            (value_or (entry, "date", None) for entry in dates
+             if value_or (entry, "date_type", "") == "Issued"),
+            None)
+        published_date = issued_date or date.today().isoformat()
 
         return {
             "item"              : sample,
