@@ -4008,6 +4008,20 @@ class WebServer:
             if value_or (sample, "group_id", "A") != value_or (reviewer_account, "group_id", "not-A"):
                 return self.error_403 (request)
 
+        ## The draft stays editable after submission, so re-check the fields
+        ## DataCite requires before minting: without a title the XML build
+        ## raises, and without a named creator DataCite rejects an empty
+        ## <creators>.  Bail out cleanly rather than half-publishing.
+        creators = self.db.physical_sample_creators (container_uuid, account_uuid)
+        has_named_creator = any (str (value_or (creator, "full_name", "")).strip ()
+                                 for creator in creators)
+        if not str (value_or (sample, "title", "")).strip () or not has_named_creator:
+            return self.error_400 (
+                request,
+                ("The physical sample needs a title and at least one creator "
+                 "before it can be published."),
+                "PublishValidation")
+
         review_uri = value_or_none (sample, "review_uri")
         if review_uri is not None and reviewer_account is not None:
             if not self.db.update_review (review_uri,
@@ -7956,8 +7970,8 @@ class WebServer:
 
             self.log.error ("DataCite responded with %s (%s)",
                             response.status_code, response.text)
-        except requests.exceptions.ConnectionError:
-            self.log.error ("Failed to register IGSN %s due to a connection error.", doi)
+        except requests.exceptions.RequestException as error:
+            self.log.error ("Failed to register IGSN %s: %s", doi, error)
 
         return False
 
