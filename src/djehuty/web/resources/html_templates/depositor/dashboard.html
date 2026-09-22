@@ -78,7 +78,9 @@ jQuery(document).ready(function (){
 <div class="center">
   <a id="create-new-dataset" href="/my/datasets/new" class="button corporate-identity-standard-button">Add new dataset</a>
   <a id="create-new-collection" href="/my/collections/new" class="button corporate-identity-standard-button">Create new collection</a>
+  {%- if can_use_igsn %}
   <a id="register-physical-sample" href="/my/physical-samples/new" class="button corporate-identity-standard-button">Register physical sample</a>
+  {%- endif %}
 </div>
 {%- endif %}
 <h2>Storage usage</h2>
