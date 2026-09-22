@@ -2750,6 +2750,49 @@ class SparqlInterface:
             admin_account_uuid, container_uuid, dataset_uuid)
         return True
 
+    def admin_remove_files_from_version (self, container_uuid, dataset_uuid,
+                                         file_uuids, admin_account_uuid,
+                                         owner_account_uuid=None):
+        """Admin procedure to detach files from a published version.
+
+        Removes each file in FILE_UUIDS from the djht:files list of the
+        published version identified by DATASET_UUID. The djht:File objects
+        and other versions' file lists are left untouched, so a file that is
+        shared with another version stays available there. Physical blobs on
+        storage are not deleted.
+
+        Each removal runs through delete_item_from_list, which is audit-logged
+        like queries submitted via /admin/sparql. Returns True on success,
+        False on any failure."""
+
+        self.log.info (
+            "Admin remove-files start: admin=%s container=%s dataset=%s files=%s",
+            admin_account_uuid, container_uuid, dataset_uuid, file_uuids)
+
+        if not file_uuids:
+            self.log.error ("Admin remove-files refused: no files supplied.")
+            return False
+
+        dataset_uri = rdf.uuid_to_uri (dataset_uuid, "dataset")
+        for file_uuid in file_uuids:
+            file_uri = rdf.uuid_to_uri (file_uuid, "file")
+            if not self.delete_item_from_list (dataset_uri, "files", file_uri):
+                self.log.error (
+                    "Admin remove-files failed: could not remove file %s "
+                    "from dataset %s.", file_uuid, dataset_uuid)
+                return False
+
+        self.cache.invalidate_by_prefix (container_uuid)
+        self.cache.invalidate_by_prefix (f"{dataset_uuid}_dataset_storage")
+        if owner_account_uuid:
+            self.cache.invalidate_by_prefix (f"datasets_{owner_account_uuid}")
+        self.cache.invalidate_by_prefix ("datasets")
+
+        self.log.info (
+            "Admin remove-files success: admin=%s container=%s dataset=%s removed=%d",
+            admin_account_uuid, container_uuid, dataset_uuid, len (file_uuids))
+        return True
+
     def delete_private_links (self, container_uuid, account_uuid, link_id):
         """Procedure to remove private links to a dataset."""
 

@@ -199,6 +199,10 @@ class WebServer:
             R("/admin/update-published-dataset/license/update",                  self.api_admin_license_update),
             R("/admin/update-published-dataset/retract",                         self.ui_admin_retract),
             R("/admin/update-published-dataset/retract/execute",                 self.api_admin_retract_execute),
+            R("/admin/update-published-dataset/remove-files",                    self.ui_admin_remove_files),
+            R("/admin/update-published-dataset/remove-files/versions",           self.api_admin_remove_files_versions),
+            R("/admin/update-published-dataset/remove-files/files",              self.api_admin_remove_files_files),
+            R("/admin/update-published-dataset/remove-files/execute",            self.api_admin_remove_files_execute),
             R("/admin/sparql",                                                   self.ui_admin_sparql),
             R("/admin/reports",                                                  self.ui_admin_reports),
             R("/admin/reports/restricted_datasets",                              self.ui_admin_reports_restricted_datasets),
@@ -3785,6 +3789,233 @@ class WebServer:
             success = self.db.admin_retract_dataset (
                 container_uuid,
                 dataset_uuid,
+                admin_account_uuid,
+                owner_account_uuid=owner_account_uuid)
+            if not success:
+                return self.error_500 ()
+            return self.respond_204 ()
+        except validator.ValidationException as error:
+            return self.error_400 (request, error.message, error.code)
+
+    def ui_admin_remove_files (self, request):
+        """Implements /admin/update-published-dataset/remove-files."""
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
+
+        token = self.token_from_cookie (request)
+        if not self.db.may_administer (token):
+            return self.error_403 (request)
+
+        return self.__render_template (request, "admin/update_published_dataset/remove_files.html")
+
+    def api_admin_remove_files_versions (self, request):
+        """Implements /admin/update-published-dataset/remove-files/versions.
+
+        Returns the published versions of a container, each with its DOI and
+        file count, so the admin can pick the version to remove files from."""
+
+        handler = self.default_error_handling (request, "POST", "application/json")
+        if handler is not None:
+            return handler
+
+        token = self.token_from_cookie (request)
+        if not self.db.may_administer (token):
+            return self.error_403 (request)
+
+        try:
+            parameters     = request.get_json()
+            container_uuid = validator.string_value (parameters, "container_uuid",
+                                                     maximum_length=36)
+            if container_uuid is None:
+                return self.error_400 (request, "Missing container_uuid.",
+                                       "MissingRequiredField")
+            if not validator.is_valid_uuid (container_uuid):
+                return self.error_400 (request, "Invalid container_uuid.", "InvalidUuid")
+
+            container_uri = uuid_to_uri (container_uuid, "container")
+            versions = self.db.dataset_versions (container_uri=container_uri)
+            latest_version = None
+            for version in versions or []:
+                number = version.get("version")
+                if number is not None and (latest_version is None or number > latest_version):
+                    latest_version = number
+
+            output = []
+            for version in versions or []:
+                dataset_uuid = version.get("uuid")
+                records = self.db.datasets (dataset_uuid=dataset_uuid,
+                                            is_published=True,
+                                            use_cache=False, limit=1)
+                record = records[0] if records else {}
+                files  = self.db.dataset_files (
+                    dataset_uri=uuid_to_uri (dataset_uuid, "dataset"),
+                    private_view=True, limit=None)
+                output.append ({
+                    "dataset_uuid": dataset_uuid,
+                    "version":      version.get("version"),
+                    "posted_date":  version.get("posted_date"),
+                    "doi":          record.get("doi"),
+                    "title":        record.get("title"),
+                    "account_uuid": record.get("account_uuid"),
+                    "file_count":   len (files) if files is not None else 0,
+                    "is_latest":    version.get("version") == latest_version,
+                })
+            return self.response (json.dumps(output))
+        except validator.ValidationException as error:
+            return self.error_400 (request, error.message, error.code)
+
+    def api_admin_remove_files_files (self, request):
+        """Implements /admin/update-published-dataset/remove-files/files.
+
+        Returns the files of one published version, each annotated with the
+        other versions that also reference the same file object (so removing
+        it here leaves it available there and its blob untouched)."""
+
+        handler = self.default_error_handling (request, "POST", "application/json")
+        if handler is not None:
+            return handler
+
+        token = self.token_from_cookie (request)
+        if not self.db.may_administer (token):
+            return self.error_403 (request)
+
+        try:
+            parameters     = request.get_json()
+            container_uuid = validator.string_value (parameters, "container_uuid",
+                                                     maximum_length=36)
+            dataset_uuid   = validator.string_value (parameters, "dataset_uuid",
+                                                     maximum_length=36)
+            if container_uuid is None or dataset_uuid is None:
+                return self.error_400 (request, "Missing container_uuid or dataset_uuid.",
+                                       "MissingRequiredField")
+            if not validator.is_valid_uuid (container_uuid):
+                return self.error_400 (request, "Invalid container_uuid.", "InvalidUuid")
+            if not validator.is_valid_uuid (dataset_uuid):
+                return self.error_400 (request, "Invalid dataset_uuid.", "InvalidUuid")
+
+            container_uri = uuid_to_uri (container_uuid, "container")
+            versions = self.db.dataset_versions (container_uri=container_uri)
+
+            shared       = {}
+            target_files = []
+            for version in versions or []:
+                version_dataset_uuid = version.get("uuid")
+                files = self.db.dataset_files (
+                    dataset_uri=uuid_to_uri (version_dataset_uuid, "dataset"),
+                    private_view=True, limit=None)
+                for file in files or []:
+                    if version_dataset_uuid == dataset_uuid:
+                        target_files.append (file)
+                    else:
+                        shared.setdefault (file.get("uuid"), []).append (
+                            version.get("version"))
+
+            output = []
+            for file in target_files:
+                file_uuid = file.get("uuid")
+                output.append ({
+                    "uuid":             file_uuid,
+                    "name":             file.get("name"),
+                    "size":             file.get("size"),
+                    "is_link_only":     file.get("is_link_only"),
+                    "computed_md5":     file.get("computed_md5"),
+                    "also_in_versions": sorted (shared.get (file_uuid, [])),
+                })
+            return self.response (json.dumps(output))
+        except validator.ValidationException as error:
+            return self.error_400 (request, error.message, error.code)
+
+    def api_admin_remove_files_execute (self, request):
+        """Implements /admin/update-published-dataset/remove-files/execute."""
+
+        token = self.token_from_cookie (request)
+        if not self.db.may_administer (token):
+            return self.error_403 (request)
+
+        if request.method != "PUT":
+            return self.error_405 (["PUT"])
+
+        handler = self.default_error_handling (request, "PUT", "application/json")
+        if handler is not None:
+            return handler
+
+        try:
+            parameters     = request.get_json()
+            container_uuid = validator.string_value (parameters, "container_uuid",
+                                                     maximum_length=36)
+            dataset_uuid   = validator.string_value (parameters, "dataset_uuid",
+                                                     maximum_length=36)
+            confirm_doi    = validator.string_value (parameters, "confirm_doi",
+                                                     maximum_length=255)
+            expected_doi   = validator.string_value (parameters, "expected_doi",
+                                                     maximum_length=255)
+            owner_account_uuid = validator.string_value (
+                parameters, "owner_account_uuid",
+                maximum_length=36, required=False)
+            file_uuids     = validator.array_value (parameters, "file_uuids",
+                                                    required=True)
+
+            if (container_uuid is None or dataset_uuid is None
+                or confirm_doi is None or expected_doi is None):
+                return self.error_400 (
+                    request,
+                    "Missing container_uuid, dataset_uuid, confirm_doi or expected_doi.",
+                    "MissingRequiredField")
+            if not validator.is_valid_uuid (container_uuid):
+                return self.error_400 (request, "Invalid container_uuid.", "InvalidUuid")
+            if not validator.is_valid_uuid (dataset_uuid):
+                return self.error_400 (request, "Invalid dataset_uuid.", "InvalidUuid")
+            if (owner_account_uuid is not None
+                and not validator.is_valid_uuid (owner_account_uuid)):
+                return self.error_400 (request, "Invalid owner_account_uuid.", "InvalidUuid")
+            if not file_uuids:
+                return self.error_400 (request, "No files selected.",
+                                       "MissingRequiredField")
+            for file_uuid in file_uuids:
+                if not validator.is_valid_uuid (file_uuid):
+                    return self.error_400 (request, "Invalid file uuid in selection.",
+                                           "InvalidUuid")
+
+            if confirm_doi.strip() != expected_doi.strip():
+                return self.error_400 (
+                    request,
+                    "Confirmation DOI does not match the dataset DOI.",
+                    "ConfirmationMismatch")
+
+            # Confirm the target really is a published version of this
+            # container and that its DOI still matches what was confirmed.
+            records = self.db.datasets (dataset_uuid=dataset_uuid,
+                                        container_uuid=container_uuid,
+                                        is_published=True,
+                                        use_cache=False, limit=1)
+            if not records:
+                return self.error_404 (request)
+            if value_or_none (records[0], "doi") != expected_doi.strip():
+                return self.error_400 (
+                    request,
+                    "The dataset DOI has changed; reload and try again.",
+                    "ConfirmationMismatch")
+
+            # Only remove files that actually belong to this version.
+            version_files = self.db.dataset_files (
+                dataset_uri=uuid_to_uri (dataset_uuid, "dataset"),
+                private_view=True, limit=None)
+            known_uuids = {file.get("uuid") for file in (version_files or [])}
+            if any (file_uuid not in known_uuids for file_uuid in file_uuids):
+                return self.error_400 (
+                    request,
+                    "One or more selected files are not part of this version.",
+                    "UnknownFile")
+
+            admin_account = self.db.account_by_session_token (token)
+            admin_account_uuid = None
+            if isinstance (admin_account, dict):
+                admin_account_uuid = admin_account.get("uuid")
+
+            success = self.db.admin_remove_files_from_version (
+                container_uuid,
+                dataset_uuid,
+                file_uuids,
                 admin_account_uuid,
                 owner_account_uuid=owner_account_uuid)
             if not success:
