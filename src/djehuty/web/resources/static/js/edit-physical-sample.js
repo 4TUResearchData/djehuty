@@ -193,7 +193,7 @@ function update_author (author_uuid, container_uuid) {
 
 function edit_author (author_uuid, container_uuid) {
     jQuery.ajax({
-        url:         `/v3/datasets/${container_uuid}/authors/${author_uuid}`,
+        url:         `/v3/physical-samples/${container_uuid}/creators/${author_uuid}`,
         type:        "GET",
         accept:      "application/json",
     }).done(function (author) {

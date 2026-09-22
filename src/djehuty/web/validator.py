@@ -353,6 +353,21 @@ def coordinate_value (record, field_name, axis, required=False, error_list=None)
                         code    = "WrongValueFormat"))
     return value
 
+def email_value (record, field_name, required=False, error_list=None):
+    """Validation procedure for e-mail address values."""
+
+    value = string_value (record, field_name, 0, 255, required, error_list)
+    if not value:
+        return value
+    if re.match (r"^[^@\s]+@[^@\s]+\.[^@\s]+$", value) is not None:
+        return value
+
+    return raise_or_return_error (error_list,
+                InvalidValueType(
+                    field_name = field_name,
+                    message = f"Expected a valid e-mail address for '{field_name}'.",
+                    code    = "WrongValueFormat"))
+
 def date_value (record, field_name, required=False, error_list=None):
     """
     Validation procedure for date values.  If FIELD_NAME is None, it expects
