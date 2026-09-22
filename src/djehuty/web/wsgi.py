@@ -3531,6 +3531,8 @@ class WebServer:
                 return handler
 
             account_uuid = self.account_uuid_from_request (request)
+            if account_uuid is None:
+                return self.error_403 (request)
             records = self.db.physical_sample_creators (container_uuid, account_uuid)
             return self.default_list_response (records, formatter.format_author_record_v3)
 
@@ -3655,6 +3657,8 @@ class WebServer:
                 return handler
 
             account_uuid = self.account_uuid_from_request (request)
+            if account_uuid is None:
+                return self.error_403 (request)
             records = self.db.physical_sample_dates (container_uuid, account_uuid)
             return self.default_list_response (records, formatter.format_physical_sample_date_record)
 
@@ -3749,6 +3753,8 @@ class WebServer:
                 return handler
 
             account_uuid = self.account_uuid_from_request (request)
+            if account_uuid is None:
+                return self.error_403 (request)
             records = self.db.physical_sample_related_resources (container_uuid, account_uuid)
             return self.default_list_response (records, formatter.format_physical_sample_related_resource_record)
 
