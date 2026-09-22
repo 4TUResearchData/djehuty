@@ -37,7 +37,7 @@ jQuery(document).ready(function () {
         jQuery("#retract-results").addClass("retract-hidden");
 
         jQuery.ajax({
-            url:  "/admin/update-published-dataset/retract/search",
+            url:  "/admin/update-published-dataset/search",
             type: "POST",
             contentType: "application/json",
             data: JSON.stringify({ search_for: search_for })

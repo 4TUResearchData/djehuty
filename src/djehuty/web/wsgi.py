@@ -192,14 +192,12 @@ class WebServer:
             R("/admin/exploratory",                                              self.ui_admin_exploratory),
             R("/admin/quota-requests",                                           self.ui_admin_quota_requests),
             R("/admin/update-published-dataset",                                  self.ui_admin_update_published_dataset),
+            R("/admin/update-published-dataset/search",                          self.api_admin_update_published_dataset_search),
             R("/admin/update-published-dataset/embargos",                        self.ui_admin_embargo),
-            R("/admin/update-published-dataset/embargos/search",                 self.api_admin_embargo_search),
             R("/admin/update-published-dataset/embargos/update",                 self.api_admin_embargo_update),
             R("/admin/update-published-dataset/license",                         self.ui_admin_license),
-            R("/admin/update-published-dataset/license/search",                  self.api_admin_license_search),
             R("/admin/update-published-dataset/license/update",                  self.api_admin_license_update),
             R("/admin/update-published-dataset/retract",                         self.ui_admin_retract),
-            R("/admin/update-published-dataset/retract/search",                  self.api_admin_retract_search),
             R("/admin/update-published-dataset/retract/execute",                 self.api_admin_retract_execute),
             R("/admin/sparql",                                                   self.ui_admin_sparql),
             R("/admin/reports",                                                  self.ui_admin_reports),
@@ -3503,19 +3501,12 @@ class WebServer:
 
         return self.__render_template (request, "admin/update_published_dataset/dashboard.html")
 
-    def ui_admin_embargo (self, request):
-        """Implements /admin/update-published-dataset/embargos."""
-        if not self.accepts_html (request):
-            return self.error_406 ("text/html")
+    def api_admin_update_published_dataset_search (self, request):
+        """Implements /admin/update-published-dataset/search.
 
-        token = self.token_from_cookie (request)
-        if not self.db.may_administer (token):
-            return self.error_403 (request)
-
-        return self.__render_template (request, "admin/update_published_dataset/embargos.html")
-
-    def api_admin_embargo_search (self, request):
-        """Implements /admin/update-published-dataset/embargos/search."""
+        Shared search for the embargo, license, retract and remove-files
+        tools: latest published version per matching container, with the
+        fields all four display."""
 
         handler = self.default_error_handling (request, "POST", "application/json")
         if handler is not None:
@@ -3546,19 +3537,43 @@ class WebServer:
                                         limit=50)
             output = []
             for dataset in records:
+                container_uuid = dataset.get("container_uuid")
+                version_count  = None
+                if container_uuid is not None:
+                    versions = self.db.dataset_versions (
+                        container_uri=uuid_to_uri (container_uuid, "container"))
+                    version_count = len (versions) if versions is not None else None
                 output.append ({
                     "uuid":               dataset.get("uuid"),
+                    "container_uuid":      container_uuid,
+                    "account_uuid":        dataset.get("account_uuid"),
                     "title":              dataset.get("title"),
                     "doi":                dataset.get("doi"),
+                    "version":            dataset.get("version"),
+                    "published_date":     dataset.get("published_date"),
+                    "version_count":      version_count,
+                    "is_embargoed":       dataset.get("is_embargoed"),
                     "embargo_until_date": dataset.get("embargo_until_date"),
                     "embargo_type":       dataset.get("embargo_type"),
                     "embargo_title":      dataset.get("embargo_title"),
                     "embargo_reason":     dataset.get("embargo_reason"),
-                    "is_embargoed":       dataset.get("is_embargoed"),
+                    "license_url":        dataset.get("license_url"),
+                    "license_name":       dataset.get("license_name"),
                 })
             return self.response (json.dumps(output))
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
+
+    def ui_admin_embargo (self, request):
+        """Implements /admin/update-published-dataset/embargos."""
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
+
+        token = self.token_from_cookie (request)
+        if not self.db.may_administer (token):
+            return self.error_403 (request)
+
+        return self.__render_template (request, "admin/update_published_dataset/embargos.html")
 
     def api_admin_embargo_update (self, request):
         """Implements /admin/update-published-dataset/embargos/update."""
@@ -3610,56 +3625,6 @@ class WebServer:
             request,
             "admin/update_published_dataset/license.html",
             licenses=licenses)
-
-    def api_admin_license_search (self, request):
-        """Implements /admin/update-published-dataset/license/search.
-
-        Returns the latest published version per matching container along
-        with its current djht:license URL, so the admin can review what is
-        about to change before picking a replacement."""
-
-        handler = self.default_error_handling (request, "POST", "application/json")
-        if handler is not None:
-            return handler
-
-        token = self.token_from_cookie (request)
-        if not self.db.may_administer (token):
-            return self.error_403 (request)
-
-        try:
-            parameters  = request.get_json()
-            search_for  = validator.string_value (parameters, "search_for",
-                                                  maximum_length=1024,
-                                                  strip_html=False)
-            search_query = None
-            if search_for is not None:
-                search_tokens = re.findall(r'[^" ]+|"[^"]+"|\([^)]+\)', search_for)
-                search_tokens = [s.strip('"') for s in search_tokens]
-                search_query = {
-                    "operator":   "AND",
-                    "search_for": search_tokens,
-                    "scope":      ["title"],
-                }
-            records = self.db.datasets (search_for=search_query,
-                                        search_for_raw=html_to_plaintext (search_for) if search_for else None,
-                                        is_latest=True,
-                                        is_published=True,
-                                        limit=50)
-            output = []
-            for dataset in records:
-                output.append ({
-                    "uuid":            dataset.get("uuid"),
-                    "container_uuid":  dataset.get("container_uuid"),
-                    "account_uuid":    dataset.get("account_uuid"),
-                    "title":           dataset.get("title"),
-                    "doi":             dataset.get("doi"),
-                    "version":         dataset.get("version"),
-                    "license_url":     dataset.get("license_url"),
-                    "license_name":    dataset.get("license_name"),
-                })
-            return self.response (json.dumps(output))
-        except validator.ValidationException as error:
-            return self.error_400 (request, error.message, error.code)
 
     def api_admin_license_update (self, request):
         """Implements /admin/update-published-dataset/license/update."""
@@ -3744,64 +3709,6 @@ class WebServer:
             return self.error_403 (request)
 
         return self.__render_template (request, "admin/update_published_dataset/retract.html")
-
-    def api_admin_retract_search (self, request):
-        """Implements /admin/update-published-dataset/retract/search.
-
-        Mirrors the embargo search but does not filter by embargo state and
-        also returns container_uuid / account_uuid which the retract flow
-        needs to address both the container and the owner's cache."""
-
-        handler = self.default_error_handling (request, "POST", "application/json")
-        if handler is not None:
-            return handler
-
-        token = self.token_from_cookie (request)
-        if not self.db.may_administer (token):
-            return self.error_403 (request)
-
-        try:
-            parameters  = request.get_json()
-            search_for  = validator.string_value (parameters, "search_for",
-                                                  maximum_length=1024,
-                                                  strip_html=False)
-            search_query = None
-            if search_for is not None:
-                search_tokens = re.findall(r'[^" ]+|"[^"]+"|\([^)]+\)', search_for)
-                search_tokens = [s.strip('"') for s in search_tokens]
-                search_query = {
-                    "operator":   "AND",
-                    "search_for": search_tokens,
-                    "scope":      ["title"],
-                }
-            records = self.db.datasets (search_for=search_query,
-                                        search_for_raw=html_to_plaintext (search_for) if search_for else None,
-                                        is_latest=True,
-                                        is_published=True,
-                                        limit=50)
-            output = []
-            for dataset in records:
-                container_uuid = dataset.get("container_uuid")
-                # version_count lets the UI block multi-version datasets early.
-                version_count = None
-                if container_uuid is not None:
-                    versions = self.db.dataset_versions (
-                        container_uri=uuid_to_uri (container_uuid, "container"))
-                    version_count = len (versions) if versions is not None else None
-                output.append ({
-                    "uuid":            dataset.get("uuid"),
-                    "container_uuid":  container_uuid,
-                    "account_uuid":    dataset.get("account_uuid"),
-                    "title":           dataset.get("title"),
-                    "doi":             dataset.get("doi"),
-                    "version":         dataset.get("version"),
-                    "published_date":  dataset.get("published_date"),
-                    "is_embargoed":    dataset.get("is_embargoed"),
-                    "version_count":   version_count,
-                })
-            return self.response (json.dumps(output))
-        except validator.ValidationException as error:
-            return self.error_400 (request, error.message, error.code)
 
     def api_admin_retract_execute (self, request):
         """Implements /admin/update-published-dataset/retract/execute."""
