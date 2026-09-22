@@ -4,7 +4,7 @@ from fastapi import APIRouter, Body, Depends, Query, Response
 from fastapi.responses import JSONResponse
 
 from djehuty.api.dependencies import get_db, require_auth
-from djehuty.api.exceptions import InvalidInputError, NotFoundError
+from djehuty.api.exceptions import InvalidInputError
 from djehuty.api.models.common import ErrorResponse
 from djehuty.api.v3._shared import _ok
 from djehuty.api.v3.collections._shared import _resolve_collection_for_owner
@@ -104,18 +104,10 @@ def delete_collection_tag(
         limit=10000,
     )
     tags = [t["tag"] for t in existing]
-    try:
+    # AS-IS: legacy removes the tag and 204s on success; an absent tag or a
+    # failed update_item_list both fall through to a 500 (error_500, empty body).
+    if target in tags:
         tags.remove(target)
-    except ValueError as error:
-        raise NotFoundError() from error
-    if not db.update_item_list(
-        collection["uuid"],
-        account["uuid"],
-        tags,
-        "tags",
-    ):
-        raise InvalidInputError(
-            f"Deleting tag '{target}' failed.",
-            "DeleteFailed",
-        )
-    return Response(status_code=204)
+        if db.update_item_list(collection["uuid"], account["uuid"], tags, "tags"):
+            return Response(status_code=204)
+    return Response(status_code=500)

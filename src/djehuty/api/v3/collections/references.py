@@ -4,7 +4,7 @@ from fastapi import APIRouter, Body, Depends, Query, Response
 from fastapi.responses import JSONResponse
 
 from djehuty.api.dependencies import get_db, require_auth
-from djehuty.api.exceptions import InvalidInputError, NotFoundError
+from djehuty.api.exceptions import InvalidInputError
 from djehuty.api.models.common import ErrorResponse
 from djehuty.api.v3._shared import _ok
 from djehuty.api.v3.collections._shared import _resolve_collection_for_owner
@@ -89,15 +89,10 @@ def delete_collection_reference(
     collection = _resolve_collection_for_owner(db, collection_id, account["uuid"])
     existing = db.references(item_uri=collection["uri"], account_uuid=account["uuid"])
     urls = [r["url"] for r in existing]
-    try:
+    # AS-IS: legacy removes the reference and 204s on success; an absent
+    # reference or a failed update_item_list both fall through to a 500.
+    if url in urls:
         urls.remove(url)
-    except ValueError as error:
-        raise NotFoundError() from error
-    if not db.update_item_list(
-        collection["uuid"],
-        account["uuid"],
-        urls,
-        "references",
-    ):
-        raise InvalidInputError("Deleting a reference failed.", "DeleteFailed")
-    return Response(status_code=204)
+        if db.update_item_list(collection["uuid"], account["uuid"], urls, "references"):
+            return Response(status_code=204)
+    return Response(status_code=500)

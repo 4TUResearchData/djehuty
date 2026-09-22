@@ -444,3 +444,27 @@ def test_dataset_tags_delete_absent_tag_is_500():
     assert resp.status_code == 500
     _, _, kwargs = _last_call(db, "tags")
     assert kwargs.get("limit") == 10000
+
+
+class _CollectionTagsDB(_AuthDB):
+    """A draft collection owned by the caller, with no tags on it."""
+
+    def collections(self, *args, **kwargs):
+        return [{"uuid": "c", "uri": "collection:c"}]
+
+    def tags(self, *args, **kwargs):
+        return []
+
+    def update_item_list(self, *args, **kwargs):
+        return True
+
+
+def test_collection_tags_delete_absent_tag_is_500():
+    # Collections match datasets: deleting an absent tag 500s like legacy, not
+    # 404. (Vic: collections weren't updated alongside the dataset handlers.)
+    db = _CollectionTagsDB()
+    client = TestClient(create_app(db))
+    resp = client.delete(
+        f"/v3/collections/{'c' * 36}/tags", params={"tag": "sometag"}, headers=_AUTH
+    )
+    assert resp.status_code == 500
