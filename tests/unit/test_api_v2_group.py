@@ -23,9 +23,10 @@ def test_v2_can_be_pinned_to_legacy():
 
 
 def test_non_v2_path_is_not_owned_by_api_v2():
-    # /v3/ has no group yet, so it resolves to legacy.
-    assert group_for_path("/v3/datasets") is None
-    assert target_for_path("/v3/datasets", default="new", overrides={}) == "legacy"
+    assert group_for_path("/v2/articles").name == "api-v2"
+    # a path owned by no group resolves to legacy.
+    assert group_for_path("/not-a-registered-group") is None
+    assert target_for_path("/not-a-registered-group", default="new", overrides={}) == "legacy"
 
 
 class _FakeDB:
