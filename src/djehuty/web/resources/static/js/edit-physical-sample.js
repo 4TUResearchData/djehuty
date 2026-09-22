@@ -103,7 +103,12 @@ function submit_physical_sample (container_uuid, event) {
                         jQuery(`#${message.field_name}`).addClass("missing-required");
                     }
                     if (message.message) {
-                        items += `<li>${message.message}</li>`;
+                        let label = jQuery(`label[for="${message.field_name}"]`).first()
+                                        .clone().children().remove().end().text().trim();
+                        let text = (label
+                                    ? message.message.replace(`'${message.field_name}'`, `'${label}'`)
+                                    : message.message);
+                        items += `<li>${text}</li>`;
                     }
                 }
                 show_message ("failure",
