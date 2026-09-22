@@ -508,14 +508,16 @@ class TestV2ArticleSubResourceDeletesApi:
             f"/v2/account/articles/{fake_a}/authors/{fake_x}"
         )
         save_response(response, "api-delete-author-missing")
-        assert 400 <= response.status < 600
+        # AS-IS divergence on a missing parent: legacy 403, new 404 (shared resolver).
+        assert response.status in (403, 404)
 
     def test_delete_nonexistent_category(self, authenticated_page: Page, save_response):
         """DELETE .../categories/<category_id> on a missing article → 4xx."""
         fake_a = str(uuid.uuid4())
         response = authenticated_page.request.delete(f"/v2/account/articles/{fake_a}/categories/1")
         save_response(response, "api-delete-category-missing")
-        assert 400 <= response.status < 600
+        # AS-IS divergence on a missing parent: legacy 403, new 404 (shared resolver).
+        assert response.status in (403, 404)
 
     def test_delete_nonexistent_funding(self, authenticated_page: Page, save_response):
         """DELETE .../funding/<funding_id> on a missing article → 4xx."""
@@ -525,7 +527,8 @@ class TestV2ArticleSubResourceDeletesApi:
             f"/v2/account/articles/{fake_a}/funding/{fake_f}"
         )
         save_response(response, "api-delete-funding-missing")
-        assert 400 <= response.status < 600
+        # AS-IS divergence on a missing parent: legacy 403, new 404 (shared resolver).
+        assert response.status in (403, 404)
 
     def test_delete_nonexistent_file(self, authenticated_page: Page, save_response):
         """DELETE .../files/<file_id> on a missing article → 4xx."""
@@ -535,7 +538,74 @@ class TestV2ArticleSubResourceDeletesApi:
             f"/v2/account/articles/{fake_a}/files/{fake_f}"
         )
         save_response(response, "api-delete-file-missing")
-        assert 400 <= response.status < 600
+        # AS-IS divergence on a missing parent: legacy 403, new 404 (shared resolver).
+        assert response.status in (403, 404)
+
+
+class TestV2SubResourceStatusOnRealDraft:
+    """Exact status for a sub-resource op on a real draft (parent exists,
+    sub-resource missing). Pins the crash cases (500) the new stack reproduces,
+    so a new/legacy flip stays invisible on these codes."""
+
+    def test_delete_missing_author_is_500(self, draft_dataset, save_response):
+        page, container_uuid = draft_dataset
+        response = page.request.delete(
+            f"/v2/account/articles/{container_uuid}/authors/{uuid.uuid4()}"
+        )
+        save_response(response, "api-delete-missing-author-on-draft")
+        assert_status(
+            response,
+            expected=404,
+            current_bug=500,
+            bug="StopIteration on a missing author -> 500",
+        )
+
+    def test_delete_missing_funding_is_404(self, draft_dataset, save_response):
+        page, container_uuid = draft_dataset
+        response = page.request.delete(
+            f"/v2/account/articles/{container_uuid}/funding/{uuid.uuid4()}"
+        )
+        save_response(response, "api-delete-missing-funding-on-draft")
+        assert_status(response, expected=404)
+
+    def test_delete_missing_file_is_404(self, draft_dataset, save_response):
+        page, container_uuid = draft_dataset
+        response = page.request.delete(
+            f"/v2/account/articles/{container_uuid}/files/{uuid.uuid4()}"
+        )
+        save_response(response, "api-delete-missing-file-on-draft")
+        assert_status(response, expected=404)
+
+    def test_delete_unresolvable_category_is_403(self, draft_dataset, save_response):
+        page, container_uuid = draft_dataset
+        response = page.request.delete(
+            f"/v2/account/articles/{container_uuid}/categories/Environment"
+        )
+        save_response(response, "api-delete-unresolvable-category-on-draft")
+        assert_status(response, expected=403)
+
+    def test_get_missing_file_is_500(self, draft_dataset, save_response):
+        page, container_uuid = draft_dataset
+        response = page.request.get(f"/v2/account/articles/{container_uuid}/files/{uuid.uuid4()}")
+        save_response(response, "api-get-missing-file-on-draft")
+        assert_status(
+            response,
+            expected=404,
+            current_bug=500,
+            bug="dereferences a missing file (None) -> 500",
+        )
+
+    def test_delete_embargo_on_missing_dataset_is_500(
+        self, authenticated_page: Page, save_response
+    ):
+        response = authenticated_page.request.delete(f"/v2/account/articles/{uuid.uuid4()}/embargo")
+        save_response(response, "api-delete-embargo-missing-dataset")
+        assert_status(
+            response,
+            expected=404,
+            current_bug=500,
+            bug="dereferences a missing dataset -> 500 on embargo delete",
+        )
 
 
 # ---------------------------------------------------------------------------
