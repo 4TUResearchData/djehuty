@@ -1077,11 +1077,10 @@ client-visible success path or a persisted side effect:</p>
   persisted side effect differs.</li>
 <li><strong>SSI redirect cookie flags</strong> match legacy exactly (no <code>httponly</code>, no
   <code>samesite</code>); the hardened flags an earlier port added were reverted.</li>
-<li><strong>Error-status normalisation.</strong> Several handlers return 400/404 where legacy
-  returned an uncaught-exception 500 (e.g. deleting a non-existent reference,
-  malformed paging). The success paths and all persisted side effects are
-  identical; only the error status differs, and the AS-IS e2e suite records
-  these as warnings rather than failures.</li>
+<li><strong>Error-status normalisation.</strong> A few handlers return 400/404 where legacy
+  returned an uncaught-exception 500 (e.g. malformed paging). The success paths
+  and all persisted side effects are identical; only the error status differs,
+  and the AS-IS e2e suite records these as warnings rather than failures.</li>
 <li><strong>Thumbnail / image detection</strong> uses the same <code>services.imaging</code> extraction as
   legacy; where the port filters image files by extension rather than the DB
   <code>is_image</code> flag, the persisted set is unchanged.</li>
