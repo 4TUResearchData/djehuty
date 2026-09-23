@@ -1,13 +1,14 @@
 name: Docs
 
 
-# Builds the MkDocs documentation and the static API reference, then
-# publishes both to the gh-pages branch, which GitHub Pages serves.
+# Builds the MkDocs documentation, the static API reference and the Quarto
+# community site, then publishes all three to the gh-pages branch, which
+# GitHub Pages serves.
 
-# The API reference is generated into docs/api/ *before* mkdocs runs, so
-# mkdocs copies it into site/api/ and resolves the nav link to it relative
-# to each page. When the ontology docs exist, generate them the same way,
-# so the whole site is assembled and published atomically in one go.
+# The generated sections are written into docs/ before mkdocs runs, so
+# mkdocs copies them into site/ and resolves their nav links relative to each
+# page. When the ontology docs exist, generate them the same way, so the whole
+# site is assembled and published in one go!!
 
 
 on:
@@ -25,6 +26,8 @@ on:
       # goes stale when an endpoint changes, not only when docs/ changes
       - 'src/djehuty/api/**'
       - 'src/djehuty/application.py'
+      # The community site is rendered from its Quarto sources
+      - 'community/**'
       - 'justfile'
       - '.github/workflows/docs.yml'
   workflow_dispatch:
@@ -54,6 +57,10 @@ jobs:
       - name: Build API reference
         run: |
           just openapi
+
+      # Must run before docs-md: mkdocs copies docs/community/ into the site
+      - name: Build community site
+        run: just docs-community
 
       - name: Build Markdown documentation
         run: just docs-md
