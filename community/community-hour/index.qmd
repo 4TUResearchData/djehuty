@@ -1,0 +1,101 @@
+---
+title: "Community Hour"
+description: "Our monthly open online meeting for everyone interested in djehuty."
+listing:
+  id: notes
+  contents: notes
+  type: table
+  sort: "date desc"
+  fields: [date, title, description]
+  field-display-names:
+    date: Date
+    title: Meeting
+    description: Summary
+  date-format: long
+  sort-ui: false
+  filter-ui: false
+---
+
+## What is the Community Hour?
+
+The Community Hour is our monthly, open online meeting for the [`djehuty`](https://github.com/4TUResearchData/djehuty) community. It is a relaxed space to:
+
+- hear about recent developments and upcoming work,
+- discuss community contributions and feature requests,
+- ask questions and share feedback and ideas,
+- meet other users, contributors and repository managers.
+
+Everyone is welcome: users, contributors, developers, repository administrators, or simply the curious. You don't need to be an expert or to speak; listening in is perfectly fine.
+
+## When and how to join
+
+::: {.callout-note}
+## Next meeting
+We meet **every last Wednesday of the month, 3–4 PM Amsterdam time (CET/CEST)**, online on Google Meet: <https://meet.google.com/zbt-mvxe-feq>
+
+Exact dates are in the [calendar](../calendar/index.qmd).
+:::
+
+### Add the next meeting to your calendar
+
+Just want this one on your calendar? Use the **Add to calendar** button on the [home page](../index.qmd). It adds a single event straight into your normal calendar, the same as any other meeting invite — nothing separate to manage.
+
+### Subscribe to every Community Hour
+
+Come regularly? Subscribe once and every future Community Hour appears automatically, including changes, with nothing to add by hand.
+
+:::{.callout-note}
+A subscription always shows up as its **own calendar** (e.g. "djehuty Community Hour") rather than merging into your main one. That's how calendar subscriptions work, not something particular to this feed — it's what lets your calendar app know to keep it updated.
+:::
+
+
+::: {.callout-tip collapse="true"}
+## How to add the subscription
+- **Apple Calendar, and most Google Calendars:** Click **`Subscribe`** below — it should open your calendar app directly.
+- **Outlook (web, new Outlook, or classic desktop):** Click **`Copy link`**, then in Outlook go to **Add calendar → Subscribe from web** (classic desktop: **Open Calendar → From Internet..**), paste the link, and select **Import/Subscribe**.
+- **`Subscribe` button doesn't do anything in your browser?:** click **`Copy link`** and paste it into your calendar app's "subscribe by URL" option manually.
+
+New meetings appear in this feed automatically as they're scheduled — calendar apps typically re-check it about once a day.
+
+<a href="webcal://djehuty.4tu.nl/community/assets/ics/community-hour.ics"><button type="button" class="btn btn-primary btn-sm"><b>Subscribe</b></button></a>
+<button type="button" class="btn btn-outline-secondary btn-sm" onclick="navigator.clipboard.writeText('https://djehuty.4tu.nl/community/assets/ics/community-hour.ics').then(() => { this.textContent = 'Copied!'; setTimeout(() => this.textContent = 'Copy link', 1500); })">Copy link</button>
+
+:::
+
+## What to expect
+
+A typical Community Hour follows this outline:
+
+1. **Welcome** and short introductions
+2. **Project updates**: recent releases and ongoing development
+3. **Community topics**: items from the agenda, including contributions and feature requests
+4. **Open discussion** and any other business
+5. **Wrap-up**: summary of actions and the date of the next meeting
+
+We follow the `djehuty` [Code of Conduct](https://github.com/4TUResearchData/djehuty?tab=coc-ov-file) in every meeting.
+
+## Add a point to the agenda
+
+Do you want the community to discuss something? Anyone can propose an agenda item.
+
+1. [Open an issue](https://github.com/4TUResearchData/community/issues/new) in the community repository, titled **"Agenda: your topic"**.
+2. Briefly describe the topic, why it matters, and how much time you think you need.
+3. Add links to related issues, discussions or documents.
+4. Submit it **before the meeting**, ideally at least a few days ahead, so the organisers can plan the agenda.
+
+Can't attend live? Add your item anyway and say so in the description. We will discuss it and share the outcome in the meeting notes.
+
+<!-- TODO: confirm the agenda mechanism (issue in the community repo, discussion thread, or shared document), the submission deadline, and a contact for people without a GitHub account. -->
+
+## Add a point to the agenda
+
+Want the community to discuss something? Add it directly to the [Rolling Notes document](https://hackmd.io/DJypl8JxTEaL__8qud-3Fg) under the agenda for the next meeting — no approval needed, just add your topic in a line or two, ideally **a few days before the meeting** so there's time to plan around it.
+
+Can't attend live? Add your item anyway and check the [meeting notes](#meeting-notes) afterwards for the outcome.
+
+## Meeting notes {#meeting-notes}
+
+We publish notes after each Community Hour, including the topics discussed, decisions taken and follow-up actions. Notes from all past meetings are listed below.
+
+::: {#notes}
+:::
