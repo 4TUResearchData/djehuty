@@ -93,6 +93,16 @@ const dataset_uuid = "{{item.container_uuid}}";
     {%- endif %}
         </div>
 {%- endif %}
+{%- if categories %}
+        <div id="categories">
+            <h3 class="label">Categories</h3>
+            <ul>
+    {%- for cat in categories %}
+                <li><a class="corporate-identity public-button" href="/categories/{{cat.id}}">{{cat.title}}</a></li>
+    {%- endfor %}
+            </ul>
+        </div>
+{%- endif %}
 {%- if tags %}
         <div id="tags">
             <h3 class="label">Keywords</h3>

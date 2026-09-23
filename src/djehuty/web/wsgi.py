@@ -5642,6 +5642,7 @@ class WebServer:
         raw_dates         = self.db.physical_sample_dates (container_uuid, None, sample_uri=sample_uri)
         related_resources = self.db.physical_sample_related_resources (container_uuid, None, sample_uri=sample_uri)
         tags              = self.db.tags (item_uri=physical_sample["uri"], limit=None)
+        categories        = self.db.categories (item_uri=physical_sample["uri"], limit=None)
 
         posted_date = value_or_none (physical_sample, "published_date")
         posted_date = posted_date[:4] if posted_date else "unpublished"
@@ -5692,6 +5693,7 @@ class WebServer:
                                        dates            = dates,
                                        related_resources= related_resources,
                                        tags             = tags,
+                                       categories       = categories,
                                        coordinates      = coordinates,
                                        is_own_item      = is_own_item,
                                        private_view     = private_view,
