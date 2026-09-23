@@ -3625,12 +3625,20 @@ class WebServer:
         if not validator.is_valid_uuid (container_uuid) or not validator.is_valid_uuid (creator_uuid):
             return self.error_404 (request)
 
-        if request.method != "DELETE":
-            return self.error_405 (["DELETE"])
+        if request.method not in ("GET", "HEAD", "DELETE"):
+            return self.error_405 (["GET", "DELETE"])
 
         account_uuid = self.account_uuid_from_request (request)
         if account_uuid is None:
             return self.error_authorization_failed (request)
+
+        if request.method in ("GET", "HEAD"):
+            creators = self.db.physical_sample_creators (container_uuid, account_uuid)
+            creator = next (
+                (c for c in creators if value_or (c, "uuid", None) == creator_uuid), None)
+            if creator is None:
+                return self.error_404 (request)
+            return self.response (json.dumps (formatter.format_author_record_v3 (creator)))
 
         item = self.__editable_physical_sample_draft (container_uuid, account_uuid)
         if item is None:
@@ -3922,10 +3930,13 @@ class WebServer:
 
             tags = self.db.tags (item_uri     = sample["uri"],
                                  account_uuid = account_uuid)
-            if not tags:
+            if len (tags) < config.minimum_keywords_count:
+                keyword_noun = ("keyword" if config.minimum_keywords_count == 1
+                                else "keywords")
                 errors.append ({
                     "field_name": "tag",
-                    "message": "The physical sample must have at least one keyword."})
+                    "message": (f"The physical sample must have at least "
+                                f"{config.minimum_keywords_count} {keyword_noun}.")})
 
             categories, category_errors = self.__category_list_from_request_input (record)
             if category_errors:
@@ -3953,7 +3964,7 @@ class WebServer:
                 "longitude":            validator.coordinate_value (record, "longitude", "E", False, errors),
                 "latitude":             validator.coordinate_value (record, "latitude",  "N", False, errors),
                 "sample_owner_name":    validator.string_value  (record, "sample_owner_name",  0, 255, True,  errors),
-                "sample_owner_email":   validator.string_value  (record, "sample_owner_email", 0, 255, True,  errors),
+                "sample_owner_email":   validator.email_value   (record, "sample_owner_email", True, errors),
                 "group_id":             validator.integer_value (record, "group_id", 0, pow(2, 63), True, errors),
                 "agreed_to_deposit_agreement": agreed_to_deposit_agreement,
                 "agreed_to_publish":    agreed_to_publish,
