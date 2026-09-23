@@ -3289,6 +3289,8 @@ class WebServer:
         account_uuid, error_response = self.__depositor_account_uuid (request)
         if error_response is not None:
             return error_response
+        if not self.__account_can_use_igsn (account_uuid):
+            return self.error_403 (request)
 
         drafts = self.db.physical_samples (account_uuid    = account_uuid,
                                            limit           = 10000,
@@ -3321,6 +3323,8 @@ class WebServer:
         account_uuid, error_response = self.__depositor_account_uuid (request)
         if error_response is not None:
             return error_response
+        if not self.__account_can_use_igsn (account_uuid):
+            return self.error_403 (request)
 
         container_uuid, sample_uuid = self.db.insert_physical_sample (
             title = "Untitled item",
@@ -3346,6 +3350,8 @@ class WebServer:
         account_uuid = self.default_authenticated_error_handling (request, "GET", "text/html")
         if isinstance (account_uuid, Response):
             return account_uuid
+        if not self.__account_can_use_igsn (account_uuid):
+            return self.error_403 (request)
 
         if not validator.is_valid_uuid (container_uuid):
             return self.error_404 (request)
@@ -3461,6 +3467,8 @@ class WebServer:
                                                                        self.db.is_depositor)
             if isinstance (account_uuid, Response):
                 return account_uuid
+            if not self.__account_can_use_igsn (account_uuid):
+                return self.error_403 (request)
 
             has_created_new = False
             if container_uuid is None:
@@ -3531,6 +3539,8 @@ class WebServer:
                 return handler
 
             account_uuid = self.account_uuid_from_request (request)
+            if account_uuid is None:
+                return self.error_403 (request)
             records = self.db.physical_sample_creators (container_uuid, account_uuid)
             return self.default_list_response (records, formatter.format_author_record_v3)
 
@@ -3655,6 +3665,8 @@ class WebServer:
                 return handler
 
             account_uuid = self.account_uuid_from_request (request)
+            if account_uuid is None:
+                return self.error_403 (request)
             records = self.db.physical_sample_dates (container_uuid, account_uuid)
             return self.default_list_response (records, formatter.format_physical_sample_date_record)
 
@@ -3749,6 +3761,8 @@ class WebServer:
                 return handler
 
             account_uuid = self.account_uuid_from_request (request)
+            if account_uuid is None:
+                return self.error_403 (request)
             records = self.db.physical_sample_related_resources (container_uuid, account_uuid)
             return self.default_list_response (records, formatter.format_physical_sample_related_resource_record)
 
