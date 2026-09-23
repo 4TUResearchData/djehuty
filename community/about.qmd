@@ -1,0 +1,27 @@
+---
+title: "About"
+---
+
+The [`djehuty`](https://github.com/4TUResearchData/djehuty) community brings together users, contributors, developers, research data professionals, and everyone interested in the future of the `djehuty` platform.
+
+Our goal is to create an open space for collaboration, knowledge sharing, and discussion around `djehuty`'s development and use. Through community meetings, discussions, proposals, and shared experiences, we work together to improve the platform and support the research data community.
+
+## How we work together
+
+- **Meet.** Once a month we hold an open online [Community Hour](community-hour/index.qmd) to discuss recent developments, upcoming work, and your topics. Dates are in the [calendar](calendar/index.qmd).
+- **Discuss.** Ideas, questions and proposals live in the [GitHub discussions](https://github.com/4TUResearchData/djehuty/discussions).
+- **Contribute.** Whether you report an issue, improve documentation, or write code, there is a place for you. See [ways to contribute](contribute.qmd).
+
+## Code of Conduct
+
+In our communication we adhere to the [Code of Conduct](https://github.com/4TUResearchData/djehuty?tab=coc-ov-file).
+
+## Community resources
+
+- [`djehuty` GitHub repository](https://github.com/4TUResearchData/djehuty)
+- [Documentation](https://djehuty.4tu.nl/)
+- [Discussions](https://github.com/4TUResearchData/djehuty/discussions)
+- [Issue tracker](https://github.com/4TUResearchData/djehuty/issues)
+- [Release roadmap](https://github.com/4TUResearchData/djehuty/milestones)
+- [Community repository](https://github.com/4TUResearchData/community)
+- [Community Hour meeting notes](community-hour/index.qmd#meeting-notes)

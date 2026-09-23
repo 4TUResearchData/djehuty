@@ -1,0 +1,31 @@
+---
+about: 
+  id: hero
+  template: solana
+  image: assets/img/logo.png
+  image-shape: rounded
+  links: 
+    - text: GitHub
+      icon: github
+      aria-label: djehuty repository on GitHub
+      href: https://github.com/4TUResearchData/djehuty
+listing: 
+  id: next
+  template: calendar/next-event.ejs
+  contents: calendar/events.yaml
+  max-items: 1
+---
+
+::: {#hero}
+## Welcome to `djehuty` Community
+
+A space for users, contributors, and stakeholders to connect, share ideas, discuss upcoming work, and help shape the future of [`djehuty`](https://github.com/4TUResearchData/djehuty). Whether you're exploring the platform, contributing code, or providing feedback, you're welcome to join the conversation.
+
+**Get involved**: Join our Community Hours, participate in [discussions](https://github.com/4TUResearchData/djehuty/discussions), or explore ways to contribute.
+:::
+
+## <i class="bi bi-calendar-event"></i> Next Community Hour {style="border-bottom: none;"}
+
+::: {#next}
+:::
+
