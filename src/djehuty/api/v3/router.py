@@ -20,10 +20,12 @@ from djehuty.api.v3 import (
 from djehuty.api.v3.collections import router as collections_router
 from djehuty.api.v3.datasets import router as datasets_router
 from djehuty.api.v3.git import router as git_router
+from djehuty.api.v3.physical_samples import router as physical_samples_router
 
 router = APIRouter(prefix="/v3")
 router.include_router(datasets_router)
 router.include_router(collections_router)
+router.include_router(physical_samples_router)
 router.include_router(profile.router)
 router.include_router(reviews.router)
 router.include_router(statistics.router)
