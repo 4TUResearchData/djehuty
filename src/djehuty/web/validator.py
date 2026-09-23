@@ -334,6 +334,25 @@ def url_value (record, field_name, required=False, error_list=None):
                     message = f"Expected a URL for '{field_name}'.",
                     code    = "WrongValueFormat"))
 
+def coordinate_value (record, field_name, axis, required=False, error_list=None):
+    """Validation procedure for a geographic coordinate.
+
+    AXIS is 'N' for latitude or 'E' for longitude, rejects values outside the valid range
+    (+/- 90 for latitude, +/- 180 for longitude).
+    Returns the original string so the stored value is kept.
+    """
+
+    value = string_value (record, field_name, 0, 64, required, error_list)
+    if not value:
+        return value
+    if conv.decimal_coord (value, axis) is None:
+        return raise_or_return_error (error_list,
+                    InvalidValueType(
+                        field_name = field_name,
+                        message = f"Expected a valid coordinate for '{field_name}'.",
+                        code    = "WrongValueFormat"))
+    return value
+
 def date_value (record, field_name, required=False, error_list=None):
     """
     Validation procedure for date values.  If FIELD_NAME is None, it expects

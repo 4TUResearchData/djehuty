@@ -390,6 +390,8 @@ def datacite_physical_sample_tree (parameters, debug=False):
     if "creators" in parameters:
         creators_element = maker.child (root, 'creators')
         for creator in parameters['creators']:
+            if not str (value_or (creator, 'full_name', '')).strip ():
+                continue
             creator_att = personal_att if 'orcid_id' in creator else {}
             creator_element = maker.child (creators_element, 'creator')
             maker.child_option (creator_element, 'creatorName', creator, 'full_name', creator_att)
@@ -503,7 +505,8 @@ def datacite_physical_sample_tree (parameters, debug=False):
     #13 geoLocations
     has_geo = 'geolocation' in item
     coordinates = value_or (parameters, 'coordinates', {})
-    has_point = 'lat_valid' in coordinates and 'lon_valid' in coordinates
+    has_point = (coordinates.get ('lat_valid') is not None
+                 and coordinates.get ('lon_valid') is not None)
     if has_geo or has_point:
         geo_element = maker.child (maker.child (root, 'geoLocations'), 'geoLocation')
         if has_geo:

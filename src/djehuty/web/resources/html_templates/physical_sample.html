@@ -135,7 +135,7 @@ const dataset_uuid = "{{item.container_uuid}}";
 
     <div id="left_column">
         <div id="authors">by
-{%- for c in creators %}
+{%- for c in creators if c.full_name %}
             <a class="corporate-identity{%- if c.is_active %} is_active{%- endif %}" href="/authors/{{c.uuid}}">{{c.full_name}}</a>
     {%- if c.orcid_id %}
             <a class="corporate-identity" href="https://orcid.org/{{c.orcid_id}}" target="_blank" rel="noopener noreferrer" title="opens in new window"><img src="/static/images/orcid.svg" alt="orcid logo" title="orcid profile (new window)" /></a>
