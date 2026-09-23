@@ -5642,6 +5642,7 @@ class WebServer:
         raw_dates         = self.db.physical_sample_dates (container_uuid, None, sample_uri=sample_uri)
         related_resources = self.db.physical_sample_related_resources (container_uuid, None, sample_uri=sample_uri)
         tags              = self.db.tags (item_uri=physical_sample["uri"], limit=None)
+        categories        = self.db.categories (item_uri=physical_sample["uri"], limit=None)
 
         posted_date = value_or_none (physical_sample, "published_date")
         posted_date = posted_date[:4] if posted_date else "unpublished"
@@ -5664,6 +5665,13 @@ class WebServer:
                   str(d.get("date_type", "")))
                  for d in raw_dates if d.get("date")]
 
+        published_date = value_or_none (physical_sample, "published_date")
+        if published_date:
+            dates.append ((published_date[:10], "published"))
+
+        physical_sample["publisher"] = value_or (physical_sample, "publisher",
+                                                 config.site_name)
+
         lat = self_or_value_or_none (physical_sample, "latitude")
         lon = self_or_value_or_none (physical_sample, "longitude")
         lat_valid, lon_valid = decimal_coords (lat, lon)
@@ -5685,11 +5693,13 @@ class WebServer:
                                        dates            = dates,
                                        related_resources= related_resources,
                                        tags             = tags,
+                                       categories       = categories,
                                        coordinates      = coordinates,
                                        is_own_item      = is_own_item,
                                        private_view     = private_view,
                                        member           = member,
                                        member_url_name  = member_url_name,
+                                       publisher_rors   = config.publisher_rors,
                                        page_title       = physical_sample["title"])
 
     def ui_physical_sample_qr_code (self, request, physical_sample_id):
@@ -7923,6 +7933,8 @@ class WebServer:
              if value_or (entry, "date_type", "") == "Issued"),
             None)
         published_date = issued_date or date.today().isoformat()
+
+        sample["publisher"] = value_or (sample, "publisher", config.site_name)
 
         return {
             "item"              : sample,
