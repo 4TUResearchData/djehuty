@@ -1758,6 +1758,25 @@ class WebServer:
     def __reviewer_account_uuid (self, request):
         return self.__account_uuid_for_privilege (request, self.db.may_review)
 
+    def __account_can_use_igsn (self, account_uuid):
+        """Returns True when IGSN is enabled and ACCOUNT_UUID may use it.
+
+        Gates the physical-sample UI: the feature must be configured (a prefix
+        is set) and enabled, and -- when an allow-list is configured -- the
+        account's e-mail domain must appear in 'config.igsn_allowed_domains'.
+        An empty allow-list permits every depositor.
+        """
+        if not (config.supports_igsn and config.igsn_enabled):
+            return False
+        if not config.igsn_allowed_domains:
+            return True
+        account = self.db.account_by_uuid (account_uuid)
+        if account is None:
+            return False
+        if "domain" in account:
+            return account["domain"] in config.igsn_allowed_domains
+        return False
+
     def default_list_response (self, records, format_function, **parameters):
         """Procedure to respond a list of items."""
         output     = []
@@ -2283,7 +2302,7 @@ class WebServer:
             requested_quota = requested_quota,
             percentage_used = percentage_used,
             sessions     = sessions,
-            supports_igsn = config.supports_igsn)
+            can_use_igsn = self.__account_can_use_igsn (account_uuid))
 
     def __datasets_with_storage_usage (self, datasets):
         for dataset in datasets:
@@ -2323,7 +2342,7 @@ class WebServer:
                                        draft_datasets     = draft_datasets,
                                        review_datasets    = review_datasets,
                                        published_datasets = published_datasets,
-                                       supports_igsn = config.supports_igsn)
+                                       can_use_igsn = self.__account_can_use_igsn (account_uuid))
 
     def ui_collection_published (self, request, collection_id):
         """Implements /my/collections/published/<id>."""
@@ -2622,7 +2641,7 @@ class WebServer:
         return self.__render_template (request, "depositor/my-collections.html",
                                        draft_collections     = drafts,
                                        published_collections = published,
-                                       supports_igsn = config.supports_igsn)
+                                       can_use_igsn = self.__account_can_use_igsn (account_uuid))
 
     def ui_edit_collection (self, request, collection_id):
         """Implements /my/collections/<id>/edit."""

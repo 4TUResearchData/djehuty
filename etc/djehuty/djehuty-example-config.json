@@ -99,7 +99,11 @@
       "api-url": "https://api.datacite.org",
       "repository-id": "",
       "password": "",
-      "prefix": "10.XXXXX"
+      "prefix": "10.XXXXX",
+      "enabled": "1",
+      "allowed-domains": {
+        "domain": ["tudelft.nl", "tue.nl", "utwente.nl", "wur.nl", "4tu.nl"]
+      }
     },
     "handle": {
       "url": "https://epic-pid.storage.surfsara.nl:800X/api/handles",

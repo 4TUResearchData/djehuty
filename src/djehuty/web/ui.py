@@ -896,6 +896,17 @@ def read_igsn_configuration(xml_root):
         config.igsn_id       = config_value(igsn, "repository-id")
         config.igsn_password = config_value(igsn, "password")
         config.igsn_prefix   = config_value(igsn, "prefix")
+        enabled = config_value(igsn, "enabled")
+        if enabled is not None:
+            config.igsn_enabled = enabled.strip().lower() in ("1", "true", "yes", "on")
+        allowed_domains = igsn.find("allowed-domains")
+        if allowed_domains is not None:
+            for domain in allowed_domains:
+                if domain.tag != "domain":
+                    continue
+                if domain.text is None or domain.text.strip() == "":
+                    continue
+                config.igsn_allowed_domains.append(domain.text.strip())
 
 def read_automatic_login_configuration(xml_root):
     """Procedure to parse and set automatic login for development setups."""
