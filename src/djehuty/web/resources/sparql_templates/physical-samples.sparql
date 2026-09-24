@@ -19,6 +19,10 @@ WHERE {
     ?container      rdf:type                  djht:PhysicalSampleContainer .
     ?container      djht:account              ?account .
 
+    {%- if collection_uri is not none %}
+    <{{collection_uri}}> djht:physical_samples/rdf:rest*/rdf:first ?container .
+    {%- endif %}
+
     {%- if is_published is none and is_latest is none: %}
     ?sample         djht:container            ?container .
     {%- elif is_latest %}

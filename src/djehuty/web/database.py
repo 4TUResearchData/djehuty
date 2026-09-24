@@ -3242,7 +3242,8 @@ class SparqlInterface:
                           is_published=True, is_latest=True, limit=None,
                           order=None, order_direction=None,
                           offset=None, private_link_id_string=None,
-                          is_under_review=None, use_cache=True):
+                          is_under_review=None, collection_uri=None,
+                          use_cache=True):
         """Procedure to retrieve physical samples."""
 
         filters  = rdf.sparql_filter ("container", rdf.uuid_to_uri (container_uuid, "container"), is_uri=True)
@@ -3255,6 +3256,7 @@ class SparqlInterface:
             "is_latest":               is_latest,
             "is_under_review":         is_under_review,
             "private_link_id_string":  private_link_id_string,
+            "collection_uri":          collection_uri,
             "filters":                 filters
         })
 
