@@ -336,6 +336,10 @@ class WebServer:
             R("/v2/account/collections/<collection_id>/categories/<category_id>", self.api_private_delete_collection_category),
             R("/v2/account/collections/<collection_id>/articles",                self.api_private_collection_datasets),
             R("/v2/account/collections/<collection_id>/articles/<dataset_id>",   self.api_private_collection_dataset_delete),
+            R("/v2/account/collections/<collection_id>/physical_samples",
+              self.api_private_collection_physical_samples),
+            R("/v2/account/collections/<collection_id>/physical_samples/<container_uuid>",
+              self.api_private_collection_physical_sample_delete),
             R("/v2/account/collections/<collection_id>/reserve_doi",             self.api_private_collection_reserve_doi),
             R("/v2/account/collections/<collection_id>/funding",                 self.api_private_collection_funding),
             R("/v2/account/collections/<collection_id>/funding/<funding_id>",    self.api_private_collection_funding_delete),
@@ -8480,6 +8484,175 @@ class WebServer:
             return self.error_500()
 
         return self.error_500 ()
+
+    def __editable_collection(self, collection_id, account_uuid):
+        """Returns the account's draft collection, drafting a published one first."""
+        collection = self.__collection_by_id_or_uri(
+            collection_id, is_published=False, account_uuid=account_uuid
+        )
+        if collection is not None:
+            return collection
+
+        published = self.__collection_by_id_or_uri(
+            collection_id, is_published=True, account_uuid=account_uuid
+        )
+        if published is None:
+            return None
+
+        container_uuid = published["container_uuid"]
+        if self.db.create_draft_from_published_collection(container_uuid) is None:
+            return None
+
+        return self.__collection_by_id_or_uri(
+            container_uuid, is_published=False, account_uuid=account_uuid
+        )
+
+    def api_private_collection_physical_samples(self, request, collection_id):
+        """Implements /v2/account/collections/<id>/physical_samples."""
+
+        account_uuid = self.default_authenticated_error_handling(
+            request, ["GET", "POST", "PUT"], "application/json"
+        )
+        if isinstance(account_uuid, Response):
+            return account_uuid
+
+        if request.method in ("GET", "HEAD"):
+            return self.__list_collection_physical_samples(request, collection_id, account_uuid)
+
+        if request.method == "POST":
+            return self.__append_collection_physical_samples(request, collection_id, account_uuid)
+
+        return self.__replace_collection_physical_samples(request, collection_id, account_uuid)
+
+    def __list_collection_physical_samples(self, request, collection_id, account_uuid):
+        try:
+            collection = self.__collection_by_id_or_uri(
+                collection_id, is_published=False, account_uuid=account_uuid
+            )
+            if collection is None:
+                return self.error_404(request)
+
+            offset, limit = self.__paging_offset_and_limit(request)
+            samples = self.db.physical_samples(
+                collection_uri=collection["uri"],
+                is_latest=True,
+                is_published=True,
+                limit=limit,
+                offset=offset,
+            )
+            return self.default_list_response(
+                samples,
+                formatter.format_collection_physical_sample_record,
+                base_url=config.base_url,
+            )
+        except (IndexError, KeyError):
+            return self.error_500()
+        except validator.ValidationException as error:
+            return self.error_400(request, error.message, error.code)
+
+    def __append_collection_physical_samples(self, request, collection_id, account_uuid):
+        try:
+            parameters = request.get_json()
+            collection = self.__editable_collection(collection_id, account_uuid)
+            if collection is None:
+                return self.error_404(request)
+
+            existing = [
+                str(row["container_uri"]).removeprefix("container:")
+                for row in self.db.collection_physical_sample_containers(
+                    collection["uri"], limit=None
+                )
+            ]
+            return self.__save_collection_physical_samples(
+                request, collection, account_uuid, existing + parameters["samples"]
+            )
+        except (IndexError, TypeError):
+            return self.error_500()
+        except KeyError:
+            return self.error_400(request, "Expected an array for 'samples'.", "NoSamplesField")
+
+    def __replace_collection_physical_samples(self, request, collection_id, account_uuid):
+        try:
+            parameters = request.get_json()
+            collection = self.__editable_collection(collection_id, account_uuid)
+            if collection is None:
+                return self.error_404(request)
+
+            return self.__save_collection_physical_samples(
+                request, collection, account_uuid, parameters["samples"]
+            )
+        except (IndexError, TypeError):
+            return self.error_500()
+        except KeyError:
+            return self.error_400(request, "Expected an array for 'samples'.", "NoSamplesField")
+
+    def __save_collection_physical_samples(
+        self, request, collection, account_uuid, container_uuids
+    ):
+        try:
+            container_uuids = list(dict.fromkeys(container_uuids))
+            samples = []
+            for index in range(len(container_uuids)):
+                sample_uuid = validator.string_value(container_uuids, index, 36, 36)
+                sample = self.__physical_sample_by_id_or_uri(
+                    sample_uuid, is_latest=True, is_published=True
+                )
+                if sample is None:
+                    return self.error_500()
+
+                samples.append(URIRef(f"container:{sample['container_uuid']}"))
+
+            if self.db.update_item_list(
+                collection["uuid"], account_uuid, samples, "physical_samples"
+            ):
+                self.db.cache.invalidate_by_prefix("physical-samples")
+                return self.respond_205()
+        except (IndexError, TypeError):
+            return self.error_500()
+        except validator.ValidationException as error:
+            return self.error_400(request, error.message, error.code)
+
+        return self.error_500()
+
+    def api_private_collection_physical_sample_delete(
+        self, request, collection_id, container_uuid
+    ):
+        """Implements /v2/account/collections/<id>/physical_samples/<container_uuid>."""
+        if request.method != "DELETE":
+            return self.error_405("DELETE")
+
+        account_uuid = self.account_uuid_from_request(request)
+        if account_uuid is None:
+            return self.error_authorization_failed(request)
+
+        try:
+            collection = self.__collection_by_id_or_uri(
+                collection_id, account_uuid=account_uuid, is_published=False
+            )
+            sample = self.__physical_sample_by_id_or_uri(
+                container_uuid, is_latest=True, is_published=True
+            )
+            if collection is None or sample is None:
+                return self.error_404(request)
+
+            container_uri = URIRef(f"container:{sample['container_uuid']}")
+            if self.db.delete_item_from_list(collection["uri"], "physical_samples", container_uri):
+                self.db.cache.invalidate_by_prefix("physical-samples")
+                return self.respond_204()
+
+            self.log.error(
+                "Failed to delete physical sample %s from collection %s.",
+                container_uuid,
+                collection_id,
+            )
+        except (IndexError, KeyError) as error:
+            self.log.error("Failed to delete physical sample from collection: %s", error)
+
+        return self.error_403(
+            request,
+            f"account:{account_uuid} attempted to remove "
+            f"physical sample:{container_uuid} from collection:{collection_id}",
+        )
 
     def api_collection_datasets (self, request, collection_id):
         """Implements /v2/collections/<id>/articles."""

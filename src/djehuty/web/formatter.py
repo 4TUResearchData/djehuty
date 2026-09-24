@@ -687,6 +687,13 @@ def format_physical_sample_record (record):
         "uuid":          conv.value_or_none (record, "sample_uuid")
     }
 
+def format_collection_physical_sample_record (record):
+    """Record formatter for physical samples listed in a collection."""
+    return {
+        "uuid":  conv.value_or_none (record, "container_uuid"),
+        "title": conv.value_or_none (record, "title")
+    }
+
 def format_physical_sample_date_record (record):
     """Record formatter for physical sample dates."""
     return {
