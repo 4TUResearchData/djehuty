@@ -2282,6 +2282,8 @@ class SparqlInterface:
         draft_custom_fields = self.custom_fields (item_uri=latest_uri, item_type="collection")
         draft_datasets      = self.collection_dataset_containers(collection_uri=latest_uri, limit=None)
         draft_dataset_uris  = list({URIRef(container['container_uri']) for container in draft_datasets})
+        draft_samples       = self.collection_physical_sample_containers(collection_uri=latest_uri, limit=None)
+        draft_sample_uris   = [URIRef(container['container_uri']) for container in draft_samples]
 
         if isinstance (draft_derived_from, list):
             draft_derived_from = conv.value_or_none (draft_derived_from, 0)
@@ -2314,6 +2316,7 @@ class SparqlInterface:
                 authors               = draft_authors,
                 custom_fields_list    = draft_custom_fields,
                 datasets              = draft_dataset_uris,
+                physical_samples      = draft_sample_uris,
                 private_links         = None,
                 is_public             = 0,
                 is_active             = 1,
