@@ -2884,6 +2884,7 @@ class SparqlInterface:
                            description=None,
                            derived_from=None,
                            datasets=None,
+                           physical_samples=None,
                            authors=None,
                            categories=None,
                            categories_by_source_id=None,
@@ -2924,6 +2925,7 @@ class SparqlInterface:
         custom_fields_list      = [] if custom_fields_list      is None else custom_fields_list
         private_links           = [] if private_links           is None else private_links
         datasets                = [] if datasets                is None else datasets
+        physical_samples        = [] if physical_samples        is None else physical_samples
 
         graph                   = Graph()
         uri                     = rdf.unique_node ("collection")
@@ -2963,6 +2965,10 @@ class SparqlInterface:
         ## DATASETS
         ## --------------------------------------------------------------------
         self.insert_item_list (graph, uri, datasets, "datasets")
+
+        ## PHYSICAL SAMPLES
+        ## --------------------------------------------------------------------
+        self.insert_item_list (graph, uri, physical_samples, "physical_samples")
 
         ## CUSTOM FIELDS
         ## --------------------------------------------------------------------
