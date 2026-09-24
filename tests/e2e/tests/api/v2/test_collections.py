@@ -186,6 +186,89 @@ class TestV2CollectionAuthorsApi:
         save_response(response, "v2-collection-add-author")
         assert response.ok
 
+    def test_replace_authors(self, draft_collection, save_response):
+        """PUT replaces collection authors; an empty list clears them."""
+        page, container_uuid = draft_collection
+        authors_url = f"/v2/account/collections/{container_uuid}/authors"
+        create_response = page.request.post(
+            authors_url,
+            data={"authors": [{"first_name": "Original", "last_name": "Author"}]},
+        )
+        assert create_response.status == 205
+        before_response = page.request.get(authors_url)
+        assert before_response.status == 200
+        assert any(author["full_name"] == "Original Author" for author in before_response.json())
+
+        response = page.request.put(
+            authors_url,
+            data={"authors": [{"first_name": "Replacement", "last_name": "Author"}]},
+        )
+        save_response(response, "v2-collection-replace-authors")
+        assert response.status == 205
+
+        get_response = page.request.get(authors_url)
+        save_response(get_response, "v2-collection-replace-authors-verify")
+        assert get_response.status == 200
+        assert [author["full_name"] for author in get_response.json()] == ["Replacement Author"]
+
+        clear_response = page.request.put(authors_url, data={"authors": []})
+        assert clear_response.status == 205
+        get_response = page.request.get(authors_url)
+        save_response(get_response, "v2-collection-clear-authors-verify")
+        assert get_response.status == 200
+        assert get_response.json() == []
+
+    def test_add_email_and_orcid_matching_same_author_does_not_duplicate(
+        self, draft_dataset, draft_collection, save_response
+    ):
+        """POST adds one collection author when email and ORCID match one account."""
+        from config import AUTO_LOGIN_EMAIL
+
+        page, dataset_uuid = draft_dataset
+        _, collection_uuid = draft_collection
+        authors_url = f"/v2/account/collections/{collection_uuid}/authors"
+
+        source_response = page.request.get(f"/v2/account/articles/{dataset_uuid}/authors")
+        assert source_response.status == 200
+        source_authors = source_response.json()
+        assert len(source_authors) == 1
+        matching_author = source_authors[0]
+        assert matching_author.get("is_active") is True
+        matching_uuid = matching_author["uuid"]
+        matching_orcid = matching_author["orcid_id"]
+        assert matching_orcid
+
+        before_response = page.request.get(authors_url)
+        assert before_response.status == 200
+        before_uuids = [author["uuid"] for author in before_response.json()]
+        if matching_uuid in before_uuids:
+            remove_response = page.request.delete(f"{authors_url}/{matching_uuid}")
+            assert remove_response.status == 204
+
+        before_response = page.request.get(authors_url)
+        assert before_response.status == 200
+        before_uuids = [author["uuid"] for author in before_response.json()]
+        assert matching_uuid not in before_uuids
+
+        response = page.request.post(
+            authors_url,
+            data={
+                "authors": [
+                    {"first_name": "Dev", "last_name": "User", "email": AUTO_LOGIN_EMAIL},
+                    {"first_name": "Dev", "last_name": "User", "orcid_id": matching_orcid},
+                ]
+            },
+        )
+        save_response(response, "api-add-collection-author-by-email-and-orcid")
+        assert response.status == 205
+
+        get_response = page.request.get(authors_url)
+        save_response(get_response, "api-add-collection-author-by-email-and-orcid-verify")
+        assert get_response.status == 200
+        authors = get_response.json()
+        assert [author["uuid"] for author in authors] == before_uuids + [matching_uuid]
+        assert authors[-1].get("is_active") is True
+
 
 # ---------------------------------------------------------------------------
 # Categories

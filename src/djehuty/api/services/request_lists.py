@@ -6,6 +6,7 @@ helpers; each returns ``(records, errors)`` exactly like the legacy methods.
 
 from rdflib import URIRef
 
+from djehuty.services.author_matching import active_author_matching_identifiers
 from djehuty.utils.convenience import parses_to_int
 from djehuty.utils.rdf import uuid_to_uri
 from djehuty.web import validator
@@ -45,7 +46,17 @@ def author_list_from_request_input(parameters, db, created_by=None):
         if errors:
             return None, errors
 
-        author_uuid = db.insert_author(**record)
+        existing_author = active_author_matching_identifiers(
+            db,
+            email=record["email"],
+            orcid_id=record["orcid_id"],
+        )
+
+        if existing_author is not None:
+            author_uuid = existing_author["uuid"]
+        else:
+            author_uuid = db.insert_author(**record)
+
         if author_uuid is None:
             return None, [{"field_name": "authors", "message": "Unable to create author record."}]
         authors.append(URIRef(uuid_to_uri(author_uuid, "author")))

@@ -233,6 +233,22 @@ class TestV2ArticleAuthorsApi:
         save_response(response, "api-replace-authors")
         assert response.ok
 
+        authors_url = f"/v2/account/articles/{container_uuid}/authors"
+        get_response = page.request.get(authors_url)
+        save_response(get_response, "api-replace-authors-verify")
+        assert get_response.status == 200
+        assert [author["full_name"] for author in get_response.json()] == [
+            "Alice Smith",
+            "Bob Jones",
+        ]
+
+        clear_response = page.request.put(authors_url, data={"authors": []})
+        assert clear_response.status == 205
+        get_response = page.request.get(authors_url)
+        save_response(get_response, "api-clear-authors-verify")
+        assert get_response.status == 200
+        assert get_response.json() == []
+
     def test_manual_author_email_matches_existing_account(self, draft_dataset, save_response):
         """PUT /v2/account/articles/<uuid>/authors reuses an account author by email."""
         page, container_uuid = draft_dataset
@@ -393,6 +409,52 @@ class TestV2ArticleAuthorsApi:
         authors = get_response.json()
         assert len(authors) == 1
         assert authors[0].get("uuid") == existing_uuid
+
+    def test_add_email_and_orcid_matching_same_author_does_not_duplicate(
+        self, draft_dataset, save_response
+    ):
+        """POST adds one author when two inputs match the same active account."""
+        from config import AUTO_LOGIN_EMAIL
+
+        page, container_uuid = draft_dataset
+        authors_url = f"/v2/account/articles/{container_uuid}/authors"
+
+        source_response = page.request.get(authors_url)
+        assert source_response.status == 200
+        source_authors = source_response.json()
+        assert len(source_authors) == 1
+        matching_author = source_authors[0]
+        assert matching_author.get("is_active") is True
+        matching_uuid = matching_author["uuid"]
+        matching_orcid = matching_author["orcid_id"]
+        assert matching_orcid
+
+        # Remove the association so that the matched author is not already listed.
+        remove_response = page.request.delete(f"{authors_url}/{matching_uuid}")
+        assert remove_response.status == 204
+        before_response = page.request.get(authors_url)
+        assert before_response.status == 200
+        assert before_response.json() == []
+
+        response = page.request.post(
+            authors_url,
+            data={
+                "authors": [
+                    {"first_name": "Dev", "last_name": "User", "email": AUTO_LOGIN_EMAIL},
+                    {"first_name": "Dev", "last_name": "User", "orcid_id": matching_orcid},
+                ]
+            },
+        )
+        save_response(response, "api-add-author-by-email-and-orcid")
+        assert response.status == 205
+
+        get_response = page.request.get(authors_url)
+        save_response(get_response, "api-add-author-by-email-and-orcid-verify")
+        assert get_response.status == 200
+        authors = get_response.json()
+        assert len(authors) == 1
+        assert authors[0]["uuid"] == matching_uuid
+        assert authors[0].get("is_active") is True
 
 
 # ---------------------------------------------------------------------------

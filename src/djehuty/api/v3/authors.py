@@ -45,7 +45,11 @@ def get_author_details(author_uuid: str, account=Depends(require_auth), db=Depen
 @router.put(
     "/authors/{author_uuid}",
     summary="Update author details",
-    responses={204: {"description": "Author updated"}, 403: {"model": ErrorResponse}},
+    responses={
+        204: {"description": "Author updated"},
+        403: {"model": ErrorResponse},
+        409: {"description": "Email or ORCID matches an existing active author."},
+    },
 )
 def update_author_details(
     author_uuid: str,
@@ -66,6 +70,7 @@ def update_author_details(
     account=Depends(require_auth),
     db=Depends(get_db),
 ):
+    from djehuty.services.author_matching import active_author_matching_identifiers
     from djehuty.web import validator
 
     if not validator.is_valid_uuid(author_uuid):
@@ -78,6 +83,24 @@ def update_author_details(
             "email": validator.string_value(body, "email", 0, 255),
             "orcid": validator.string_value(body, "orcid", 0, 255),
         }
+
+        existing_author = active_author_matching_identifiers(
+            db,
+            email=parameters["email"],
+            orcid_id=parameters["orcid"],
+            exclude_author_uuid=author_uuid,
+        )
+        if existing_author is not None:
+            return JSONResponse(
+                status_code=409,
+                content={
+                    "message": (
+                        "An active author with this email address or ORCID already exists. "
+                        "Remove this manual author and select the existing author from "
+                        "the autocomplete."
+                    )
+                },
+            )
 
         if not db.update_author(author_uuid, account["uuid"], **parameters):
             return Response(status_code=500)
