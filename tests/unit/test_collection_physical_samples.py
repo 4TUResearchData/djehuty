@@ -1,5 +1,4 @@
-"""Unit tests for physical samples in a collection
-"""
+"""Unit tests for physical samples in a collection"""
 
 import tempfile
 
@@ -101,3 +100,44 @@ class TestCollectionsFromPhysicalSample:
     def test_ignores_the_datasets_list(self, db):
         _seed_collection(db, datasets=[SAMPLE_A])
         assert db.collections_from_physical_sample(SAMPLE_A) == []
+
+
+def _seed_sample(db, container_uuid, title):
+    """Seed a published physical sample."""
+    graph = Graph()
+    container = URIRef(f"container:{container_uuid}")
+    sample = URIRef(f"physical-sample:{container_uuid}")
+
+    rdf.add(graph, container, RDF.type, rdf.DJHT["PhysicalSampleContainer"], "uri")
+    rdf.add(graph, container, rdf.DJHT["account"], URIRef("account:owner"), "uri")
+    rdf.add(graph, container, rdf.DJHT["latest_published_version"], sample, "uri")
+    rdf.add(graph, sample, RDF.type, rdf.DJHT["PhysicalSample"], "uri")
+    rdf.add(graph, sample, rdf.DJHT["container"], container, "uri")
+    rdf.add(graph, sample, rdf.DJHT["title"], title, XSD.string)
+    db.add_triples_from_graph(graph)
+
+
+class TestPhysicalSamplesByCollection:
+    def test_returns_only_the_samples_in_the_collection(self, db):
+        _seed_sample(db, SAMPLE_A, "In the collection")
+        _seed_sample(db, SAMPLE_B, "Not in the collection")
+        _seed_collection(db, samples=[SAMPLE_A])
+        rows = db.physical_samples(
+            collection_uri=COLLECTION_URI, is_published=True, is_latest=True, use_cache=False
+        )
+        assert [row["container_uuid"] for row in rows] == [SAMPLE_A]
+
+    def test_is_empty_for_a_collection_without_samples(self, db):
+        _seed_sample(db, SAMPLE_A, "A sample")
+        _seed_collection(db, datasets=[DATASET_A])
+        rows = db.physical_samples(
+            collection_uri=COLLECTION_URI, is_published=True, is_latest=True, use_cache=False
+        )
+        assert rows == []
+
+    def test_without_a_collection_all_samples_are_returned(self, db):
+        _seed_sample(db, SAMPLE_A, "First")
+        _seed_sample(db, SAMPLE_B, "Second")
+        _seed_collection(db, samples=[SAMPLE_A])
+        rows = db.physical_samples(is_published=True, is_latest=True, use_cache=False)
+        assert {row["container_uuid"] for row in rows} == {SAMPLE_A, SAMPLE_B}
