@@ -141,3 +141,47 @@ class TestPhysicalSamplesByCollection:
         _seed_collection(db, samples=[SAMPLE_A])
         rows = db.physical_samples(is_published=True, is_latest=True, use_cache=False)
         assert {row["container_uuid"] for row in rows} == {SAMPLE_A, SAMPLE_B}
+
+
+def _count_list_heads(db, collection_uri, predicate):
+    rows = list(
+        db.sparql.query(
+            f"SELECT (COUNT(DISTINCT ?head) AS ?n) WHERE {{ GRAPH <{config.state_graph}> {{ "
+            f"<{collection_uri}> <{rdf.DJHT[predicate]}> ?head }} }}"
+        )
+    )
+    return int(rows[0][0])
+
+
+def _insert_collection(db, **lists):
+    _, collection_uuid = db.insert_collection(title="A collection", account_uuid="owner", **lists)
+    return f"collection:{collection_uuid}"
+
+
+class TestInsertCollection:
+    def test_writes_one_list_with_every_sample(self, db):
+        uri = _insert_collection(
+            db,
+            physical_samples=[URIRef(f"container:{SAMPLE_A}"), URIRef(f"container:{SAMPLE_B}")],
+        )
+        assert _count_list_heads(db, uri, "physical_samples") == 1
+        rows = db.collection_physical_sample_containers(uri, limit=None)
+        assert {str(row["container_uri"]) for row in rows} == {
+            f"container:{SAMPLE_A}",
+            f"container:{SAMPLE_B}",
+        }
+
+    def test_writes_no_list_without_samples(self, db):
+        uri = _insert_collection(db)
+        assert _count_list_heads(db, uri, "physical_samples") == 0
+
+    def test_keeps_datasets_and_samples_apart(self, db):
+        uri = _insert_collection(
+            db,
+            datasets=[URIRef(f"container:{DATASET_A}")],
+            physical_samples=[URIRef(f"container:{SAMPLE_A}")],
+        )
+        samples = db.collection_physical_sample_containers(uri, limit=None)
+        datasets = db.collection_dataset_containers(uri, limit=None)
+        assert [str(row["container_uri"]) for row in samples] == [f"container:{SAMPLE_A}"]
+        assert [str(row["container_uri"]) for row in datasets] == [f"container:{DATASET_A}"]
