@@ -51,7 +51,6 @@ djehuty = "djehuty.ui:main"
 docs = [
     "mkdocs-material",
     "mkdocs-include-markdown-plugin",
-    "quarto-cli",
 ]
 dev = [
     "coverage[toml]>=7.0",

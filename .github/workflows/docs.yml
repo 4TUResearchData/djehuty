@@ -53,6 +53,9 @@ jobs:
       - name: Install just
         uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3  # v4
 
+      - name: Set up Quarto
+        uses: quarto-dev/quarto-actions/setup@8a96df13519ee81fd526f2dfca5962811136661b  # v2.2.0
+
       # Must run before docs-md: mkdocs copies docs/api/ into the site
       - name: Build API reference
         run: |

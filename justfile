@@ -75,8 +75,9 @@ openapi out="docs/api":
     uv run python -m djehuty.api.export_openapi {{ out }}
 
 # Render the Quarto community site into docs/community/
+# Needs the Quarto CLI: https://quarto.org/docs/get-started/
 docs-community:
-    cd community && uv run --group docs --project .. quarto render
+    cd community && quarto render
     rm -rf docs/community
     mkdir -p docs/community
     cp -r community/_site/. docs/community/
