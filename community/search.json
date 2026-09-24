@@ -1,0 +1,163 @@
+[
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "The djehuty community brings together users, contributors, developers, research data professionals, and everyone interested in the future of the djehuty platform.\nOur goal is to create an open space for collaboration, knowledge sharing, and discussion around djehuty’s development and use. Through community meetings, discussions, proposals, and shared experiences, we work together to improve the platform and support the research data community."
+  },
+  {
+    "objectID": "about.html#how-we-work-together",
+    "href": "about.html#how-we-work-together",
+    "title": "About",
+    "section": "How we work together",
+    "text": "How we work together\n\nMeet. Once a month we hold an open online Community Hour to discuss recent developments, upcoming work, and your topics. Dates are in the calendar.\nDiscuss. Ideas, questions and proposals live in the GitHub discussions.\nContribute. Whether you report an issue, improve documentation, or write code, there is a place for you. See ways to contribute."
+  },
+  {
+    "objectID": "about.html#code-of-conduct",
+    "href": "about.html#code-of-conduct",
+    "title": "About",
+    "section": "Code of Conduct",
+    "text": "Code of Conduct\nIn our communication we adhere to the Code of Conduct."
+  },
+  {
+    "objectID": "about.html#community-resources",
+    "href": "about.html#community-resources",
+    "title": "About",
+    "section": "Community resources",
+    "text": "Community resources\n\ndjehuty GitHub repository\nDocumentation\nDiscussions\nIssue tracker\nRelease roadmap\nCommunity repository\nCommunity Hour meeting notes"
+  },
+  {
+    "objectID": "calendar/index.html",
+    "href": "calendar/index.html",
+    "title": "Calendar",
+    "section": "",
+    "text": "Want every Community Hour in your own calendar automatically? Subscribe to the meeting feed instead of adding each event one by one.\n\n\n\n\n\n\n   \n    \n    \n      Order By\n      Default\n      \n        Title\n      \n      \n        Description\n      \n      \n        Date - Oldest\n      \n      \n        Date - Newest\n      \n      \n        time\n      \n    \n  \n    \n      \n      \n    \n\n\n\n\n\n\nTitle\n\n\n\nDescription\n\n\n\nDate\n\n\n\ntime\n\n\n\n\n\n\n\n\nInaugural djehuty Community Hour\n\n\nWelcome our team, see our latest developments and join the discussion. Presentation topic: Modernising djehuty: where we are, where we’re headed.\n\n\nOct 28, 2026\n\n\n15:00 CET\n\n\n\n\n\n\ndjehuty Community Hour\n\n\nLatest developments and open discussion.\n\n\nNov 25, 2026\n\n\n15:00 CET\n\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "contribute.html",
+    "href": "contribute.html",
+    "title": "Ways to contribute",
+    "section": "",
+    "text": "Everyone is welcome, regardless of experience level or background. You don’t need to write code to make a difference: feedback, questions, documentation and testing all help djehuty grow."
+  },
+  {
+    "objectID": "contribute.html#join-the-conversation",
+    "href": "contribute.html#join-the-conversation",
+    "title": "Ways to contribute",
+    "section": "Join the conversation",
+    "text": "Join the conversation\n\nAttend a Community Hour. Our monthly online meeting is open to everyone. Find out what to expect and check the calendar for the next date.\nTake part in discussions. Ask questions, share ideas, or comment on proposals in the GitHub discussions.\nBring a topic. Want the community to discuss something? Add it to the agenda."
+  },
+  {
+    "objectID": "contribute.html#share-feedback-and-report-issues",
+    "href": "contribute.html#share-feedback-and-report-issues",
+    "title": "Ways to contribute",
+    "section": "Share feedback and report issues",
+    "text": "Share feedback and report issues\nTell us about your experience with djehuty: what works well, what is confusing, and what is missing.\n\nReport a bug or suggest a feature in the issue tracker. Please search existing issues first, and describe what you expected and what happened. Steps to reproduce help a lot.\nSee what is planned in the release roadmap, and tell us what matters most to you."
+  },
+  {
+    "objectID": "contribute.html#contribute-code",
+    "href": "contribute.html#contribute-code",
+    "title": "Ways to contribute",
+    "section": "Contribute code",
+    "text": "Contribute code\nCode contributions are welcome, from small fixes to new features. The full process is in CONTRIBUTING.md.\n\n\n\n\n\n\nImportant\n\n\n\nFound a security vulnerability? Don’t open a public issue or PR — see SECURITY.md instead."
+  },
+  {
+    "objectID": "contribute.html#improve-documentation-testing-and-design",
+    "href": "contribute.html#improve-documentation-testing-and-design",
+    "title": "Ways to contribute",
+    "section": "Improve documentation, testing and design",
+    "text": "Improve documentation, testing and design\nGood documentation and careful testing are as valuable as code. You can:\n\nread the documentation and tell us where it is unclear, outdated or missing,\ntest new releases and report what you find,\nshare ideas for a clearer, more accessible interface."
+  },
+  {
+    "objectID": "contribute.html#improve-this-website",
+    "href": "contribute.html#improve-this-website",
+    "title": "Ways to contribute",
+    "section": "Improve this website",
+    "text": "Improve this website\nThis website is built with Quarto and lives in the community/ directory of the djehuty repository. To fix a typo, add a resource or write up meeting notes, use the Edit this page link on any page, or open an issue or pull request."
+  },
+  {
+    "objectID": "contribute.html#help-the-community-grow",
+    "href": "contribute.html#help-the-community-grow",
+    "title": "Ways to contribute",
+    "section": "Help the community grow",
+    "text": "Help the community grow\n\nShare how your institution or project uses djehuty, for example in a Community Hour.\nInvite colleagues who might benefit from the project or the community.\nWelcome newcomers in discussions and meetings."
+  },
+  {
+    "objectID": "contribute.html#our-ground-rules",
+    "href": "contribute.html#our-ground-rules",
+    "title": "Ways to contribute",
+    "section": "Our ground rules",
+    "text": "Our ground rules\nIn all our communication we follow the djehuty Code of Conduct."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "djehuty Community",
+    "section": "",
+    "text": "GitHub\n  \n\n      \n\n\nA space for users, contributors, and stakeholders to connect, share ideas, discuss upcoming work, and help shape the future of djehuty. Whether you’re exploring the platform, contributing code, or providing feedback, you’re welcome to join the conversation.\nGet involved: Join our Community Hours, participate in discussions, or explore ways to contribute."
+  },
+  {
+    "objectID": "index.html#welcome-to-djehuty-community",
+    "href": "index.html#welcome-to-djehuty-community",
+    "title": "djehuty Community",
+    "section": "",
+    "text": "A space for users, contributors, and stakeholders to connect, share ideas, discuss upcoming work, and help shape the future of djehuty. Whether you’re exploring the platform, contributing code, or providing feedback, you’re welcome to join the conversation.\nGet involved: Join our Community Hours, participate in discussions, or explore ways to contribute."
+  },
+  {
+    "objectID": "index.html#next-community-hour",
+    "href": "index.html#next-community-hour",
+    "title": "djehuty Community",
+    "section": " Next Community Hour",
+    "text": "Next Community Hour\n\n\n\n\n  Inaugural djehuty Community Hour\n  Welcome our team, see our latest developments and join the discussion. Presentation topic: Modernising djehuty: where we are, where we're headed.\n  \n            \n                Date: Oct 28, 2026\n            \n            \n                Time: 15:00 CET\n            \n            \n            \n                Place: online\n            \n            \n            \n            \n            \n                Meeting Link: https://meet.google.com/zbt-mvxe-feq\n            \n            \n  \n  \n        Add to calendar\n  \n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "community-hour/index.html",
+    "href": "community-hour/index.html",
+    "title": "Community Hour",
+    "section": "",
+    "text": "The Community Hour is our monthly, open online meeting for the djehuty community. It is a relaxed space to:\n\nhear about recent developments and upcoming work,\ndiscuss community contributions and feature requests,\nask questions and share feedback and ideas,\nmeet other users, contributors and repository managers.\n\nEveryone is welcome: users, contributors, developers, repository administrators, or simply the curious. You don’t need to be an expert or to speak; listening in is perfectly fine."
+  },
+  {
+    "objectID": "community-hour/index.html#what-is-the-community-hour",
+    "href": "community-hour/index.html#what-is-the-community-hour",
+    "title": "Community Hour",
+    "section": "",
+    "text": "The Community Hour is our monthly, open online meeting for the djehuty community. It is a relaxed space to:\n\nhear about recent developments and upcoming work,\ndiscuss community contributions and feature requests,\nask questions and share feedback and ideas,\nmeet other users, contributors and repository managers.\n\nEveryone is welcome: users, contributors, developers, repository administrators, or simply the curious. You don’t need to be an expert or to speak; listening in is perfectly fine."
+  },
+  {
+    "objectID": "community-hour/index.html#when-and-how-to-join",
+    "href": "community-hour/index.html#when-and-how-to-join",
+    "title": "Community Hour",
+    "section": "When and how to join",
+    "text": "When and how to join\n\n\n\n\n\n\nNoteNext meeting\n\n\n\nWe meet every last Wednesday of the month, 3–4 PM Amsterdam time (CET/CEST), online on Google Meet: https://meet.google.com/zbt-mvxe-feq\nExact dates are in the calendar.\n\n\n\nAdd the next meeting to your calendar\nJust want this one on your calendar? Use the Add to calendar button on the home page. It adds a single event straight into your normal calendar, the same as any other meeting invite — nothing separate to manage.\n\n\nSubscribe to every Community Hour\nCome regularly? Subscribe once and every future Community Hour appears automatically, including changes, with nothing to add by hand.\n\n\n\n\n\n\nNote\n\n\n\nA subscription always shows up as its own calendar (e.g. “djehuty Community Hour”) rather than merging into your main one. That’s how calendar subscriptions work, not something particular to this feed — it’s what lets your calendar app know to keep it updated.\n\n\n\n\n\n\n\n\nTipHow to add the subscription\n\n\n\n\n\n\nApple Calendar, and most Google Calendars: Click Subscribe below — it should open your calendar app directly.\nOutlook (web, new Outlook, or classic desktop): Click Copy link, then in Outlook go to Add calendar → Subscribe from web (classic desktop: Open Calendar → From Internet..), paste the link, and select Import/Subscribe.\nSubscribe button doesn’t do anything in your browser?: click Copy link and paste it into your calendar app’s “subscribe by URL” option manually.\n\nNew meetings appear in this feed automatically as they’re scheduled — calendar apps typically re-check it about once a day.\nSubscribe Copy link"
+  },
+  {
+    "objectID": "community-hour/index.html#what-to-expect",
+    "href": "community-hour/index.html#what-to-expect",
+    "title": "Community Hour",
+    "section": "What to expect",
+    "text": "What to expect\nA typical Community Hour follows this outline:\n\nWelcome and short introductions\nProject updates: recent releases and ongoing development\nCommunity topics: items from the agenda, including contributions and feature requests\nOpen discussion and any other business\nWrap-up: summary of actions and the date of the next meeting\n\nWe follow the djehuty Code of Conduct in every meeting."
+  },
+  {
+    "objectID": "community-hour/index.html#add-a-point-to-the-agenda",
+    "href": "community-hour/index.html#add-a-point-to-the-agenda",
+    "title": "Community Hour",
+    "section": "Add a point to the agenda",
+    "text": "Add a point to the agenda\nDo you want the community to discuss something? Anyone can propose an agenda item.\n\nOpen an issue in the community repository, titled “Agenda: your topic”.\nBriefly describe the topic, why it matters, and how much time you think you need.\nAdd links to related issues, discussions or documents.\nSubmit it before the meeting, ideally at least a few days ahead, so the organisers can plan the agenda.\n\nCan’t attend live? Add your item anyway and say so in the description. We will discuss it and share the outcome in the meeting notes."
+  },
+  {
+    "objectID": "community-hour/index.html#add-a-point-to-the-agenda-1",
+    "href": "community-hour/index.html#add-a-point-to-the-agenda-1",
+    "title": "Community Hour",
+    "section": "Add a point to the agenda",
+    "text": "Add a point to the agenda\nWant the community to discuss something? Add it directly to the Rolling Notes document under the agenda for the next meeting — no approval needed, just add your topic in a line or two, ideally a few days before the meeting so there’s time to plan around it.\nCan’t attend live? Add your item anyway and check the meeting notes afterwards for the outcome."
+  },
+  {
+    "objectID": "community-hour/index.html#meeting-notes",
+    "href": "community-hour/index.html#meeting-notes",
+    "title": "Community Hour",
+    "section": "Meeting notes",
+    "text": "Meeting notes\nWe publish notes after each Community Hour, including the topics discussed, decisions taken and follow-up actions. Notes from all past meetings are listed below.\n\n\n\n\nDate\nMeeting\nSummary\n\n\n\n\n\nNo matching items"
+  }
+]

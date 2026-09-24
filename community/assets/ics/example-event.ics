@@ -1,0 +1,20 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//djehuty community//Community Hour//EN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:djehuty-community-hour-20261125@community-site
+DTSTART:20261125T140000Z
+DTEND:20261028T150000Z
+SUMMARY: djehuty Community Hour
+LOCATION:online
+DESCRIPTION:Join with Google Meet: https://meet.google.com/zbt-mvxe-feq\n\n
+	Join Community Hour of djehuty:  https://github.com/4TUResearchData/djehut
+	y. \nWe meet monthly to discuss recent developments\, upcoming work\, comm
+	unity contributions\, feature requests\, and other topics relevant to the 
+	djehuty project.\n\nRolling Notes: https://hackmd.io/@6bIO96d8RkOmyO6gPwZY
+	AA/S1Zrdz3OGx\nCommunity website: https://4turesearchdata.github.io/commun
+	ity-site/\n\n\n
+URL:https://meet.google.com/zbt-mvxe-feq
+END:VEVENT
+END:VCALENDAR
