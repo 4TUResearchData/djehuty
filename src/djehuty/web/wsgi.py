@@ -5639,6 +5639,13 @@ class WebServer:
         is_own_item    = (account_uuid is not None and
                           account_uuid == value_or_none (physical_sample, "account_uuid"))
 
+        my_collections = []
+        if (account_uuid is not None and not private_view
+                and self.__account_can_use_igsn (account_uuid)):
+            my_collections = self.db.collections_by_account (account_uuid = account_uuid)
+
+        collections = self.db.collections_from_physical_sample (container_uuid)
+
         physical_sample["uri"] = f"physical-sample:{physical_sample['sample_uuid']}"
 
         sample_uri        = physical_sample["uri"]
@@ -5700,6 +5707,8 @@ class WebServer:
                                        categories       = categories,
                                        coordinates      = coordinates,
                                        is_own_item      = is_own_item,
+                                       my_collections   = my_collections,
+                                       collections      = collections,
                                        private_view     = private_view,
                                        member           = member,
                                        member_url_name  = member_url_name,
