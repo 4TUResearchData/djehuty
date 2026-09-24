@@ -2632,6 +2632,8 @@ class WebServer:
         for collection in drafts:
             count = self.db.collections_dataset_count(collection["uri"])
             collection["number_of_datasets"] = count
+            collection["number_of_physical_samples"] = self.db.collections_physical_sample_count (
+                collection["uri"])
 
         published = self.db.collections (account_uuid = account_uuid,
                                          is_published = True,
@@ -2641,6 +2643,8 @@ class WebServer:
         for collection in published:
             count = self.db.collections_dataset_count(collection["uri"])
             collection["number_of_datasets"] = count
+            collection["number_of_physical_samples"] = self.db.collections_physical_sample_count (
+                collection["uri"])
 
         return self.__render_template (request, "depositor/my-collections.html",
                                        draft_collections     = drafts,
@@ -5592,6 +5596,9 @@ class WebServer:
 
         contributors = self.parse_contributors(value_or(collection, 'contributors', ''))
         datasets     = self.db.collection_datasets(collection_uri)
+        physical_samples = self.db.physical_samples (collection_uri = collection_uri,
+                                                     is_latest      = True,
+                                                     is_published   = True)
 
         if not private_view:
             self.__log_event (request, container_uuid, "collection", "view")
@@ -5613,6 +5620,7 @@ class WebServer:
                                        member=member,
                                        member_url_name=member_url_name,
                                        datasets=datasets,
+                                       physical_samples=physical_samples,
                                        statistics=statistics,
                                        private_view=private_view,
                                        page_title=f"{collection['title']} (collection)")

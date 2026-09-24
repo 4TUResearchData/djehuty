@@ -22,5 +22,15 @@
         </li>
 {%- endfor %}
     </ul>
+{%- if physical_samples %}
+    <h3>PHYSICAL SAMPLES</h3>
+    <ul>
+    {%- for sample in physical_samples %}
+        <li>
+            <a class="corporate-identity" href="/physical_sample/{{sample.container_uuid}}">{{sample.title}}</a>
+        </li>
+    {%- endfor %}
+    </ul>
+{%- endif %}
 </div>
 {%- endblock %}
