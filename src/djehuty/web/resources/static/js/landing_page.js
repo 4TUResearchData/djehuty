@@ -1,14 +1,19 @@
 function add_dataset_to_collection (dataset_id, collection_id) {
+    const button = jQuery("#collect-btn");
+    const path   = button.data("collect-path")  || "articles";
+    const field  = button.data("collect-field") || "articles";
+    const label  = button.data("collect-label") || "Dataset";
+
     jQuery.ajax({
-        url:         `/v2/account/collections/${collection_id}/articles`,
+        url:         `/v2/account/collections/${collection_id}/${path}`,
         type:        "POST",
         contentType: "application/json",
         accept:      "application/json",
-        data:        JSON.stringify({ "articles": [dataset_id] }),
+        data:        JSON.stringify({ [field]: [dataset_id] }),
     }).done(function () {
-        show_message ("success", "<p>Dataset succesfully added to collection.</p>");
+        show_message ("success", `<p>${label} succesfully added to collection.</p>`);
     }).fail(function () {
-        show_message ("failure", "<p>Failed to add dataset to collection.</p>");
+        show_message ("failure", `<p>Failed to add ${label.toLowerCase()} to collection.</p>`);
     });
 }
 

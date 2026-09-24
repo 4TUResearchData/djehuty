@@ -53,11 +53,22 @@ const dataset_uuid = "{{item.container_uuid}}";
  {%- else %}
     <div id="doi"><span class="doi-label">IGSN:</span><a class="corporate-identity" href="https://doi.org/{{doi}}" target="_blank" rel="noopener noreferrer" title="opens in new window"><span class="doi-value">{{doi}}</span></a></div>
     <button id="cite-btn" class="corporate-identity-standard-button" title="Show citation.">Cite</button>
+  {%- if my_collections %}
+    <button id="collect-btn" class="corporate-identity-standard-button" title="Add this physical sample to one of your collections." data-collect-path="physical_samples" data-collect-field="samples" data-collect-label="Physical sample">Collect</button>
+  {%- endif %}
     <div id="cite">
         <h3>Datacite citation style</h3>
         <div id="citation">{{citation}}</div>
         <a class="corporate-identity" href="https://doi.datacite.org/dois/{{doi|replace('/','%2F')}}" target="_blank" rel="noopener noreferrer" title="opens in new window">Other citation styles (APA, Harvard, MLA, Vancouver, Chicago, IEEE) available at Datacite</a>
     </div>
+  {%- if my_collections %}
+    <div id="collect">
+        <h3>Add to collection</h3>
+        <ul id="collect-published"></ul>
+        <div id="collect-separator">Drafts</div>
+        <ul id="collect-drafts"></ul>
+    </div>
+  {%- endif %}
 {%- endif %}
 
     <div id="type_versions">
@@ -109,6 +120,16 @@ const dataset_uuid = "{{item.container_uuid}}";
     {%- for t in tags|sort(attribute='tag') %}
             <a class="corporate-identity public-button" href="/search?searchscope=tag&search={{t.tag|urlencode}}">{{t.tag}}</a>
     {%- endfor %}
+        </div>
+{%- endif %}
+{%- if collections %}
+        <div id="collections">
+            <h3 class="label">Collection{%- if collections[1:] %}s{%- endif %}</h3>
+            <ul>
+    {%- for c in collections %}
+                <li><a class="corporate-identity" href="/collections/{{c.container_uuid}}">{{c.title}}</a></li>
+    {%- endfor %}
+            </ul>
         </div>
 {%- endif %}
 {%- if item.sample_owner_name or item.sample_owner_email %}
