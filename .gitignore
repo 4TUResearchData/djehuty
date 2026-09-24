@@ -23,6 +23,13 @@ dist/
 build/
 site/
 docs/api/
+docs/community/
+# Quarto's own build output is ignored by community/.gitignore, which Quarto
+# generates and maintains itself.
+# Regenerated from calendar/events.yaml by the Quarto pre-render script, with a
+# fresh DTSTAMP each run, so committing them would diff on every build.
+community/assets/ics/*.ics
+!community/assets/ics/example-event.ics
 dump/
 rpmbuild/BUILD/
 rpmbuild/RPMS/

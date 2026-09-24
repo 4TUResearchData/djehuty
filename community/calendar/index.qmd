@@ -1,0 +1,11 @@
+---
+title: Calendar
+listing: 
+  type: table
+  contents: events.yaml
+  sort: "date"
+  field-links: [title]
+  fields: [title, description, date, time]
+---
+
+Want every Community Hour in your own calendar automatically? [Subscribe to the meeting feed](../community-hour/index.qmd#when-and-how-to-join) instead of adding each event one by one.

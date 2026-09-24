@@ -1,0 +1,18 @@
+## The item at the top will be displayed in the Next Event section on the home page.
+## `filename` must be unique per event — it's the name of the .ics file that
+## scripts/generate_ics.py will (re)generate into assets/ics/ on every build.
+- title: Inaugural djehuty Community Hour
+  description: "Welcome our team, see our latest developments and join the discussion. Presentation topic: Modernising djehuty: where we are, where we're headed."
+  location: online
+  date: 2026-10-28
+  time: "15:00 CET"
+  filename: 2026-10-28.ics
+  path: "https://meet.google.com/zbt-mvxe-feq"
+- title: djehuty Community Hour
+  description: Latest developments and open discussion.
+  location: online
+  date: 2026-11-25
+  time: "15:00 CET"
+  filename: 2026-11-25.ics
+  path: "https://meet.google.com/zbt-mvxe-feq"
+

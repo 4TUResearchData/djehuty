@@ -1,0 +1,52 @@
+project:
+  type: website
+  # --script so uv reads the inline PEP 723 dependencies in the script rather
+  # than djehuty's project environment, which does not carry them.
+  pre-render: uv run --script scripts/generate_ics.py
+  # Quarto only copies resources it sees referenced by a relative link, and the
+  # subscribable feed is only ever linked as an absolute webcal:// URL. Without
+  # this the Subscribe button points at a file that was never published.
+  resources:
+    - assets/ics/
+
+website:
+  title: djehuty Community
+  description: Where djehuty users, contributors and stakeholders connect and help shape the platform's future.
+  site-url: https://djehuty.4tu.nl/community/
+  repo-url: https://github.com/4TUResearchData/djehuty
+  # The sources live in community/ within the djehuty repository, so the
+  # "edit this page" links need the subdirectory to resolve.
+  repo-subdir: community
+  repo-actions: [edit, issue]
+  favicon: assets/img/logo.png
+  open-graph: true
+
+  navbar:
+    logo: assets/img/logo.png
+    logo-alt: djehuty logo
+    right:
+      - text: About
+        href: about.qmd
+      - text: Community Hour
+        href: community-hour/index.qmd
+      - text: Calendar
+        href: calendar/index.qmd
+      - text: Contribute
+        href: contribute.qmd
+      # The community site is published under /community/ on the djehuty
+      # documentation site; without this the only way back is the browser.
+      - text: Documentation
+        href: https://djehuty.4tu.nl/
+      - icon: github
+        aria-label: djehuty repository on GitHub
+        href: https://github.com/4TUResearchData/djehuty
+
+  page-footer:
+    right:
+      - text: Code of Conduct
+        href: https://github.com/4TUResearchData/djehuty?tab=coc-ov-file
+
+format:
+  html:
+    theme: code-cafe.scss
+    lang: en

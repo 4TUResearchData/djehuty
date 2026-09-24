@@ -1,0 +1,45 @@
+---
+# Copy this file to a new file named after the meeting date, e.g. 2026-10-28.qmd
+# (files starting with "_" are ignored by Quarto, so this template is never published).
+title: "Community Hour: <Month YYYY>"
+date: YYYY-MM-DD
+description: "One-line summary of what was discussed."
+---
+
+## Details
+
+- **Date and time:** <D Month YYYY>, 15:00–16:00 (Amsterdam time)
+- **Location:** online
+- **Chair / note taker:** <names>
+- **Attendees:** <number of participants, or names of those who agreed to be listed>
+
+## Agenda
+
+1. Welcome
+2. Project updates
+3. <Community topic, proposed by ...>
+4. Open discussion
+
+## Notes
+
+### Project updates
+
+- <recent releases, ongoing development>
+
+### <Topic 1>
+
+- <key points of the discussion>
+
+## Decisions
+
+- <decision, if any>
+
+## Action items
+
+| Action | Owner | Due |
+|--------|-------|-----|
+| <what needs to happen> | <who> | <when> |
+
+## Next meeting
+
+<Date and time; suggested topics>

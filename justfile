@@ -74,9 +74,17 @@ docs-md-serve:
 openapi out="docs/api":
     uv run python -m djehuty.api.export_openapi {{ out }}
 
+# Render the Quarto community site into docs/community/
+# Needs the Quarto CLI: https://quarto.org/docs/get-started/
+docs-community:
+    cd community && quarto render
+    rm -rf docs/community
+    mkdir -p docs/community
+    cp -r community/_site/. docs/community/
+
 # Clean documentation build artifacts
 docs-clean:
-    rm -rf site/
+    rm -rf site/ docs/api/ docs/community/ community/_site/ community/.quarto/
 
 # Clean all build artifacts and dev environment
 clean: docs-clean

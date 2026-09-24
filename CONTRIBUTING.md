@@ -90,6 +90,13 @@ If you want to make a very small contribution, such as one or a few lines of cod
 - [Docker](https://docs.docker.com/get-docker/) (with Compose)
 - [just](https://github.com/casey/just#installation)
 
+Optional:
+
+- [Quarto](https://quarto.org/docs/get-started/), only to build the community
+  site locally with `just docs-community`. Everything else, including the
+  Markdown documentation (`just docs-md`) and the API reference
+  (`just openapi`), works without it, and the published site is built in CI.
+
 ### Getting started
 
 ```bash

@@ -1,0 +1,36 @@
+```{=html}
+
+<div class="callout callout-style-default callout-note no-icon callout-titled" style="padding: 0 0 12pt 8pt;">
+<% for (const item of items) { %>
+  <h4><%- item.title %></h4>
+  <p><%= item.description %></p>
+  <ul>
+            <li>
+                <b>Date: </b><%= item.date %>
+            </li>
+            <li>
+                <b>Time: </b><%= item.time %>
+            </li>
+            <% if (item.location) { %>
+            <li>
+                <b>Place: </b><%= item.location %>
+            </li>
+            <% } %>
+            <% if (item.presenter) { %>
+            <li>
+                <b>Presenter: </b><%= item.presenter %>
+            </li>
+            <% } %>
+            <% if (item.path) { %>
+            <li>
+                <b>Meeting Link: </b><a href="<%- item.path %>"><%= item.path %></a>
+            </li>
+            <% } %>
+  </ul>
+  <% if (item.filename) { %>
+        <a href="/assets/ics/<%- item.filename %>" download="djehuty-hour.ics"><button type="button" class="btn btn-primary btn-sm"><b>Add to calendar</b></button></a>
+  <% } %>
+<% } %>
+</div>
+
+```

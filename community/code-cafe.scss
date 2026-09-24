@@ -1,0 +1,67 @@
+/*-- scss:defaults --*/
+
+// typeface
+@font-face {
+    font-family: "Aspekta";
+    src: url("assets/fonts/Aspekta-300.woff2") format("woff2");
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: "Space Grotesk";
+    src: url("assets/fonts/SpaceGrotesk-Regular.woff2") format("woff2");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+
+// colours
+$white: #fff;
+$black: #000;
+$primary: #f29100;
+$dorange: #a85400;
+$secondary: #3c3c3c;
+$blue: #b9dbef;
+
+$body-bg: $white;
+$body-color: $secondary;
+$navbar-fg: $body-color;
+$navbar-bg: $blue;
+$link-color: $dorange;
+
+$font-family-base: "Aspekta", sans-serif;
+$headings-font-family: "Space Grotesk", sans-serif;
+
+/*-- scss:rules --*/
+
+h1, h2, h3, h4 {
+    color: $secondary
+}
+
+.callout {
+    border-left-color: $blue !important;
+}
+
+.btn {
+  background-color: $blue;
+  border: 2pt solid $blue;
+  color:$secondary;
+  font-family: $headings-font-family;
+
+  &:hover,
+  &:focus {
+    background-color: darken($blue, 10%);
+    border-color: darken($blue, 10%);
+    color: $secondary;
+  }
+}
+
+.about-entity {
+  align-items: flex-start;
+}
+
+.about-image {
+  margin-top: 6em; // adjust until it lines up with the heading in your preview
+}

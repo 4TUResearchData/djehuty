@@ -1,0 +1,54 @@
+---
+title: "Ways to contribute"
+description: "There are many ways to take part in the djehuty community, whatever your background or experience."
+---
+
+Everyone is welcome, regardless of experience level or background. You don't need to write code to make a difference: feedback, questions, documentation and testing all help `djehuty` grow.
+
+::: {.callout-note}
+## Not sure where to start?
+Join a [Community Hour](community-hour/index.qmd), say hello, and tell us what you're interested in. We'll help you find a good first step.
+:::
+
+## Join the conversation
+
+- **Attend a Community Hour.** Our monthly online meeting is open to everyone. Find out [what to expect](community-hour/index.qmd) and check the [calendar](calendar/index.qmd) for the next date.
+- **Take part in discussions.** Ask questions, share ideas, or comment on proposals in the [GitHub discussions](https://github.com/4TUResearchData/djehuty/discussions).
+- **Bring a topic.** Want the community to discuss something? [Add it to the agenda](community-hour/index.qmd#add-a-point-to-the-agenda).
+
+## Share feedback and report issues
+
+Tell us about your experience with `djehuty`: what works well, what is confusing, and what is missing.
+
+- **Report a bug or suggest a feature** in the [issue tracker](https://github.com/4TUResearchData/djehuty/issues). Please search existing issues first, and describe what you expected and what happened. Steps to reproduce help a lot.
+- **See what is planned** in the [release roadmap](https://github.com/4TUResearchData/djehuty/milestones), and tell us what matters most to you.
+
+## Contribute code
+
+Code contributions are welcome, from small fixes to new features. The full process is in [CONTRIBUTING.md](https://github.com/4TUResearchData/djehuty/blob/main/CONTRIBUTING.md).
+
+::: {.callout-important}
+Found a security vulnerability? Don't open a public issue or PR — see [SECURITY.md](https://github.com/4TUResearchData/djehuty/blob/main/SECURITY.md) instead.
+:::
+
+## Improve documentation, testing and design
+
+Good documentation and careful testing are as valuable as code. You can:
+
+- read the [documentation](https://djehuty.4tu.nl/) and tell us where it is unclear, outdated or missing,
+- test new releases and report what you find,
+- share ideas for a clearer, more accessible interface.
+
+## Improve this website
+
+This website is built with [Quarto](https://quarto.org/) and lives in the `community/` directory of the [djehuty repository](https://github.com/4TUResearchData/djehuty). To fix a typo, add a resource or write up meeting notes, use the **Edit this page** link on any page, or open an issue or pull request.
+
+## Help the community grow
+
+- Share how your institution or project uses `djehuty`, for example in a Community Hour.
+- Invite colleagues who might benefit from the project or the community.
+- Welcome newcomers in discussions and meetings.
+
+## Our ground rules
+
+In all our communication we follow the `djehuty` [Code of Conduct](https://github.com/4TUResearchData/djehuty?tab=coc-ov-file).

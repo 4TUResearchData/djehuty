@@ -20,6 +20,7 @@ nav:
       # - api-v2 side-effect catalog: http-migration-api-v2-side-effects.md
   - Contributing:
       - Contributing guide: contributing.md
+      - Community: community/index.html
   - API: api/index.html
   - Contact: contact.md
   - News: news.md
