@@ -1,0 +1,8 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT DISTINCT ?container_uri
+WHERE { GRAPH <{{state_graph}}> {
+  <{{collection_uri}}>  djht:physical_samples/rdf:rest*/rdf:first  ?container_uri .
+  }
+}
+{% endblock %}
