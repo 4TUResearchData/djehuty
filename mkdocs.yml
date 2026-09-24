@@ -5,10 +5,17 @@ repo_name: 4TUResearchData/djehuty
 
 theme:
   name: material
+  palette:
+    primary: custom
+    accent: custom
+  font: false
   features:
     - navigation.sections
     - navigation.top
     - content.code.copy
+
+extra_css:
+  - stylesheets/extra.css
 
 nav:
   - Home: index.md
