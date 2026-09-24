@@ -913,6 +913,15 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
+    def collections_from_physical_sample (self, physical_sample_container_uuid):
+        """Procedure to get the collections a physical sample is part of."""
+
+        query = self.__query_from_template ("collections_from_physical_sample", {
+            "physical_sample_container_uuid":  physical_sample_container_uuid
+        })
+
+        return self.__run_query(query)
+
     def collection_datasets (self, collection_uri, limit=None, offset=0):
         """Procedure to get the published datasets of a collection."""
 
@@ -973,6 +982,22 @@ class SparqlInterface:
 
         try:
             return results[0]["datasets"]
+        except KeyError:
+            return 0
+
+    def collections_physical_sample_count (self, collection_uri):
+        """Procedure to count the physical samples in a collection."""
+
+        if collection_uri is None:
+            return 0
+
+        query = self.__query_from_template ("collection_physical_samples_count", {
+            "collection_uri":  collection_uri
+        })
+        results = self.__run_query (query)
+
+        try:
+            return results[0]["samples"]
         except KeyError:
             return 0
 
@@ -1090,6 +1115,16 @@ class SparqlInterface:
         """Procedure to retrieve dataset containers in a collection."""
 
         query   = self.__query_from_template ("collection_dataset_containers", {
+            "collection_uri":  collection_uri
+        })
+        query += rdf.sparql_suffix (None, None, limit)
+
+        return self.__run_query(query)
+
+    def collection_physical_sample_containers (self, collection_uri, limit=10):
+        """Procedure to retrieve physical sample containers in a collection."""
+
+        query   = self.__query_from_template ("collection_physical_sample_containers", {
             "collection_uri":  collection_uri
         })
         query += rdf.sparql_suffix (None, None, limit)
