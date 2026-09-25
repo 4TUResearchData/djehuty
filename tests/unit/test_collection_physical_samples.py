@@ -47,7 +47,10 @@ def _seed_collection(db, samples=(), datasets=(), published=True, title="A colle
 
 
 class TestCollectionPhysicalSampleContainers:
+    """Reading the raw member list of a collection's physical samples."""
+
     def test_returns_every_member(self, db):
+        """Every sample in the list comes back."""
         _seed_collection(db, samples=[SAMPLE_A, SAMPLE_B])
         rows = db.collection_physical_sample_containers(COLLECTION_URI, limit=None)
         assert {str(row["container_uri"]) for row in rows} == {
@@ -56,48 +59,62 @@ class TestCollectionPhysicalSampleContainers:
         }
 
     def test_is_empty_without_samples(self, db):
+        """A collection with no samples has no members."""
         _seed_collection(db)
         assert db.collection_physical_sample_containers(COLLECTION_URI, limit=None) == []
 
     def test_ignores_the_datasets_list(self, db):
+        """Datasets in the collection are not returned as samples."""
         _seed_collection(db, samples=[SAMPLE_A], datasets=[DATASET_A])
         rows = db.collection_physical_sample_containers(COLLECTION_URI, limit=None)
         assert [str(row["container_uri"]) for row in rows] == [f"container:{SAMPLE_A}"]
 
 
 class TestCollectionsPhysicalSampleCount:
+    """Counting the physical samples in a collection."""
+
     def test_counts_the_samples(self, db):
+        """Each sample in the list is counted."""
         _seed_collection(db, samples=[SAMPLE_A, SAMPLE_B])
         assert db.collections_physical_sample_count(COLLECTION_URI) == 2
 
     def test_is_zero_without_samples(self, db):
+        """A collection with no samples counts zero."""
         _seed_collection(db)
         assert db.collections_physical_sample_count(COLLECTION_URI) == 0
 
     def test_is_zero_without_a_collection(self, db):
+        """No collection URI counts zero."""
         assert db.collections_physical_sample_count(None) == 0
 
     def test_lists_do_not_count_each_other(self, db):
+        """Samples and datasets are counted separately."""
         _seed_collection(db, samples=[SAMPLE_A, SAMPLE_B], datasets=[DATASET_A])
         assert db.collections_physical_sample_count(COLLECTION_URI) == 2
         assert db.collections_dataset_count(COLLECTION_URI) == 1
 
 
 class TestCollectionsFromPhysicalSample:
+    """Finding the published collections that hold a physical sample."""
+
     def test_finds_the_published_collection(self, db):
+        """A sample in a published collection returns that collection."""
         _seed_collection(db, samples=[SAMPLE_A], title="Rocks")
         rows = db.collections_from_physical_sample(SAMPLE_A)
         assert [(row["container_uuid"], row["title"]) for row in rows] == [(COLLECTION, "Rocks")]
 
     def test_ignores_samples_that_are_not_in_it(self, db):
+        """A sample that is not in the list finds no collection."""
         _seed_collection(db, samples=[SAMPLE_A])
         assert db.collections_from_physical_sample(SAMPLE_B) == []
 
     def test_ignores_draft_collections(self, db):
+        """A collection that is only a draft is not returned."""
         _seed_collection(db, samples=[SAMPLE_A], published=False)
         assert db.collections_from_physical_sample(SAMPLE_A) == []
 
     def test_ignores_the_datasets_list(self, db):
+        """A container in the datasets list is not treated as a sample."""
         _seed_collection(db, datasets=[SAMPLE_A])
         assert db.collections_from_physical_sample(SAMPLE_A) == []
 
@@ -118,7 +135,10 @@ def _seed_sample(db, container_uuid, title):
 
 
 class TestPhysicalSamplesByCollection:
+    """Filtering physical samples by the collection that lists them."""
+
     def test_returns_only_the_samples_in_the_collection(self, db):
+        """Only the samples in the collection's list are returned."""
         _seed_sample(db, SAMPLE_A, "In the collection")
         _seed_sample(db, SAMPLE_B, "Not in the collection")
         _seed_collection(db, samples=[SAMPLE_A])
@@ -128,6 +148,7 @@ class TestPhysicalSamplesByCollection:
         assert [row["container_uuid"] for row in rows] == [SAMPLE_A]
 
     def test_is_empty_for_a_collection_without_samples(self, db):
+        """A collection with only datasets returns no samples."""
         _seed_sample(db, SAMPLE_A, "A sample")
         _seed_collection(db, datasets=[DATASET_A])
         rows = db.physical_samples(
@@ -136,6 +157,7 @@ class TestPhysicalSamplesByCollection:
         assert rows == []
 
     def test_without_a_collection_all_samples_are_returned(self, db):
+        """Without a collection URI the filter does not apply."""
         _seed_sample(db, SAMPLE_A, "First")
         _seed_sample(db, SAMPLE_B, "Second")
         _seed_collection(db, samples=[SAMPLE_A])
@@ -144,6 +166,7 @@ class TestPhysicalSamplesByCollection:
 
 
 def _count_list_heads(db, collection_uri, predicate):
+    """Count the distinct list heads a collection has for PREDICATE."""
     rows = list(
         db.sparql.query(
             f"SELECT (COUNT(DISTINCT ?head) AS ?n) WHERE {{ GRAPH <{config.state_graph}> {{ "
@@ -154,12 +177,16 @@ def _count_list_heads(db, collection_uri, predicate):
 
 
 def _insert_collection(db, **lists):
+    """Insert a collection with the given lists and return its URI."""
     _, collection_uuid = db.insert_collection(title="A collection", account_uuid="owner", **lists)
     return f"collection:{collection_uuid}"
 
 
 class TestInsertCollection:
+    """Storing physical samples when a collection is inserted."""
+
     def test_writes_one_list_with_every_sample(self, db):
+        """All samples go into a single list."""
         uri = _insert_collection(
             db,
             physical_samples=[URIRef(f"container:{SAMPLE_A}"), URIRef(f"container:{SAMPLE_B}")],
@@ -172,10 +199,12 @@ class TestInsertCollection:
         }
 
     def test_writes_no_list_without_samples(self, db):
+        """No samples means no list is written."""
         uri = _insert_collection(db)
         assert _count_list_heads(db, uri, "physical_samples") == 0
 
     def test_keeps_datasets_and_samples_apart(self, db):
+        """Datasets and samples are stored in separate lists."""
         uri = _insert_collection(
             db,
             datasets=[URIRef(f"container:{DATASET_A}")],
