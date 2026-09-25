@@ -269,8 +269,7 @@ jQuery(document).ready(function () {
             })
         }).done(function () {
             show_message ("success",
-                "<p>" + uuids.length + " file(s) removed from the version. " +
-                "Clear the cache (Maintenance &rarr; Clear cache) for the public page to update.</p>");
+                "<p>" + uuids.length + " file(s) removed from the version.</p>");
             jQuery("#rmf-results-body").empty();
             jQuery("#rmf-results").addClass("rmf-hidden");
             jQuery("#rmf-search-input").val("");

@@ -4012,14 +4012,28 @@ class WebServer:
             if isinstance (admin_account, dict):
                 admin_account_uuid = admin_account.get("uuid")
 
-            success = self.db.admin_remove_files_from_version (
+            removed, failed_file_uuid = self.db.admin_remove_files_from_version (
                 container_uuid,
                 dataset_uuid,
                 file_uuids,
                 admin_account_uuid,
                 owner_account_uuid=owner_account_uuid)
-            if not success:
-                return self.error_500 ()
+            if failed_file_uuid is not None:
+                failed_name = failed_file_uuid
+                for file in (version_files or []):
+                    if file.get("uuid") == failed_file_uuid:
+                        failed_name = file.get("name") or failed_file_uuid
+                        break
+                message = (f"Removed {removed} of {len(file_uuids)} file(s), then failed "
+                           f"on {failed_name}. The removed files are detached; the rest "
+                           "were left in place.")
+                self.log.audit (message)
+                response = self.response (json.dumps ({
+                    "message": message,
+                    "code":    "PartialRemoval",
+                }))
+                response.status_code = 500
+                return response
             return self.respond_204 ()
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
