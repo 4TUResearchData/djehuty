@@ -2,10 +2,10 @@
   "djehuty": {
     "maintenance-mode": "0",
     "web-service": {
-      "default": "new",
+      "default": "legacy",
       "groups": {
-        "api-v2": "new",
-        "api-v3": "new"
+        "api-v2": "legacy",
+        "api-v3": "legacy"
       }
     },
     "site-name": "4TU.ResearchData",
@@ -48,6 +48,10 @@
     "base-url": "http://localhost:8080",
     "storage-root": "/data",
     "minimum-keywords-count": "4",
+    "igsn": {
+      "prefix": "10.99999",
+      "enabled": "1"
+    },
     "cache-root": {
       "clear-on-start": "1",
       "#text": "/data/cache"

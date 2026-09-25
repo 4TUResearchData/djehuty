@@ -5,6 +5,17 @@
     "include": [
       "djehuty-dev-config.json"
     ],
+    "web-service": {
+      "default": "legacy",
+      "groups": {
+        "api-v2": "legacy",
+        "api-v3": "legacy"
+      }
+    },
+    "igsn": {
+      "prefix": "10.99999",
+      "enabled": "1"
+    },
     "storage": {
       "location": [
         "/data"
