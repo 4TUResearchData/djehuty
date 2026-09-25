@@ -1,0 +1,136 @@
+/* Aligns the documentation with the community site at /community/, which is a
+   Quarto site and cannot share a stylesheet with Material for MkDocs. The
+   values below are the ones community/code-cafe.scss sets.
+
+   Keep in line with community/code-cafe.scss: a colour or typeface changed
+   there needs the same change here! */
+
+@font-face {
+  font-family: "Aspekta";
+  src: url("../fonts/Aspekta-300.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Space Grotesk";
+  src: url("../fonts/SpaceGrotesk-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root,
+[data-md-color-scheme="default"] {
+  --md-primary-fg-color: #b9dbef;
+  --md-primary-bg-color: #3c3c3c;
+  --md-primary-bg-color--light: #3c3c3c;
+
+  --md-typeset-a-color: #a85400;
+  --md-accent-fg-color: #864300;
+  --md-accent-fg-color--transparent: #86430014;
+
+  --djehuty-orange: #f29100;
+
+  --md-text-font: "Aspekta";
+}
+
+/* $body-color.*/
+:root,
+[data-md-color-scheme="default"] {
+  --md-default-fg-color: #3c3c3c;
+  --md-default-fg-color--light: #3c3c3ca8;
+  --md-default-fg-color--lighter: #3c3c3c52;
+  --md-default-fg-color--lightest: #3c3c3c1f;
+}
+
+/* $headings-font-family. */
+.md-typeset h1,
+.md-typeset h2,
+.md-typeset h3,
+.md-typeset h4,
+.md-typeset h5,
+.md-typeset h6 {
+  font-family: "Space Grotesk", sans-serif;
+  color: #3c3c3c;
+  font-weight: 600;
+}
+
+
+.md-typeset :not(pre) > code {
+  color: #7d12ba;
+  background-color: rgba(233, 236, 239, 0.65);
+}
+
+
+.md-typeset a:not(.headerlink) {
+  text-decoration: underline;
+}
+
+
+.md-typeset h2 {
+  border-bottom: 2px solid var(--djehuty-orange);
+  padding-bottom: 0.2em;
+}
+
+/* Section labels in the sidebar ("Architecture & design", "Contributing"). */
+.md-nav--primary .md-nav__item--section {
+  margin-top: 2em;
+}
+
+
+.md-nav__item--section > .md-nav__link[for] {
+  color: #3c3c3c;
+}
+
+/* The "djehuty" heading above the sidebar*/
+.md-nav--primary .md-nav__title {
+  color: #3c3c3c;
+}
+
+.md-header__inner {
+  padding-bottom: 0.35rem;
+  padding-top: 0.35rem;
+}
+
+
+.md-header__title .md-ellipsis {
+  font-size: 1.0625rem;
+  font-weight: 400;
+}
+
+
+[dir="ltr"] .md-header__title {
+  margin-left: 0.4rem;
+}
+
+[dir="rtl"] .md-header__title {
+  margin-right: 0.4rem;
+}
+
+
+.md-search__input {
+  background-color: #ffffff6b;
+  color: #3c3c3c;
+}
+
+.md-search__input::placeholder,
+.md-search__icon {
+  color: #3c3c3ca8;
+}
+
+
+.md-typeset .md-button {
+  background-color: #b9dbef;
+  border: 2px solid #7d94a2;
+  color: #3c3c3c;
+  font-family: "Space Grotesk", sans-serif;
+}
+
+.md-typeset .md-button:hover,
+.md-typeset .md-button:focus {
+  background-color: #a3cfe8;
+  border-color: #5c6d77;
+  color: #3c3c3c;
+}
