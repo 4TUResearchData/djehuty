@@ -2750,6 +2750,45 @@ class SparqlInterface:
             admin_account_uuid, container_uuid, dataset_uuid)
         return True
 
+    def admin_remove_files_from_version (self, container_uuid, dataset_uuid,
+                                         file_uuids, admin_account_uuid,
+                                         owner_account_uuid=None):
+        """Detach files in FILE_UUIDS from published version DATASET_UUID.
+
+        File objects, other versions and blobs are untouched. Not atomic:
+        stops on the first failure but always invalidates caches. Returns
+        (removed_count, failed_file_uuid); the latter is None on success."""
+
+        self.log.info (
+            "Admin remove-files start: admin=%s container=%s dataset=%s files=%s",
+            admin_account_uuid, container_uuid, dataset_uuid, file_uuids)
+
+        removed          = 0
+        failed_file_uuid = None
+        dataset_uri      = rdf.uuid_to_uri (dataset_uuid, "dataset")
+        for file_uuid in file_uuids:
+            file_uri = rdf.uuid_to_uri (file_uuid, "file")
+            if not self.delete_item_from_list (dataset_uri, "files", file_uri):
+                self.log.error (
+                    "Admin remove-files failed: could not remove file %s "
+                    "from dataset %s.", file_uuid, dataset_uuid)
+                failed_file_uuid = file_uuid
+                break
+            removed += 1
+
+        # Invalidate even on partial failure, so no stale bytes or lists linger.
+        self.cache.invalidate_by_prefix (container_uuid)
+        self.cache.invalidate_by_prefix (f"{dataset_uuid}_dataset_storage")
+        if owner_account_uuid:
+            self.cache.invalidate_by_prefix (f"{owner_account_uuid}_storage")
+            self.cache.invalidate_by_prefix (f"datasets_{owner_account_uuid}")
+        self.cache.invalidate_by_prefix ("datasets")
+
+        self.log.info (
+            "Admin remove-files done: admin=%s container=%s dataset=%s removed=%d/%d",
+            admin_account_uuid, container_uuid, dataset_uuid, removed, len (file_uuids))
+        return removed, failed_file_uuid
+
     def delete_private_links (self, container_uuid, account_uuid, link_id):
         """Procedure to remove private links to a dataset."""
 
