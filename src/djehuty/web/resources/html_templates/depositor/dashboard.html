@@ -111,16 +111,17 @@ jQuery(document).ready(function (){
 
 <div class="notice-box">
 <h3>API documentation</h3>
-<p>This repository implements a compatible API to version <code>v2</code> of
-  the <a href="https://docs.figshare.com">Figshare API</a> with the following
-  differences:</p>
-<ol>
-  <li>The <strong>Base URL</strong> is <code>{{base_url}}/v2</code>
-    instead of <code>https://api.figshare.com/v2</code>.</li>
-  <li>Previously generated API tokens are no longer valid.
-    <a href="/my/sessions/new">Generate a new token</a>.
+<p>Every endpoint of the <code>v2</code> and <code>v3</code> APIs is described in
+  the <a href="https://djehuty.4tu.nl/api/" target="_blank" rel="noopener noreferrer"
+  title="opens in new window">djehuty API reference</a>, where you can browse the
+  requests, their parameters and their responses.</p>
+<ul>
+  <li>The <strong>Base URL</strong> for this repository is <code>{{base_url}}</code>,
+    so a <code>v2</code> request goes to <code>{{base_url}}/v2</code>.</li>
+  <li>Requests are authenticated with an API token. Use the token created above,
+    or <a href="/my/sessions/new">generate a new one</a>.</li>
   <li>Numerical identifiers (<code>id</code>) properties are deprecated for
     newly created datasets/collections and superseded by the <code>uuid</code> property.</li>
-</ol>
+</ul>
 </div>
 {% endblock %}

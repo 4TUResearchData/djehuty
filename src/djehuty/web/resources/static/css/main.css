@@ -669,7 +669,7 @@ img { user-select: none; }
     background: #ffeeaa;
     border: solid 1pt #d4aa00;
 }
-.notice-box ol { margin-top: 0em; padding-top: 0em; }
+.notice-box ol, .notice-box ul { margin-top: 0em; padding-top: 0em; }
 #top-datasets { border-spacing: 0; }
 #top-datasets th { text-align: left; white-space: nowrap; color: #ffffff; padding: .5em; }
 #top-datasets-wrapper table { width: 100%; max-width: 880pt; }
