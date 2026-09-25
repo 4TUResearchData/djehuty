@@ -13,9 +13,15 @@ from helpers.collection import (
     fill_required_fields_and_publish_collection,
     get_container_uuid_from_url,
 )
+from helpers.contract import assert_status
 from helpers.dataset import create_draft_dataset
 from helpers.dataset import get_container_uuid_from_url as get_dataset_uuid_from_url
 from helpers.impersonation import impersonate, stop_impersonation
+from helpers.physical_sample import (
+    create_draft_physical_sample,
+    fill_required_fields_and_publish_physical_sample,
+)
+from helpers.physical_sample import get_container_uuid_from_url as get_sample_uuid_from_url
 from helpers.publish import fill_required_fields_and_publish
 from pages.collection_editor_page import CollectionEditorPage
 from pages.dataset_editor_page import DatasetEditorPage
@@ -51,6 +57,39 @@ def published_dataset(authenticated_page: Page, tmp_path):
     authenticated_page.wait_for_url("**/my/dashboard**")
 
     return container_uuid
+
+
+def _publish_physical_sample(page: Page, title: str) -> str:
+    """Create and publish a physical sample, returning its container_uuid."""
+    url = create_draft_physical_sample(page)
+    container_uuid = get_sample_uuid_from_url(url)
+
+    fill_required_fields_and_publish_physical_sample(page, container_uuid, title=title)
+
+    page.goto("/login")
+    page.wait_for_url("**/my/dashboard**")
+
+    for _ in range(5):
+        response = page.request.get(f"/v3/physical-samples/{container_uuid}")
+        if response.ok:
+            break
+        page.wait_for_timeout(3000)
+
+    return container_uuid
+
+
+@pytest.fixture()
+def published_physical_sample(authenticated_page: Page):
+    """Create and publish a physical sample, returning its container_uuid."""
+    return _publish_physical_sample(authenticated_page, "Physical Sample for Collection Test")
+
+
+@pytest.fixture()
+def second_published_physical_sample(authenticated_page: Page, published_physical_sample: str):
+    """A second published physical sample, for tests that need two."""
+    return _publish_physical_sample(
+        authenticated_page, "Second Physical Sample for Collection Test"
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -321,6 +360,242 @@ class TestCollectionDatasets:
         assert editor.get_dataset_count() == 0
 
         editor.delete()
+
+
+@pytest.mark.collections
+class TestCollectionPhysicalSamples:
+    """Test adding and removing physical samples from a collection."""
+
+    def test_add_and_remove_physical_sample_via_api(
+        self, authenticated_page: Page, published_physical_sample: str
+    ):
+        """A published sample can be added to, listed in and removed from a draft collection."""
+        url = create_draft_collection(authenticated_page)
+        container_uuid = get_container_uuid_from_url(url)
+        endpoint = f"/v2/account/collections/{container_uuid}/physical_samples"
+
+        try:
+            response = authenticated_page.request.post(
+                endpoint, data={"samples": [published_physical_sample]}
+            )
+            assert response.status == 205, f"Add failed: {response.status} {response.text()}"
+
+            response = authenticated_page.request.get(endpoint)
+            assert response.ok, f"List failed: {response.status} {response.text()}"
+            assert [item["uuid"] for item in response.json()] == [published_physical_sample]
+
+            response = authenticated_page.request.delete(f"{endpoint}/{published_physical_sample}")
+            assert response.status == 204, f"Remove failed: {response.status} {response.text()}"
+
+            response = authenticated_page.request.get(endpoint)
+            assert response.ok
+            assert response.json() == []
+        finally:
+            authenticated_page.request.delete(f"/v2/account/collections/{container_uuid}")
+
+    def test_adding_the_same_sample_twice_lists_it_once(
+        self, authenticated_page: Page, published_physical_sample: str
+    ):
+        """Collecting a sample that is already in the collection is a no-op."""
+        container_uuid = get_container_uuid_from_url(create_draft_collection(authenticated_page))
+        endpoint = f"/v2/account/collections/{container_uuid}/physical_samples"
+
+        try:
+            for _ in range(2):
+                response = authenticated_page.request.post(
+                    endpoint, data={"samples": [published_physical_sample]}
+                )
+                assert response.status == 205
+
+            listed = authenticated_page.request.get(endpoint).json()
+            assert [item["uuid"] for item in listed] == [published_physical_sample]
+        finally:
+            authenticated_page.request.delete(f"/v2/account/collections/{container_uuid}")
+
+    def test_post_appends_and_put_overwrites(
+        self,
+        authenticated_page: Page,
+        published_physical_sample: str,
+        second_published_physical_sample: str,
+    ):
+        """Check that POST appends, PUT replaces, and PUT with an empty list clears."""
+        container_uuid = get_container_uuid_from_url(create_draft_collection(authenticated_page))
+        endpoint = f"/v2/account/collections/{container_uuid}/physical_samples"
+
+        def listed():
+            return {item["uuid"] for item in authenticated_page.request.get(endpoint).json()}
+
+        try:
+            authenticated_page.request.post(endpoint, data={"samples": [published_physical_sample]})
+            authenticated_page.request.post(
+                endpoint, data={"samples": [second_published_physical_sample]}
+            )
+            assert listed() == {published_physical_sample, second_published_physical_sample}
+
+            response = authenticated_page.request.put(
+                endpoint, data={"samples": [second_published_physical_sample]}
+            )
+            assert response.status == 205
+            assert listed() == {second_published_physical_sample}
+
+            response = authenticated_page.request.put(endpoint, data={"samples": []})
+            assert response.status == 205
+            assert listed() == set()
+        finally:
+            authenticated_page.request.delete(f"/v2/account/collections/{container_uuid}")
+
+    def test_missing_samples_field_is_a_bad_request(self, authenticated_page: Page):
+        """POST without a 'samples' array returns 400 NoSamplesField."""
+        container_uuid = get_container_uuid_from_url(create_draft_collection(authenticated_page))
+
+        try:
+            response = authenticated_page.request.post(
+                f"/v2/account/collections/{container_uuid}/physical_samples", data={}
+            )
+            assert response.status == 400
+            assert "NoSamplesField" in response.text()
+        finally:
+            authenticated_page.request.delete(f"/v2/account/collections/{container_uuid}")
+
+    def test_unknown_and_draft_samples_are_rejected(self, authenticated_page: Page):
+        """Check that only published samples can be collected."""
+        draft_uuid = get_sample_uuid_from_url(create_draft_physical_sample(authenticated_page))
+        container_uuid = get_container_uuid_from_url(create_draft_collection(authenticated_page))
+        endpoint = f"/v2/account/collections/{container_uuid}/physical_samples"
+
+        try:
+            for sample_uuid in (str(uuid.uuid4()), draft_uuid):
+                response = authenticated_page.request.post(
+                    endpoint, data={"samples": [sample_uuid]}
+                )
+                assert_status(
+                    response,
+                    expected=404,
+                    current_bug=500,
+                    bug="adding an unknown or unpublished item to a collection returns 500",
+                )
+            assert authenticated_page.request.get(endpoint).json() == []
+        finally:
+            authenticated_page.request.delete(f"/v2/account/collections/{container_uuid}")
+
+    def test_removing_samples_that_are_not_members(
+        self, authenticated_page: Page, published_physical_sample: str
+    ):
+        """An unknown sample id is a 404. A published sample that is not a member is a 204."""
+        container_uuid = get_container_uuid_from_url(create_draft_collection(authenticated_page))
+        endpoint = f"/v2/account/collections/{container_uuid}/physical_samples"
+
+        try:
+            for sample_uuid in (str(uuid.uuid4()), "not-a-uuid"):
+                response = authenticated_page.request.delete(f"{endpoint}/{sample_uuid}")
+                assert response.status == 404
+
+            response = authenticated_page.request.delete(f"{endpoint}/{published_physical_sample}")
+            assert response.status == 204
+        finally:
+            authenticated_page.request.delete(f"/v2/account/collections/{container_uuid}")
+
+    def test_requires_auth(self, page: Page):
+        """Without a session every method on the endpoints is refused."""
+        endpoint = f"/v2/account/collections/{uuid.uuid4()}/physical_samples"
+
+        assert page.request.get(endpoint).status in (401, 403)
+        assert page.request.post(endpoint, data={"samples": []}).status in (401, 403)
+        assert page.request.delete(f"{endpoint}/{uuid.uuid4()}").status in (401, 403)
+
+    def test_other_users_collection_is_not_found(self, admin_page: Page):
+        """Another account cannot read or change a collection it does not own."""
+        container_uuid = get_container_uuid_from_url(create_draft_collection(admin_page))
+        endpoint = f"/v2/account/collections/{container_uuid}/physical_samples"
+
+        impersonate(admin_page, get_non_admin_account_uuid())
+        try:
+            assert admin_page.request.get(endpoint).status == 404
+            response = admin_page.request.post(endpoint, data={"samples": [str(uuid.uuid4())]})
+            assert response.status == 404
+            assert admin_page.request.delete(f"{endpoint}/{uuid.uuid4()}").status == 404
+        finally:
+            stop_impersonation(admin_page)
+            admin_page.request.delete(f"/v2/account/collections/{container_uuid}")
+
+    def test_datasets_and_samples_stay_independent(
+        self, authenticated_page: Page, published_dataset: str, published_physical_sample: str
+    ):
+        """A collection holds datasets and samples in separate lists."""
+        container_uuid = get_container_uuid_from_url(create_draft_collection(authenticated_page))
+        base = f"/v2/account/collections/{container_uuid}"
+
+        def listed(kind):
+            return [
+                item["uuid"] for item in authenticated_page.request.get(f"{base}/{kind}").json()
+            ]
+
+        try:
+            response = authenticated_page.request.post(
+                f"{base}/articles", data={"articles": [published_dataset]}
+            )
+            assert response.ok, f"Add dataset failed: {response.status} {response.text()}"
+            response = authenticated_page.request.post(
+                f"{base}/physical_samples", data={"samples": [published_physical_sample]}
+            )
+            assert response.status == 205
+
+            assert listed("articles") == [published_dataset]
+            assert listed("physical_samples") == [published_physical_sample]
+
+            response = authenticated_page.request.delete(
+                f"{base}/physical_samples/{published_physical_sample}"
+            )
+            assert response.status == 204
+            assert listed("articles") == [published_dataset]
+            assert listed("physical_samples") == []
+
+            authenticated_page.request.post(
+                f"{base}/physical_samples", data={"samples": [published_physical_sample]}
+            )
+            response = authenticated_page.request.delete(f"{base}/articles/{published_dataset}")
+            assert response.ok
+            assert listed("articles") == []
+            assert listed("physical_samples") == [published_physical_sample]
+        finally:
+            authenticated_page.request.delete(f"/v2/account/collections/{container_uuid}")
+
+    def test_editing_a_published_collection_keeps_datasets_and_samples(
+        self,
+        authenticated_page: Page,
+        published_dataset: str,
+        published_physical_sample: str,
+        second_published_physical_sample: str,
+    ):
+        """The draft made from a published collection carries both lists over."""
+        container_uuid = get_container_uuid_from_url(create_draft_collection(authenticated_page))
+        base = f"/v2/account/collections/{container_uuid}"
+
+        def listed(kind):
+            return {
+                item["uuid"] for item in authenticated_page.request.get(f"{base}/{kind}").json()
+            }
+
+        authenticated_page.request.post(f"{base}/articles", data={"articles": [published_dataset]})
+        authenticated_page.request.post(
+            f"{base}/physical_samples", data={"samples": [published_physical_sample]}
+        )
+        fill_required_fields_and_publish_collection(
+            authenticated_page, container_uuid, title="Collection With Both Lists"
+        )
+
+        # Collecting another sample makes the app draft the published collection.
+        response = authenticated_page.request.post(
+            f"{base}/physical_samples", data={"samples": [second_published_physical_sample]}
+        )
+        assert response.status == 205, f"Add failed: {response.status} {response.text()}"
+
+        assert listed("articles") == {published_dataset}
+        assert listed("physical_samples") == {
+            published_physical_sample,
+            second_published_physical_sample,
+        }
+        authenticated_page.request.delete(base)
 
 
 # ---------------------------------------------------------------------------
@@ -839,3 +1114,186 @@ class TestCollectButton:
         finally:
             for container_uuid in collections.values():
                 authenticated_page.request.delete(f"/v2/account/collections/{container_uuid}")
+
+
+# ---------------------------------------------------------------------------
+# Physical sample landing page and collection page tests
+# ---------------------------------------------------------------------------
+
+SAMPLE_TITLE = "Physical Sample for Collection Test"
+
+
+def _collection_contains_sample(page: Page, container_uuid: str, sample_uuid: str) -> bool:
+    """Return whether a collection lists the given physical sample container."""
+    response = page.request.get(
+        f"/v2/account/collections/{container_uuid}/physical_samples",
+        params={"limit": 10000},
+    )
+    assert response.ok, f"List physical samples failed: {response.status} {response.text()}"
+    return any(record.get("uuid") == sample_uuid for record in response.json())
+
+
+@pytest.mark.collections
+class TestCollectPhysicalSample:
+    """Tests for the COLLECT button on a physical sample and its collection page."""
+
+    def test_no_collect_button_when_logged_out(
+        self, page: Page, published_physical_sample: str, screenshot
+    ):
+        """Anonymous visitors see the sample but no COLLECT button."""
+        # The fixture logged this page in, and authenticated_page is the same page.
+        page.context.clear_cookies()
+        response = page.goto(f"/physical_sample/{published_physical_sample}")
+        page.wait_for_load_state("domcontentloaded")
+        assert response is not None
+        assert response.status == 200
+        screenshot(page, "collect-sample-logged-out")
+
+        expect(page.locator("#cite-btn")).to_be_visible()
+        expect(page.locator("#collect-btn")).to_have_count(0)
+
+    def test_collect_menu_lists_own_collections(
+        self, authenticated_page: Page, published_physical_sample: str, screenshot
+    ):
+        """The owner sees the COLLECT button and the menu lists their collections."""
+        title = f"Sample Collect Menu {uuid.uuid4().hex[:8]}"
+        container_uuid = _create_titled_draft_collection(authenticated_page, title)
+
+        try:
+            authenticated_page.goto(f"/physical_sample/{published_physical_sample}")
+            authenticated_page.wait_for_load_state("domcontentloaded")
+
+            authenticated_page.locator("#collect-btn").click()
+            entry = authenticated_page.locator("#collect ul a").filter(has_text=title).first
+            expect(entry).to_be_visible()
+            screenshot(authenticated_page, "collect-sample-menu")
+        finally:
+            authenticated_page.request.delete(f"/v2/account/collections/{container_uuid}")
+
+    def test_collect_adds_sample_to_the_clicked_collection(
+        self, authenticated_page: Page, published_physical_sample: str, screenshot
+    ):
+        """Clicking an entry adds the sample to that collection and no other."""
+        marker = uuid.uuid4().hex[:8]
+        clicked = _create_titled_draft_collection(authenticated_page, f"Sample Target {marker}")
+        other = _create_titled_draft_collection(authenticated_page, f"Sample Other {marker}")
+
+        try:
+            authenticated_page.goto(f"/physical_sample/{published_physical_sample}")
+            authenticated_page.wait_for_load_state("domcontentloaded")
+
+            authenticated_page.locator("#collect-btn").click()
+            entry = (
+                authenticated_page.locator("#collect ul a")
+                .filter(has_text=f"Sample Target {marker}")
+                .first
+            )
+            expect(entry).to_be_visible()
+            entry.click()
+
+            expect(authenticated_page.locator("#message")).to_contain_text("added to collection")
+            screenshot(authenticated_page, "collect-sample-added")
+
+            assert _collection_contains_sample(
+                authenticated_page, clicked, published_physical_sample
+            )
+            assert not _collection_contains_sample(
+                authenticated_page, other, published_physical_sample
+            )
+        finally:
+            authenticated_page.request.delete(f"/v2/account/collections/{clicked}")
+            authenticated_page.request.delete(f"/v2/account/collections/{other}")
+
+    def test_sample_page_lists_the_collections_it_is_in(
+        self, authenticated_page: Page, published_physical_sample: str, screenshot
+    ):
+        """Once the collection is published, the sample page links to it."""
+        title = f"Sample In Collection {uuid.uuid4().hex[:8]}"
+        container_uuid = get_container_uuid_from_url(create_draft_collection(authenticated_page))
+        authenticated_page.request.post(
+            f"/v2/account/collections/{container_uuid}/physical_samples",
+            data={"samples": [published_physical_sample]},
+        )
+        fill_required_fields_and_publish_collection(authenticated_page, container_uuid, title=title)
+
+        authenticated_page.goto(f"/physical_sample/{published_physical_sample}")
+        authenticated_page.wait_for_load_state("domcontentloaded")
+        screenshot(authenticated_page, "sample-page-collections")
+
+        link = authenticated_page.locator("#collections a").filter(has_text=title)
+        expect(link).to_have_attribute("href", f"/collections/{container_uuid}")
+
+    def test_collection_page_lists_its_physical_samples(
+        self, authenticated_page: Page, published_physical_sample: str, screenshot
+    ):
+        """A published collection lists its samples with a link to each."""
+        container_uuid = get_container_uuid_from_url(create_draft_collection(authenticated_page))
+        authenticated_page.request.post(
+            f"/v2/account/collections/{container_uuid}/physical_samples",
+            data={"samples": [published_physical_sample]},
+        )
+        fill_required_fields_and_publish_collection(
+            authenticated_page, container_uuid, title="Collection With Sample"
+        )
+
+        response = authenticated_page.goto(f"/collections/{container_uuid}")
+        authenticated_page.wait_for_load_state("domcontentloaded")
+        assert response is not None
+        assert response.status == 200
+        screenshot(authenticated_page, "collection-page-with-sample")
+
+        expect(authenticated_page.locator("#data")).to_contain_text("PHYSICAL SAMPLES")
+        link = authenticated_page.locator(
+            f"#data a[href='/physical_sample/{published_physical_sample}']"
+        )
+        expect(link).to_have_text(SAMPLE_TITLE)
+
+    def test_collection_page_without_samples_has_no_samples_section(
+        self, authenticated_page: Page, screenshot
+    ):
+        """A collection with no samples shows no physical samples section."""
+        container_uuid = get_container_uuid_from_url(create_draft_collection(authenticated_page))
+        fill_required_fields_and_publish_collection(
+            authenticated_page, container_uuid, title="Collection Without Samples"
+        )
+
+        authenticated_page.goto(f"/collections/{container_uuid}")
+        authenticated_page.wait_for_load_state("domcontentloaded")
+        screenshot(authenticated_page, "collection-page-without-samples")
+
+        expect(authenticated_page.locator("#data")).to_be_visible()
+        expect(authenticated_page.locator("#data")).not_to_contain_text("PHYSICAL SAMPLES")
+
+    def test_my_collections_count_includes_samples(
+        self,
+        authenticated_page: Page,
+        published_dataset: str,
+        published_physical_sample: str,
+        screenshot,
+    ):
+        """The count on /my/collections adds physical samples to datasets."""
+        title = f"Sample Count {uuid.uuid4().hex[:8]}"
+        container_uuid = _create_titled_draft_collection(authenticated_page, title)
+        base = f"/v2/account/collections/{container_uuid}"
+
+        def count_label():
+            authenticated_page.goto("/my/collections")
+            authenticated_page.wait_for_load_state("domcontentloaded")
+            row = authenticated_page.locator("#table-unpublished-collections td").filter(
+                has=authenticated_page.get_by_role("link", name=title)
+            )
+            return row.locator(".number-of-articles")
+
+        try:
+            authenticated_page.request.post(
+                f"{base}/physical_samples", data={"samples": [published_physical_sample]}
+            )
+            expect(count_label()).to_have_text("(1)")
+
+            authenticated_page.request.post(
+                f"{base}/articles", data={"articles": [published_dataset]}
+            )
+            expect(count_label()).to_have_text("(2)")
+            screenshot(authenticated_page, "my-collections-count")
+        finally:
+            authenticated_page.request.delete(base)
