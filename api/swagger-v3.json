@@ -4857,7 +4857,7 @@
         ],
         "summary": "Search accounts",
         "description": "Search for user accounts (autocomplete for adding collaborators).",
-        "operationId": "search_accounts_v3_accounts_search_post",
+        "operationId": "search_accounts_v3_accounts_search_get",
         "responses": {
           "200": {
             "description": "Matching accounts",
@@ -4911,7 +4911,7 @@
         ],
         "summary": "Search accounts",
         "description": "Search for user accounts (autocomplete for adding collaborators).",
-        "operationId": "search_accounts_v3_accounts_search_post",
+        "operationId": "search_accounts_v3_accounts_search_get",
         "responses": {
           "200": {
             "description": "Matching accounts",
