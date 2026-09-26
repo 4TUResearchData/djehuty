@@ -913,6 +913,15 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
+    def collections_from_physical_sample (self, physical_sample_container_uuid):
+        """Procedure to get the collections a physical sample is part of."""
+
+        query = self.__query_from_template ("collections_from_physical_sample", {
+            "physical_sample_container_uuid":  physical_sample_container_uuid
+        })
+
+        return self.__run_query(query)
+
     def collection_datasets (self, collection_uri, limit=None, offset=0):
         """Procedure to get the published datasets of a collection."""
 
@@ -973,6 +982,22 @@ class SparqlInterface:
 
         try:
             return results[0]["datasets"]
+        except KeyError:
+            return 0
+
+    def collections_physical_sample_count (self, collection_uri):
+        """Procedure to count the physical samples in a collection."""
+
+        if collection_uri is None:
+            return 0
+
+        query = self.__query_from_template ("collection_physical_samples_count", {
+            "collection_uri":  collection_uri
+        })
+        results = self.__run_query (query)
+
+        try:
+            return results[0]["samples"]
         except KeyError:
             return 0
 
@@ -1090,6 +1115,16 @@ class SparqlInterface:
         """Procedure to retrieve dataset containers in a collection."""
 
         query   = self.__query_from_template ("collection_dataset_containers", {
+            "collection_uri":  collection_uri
+        })
+        query += rdf.sparql_suffix (None, None, limit)
+
+        return self.__run_query(query)
+
+    def collection_physical_sample_containers (self, collection_uri, limit=10):
+        """Procedure to retrieve physical sample containers in a collection."""
+
+        query   = self.__query_from_template ("collection_physical_sample_containers", {
             "collection_uri":  collection_uri
         })
         query += rdf.sparql_suffix (None, None, limit)
@@ -2247,6 +2282,8 @@ class SparqlInterface:
         draft_custom_fields = self.custom_fields (item_uri=latest_uri, item_type="collection")
         draft_datasets      = self.collection_dataset_containers(collection_uri=latest_uri, limit=None)
         draft_dataset_uris  = list({URIRef(container['container_uri']) for container in draft_datasets})
+        draft_samples       = self.collection_physical_sample_containers(collection_uri=latest_uri, limit=None)
+        draft_sample_uris   = [URIRef(container['container_uri']) for container in draft_samples]
 
         if isinstance (draft_derived_from, list):
             draft_derived_from = conv.value_or_none (draft_derived_from, 0)
@@ -2279,6 +2316,7 @@ class SparqlInterface:
                 authors               = draft_authors,
                 custom_fields_list    = draft_custom_fields,
                 datasets              = draft_dataset_uris,
+                physical_samples      = draft_sample_uris,
                 private_links         = None,
                 is_public             = 0,
                 is_active             = 1,
@@ -2849,6 +2887,7 @@ class SparqlInterface:
                            description=None,
                            derived_from=None,
                            datasets=None,
+                           physical_samples=None,
                            authors=None,
                            categories=None,
                            categories_by_source_id=None,
@@ -2889,6 +2928,7 @@ class SparqlInterface:
         custom_fields_list      = [] if custom_fields_list      is None else custom_fields_list
         private_links           = [] if private_links           is None else private_links
         datasets                = [] if datasets                is None else datasets
+        physical_samples        = [] if physical_samples        is None else physical_samples
 
         graph                   = Graph()
         uri                     = rdf.unique_node ("collection")
@@ -2928,6 +2968,10 @@ class SparqlInterface:
         ## DATASETS
         ## --------------------------------------------------------------------
         self.insert_item_list (graph, uri, datasets, "datasets")
+
+        ## PHYSICAL SAMPLES
+        ## --------------------------------------------------------------------
+        self.insert_item_list (graph, uri, physical_samples, "physical_samples")
 
         ## CUSTOM FIELDS
         ## --------------------------------------------------------------------
@@ -3207,7 +3251,8 @@ class SparqlInterface:
                           is_published=True, is_latest=True, limit=None,
                           order=None, order_direction=None,
                           offset=None, private_link_id_string=None,
-                          is_under_review=None, use_cache=True):
+                          is_under_review=None, collection_uri=None,
+                          use_cache=True):
         """Procedure to retrieve physical samples."""
 
         filters  = rdf.sparql_filter ("container", rdf.uuid_to_uri (container_uuid, "container"), is_uri=True)
@@ -3220,6 +3265,7 @@ class SparqlInterface:
             "is_latest":               is_latest,
             "is_under_review":         is_under_review,
             "private_link_id_string":  private_link_id_string,
+            "collection_uri":          collection_uri,
             "filters":                 filters
         })
 
