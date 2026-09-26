@@ -105,6 +105,92 @@ function remove_author_event (event) {
     remove_author (event.data["author_uuid"], event.data["collection_id"]);
 }
 
+function cancel_edit_author (collection_id, author_uuid) {
+    jQuery("#author-inline-edit-form").remove();
+    jQuery(`#edit-author-${author_uuid}`)
+        .removeClass("fa-times")
+        .removeClass("fa-lg")
+        .addClass("fa-pen")
+        .on ("click", { "author_uuid": author_uuid, "collection_id": collection_id },
+             edit_author_event);
+}
+
+function update_author (collection_id, author_uuid) {
+    let record = {
+        "first_name": jQuery("#edit_author_first_name").val(),
+        "last_name": jQuery("#edit_author_last_name").val(),
+        "email": jQuery("#edit_author_email").val(),
+        "orcid": jQuery("#edit_author_orcid").val()
+    };
+    jQuery.ajax({
+        url:         `/v3/authors/${author_uuid}`,
+        data:        JSON.stringify(record),
+        type:        "PUT",
+        contentType: "application/json",
+        accept:      "application/json",
+    }).done(function () {
+        cancel_edit_author (collection_id, author_uuid);
+        render_authors_for_collection (collection_id);
+    }).fail(function (jqXHR) {
+        let message = "Failed to update author details.";
+        if (jqXHR.status === 409 &&
+            jqXHR.responseJSON &&
+            jqXHR.responseJSON.message) {
+            message = jqXHR.responseJSON.message;
+        }
+        show_message ("failure", jQuery("<p/>").text(message));
+    });
+}
+
+function cancel_edit_author_event (event) {
+    stop_event_propagation (event);
+    cancel_edit_author (event.data["collection_id"], event.data["author_uuid"]);
+}
+
+function edit_author_event (event) {
+    stop_event_propagation (event);
+    edit_author (event.data["collection_id"], event.data["author_uuid"]);
+}
+
+function update_author_event (event) {
+    stop_event_propagation (event);
+    update_author (event.data["collection_id"], event.data["author_uuid"]);
+}
+
+function edit_author (collection_id, author_uuid) {
+    jQuery.ajax({
+        url:         `/v3/authors/${author_uuid}`,
+        type:        "GET",
+        accept:      "application/json",
+    }).done(function (author) {
+        let row = jQuery("<tr/>", { "id": "author-inline-edit-form" });
+        let column1 = jQuery("<td/>", { "colspan": "5" });
+        column1.append (jQuery("<label/>", { "for": "author_first_name" }).text("First name"));
+        column1.append (jQuery("<input/>", { "type": "text", "id": "edit_author_first_name", "name": "author_first_name", "value": or_empty (author.first_name) }));
+        column1.append (jQuery("<label/>", { "for": "author_last_name" }).text("Last name"));
+        column1.append (jQuery("<input/>", { "type": "text", "id": "edit_author_last_name", "name": "author_last_name", "value": or_empty (author.last_name) }));
+        column1.append (jQuery("<label/>", { "for": "author_email" }).text("E-mail address"));
+        column1.append (jQuery("<input/>", { "type": "text", "id": "edit_author_email", "name": "author_email", "value": or_empty (author.email) }));
+        column1.append (jQuery("<label/>", { "for": "author_orcid" }).text("ORCID"));
+        column1.append (jQuery("<input/>", { "type": "text", "id": "edit_author_orcid", "name": "author_orcid", "value": or_empty (author.orcid_id) }));
+
+        let button_wrapper = jQuery("<div/>", { "id": "update-author", "class": "a-button" });
+        let anchor = jQuery("<a/>", { "href": "#" }).text("Update author");
+        anchor.on("click", { "collection_id": collection_id, "author_uuid": author_uuid }, update_author_event);
+        button_wrapper.append (anchor);
+        column1.append (button_wrapper);
+        row.append(column1);
+        jQuery(`#author-${author_uuid}`).after(row);
+        jQuery(`#edit-author-${author_uuid}`)
+            .removeClass("fa-pen")
+            .addClass("fa-times")
+            .addClass("fa-lg")
+            .on("click", { "collection_id": collection_id, "author_uuid": author_uuid },
+                cancel_edit_author_event);
+    });
+}
+
+
 function render_authors_for_collection (collection_id) {
     jQuery.ajax({
         url:         `/v2/account/collections/${collection_id}/authors`,
