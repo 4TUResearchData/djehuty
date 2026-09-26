@@ -233,6 +233,229 @@ class TestV2ArticleAuthorsApi:
         save_response(response, "api-replace-authors")
         assert response.ok
 
+        authors_url = f"/v2/account/articles/{container_uuid}/authors"
+        get_response = page.request.get(authors_url)
+        save_response(get_response, "api-replace-authors-verify")
+        assert get_response.status == 200
+        assert [author["full_name"] for author in get_response.json()] == [
+            "Alice Smith",
+            "Bob Jones",
+        ]
+
+        clear_response = page.request.put(authors_url, data={"authors": []})
+        assert clear_response.status == 205
+        get_response = page.request.get(authors_url)
+        save_response(get_response, "api-clear-authors-verify")
+        assert get_response.status == 200
+        assert get_response.json() == []
+
+    def test_manual_author_email_matches_existing_account(self, draft_dataset, save_response):
+        """PUT /v2/account/articles/<uuid>/authors reuses an account author by email."""
+        page, container_uuid = draft_dataset
+        before_response = page.request.get(f"/v2/account/articles/{container_uuid}/authors")
+        existing_author = before_response.json()[0]
+        existing_uuid = existing_author["uuid"]
+        existing_email = "  Dev@DJEHUTY.COM  "
+
+        response = page.request.put(
+            f"/v2/account/articles/{container_uuid}/authors",
+            data={
+                "authors": [
+                    {
+                        "first_name": "Dev",
+                        "last_name": "User",
+                        "email": existing_email,
+                    }
+                ]
+            },
+        )
+        save_response(response, "api-replace-authors-by-email")
+        assert response.ok
+
+        get_response = page.request.get(f"/v2/account/articles/{container_uuid}/authors")
+        save_response(get_response, "api-replace-authors-by-email-verify")
+        authors = get_response.json()
+        assert len(authors) == 1
+        assert authors[0].get("uuid") == existing_uuid
+        assert authors[0].get("is_active") is True
+
+    def test_manual_author_orcid_matches_existing_account(self, draft_dataset, save_response):
+        """PUT /v2/account/articles/<uuid>/authors reuses an account author by ORCID."""
+        page, container_uuid = draft_dataset
+        before_response = page.request.get(f"/v2/account/articles/{container_uuid}/authors")
+        existing_author = before_response.json()[0]
+        existing_uuid = existing_author["uuid"]
+        existing_orcid = existing_author["orcid_id"]
+
+        response = page.request.put(
+            f"/v2/account/articles/{container_uuid}/authors",
+            data={
+                "authors": [
+                    {
+                        "first_name": "Dev",
+                        "last_name": "User",
+                        "orcid_id": f"https://orcid.org/{existing_orcid}",
+                    }
+                ]
+            },
+        )
+        save_response(response, "api-replace-authors-by-orcid")
+        assert response.ok
+
+        get_response = page.request.get(f"/v2/account/articles/{container_uuid}/authors")
+        save_response(get_response, "api-replace-authors-by-orcid-verify")
+        authors = get_response.json()
+        assert len(authors) == 1
+        assert authors[0].get("uuid") == existing_uuid
+        assert authors[0].get("is_active") is True
+
+    def test_manual_author_email_does_not_reuse_inactive_author(self, draft_dataset, save_response):
+        """PUT does not reuse an inactive author with the same email."""
+        page, container_uuid = draft_dataset
+        author = {
+            "first_name": "Manual",
+            "last_name": "Author",
+            "email": "inactive-author@example.invalid",
+        }
+
+        first_response = page.request.put(
+            f"/v2/account/articles/{container_uuid}/authors",
+            data={"authors": [author]},
+        )
+        save_response(first_response, "api-replace-authors-unmatched-email")
+        assert first_response.ok
+
+        first_get_response = page.request.get(f"/v2/account/articles/{container_uuid}/authors")
+        save_response(first_get_response, "api-replace-authors-unmatched-email-verify")
+        first_authors = first_get_response.json()
+        assert len(first_authors) == 1
+        first_uuid = first_authors[0]["uuid"]
+        assert first_authors[0].get("is_active") is False
+
+        second_response = page.request.put(
+            f"/v2/account/articles/{container_uuid}/authors",
+            data={"authors": [author]},
+        )
+        save_response(second_response, "api-replace-authors-inactive-email")
+        assert second_response.ok
+
+        second_get_response = page.request.get(f"/v2/account/articles/{container_uuid}/authors")
+        save_response(second_get_response, "api-replace-authors-inactive-email-verify")
+        authors = second_get_response.json()
+        assert len(authors) == 1
+        assert authors[0].get("uuid") != first_uuid
+        assert authors[0].get("is_active") is False
+
+    def test_manual_author_orcid_does_not_reuse_inactive_author(self, draft_dataset, save_response):
+        """PUT does not reuse an inactive author with the same ORCID."""
+        page, container_uuid = draft_dataset
+        author = {
+            "first_name": "Manual",
+            "last_name": "Author",
+            "orcid_id": "https://orcid.org/0000-0000-0000-0002",
+        }
+
+        first_response = page.request.put(
+            f"/v2/account/articles/{container_uuid}/authors",
+            data={"authors": [author]},
+        )
+        save_response(first_response, "api-replace-authors-unmatched-orcid")
+        assert first_response.ok
+
+        first_get_response = page.request.get(f"/v2/account/articles/{container_uuid}/authors")
+        save_response(first_get_response, "api-replace-authors-unmatched-orcid-verify")
+        first_authors = first_get_response.json()
+        assert len(first_authors) == 1
+        first_uuid = first_authors[0]["uuid"]
+        assert first_authors[0].get("is_active") is False
+
+        second_response = page.request.put(
+            f"/v2/account/articles/{container_uuid}/authors",
+            data={"authors": [author]},
+        )
+        save_response(second_response, "api-replace-authors-inactive-orcid")
+        assert second_response.ok
+
+        second_get_response = page.request.get(f"/v2/account/articles/{container_uuid}/authors")
+        save_response(second_get_response, "api-replace-authors-inactive-orcid-verify")
+        authors = second_get_response.json()
+        assert len(authors) == 1
+        assert authors[0].get("uuid") != first_uuid
+        assert authors[0].get("is_active") is False
+
+    def test_add_existing_author_does_not_duplicate(self, draft_dataset, save_response):
+        """POST /v2/account/articles/<uuid>/authors does not duplicate an author."""
+        page, container_uuid = draft_dataset
+        before_response = page.request.get(f"/v2/account/articles/{container_uuid}/authors")
+        existing_uuid = before_response.json()[0]["uuid"]
+
+        response = page.request.post(
+            f"/v2/account/articles/{container_uuid}/authors",
+            data={
+                "authors": [
+                    {
+                        "first_name": "Dev",
+                        "last_name": "User",
+                        "email": "dev@djehuty.com",
+                    }
+                ]
+            },
+        )
+        save_response(response, "api-add-existing-author")
+        assert response.ok
+
+        get_response = page.request.get(f"/v2/account/articles/{container_uuid}/authors")
+        save_response(get_response, "api-add-existing-author-verify")
+        authors = get_response.json()
+        assert len(authors) == 1
+        assert authors[0].get("uuid") == existing_uuid
+
+    def test_add_email_and_orcid_matching_same_author_does_not_duplicate(
+        self, draft_dataset, save_response
+    ):
+        """POST adds one author when two inputs match the same active account."""
+        from config import AUTO_LOGIN_EMAIL
+
+        page, container_uuid = draft_dataset
+        authors_url = f"/v2/account/articles/{container_uuid}/authors"
+
+        source_response = page.request.get(authors_url)
+        assert source_response.status == 200
+        source_authors = source_response.json()
+        assert len(source_authors) == 1
+        matching_author = source_authors[0]
+        assert matching_author.get("is_active") is True
+        matching_uuid = matching_author["uuid"]
+        matching_orcid = matching_author["orcid_id"]
+        assert matching_orcid
+
+        # Remove the association so that the matched author is not already listed.
+        remove_response = page.request.delete(f"{authors_url}/{matching_uuid}")
+        assert remove_response.status == 204
+        before_response = page.request.get(authors_url)
+        assert before_response.status == 200
+        assert before_response.json() == []
+
+        response = page.request.post(
+            authors_url,
+            data={
+                "authors": [
+                    {"first_name": "Dev", "last_name": "User", "email": AUTO_LOGIN_EMAIL},
+                    {"first_name": "Dev", "last_name": "User", "orcid_id": matching_orcid},
+                ]
+            },
+        )
+        save_response(response, "api-add-author-by-email-and-orcid")
+        assert response.status == 205
+
+        get_response = page.request.get(authors_url)
+        save_response(get_response, "api-add-author-by-email-and-orcid-verify")
+        assert get_response.status == 200
+        authors = get_response.json()
+        assert len(authors) == 1
+        assert authors[0]["uuid"] == matching_uuid
+        assert authors[0].get("is_active") is True
+
 
 # ---------------------------------------------------------------------------
 # Categories
