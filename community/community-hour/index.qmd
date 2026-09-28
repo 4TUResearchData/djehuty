@@ -76,19 +76,6 @@ We follow the `djehuty` [Code of Conduct](https://github.com/4TUResearchData/dje
 
 ## Add a point to the agenda
 
-Do you want the community to discuss something? Anyone can propose an agenda item.
-
-1. [Open an issue](https://github.com/4TUResearchData/community/issues/new) in the community repository, titled **"Agenda: your topic"**.
-2. Briefly describe the topic, why it matters, and how much time you think you need.
-3. Add links to related issues, discussions or documents.
-4. Submit it **before the meeting**, ideally at least a few days ahead, so the organisers can plan the agenda.
-
-Can't attend live? Add your item anyway and say so in the description. We will discuss it and share the outcome in the meeting notes.
-
-<!-- TODO: confirm the agenda mechanism (issue in the community repo, discussion thread, or shared document), the submission deadline, and a contact for people without a GitHub account. -->
-
-## Add a point to the agenda
-
 Want the community to discuss something? Add it directly to the [Rolling Notes document](https://hackmd.io/DJypl8JxTEaL__8qud-3Fg) under the agenda for the next meeting — no approval needed, just add your topic in a line or two, ideally **a few days before the meeting** so there's time to plan around it.
 
 Can't attend live? Add your item anyway and check the [meeting notes](#meeting-notes) afterwards for the outcome.
