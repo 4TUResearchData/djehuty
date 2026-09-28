@@ -43,6 +43,52 @@ function assign_reviewer (event) {
     });
 }
 
+function submit_review_note(data) {
+    const review_uuid = data["review"].uuid;
+    const note = data["note"];
+
+    if (!note || note.trim() === "") {
+        delete_review_note(data)
+        return
+    }
+
+    update_note(review_uuid, note)
+        .done(function (response) {
+            jQuery(`#note-container-${review_uuid}`).replaceWith(display_note(data["review"], note));
+        }).fail(function (response) {
+        try {
+            const errors = JSON.parse(response.responseText);
+            const messages = errors.map(err => err.message).join("<br>");
+            show_message("failure", `<p>${messages}</p>`);
+        } catch (e) {
+            show_message("failure", "<p>Failed to save the note.</p>");
+        }
+    });
+}
+
+function delete_review_note(data) {
+    const review_uuid = data["review"].uuid;
+    const note = "";
+
+    update_note(review_uuid, note)
+        .done(function (response) {
+            jQuery(`#note-container-${review_uuid}`).replaceWith(add_note(data["review"]));
+        }).fail(function (response) {
+        show_message("failure", "<p>Failed to delete the note.</p>");
+    });
+}
+
+function update_note(review_uuid, note) {
+    return jQuery.ajax({
+        url: `/v3/reviews/${review_uuid}/update-note`,
+        type: "PUT",
+        contentType: "application/json",
+        data: JSON.stringify({note}),
+        accept: "application/json",
+    });
+}
+
+
 function apply_filters (event) {
     jQuery('#overview-table tr').each(function(index, element) {
         jQuery(element).show();
@@ -82,9 +128,9 @@ function filter_status (event) {
 }
 
 function copy_row (uuid, dataset_uuid, title, version, first_name, last_name,
-                   email, group_name, request_date, modified_date, published_date) {
+                   email, group_name, request_date, modified_date, published_date, review_note) {
     let escaped_title = title.replaceAll ('"', '""');
-    let text = `=HYPERLINK("${window.location.origin}/review/goto-dataset/${dataset_uuid}"; "${escaped_title}")\t${version}\t${first_name} ${last_name}\t${email}\t${group_name}\t\t${request_date}\t${modified_date}\t${published_date}\n`;
+    let text = `=HYPERLINK("${window.location.origin}/review/goto-dataset/${dataset_uuid}"; "${escaped_title}")\t${version}\t${first_name} ${last_name}\t${email}\t${group_name}\t\t${request_date}\t${modified_date}\t${published_date}\t${review_note}\n`;
     navigator.clipboard.writeText(text);
     jQuery(`#copy-btn-${uuid}`)
         .removeClass("fa-copy")
@@ -100,10 +146,199 @@ function copy_to_clipboard_event (event) {
     review = event.data["review"];
     published_date = event.data["published_date"];
     version = event.data["version"];
+
+    // Use the note from the page if it's newer than review.note (data loaded with the page) ,
+    // to ensure we copy the most up-to-date version (user actually sees) without another API call.
+    const current_note = jQuery(`#current-note-${review.uuid}`).text()
+    const note = (review.note && review.note === current_note) ? review.note : current_note;
+
     copy_row (review.uuid, review.dataset_uuid, review.dataset_title,
               version, review.submitter_first_name, review.submitter_last_name,
               review.submitter_email, review.group_name, review.request_date,
-                          review.modified_date, published_date);
+                          review.modified_date, published_date, note);
+}
+
+function toggle_note_editor_panel(data) {
+    /**
+    * Toggle the display between initial note and note editor (hidde one, display the other)
+    * */
+
+    const note_panel = $(`#note-panel-${data["review_uuid"]}`);
+    const note_editor_panel = $(`#note-editor-panel-${data["review_uuid"]}`);
+    note_panel.toggleClass('block hidden');
+    note_editor_panel.toggleClass('hidden block');
+}
+
+function create_note_editor_footer(review) {
+    /**
+    * Footer contains the buttons with the possible actions for the note editor
+    * */
+
+    const save_button = jQuery("<button/>", {
+            class: "note-footer-btn corporate-identity-standard-button"
+        })
+        .append("Save")
+        .on("click", function () {
+            const textarea_value = jQuery(`#note-textarea-${review.uuid}`).val();
+            submit_review_note({
+                review: review,
+                note: textarea_value
+            });
+        })
+    const cancel_button = jQuery("<button/>", {
+            class: "note-footer-btn cancel-note-btn"
+        })
+        .append("Cancel")
+        .on("click", function () {
+            toggle_note_editor_panel({
+                review_uuid: review.uuid,
+            });
+        })
+
+    return jQuery("<div/>", {
+            class: "note-editor-footer"
+        }).append(cancel_button, save_button);
+}
+function create_note_editor(review, current_note) {
+    /**
+    * Note editor panel contains a textarea and a footer with the actions
+    * */
+
+    const textarea = jQuery("<textarea/>", {
+            id: `note-textarea-${review.uuid}`,
+        }).val(current_note);
+
+    const note_editor_footer = create_note_editor_footer(review)
+
+    return jQuery("<div/>", {
+            id: `note-editor-panel-${review.uuid}`,
+            class: "note-editor-panel hidden"
+        }).append(textarea).append(note_editor_footer);
+}
+
+function display_note (review, note) {
+    const review_uuid = review.uuid
+
+    // ### --------- Actions ----------------------------------------------------
+    // Edit Button - display the note_editor_panel which is initially hidden
+    const edit_note_button = jQuery("<a/>", {
+            class: "fas fa-pen cursor-pointer",
+            title: "Edit note"
+        })
+        .on("click", function () {
+            toggle_note_editor_panel({
+                review_uuid: review_uuid,
+            });
+        })
+
+    const delete_note_button = jQuery("<a/>", {
+            class: "cursor-pointer fas fa-trash-can",
+            title: "Delete note"
+        })
+        .on("click", function () {
+            delete_review_note({
+                review: review,
+            });
+        })
+
+    const show_less_button = jQuery("<a/>", {
+        title: "See less",
+        class: "see-less-btn cursor-pointer"
+    }).html("See less")
+        .on("click", function () {
+            preview_note.show();
+            full_note.hide();
+        });
+
+    const note_actions = jQuery("<span/>", {
+        class: "note-actions"
+    }).append(show_less_button)
+        .append(edit_note_button)
+        .append(delete_note_button)
+
+
+    // ### --------- Note panel ---------------------------------------
+    // initially the note panel display the current note
+    const preview_max_char = 20
+    const preview_note_text = note.length > preview_max_char ? `${note.substring(0, preview_max_char)}...` : note
+
+    const full_note_text = jQuery("<span/>", {
+        id: `current-note-${review_uuid}`,
+        class: "full-note-text"
+    }).html(note)
+
+    const preview_note = jQuery("<div/>", {
+        class: "preview-note cursor-pointer",
+        title: "Click to see more",
+        text: preview_note_text
+    });
+
+    const full_note = jQuery("<div/>", {
+        class: "full-note"
+    }).append(full_note_text)
+        .append(note_actions)
+        .hide();
+
+    preview_note.on("click", function () {
+        preview_note.hide();
+        full_note.show();
+    });
+
+    const note_panel = jQuery("<div/>", {
+        id: `note-panel-${review_uuid}`,
+        class: "note-panel"
+    }).append(preview_note, full_note);
+
+    // ### --------- Note editor panel ----------------------------------------
+    const note_editor_panel = create_note_editor(review, note)
+
+
+    // ### --------- Note Container -------------------------------------------
+    // Assembling the note container and returning it
+    return jQuery("<div/>", {
+            id: `note-container-${review_uuid}`,
+            class: "note-container"
+        })
+        .append(note_panel)
+        .append(note_editor_panel)
+}
+
+function add_note(review) {
+    const review_uuid = review.uuid
+
+    const add_note_button = jQuery("<div/>", {
+        class: "add-note-wrap"
+    }).append(
+        jQuery("<a/>", {
+            class: "cursor-pointer"
+        })
+            .append("+ Add note")
+            .on("click", function () {
+                toggle_note_editor_panel({
+                    review_uuid: review_uuid,
+                });
+            })
+    );
+
+    // ### --------- Initial note panel -------------------------------------------
+    // Initial note panel contains button to display the editor panel
+    const note_panel = jQuery("<div/>", {
+            id: `note-panel-${review_uuid}`,
+            class: "note-panel"
+        }).append(add_note_button);
+
+    // ### --------- Note editor panel -------------------------------------------
+    const note_editor_panel = create_note_editor(review, '')
+
+
+    // ### --------- Note Container -------------------------------------------
+    // Assembling the note container and returning it
+    return jQuery("<div/>", {
+            id: `note-container-${review_uuid}`,
+            class: "note-container"
+        })
+        .append(note_panel)
+        .append(note_editor_panel)
 }
 
 function render_overview_table () {
@@ -120,6 +355,7 @@ function render_overview_table () {
         let title_html = "";
         let table_body = jQuery("#overview-table tbody");
         let copy_button = null;
+        let note_html = null;
         let row = null;
         for (review of reviews) {
             published_date = null;
@@ -163,6 +399,13 @@ function render_overview_table () {
                 }
                 reviewer_html += '</select>';
             }
+
+            if (review.note) {
+                note_html = display_note(review, review.note)
+            } else {
+                note_html = add_note(review)
+            }
+
             row = jQuery("<tr/>");
             if (published_date != null) { published_date = published_date.substring(0, 10); }
             row.append (jQuery ("<td/>").html (title_html))
@@ -175,6 +418,7 @@ function render_overview_table () {
                 .append (jQuery ("<td/>").text (or_empty (review.modified_date)))
                 .append (jQuery ("<td/>").text (or_empty (published_date)))
                 .append (jQuery ("<td/>").html (reviewer_html))
+                .append (jQuery ("<td/>").html (note_html))
                 .append (jQuery ("<td/>").html (copy_button));
             table_body.append (row);
         }
