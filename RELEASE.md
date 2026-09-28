@@ -27,21 +27,13 @@ Once approved, the container image is pushed to GHCR, the package is published t
    > [!Note]
    > Allowed section names: `New features`, `UI revisions`, `Security`, `Documentation`, `Bugfixes`, `Incremental improvements`, `Technical debt`.
 
-3. **Sync `doc/news.tex`** so the LaTeX/HTML documentation includes the new release. The `news` recipe reads the top entry of `CHANGELOG.md` and inserts it above the existing first release in `doc/news.tex`:
-   ```sh
-   just news
-   ```
+3. Run `uv lock` to update the uv lock
 
-   > [!Note]
-   > Re-running is safe — the script refuses to insert a release that is already present.
-
-4. Run `uv lock` to update the uv lock
-   
-5. Open a PR with the `pyproject.toml`, `CHANGELOG.md`, `configure.ac`, `uv.lock` and `doc/news.tex`
+4. Open a PR with the `pyproject.toml`, `CHANGELOG.md`, `configure.ac` and `uv.lock`
    changes and merge it to `main`.
 
    > [!WARNING]
-   > Wait the PR is mergerd to go for step 5
+   > Wait for the PR to be merged before continuing.
 
 5. After the Release PR is merged, **tag the merge commit and push the tag.** The tag must match `vX.Y` or `vX.Y.Z`
    (e.g. `v26.3`, `v26.3.1`) and the numeric part must match the version in `pyproject.toml`:
