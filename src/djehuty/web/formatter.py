@@ -675,10 +675,44 @@ def format_group_record (record):
       "is_featured":   conv.value_or_none(record, "is_featured")
     }
 
+def format_physical_sample_record (record):
+    """Record formatter for physical samples."""
+    return {
+        "abstract":      conv.value_or_none (record, "abstract"),
+        "methods":       conv.value_or_none (record, "methods"),
+        "last_modified": conv.value_or_none (record, "modified_date"),
+        "resource_type": conv.value_or_none (record, "resource_type"),
+        "subject":       conv.value_or_none (record, "subject"),
+        "title":         conv.value_or_none (record, "title"),
+        "uuid":          conv.value_or_none (record, "sample_uuid")
+    }
+
+def format_physical_sample_date_record (record):
+    """Record formatter for physical sample dates."""
+    return {
+        "uuid":          conv.value_or_none (record, "uuid"),
+        "type":          conv.value_or_none (record, "date_type"),
+        "date":          conv.value_or_none (record, "date"),
+        "date_end":      conv.value_or_none (record, "date_end"),
+        "created_date":  conv.value_or_none (record, "created_date")
+    }
+
+
+def format_physical_sample_related_resource_record (record):
+    """Record formatter for physical sample related identifiers."""
+    return {
+        "uuid":         conv.value_or_none (record, "uuid"),
+        "url":          conv.value_or_none (record, "url"),
+        "relation":     conv.value_or_none (record, "relation"),
+        "type":         conv.value_or_none (record, "type"),
+        "created_date": conv.value_or_none (record, "created_date")
+    }
+
 def format_review_record (record):
     """Record formatter for reviews."""
     return {
         "uuid":                  conv.value_or_none (record, "uuid"),
+        "item_type":             conv.value_or (record, "item_type", "dataset"),
         "container_uuid":        conv.value_or_none (record, "container_uuid"),
         "dataset_title":         conv.value_or_none (record, "dataset_title"),
         "dataset_uuid":          conv.value_or_none (record, "dataset_uuid"),

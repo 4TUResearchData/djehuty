@@ -41,6 +41,15 @@ except OSError as pyvips_oserror_message:
     PYVIPS_DEPENDENCY_LOADED = False
     PYVIPS_ERROR_MESSAGE = pyvips_oserror_message
 
+# The 'qrcode' module is required when IGSN is configured so that physical
+# sample pages can render a QR code linking to the sample DOI.
+try:
+    import qrcode  # pylint: disable=unused-import
+    import qrcode.image.svg  # pylint: disable=unused-import
+    QRCODE_DEPENDENCY_LOADED = True
+except (ImportError, ModuleNotFoundError):
+    QRCODE_DEPENDENCY_LOADED = False
+
 # The 'uwsgi' module only needs to be available when deploying using uwsgi.
 # To catch potential run-time problems early on in the situation that the
 # uwsgi module is required, we set UWSGI_DEPENDENCY_LOADED here without
@@ -879,6 +888,25 @@ def read_handle_configuration(xml_root):
         config.handle_prefix = config_value(handle, "prefix")
         config.handle_index = config_value(handle, "index")
 
+def read_igsn_configuration(xml_root):
+    """Procedure to parse and set the IGSN API configuration."""
+    igsn = xml_root.find("igsn")
+    if igsn:
+        config.igsn_url      = config_value(igsn, "api-url")
+        config.igsn_id       = config_value(igsn, "repository-id")
+        config.igsn_password = config_value(igsn, "password")
+        config.igsn_prefix   = config_value(igsn, "prefix")
+        enabled = config_value(igsn, "enabled")
+        if enabled is not None:
+            config.igsn_enabled = enabled.strip().lower() in ("1", "true", "yes", "on")
+        allowed_domains = igsn.find("allowed-domains")
+        if allowed_domains is not None:
+            for domain in allowed_domains:
+                if domain.tag != "domain":
+                    continue
+                if domain.text is None or domain.text.strip() == "":
+                    continue
+                config.igsn_allowed_domains.append(domain.text.strip())
 
 def read_automatic_login_configuration(xml_root):
     """Procedure to parse and set automatic login for development setups."""
@@ -1206,6 +1234,7 @@ def read_configuration_file(server, config_file, logger, config_files):
         read_orcid_configuration(xml_root)
         read_datacite_configuration(xml_root)
         read_handle_configuration(xml_root)
+        read_igsn_configuration(xml_root)
         read_email_configuration(server, xml_root, logger)
         read_saml_configuration(xml_root, logger)
         read_sram_configuration(xml_root)
@@ -1612,6 +1641,11 @@ def main(
                         )
                     raise DependencyNotAvailable
                 logging.getLogger("pyvips").setLevel(logging.ERROR)
+
+            if config.igsn_prefix is not None:
+                if not QRCODE_DEPENDENCY_LOADED:
+                    logger.error ("Dependency 'qrcode' is required for IGSN.")
+                    raise DependencyNotAvailable
 
             if config.s3_buckets:
                 os.makedirs(config.s3_cache_storage, mode=0o700, exist_ok=True)

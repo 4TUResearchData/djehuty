@@ -2,20 +2,20 @@
 {% block query %}
 DELETE {
   GRAPH <{{state_graph}}> {
-    ?physical_object  ?predicate       ?object .
+    ?physical_sample  ?predicate       ?object .
     ?list             djht:index       ?list_index .
     ?list             ?any             ?list_item .
 
-    ?container        djht:draft       ?physical_object .
+    ?container        djht:draft       ?physical_sample .
   }
 }
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?container    rdf:type         djht:PhysicalObjectContainer ;
+    ?container    rdf:type         djht:PhysicalSampleContainer ;
                   djht:account     <account:{{account_uuid}}> ;
-                  djht:draft       ?physical_object .
+                  djht:draft       ?physical_sample .
 
-    ?physical_object   ?predicate           ?object .
+    ?physical_sample   ?predicate           ?object .
     OPTIONAL {
       ?object ?list_predicate      ?list .
       ?list   rdf:type             rdf:List ;
@@ -24,6 +24,6 @@ WHERE {
     }
   }
 
-  FILTER (?physical_object = <physical-object:{{object_uuid}}>)
+  FILTER (?physical_sample = <physical-sample:{{sample_uuid}}>)
 }
 {% endblock %}

@@ -259,3 +259,152 @@ def update_item_doi(db, item_id, version=None, item_type="dataset", from_draft=T
         _log.error("Failed to update a DOI due to a connection error.")
 
     return False
+
+
+def igsn_credentials():
+    """Return (api_url, repository_id, password, prefix) for the IGSN repository.
+
+    Physical samples are registered through the IGSN repository; datasets and
+    collections through the regular DataCite one (see ``standard_doi``).
+    """
+    return (config.igsn_url, config.igsn_id, config.igsn_password, config.igsn_prefix)
+
+
+def igsn_reserve_doi(doi=None):
+    """Reserve an IGSN at DataCite; returns the API response on success or None."""
+    api_url, repository_id, password, prefix = igsn_credentials()
+    headers = {
+        "Accept": "application/vnd.api+json",
+        "Content-Type": "application/vnd.api+json",
+    }
+    attributes = {"doi": doi} if doi else {"prefix": prefix}
+    json_data = {"data": {"type": "dois", "attributes": attributes}}
+
+    try:
+        response = requests.post(
+            f"{api_url}/dois",
+            headers=headers,
+            auth=(repository_id, password),
+            timeout=60,
+            json=json_data,
+        )
+        if response.status_code in (201, 422):  # 422: already reserved
+            return response.json()
+        _log.error("DataCite responded with %s (%s)", response.status_code, response.text)
+    except requests.exceptions.ConnectionError:
+        _log.error("Failed to reserve an IGSN due to a connection error.")
+
+    return None
+
+
+def physical_sample_datacite_parameters(db, sample, doi):
+    """Collect the parameters needed to render a physical sample's DataCite
+    (IGSN) metadata."""
+    container_uuid = sample["container_uuid"]
+    sample_uri = f"physical-sample:{sample['sample_uuid']}"
+
+    creators = db.physical_sample_creators(container_uuid, None, sample_uri=sample_uri)
+    categories = db.categories(item_uri=sample_uri, limit=None)
+    tags = [tag["tag"] for tag in db.tags(item_uri=sample_uri, limit=None)]
+    dates = db.physical_sample_dates(container_uuid, None, sample_uri=sample_uri)
+    related = db.physical_sample_related_resources(container_uuid, None, sample_uri=sample_uri)
+
+    lat = self_or_value_or_none(sample, "latitude")
+    lon = self_or_value_or_none(sample, "longitude")
+    lat_valid, lon_valid = decimal_coords(lat, lon)
+
+    # A physical sample is published once and keeps that publication date. Use
+    # the Issued date recorded at first publication so re-publishing a
+    # correction does not overwrite the IGSN's publicationYear/Issued with the
+    # current date. Fall back to today only when it is somehow missing.
+    issued_date = next(
+        (
+            value_or(entry, "date", None)
+            for entry in dates
+            if value_or(entry, "date_type", "") == "Issued"
+        ),
+        None,
+    )
+    published_date = issued_date or date.today().isoformat()
+
+    sample["publisher"] = value_or(sample, "publisher", config.site_name)
+
+    return {
+        "item": sample,
+        "doi": doi,
+        "creators": creators,
+        "categories": categories,
+        "tags": tags,
+        "dates": dates,
+        "related_resources": related,
+        "organizations": parse_organizations(value_or(sample, "organizations", "")),
+        "published_date": published_date,
+        "published_year": published_date[:4],
+        "coordinates": {"lat_valid": lat_valid, "lon_valid": lon_valid},
+    }
+
+
+def register_physical_sample_doi(db, sample, account_uuid):
+    """Reserve and register the IGSN for a physical sample at DataCite.
+
+    Physical samples are not versioned, so there is a single IGSN per
+    container. Returns True on success, False otherwise.
+    """
+    container_uuid = sample["container_uuid"]
+    if config.igsn_prefix is None or config.igsn_url is None:
+        _log.error("IGSN is not configured; cannot register sample %s.", container_uuid)
+        return False
+
+    doi = f"{config.igsn_prefix}/{container_uuid}"
+
+    # Reserve the DOI. An 'errors' payload means it was already reserved,
+    # harmless when (re)publishing.
+    data = igsn_reserve_doi(doi)
+    if data is None:
+        return False
+
+    parameters = physical_sample_datacite_parameters(db, sample, doi)
+    xml = str(xml_formatter.datacite_physical_sample(parameters, indent=False), encoding="utf-8")
+    # DataCite is very choosy about the XML prolog.
+    xml = '<?xml version="1.0" encoding="UTF-8"?>' + xml.split("?>", 1)[1]
+    encoded_bytes = base64.b64encode(xml.encode("utf-8"))
+
+    api_url, repository_id, password, _ = igsn_credentials()
+    headers = {
+        "Accept": "application/vnd.api+json",
+        "Content-Type": "application/vnd.api+json",
+    }
+    json_data = {
+        "data": {
+            "attributes": {
+                "event": "publish",  # does no harm when already published
+                "url": f"{config.base_url}/physical_sample/{container_uuid}",
+                "xml": str(encoded_bytes, "utf-8"),
+            }
+        }
+    }
+
+    try:
+        response = requests.put(
+            f"{api_url}/dois/{doi}",
+            headers=headers,
+            auth=(repository_id, password),
+            timeout=60,
+            json=json_data,
+        )
+        if response.status_code in (200, 201):
+            if response.status_code == 200:
+                _log.warning("IGSN %s already active, updated", doi)
+            # Persist the IGSN on the draft only once DataCite accepted it, so a
+            # failed registration doesn't leave a draft carrying an IGSN.
+            if not db.update_doi_after_publishing(sample["sample_uuid"], "physical-sample", doi):
+                _log.error("Saving IGSN %s on sample %s failed.", doi, container_uuid)
+                return False
+            db.cache.invalidate_by_prefix(f"physical-samples_{account_uuid}")
+            db.cache.invalidate_by_prefix("physical-samples")
+            return True
+        _log.error("DataCite responded with %s (%s)", response.status_code, response.text)
+    except requests.exceptions.RequestException as error:
+        _log.error("Failed to register IGSN %s: %s", doi, error)
+
+    return False

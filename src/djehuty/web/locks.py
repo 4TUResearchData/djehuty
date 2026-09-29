@@ -18,6 +18,7 @@ class LockTypes(Enum):
     PRIVATE_LINKS = 2
     AUTHORS = 3
     SUBMIT_DATASET = 4
+    SUBMIT_PHYSICAL_SAMPLE = 5
 
 
 class Locks:
@@ -38,6 +39,7 @@ class Locks:
             LockTypes.PRIVATE_LINKS: Lock(),
             LockTypes.AUTHORS: Lock(),
             LockTypes.SUBMIT_DATASET: Lock(),
+            LockTypes.SUBMIT_PHYSICAL_SAMPLE: Lock(),
         }
 
     def lock(self, lock_type):

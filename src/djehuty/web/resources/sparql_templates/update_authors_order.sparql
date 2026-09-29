@@ -17,13 +17,13 @@ WHERE {
     ?container rdf:type/rdfs:subClassOf djht:Container .
     ?container djht:account ?account .
     ?container djht:draft   ?item .
-    ?item      djht:authors ?authors .
+    ?item      djht:{{predicate}} ?list .
 
-    ?authors   rdf:rest*    ?blank_1 .
+    ?list      rdf:rest*    ?blank_1 .
     ?blank_1   rdf:first    <author:{{author_uuid}}> .
     ?blank_1   djht:index   ?current_index .
 
-    ?authors   rdf:rest*    ?blank_2 .
+    ?list      rdf:rest*    ?blank_2 .
     ?blank_2   djht:index   ?new_index .
 
     FILTER (?new_index = (xsd:integer(?current_index){{action}}))

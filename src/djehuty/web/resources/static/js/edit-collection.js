@@ -112,6 +112,9 @@ function render_authors_for_collection (collection_id) {
         type:        "GET",
         accept:      "application/json",
     }).done(function (authors) {
+        // Drop any phantom list node the authors query can return (an empty
+        // record with no uuid); it renders a ghost row with broken controls.
+        authors = authors.filter(function (a) { return a.uuid && a.uuid !== ""; });
         jQuery("#authors-list tbody").empty();
         let number_of_items = authors.length;
         for (let index = 0; index < number_of_items; index++) {

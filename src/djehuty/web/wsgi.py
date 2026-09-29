@@ -15,7 +15,7 @@ import subprocess
 import tempfile
 import uuid
 from datetime import date, datetime, timedelta
-from io import StringIO
+from io import StringIO, BytesIO
 from math import ceil, log2
 
 import pygit2
@@ -39,6 +39,7 @@ from djehuty.utils.constants import (
     member_url_names,
 )
 from djehuty.utils.convenience import (
+    date_or_range,
     css_string,
     decimal_coords,
     deduplicate_list,
@@ -82,6 +83,13 @@ except (ImportError, ModuleNotFoundError):
 try:
     import pyvips
 except (OSError, ImportError, ModuleNotFoundError):
+    pass
+
+## Similarly, error handling for loading qrcode is done in 'ui'.
+try:
+    import qrcode
+    import qrcode.image.svg
+except (ImportError, ModuleNotFoundError):
     pass
 
 def R (uri_path, endpoint):  # pylint: disable=invalid-name
@@ -177,15 +185,18 @@ class WebServer:
             R("/my/sessions/new",                                                self.ui_new_session),
             R("/my/profile",                                                     self.ui_profile),
             R("/my/profile/connect-with-orcid",                                  self.ui_profile_connect_with_orcid),
-            R("/my/physical-objects",                                            self.ui_my_physical_objects),
-            R("/my/physical-objects/new",                                        self.ui_new_physical_object),
-            R("/my/physical-objects/<container_uuid>/edit",                      self.ui_edit_physical_object),
-            R("/my/physical-objects/<container_uuid>/delete",                    self.ui_delete_physical_object),
+            R("/my/physical-samples",                                            self.ui_my_physical_samples),
+            R("/my/physical-samples/new",                                        self.ui_new_physical_sample),
+            R("/my/physical-samples/submitted-for-review",                       self.ui_physical_sample_submitted),
+            R("/my/physical-samples/<container_uuid>/edit",                      self.ui_edit_physical_sample),
+            R("/my/physical-samples/<container_uuid>/delete",                    self.ui_delete_physical_sample),
             R("/review/overview",                                                self.ui_review_overview),
             R("/review/goto-dataset/<dataset_id>",                               self.ui_review_impersonate_to_dataset),
+            R("/review/goto-physical-sample/<container_uuid>",                   self.ui_review_impersonate_to_physical_sample),
             R("/review/assign-to-me/<dataset_id>",                               self.ui_review_assign_to_me),
             R("/review/unassign/<dataset_id>",                                   self.ui_review_unassign),
             R("/review/published/<dataset_id>",                                  self.ui_review_published),
+            R("/review/physical-sample/published/<container_uuid>",              self.ui_review_physical_sample_published),
             R("/admin/approve-quota-request/<quota_request_uuid>",               self.ui_admin_approve_quota_request),
             R("/admin/dashboard",                                                self.ui_admin_dashboard),
             R("/admin/deny-quota-request/<quota_request_uuid>",                  self.ui_admin_deny_quota_request),
@@ -221,8 +232,12 @@ class WebServer:
             R("/opendap_to_doi",                                                 self.ui_opendap_to_doi),
             R("/datasets/<dataset_id>",                                          self.ui_dataset),
             R("/datasets/<dataset_id>/<version>",                                self.ui_dataset),
+            R("/physical_sample/<physical_sample_id>",                           self.ui_physical_sample),
+            R("/physical_sample/<physical_sample_id>/<version>",                 self.ui_physical_sample),
             R("/private_datasets/<private_link_id>",                             self.ui_private_dataset),
             R("/private_collections/<private_link_id>",                          self.ui_private_collection),
+            R("/physical_sample/<physical_sample_id>/qr-code",                   self.ui_physical_sample_qr_code),
+            R("/private_physical_sample/<private_link_id>",                      self.ui_private_physical_sample),
             R("/file/<dataset_id>/<file_id>",                                    self.ui_download_file),
             R("/collections/<collection_id>",                                    self.ui_collection),
             R("/collections/<collection_id>/<version>",                          self.ui_collection),
@@ -384,6 +399,26 @@ class WebServer:
             R("/v3/ro-crates",                                                   self.api_v3_ro_crates),
             R("/v3/datasets/<container_uuid>/ro-crate-metadata.json",            self.api_v3_datasets_ro_crate),
             R("/v3/datasets/<container_uuid>/versions/<version>/ro-crate-metadata.json", self.api_v3_datasets_ro_crate),
+
+            ## Physical samples
+            ## ----------------------------------------------------------------
+            R("/v3/physical-samples",                                            self.api_v3_physical_sample_details),
+            R("/v3/physical-samples/<container_uuid>",                           self.api_v3_physical_sample_details),
+            R("/v3/physical-samples/<container_uuid>/creators",                  self.api_v3_physical_sample_creators),
+            R("/v3/physical-samples/<container_uuid>/creators/<creator_uuid>",   self.api_v3_physical_sample_creator_delete),
+            R("/v3/physical-samples/<container_uuid>/reorder-creators",          self.api_v3_physical_sample_creators_reorder),
+            R("/v3/physical-samples/<container_uuid>/dates",                     self.api_v3_physical_sample_dates),
+            R("/v3/physical-samples/<container_uuid>/dates/<date_uuid>",         self.api_v3_physical_sample_date_delete),
+            R("/v3/physical-samples/<container_uuid>/related-resources",         self.api_v3_physical_sample_related_resources),
+            R("/v3/physical-samples/<container_uuid>/related-resources/<resource_uuid>", self.api_v3_physical_sample_related_resource_delete),
+            R("/v3/physical-samples/<container_uuid>/tags",                      self.api_v3_physical_sample_tags),
+            R("/v3/physical-samples/<container_uuid>/categories",                self.api_v3_physical_sample_categories),
+            R("/v3/physical-samples/<container_uuid>/private_links",             self.api_private_physical_sample_private_links),
+            R("/v3/physical-samples/<container_uuid>/private_links/<link_id>",   self.api_private_physical_sample_private_links_details),
+            R("/v3/physical-samples/<container_uuid>/submit-for-review",         self.api_v3_physical_sample_submit),
+            R("/v3/physical-samples/<container_uuid>/publish",                   self.api_v3_physical_sample_publish),
+            R("/v3/physical-samples/<container_uuid>/decline",                   self.api_v3_physical_sample_decline),
+            R("/v3/physical-samples/<container_uuid>/assign-reviewer/<reviewer_uuid>", self.api_v3_physical_samples_assign_reviewer),
 
             ## Data model exploratory
             ## ----------------------------------------------------------------
@@ -1025,6 +1060,15 @@ class WebServer:
         response.status_code = 500
         if audit_log_message is None:
             audit_log_message = "An unexpected error has occurred (HTTP 500)."
+        self.log.audit (audit_log_message)
+        return response
+
+    def error_502 (self, audit_log_message=None):
+        """Procedure to respond with HTTP 502."""
+        response = self.response ("")
+        response.status_code = 502
+        if audit_log_message is None:
+            audit_log_message = "Received an invalid response from an external service (HTTP 502)."
         self.log.audit (audit_log_message)
         return response
 
@@ -1714,6 +1758,25 @@ class WebServer:
     def __reviewer_account_uuid (self, request):
         return self.__account_uuid_for_privilege (request, self.db.may_review)
 
+    def __account_can_use_igsn (self, account_uuid):
+        """Returns True when IGSN is enabled and ACCOUNT_UUID may use it.
+
+        Gates the physical-sample UI: the feature must be configured (a prefix
+        is set) and enabled, and -- when an allow-list is configured -- the
+        account's e-mail domain must appear in 'config.igsn_allowed_domains'.
+        An empty allow-list permits every depositor.
+        """
+        if not (config.supports_igsn and config.igsn_enabled):
+            return False
+        if not config.igsn_allowed_domains:
+            return True
+        account = self.db.account_by_uuid (account_uuid)
+        if account is None:
+            return False
+        if "domain" in account:
+            return account["domain"] in config.igsn_allowed_domains
+        return False
+
     def default_list_response (self, records, format_function, **parameters):
         """Procedure to respond a list of items."""
         output     = []
@@ -2238,7 +2301,8 @@ class WebServer:
             quota        = pretty_print_size (account_quota),
             requested_quota = requested_quota,
             percentage_used = percentage_used,
-            sessions     = sessions)
+            sessions     = sessions,
+            can_use_igsn = self.__account_can_use_igsn (account_uuid))
 
     def __datasets_with_storage_usage (self, datasets):
         for dataset in datasets:
@@ -2277,7 +2341,8 @@ class WebServer:
         return self.__render_template (request, "depositor/my-data.html",
                                        draft_datasets     = draft_datasets,
                                        review_datasets    = review_datasets,
-                                       published_datasets = published_datasets)
+                                       published_datasets = published_datasets,
+                                       can_use_igsn = self.__account_can_use_igsn (account_uuid))
 
     def ui_collection_published (self, request, collection_id):
         """Implements /my/collections/published/<id>."""
@@ -2301,6 +2366,17 @@ class WebServer:
             return error_response
 
         return self.__render_template (request, "depositor/submitted-for-review.html")
+
+    def ui_physical_sample_submitted (self, request):
+        """Implements /my/physical-samples/submitted-for-review."""
+        if not self.accepts_html (request):
+            return self.error_406 ("text/html")
+
+        _, error_response = self.__depositor_account_uuid (request)
+        if error_response is not None:
+            return error_response
+
+        return self.__render_template (request, "depositor/physical-sample-submitted-for-review.html")
 
     def ui_new_dataset (self, request):
         """Implements /my/datasets/new."""
@@ -2564,7 +2640,8 @@ class WebServer:
 
         return self.__render_template (request, "depositor/my-collections.html",
                                        draft_collections     = drafts,
-                                       published_collections = published)
+                                       published_collections = published,
+                                       can_use_igsn = self.__account_can_use_igsn (account_uuid))
 
     def ui_edit_collection (self, request, collection_id):
         """Implements /my/collections/<id>/edit."""
@@ -3203,8 +3280,8 @@ class WebServer:
 
         return redirect ("/my/profile", 302)
 
-    def ui_my_physical_objects (self, request):
-        """Implements /my/physical-objects."""
+    def ui_my_physical_samples (self, request):
+        """Implements /my/physical-samples."""
 
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
@@ -3212,16 +3289,33 @@ class WebServer:
         account_uuid, error_response = self.__depositor_account_uuid (request)
         if error_response is not None:
             return error_response
+        if not self.__account_can_use_igsn (account_uuid):
+            return self.error_403 (request)
 
-        drafts = self.db.physical_objects (account_uuid   = account_uuid,
-                                           is_published   = False,
-                                           is_latest      = False)
+        drafts = self.db.physical_samples (account_uuid    = account_uuid,
+                                           limit           = 10000,
+                                           is_published    = False,
+                                           is_latest       = False,
+                                           is_under_review = False)
 
-        return self.__render_template (request, "depositor/physical-objects.html",
-                                       drafts = drafts)
+        review_samples = self.db.physical_samples (account_uuid    = account_uuid,
+                                                   limit           = 10000,
+                                                   is_published    = False,
+                                                   is_latest       = False,
+                                                   is_under_review = True)
 
-    def ui_new_physical_object (self, request):
-        """Implements /my/physical-objects/new."""
+        published_samples = self.db.physical_samples (account_uuid    = account_uuid,
+                                                      limit           = 10000,
+                                                      is_latest       = True,
+                                                      is_under_review = False)
+
+        return self.__render_template (request, "depositor/my-physical-samples.html",
+                                       drafts = drafts,
+                                       review_samples=review_samples,
+                                       published_samples=published_samples)
+
+    def ui_new_physical_sample (self, request):
+        """Implements /my/physical-samples/new."""
 
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
@@ -3229,75 +3323,875 @@ class WebServer:
         account_uuid, error_response = self.__depositor_account_uuid (request)
         if error_response is not None:
             return error_response
+        if not self.__account_can_use_igsn (account_uuid):
+            return self.error_403 (request)
 
-        container_uuid, object_uuid = self.db.insert_physical_object (
+        container_uuid, sample_uuid = self.db.insert_physical_sample (
             title = "Untitled item",
             account_uuid = account_uuid)
 
-        if container_uuid is not None and object_uuid is not None:
+        if container_uuid is not None and sample_uuid is not None:
             # Add oneself as author but don't bail if that doesn't work.
             try:
                 account    = self.db.account_by_uuid (account_uuid)
                 author_uri = URIRef(uuid_to_uri(account["author_uuid"], "author"))
-                self.db.update_item_list (object_uuid, account_uuid,
-                                          [author_uri], "authors")
+                self.db.update_item_list (sample_uuid, account_uuid,
+                                          [author_uri], "creators")
             except (TypeError, KeyError):
                 self.log.warning ("No author record for account %s.", account_uuid)
 
-            return redirect (f"/my/physical-objects/{container_uuid}/edit", code=302)
+            return redirect (f"/my/physical-samples/{container_uuid}/edit", code=302)
 
         return self.error_500()
 
-    def ui_edit_physical_object (self, request, container_uuid):
-        """Implements /my/physical-objects/<uuid>/edit."""
+    def ui_edit_physical_sample (self, request, container_uuid):
+        """Implements /my/physical-samples/<uuid>/edit."""
 
         account_uuid = self.default_authenticated_error_handling (request, "GET", "text/html")
         if isinstance (account_uuid, Response):
             return account_uuid
+        if not self.__account_can_use_igsn (account_uuid):
+            return self.error_403 (request)
 
         if not validator.is_valid_uuid (container_uuid):
             return self.error_404 (request)
 
         try:
-            physical_object = self.db.physical_objects (
-                container_uuid = container_uuid,
-                account_uuid   = account_uuid,
-                is_published   = False,
-                is_latest      = False)[0]
+            physical_sample = self.__editable_physical_sample_draft (container_uuid, account_uuid)
+            if physical_sample is None:
+                return self.error_403 (request)
+
+            account = self.db.account_by_uuid (physical_sample["account_uuid"])
+            groups  = self.__groups_for_account (physical_sample["account_uuid"])
 
             return self.__render_template (
-                request, "depositor/edit-physical-object.html",
-                object = physical_object,
-                draft_doi = f"{self.igsn_prefix}/{container_uuid}")
+                request, "depositor/edit-physical-sample.html",
+                object     = physical_sample,
+                account    = account,
+                groups     = groups,
+                categories = self.db.categories_tree(),
+                draft_doi  = f"{config.igsn_prefix}/{container_uuid}",
+                current_year = datetime.now().strftime("%Y"))
         except IndexError:
             return self.error_403 (request)
 
-    def ui_delete_physical_object (self, request, container_uuid):
-        """Implements /my/physical-objects/<uuid>/delete."""
+    def __editable_physical_sample_draft (self, container_uuid, account_uuid):
+        """Returns the container's draft physical sample, creating one from the
+        published record when only a published version exists (an update)."""
+
+        try:
+            return self.db.physical_samples (
+                container_uuid = container_uuid,
+                account_uuid   = account_uuid,
+                is_published   = False,
+                is_latest      = False)[0]
+        except IndexError:
+            pass
+
+        # No draft yet: this is an update of a published sample.  Copy the
+        # published record into a fresh draft (same container, same IGSN).
+        if self.db.create_draft_from_published_physical_sample (container_uuid, account_uuid) is None:
+            return None
+
+        try:
+            return self.db.physical_samples (
+                container_uuid = container_uuid,
+                account_uuid   = account_uuid,
+                is_published   = False,
+                is_latest      = False)[0]
+        except IndexError:
+            return None
+
+    def ui_delete_physical_sample (self, request, container_uuid):
+        """Implements /my/physical-samples/<uuid>/delete."""
 
         account_uuid = self.default_authenticated_error_handling (request, "GET", "text/html")
         if isinstance (account_uuid, Response):
             return account_uuid
 
         if not validator.is_valid_uuid (container_uuid):
+
             return self.error_404 (request)
 
         try:
-            physical_object = self.db.physical_objects (
+            physical_sample = self.db.physical_samples (
                 container_uuid = container_uuid,
                 account_uuid   = account_uuid,
                 is_published   = False,
                 is_latest      = False)[0]
 
-            if self.db.delete_physical_object (account_uuid, physical_object["object_uuid"]):
-                return redirect ("/my/physical-objects", code=303)
+            if self.db.delete_physical_sample (account_uuid, physical_sample["sample_uuid"]):
+                return redirect ("/my/physical-samples", code=303)
 
-            self.log.error ("Failed to delete physical object draft.")
+            self.log.error ("Failed to delete physical sample draft.")
 
         except IndexError:
             return self.error_403 (request)
         except KeyError as error:
             self.log.error("KeyError: %s", error)
+
+        return self.error_500 ()
+
+    def api_v3_physical_sample_details (self, request, container_uuid=None):
+        """Implements /v3/physical-samples[/<uuid>]."""
+
+        if request.method in ("GET", "HEAD"):
+            if not self.accepts_json(request):
+                return self.error_406 ("application/json")
+
+            account_uuid = self.account_uuid_from_request (request)
+            physical_sample = None
+            try:
+                if account_uuid is not None:
+                    physical_sample = self.db.physical_samples (
+                        container_uuid = container_uuid,
+                        account_uuid   = account_uuid,
+                        is_published   = False,
+                        is_latest      = False)[0]
+                else:
+                    physical_sample = self.db.physical_samples (
+                        container_uuid = container_uuid,
+                        is_published   = True,
+                        is_latest      = True)[0]
+
+                if not physical_sample:
+                    return self.error_403 (request)
+
+                output = formatter.format_physical_sample_record (physical_sample)
+                return self.response (json.dumps(output))
+            except IndexError:
+                return self.error_404 (request)
+
+        if request.method == "PUT":
+            account_uuid = self.default_authenticated_error_handling (request, "PUT", "application/json",
+                                                                       self.db.is_depositor)
+            if isinstance (account_uuid, Response):
+                return account_uuid
+            if not self.__account_can_use_igsn (account_uuid):
+                return self.error_403 (request)
+
+            has_created_new = False
+            if container_uuid is None:
+                container_uuid, _ = self.db.insert_physical_sample (
+                    title = "Untitled item",
+                    account_uuid = account_uuid)
+                has_created_new = True
+            elif not validator.is_valid_uuid (container_uuid):
+                return self.error_404 (request)
+
+            try:
+                record     = request.get_json()
+
+                sample = self.__physical_sample_by_id_or_uri(container_uuid,
+                                                             account_uuid=account_uuid,
+                                                             is_published = False)
+                if sample is None:
+                    return self.error_404 (request)
+
+                categories, errors = self.__category_list_from_request_input(record)
+                if errors:
+                    return self.error_400_list (request, errors)
+
+                parameters = {
+                    "sample_uuid":          sample["uuid"],
+                    "account_uuid":         account_uuid,
+                    "container_uuid":       container_uuid,
+                    "title":                validator.string_value (record, "title",         0, 1000, False),
+                    "abstract":             validator.string_value (record, "abstract",      0, 8000, False),
+                    "methods":              validator.string_value (record, "methods",       0, 8000, False),
+                    "resource_type":        validator.string_value (record, "resource_type", 0, 512,  False),
+                    "subject":              validator.string_value (record, "subject",       0, 512,  False),
+                    "alternate_identifier": validator.string_value (record, "alternate_identifier", 0, 512, False),
+                    "organizations":        validator.string_value (record, "organizations", 0, 2048, False),
+                    "physical_storage_location":   validator.string_value (record, "physical_storage_location", 0, 2048, False),
+                    "geolocation":          validator.string_value (record, "geolocation",   0, 255,  False),
+                    "longitude":            validator.coordinate_value (record, "longitude", "E", False),
+                    "latitude":             validator.coordinate_value (record, "latitude",  "N", False),
+                    "sample_owner_name":    validator.string_value  (record, "sample_owner_name",  0, 255, False),
+                    "sample_owner_email":   validator.string_value  (record, "sample_owner_email", 0, 255, False),
+                    "group_id":             validator.integer_value (record, "group_id", 0, pow(2, 63), False),
+                    "agreed_to_deposit_agreement": validator.boolean_value (record, "agreed_to_deposit_agreement", False, False),
+                    "agreed_to_publish":    validator.boolean_value (record, "agreed_to_publish", False, False),
+                    "categories":           categories,
+                }
+
+                if not self.db.update_physical_sample (**parameters):
+                    return self.error_500 ()
+
+                if has_created_new:
+                    return self.respond_201 ({
+                        "location": f"{self.base_url}/v3/physical-samples/{container_uuid}"
+                    })
+                return self.respond_204 ()
+            except IndexError:
+                return self.error_403 (request)
+            except validator.ValidationException as error:
+                return self.error_400 (request, error.message, error.code)
+
+        return self.error_405 (["GET", "PUT"])
+
+    def api_v3_physical_sample_creators (self, request, container_uuid):
+        """Implements /v3/physical-samples/<container_uuid>/creators."""
+
+        if request.method in ("GET", "HEAD"):
+            handler = self.default_error_handling (request, "GET", "application/json")
+            if handler is not None:
+                return handler
+
+            account_uuid = self.account_uuid_from_request (request)
+            if account_uuid is None:
+                return self.error_403 (request)
+            records = self.db.physical_sample_creators (container_uuid, account_uuid)
+            return self.default_list_response (records, formatter.format_author_record_v3)
+
+        account_uuid = self.default_authenticated_error_handling (request,
+                                                                  ["POST", "PUT", "DELETE"],
+                                                                  "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
+
+        if request.method in ("POST", "PUT"):
+
+            if request.method == "PUT":
+                return self.error_405 (["GET", "POST"])
+
+            record = request.get_json()
+            errors = []
+
+            # A dictionary payload with an "authors" field creates a brand-new
+            # author record and links it as a creator, mirroring the dataset
+            # author flow.  A list payload links existing authors by UUID.
+            if isinstance (record, dict):
+                new_creators, errors = self.__author_list_from_request_input (record, account_uuid)
+                if errors:
+                    return self.error_400_list (request, errors)
+
+                item = self.__editable_physical_sample_draft (container_uuid, account_uuid)
+                if item is None:
+                    return self.error_404 (request)
+
+                existing_creators = self.db.physical_sample_creators (container_uuid, account_uuid)
+                existing_creators = list (map (
+                    lambda creator: URIRef (uuid_to_uri (creator["uuid"], "author")),
+                    existing_creators))
+
+                creators = existing_creators + new_creators
+                if self.db.update_item_list (item["sample_uuid"], account_uuid, creators, "creators"):
+                    return self.respond_204 ()
+
+                return self.error_500 ()
+
+            validated = []
+            if not isinstance (record, list):
+                return self.error_400 (request, message = "Expected a list.",
+                                                code    = "UnexpectedContent")
+
+            for author_uuid in record:
+                if validator.is_valid_uuid (author_uuid):
+                    validated.append (author_uuid)
+                else:
+                    errors.append ({
+                        "field_name": author_uuid,
+                        "message": "Expected a valid UUID."
+                    })
+
+            if errors:
+                return self.error_400_list (request, errors)
+
+            for author_uuid in validated:
+                if self.db.add_creator_to_physical_sample (container_uuid,
+                                                           author_uuid,
+                                                           account_uuid) is None:
+                    self.log.error ("Failed to add <author:%s> to <container:%s>.",
+                                    author_uuid, container_uuid)
+                    errors.append ({
+                        "field_name": author_uuid,
+                        "message": "Failed database insert."
+                    })
+
+            if errors:
+                return self.error_400_list (request, errors)
+
+            return self.respond_204 ()
+
+        if request.method == "DELETE":
+            return self.error_405 (["GET", "POST"])
+
+        return self.error_405 (["GET", "POST"])
+
+    def api_v3_physical_sample_creator_delete (self, request, container_uuid, creator_uuid):
+        """Implements /v3/physical-samples/<container_uuid>/creators/<creator_uuid>."""
+
+        if not validator.is_valid_uuid (container_uuid) or not validator.is_valid_uuid (creator_uuid):
+            return self.error_404 (request)
+
+        if request.method not in ("GET", "HEAD", "DELETE"):
+            return self.error_405 (["GET", "DELETE"])
+
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
+            return self.error_authorization_failed (request)
+
+        if request.method in ("GET", "HEAD"):
+            creators = self.db.physical_sample_creators (container_uuid, account_uuid)
+            creator = next (
+                (c for c in creators if value_or (c, "uuid", None) == creator_uuid), None)
+            if creator is None:
+                return self.error_404 (request)
+            return self.response (json.dumps (formatter.format_author_record_v3 (creator)))
+
+        item = self.__editable_physical_sample_draft (container_uuid, account_uuid)
+        if item is None:
+            return self.error_404 (request)
+
+        try:
+            creators = self.db.physical_sample_creators (container_uuid, account_uuid)
+            creators.remove (next (filter (lambda c: c["uuid"] == creator_uuid, creators)))
+            creators = list (map (lambda c: URIRef (uuid_to_uri (c["uuid"], "author")), creators))
+
+            if self.db.update_item_list (item["sample_uuid"], account_uuid, creators, "creators"):
+                return self.respond_204 ()
+
+            return self.error_500 ()
+
+        except (IndexError, KeyError, StopIteration):
+            return self.error_500 ()
+
+    def api_v3_physical_sample_creators_reorder (self, request, container_uuid):
+        """Implements /v3/physical-samples/<container_uuid>/reorder-creators."""
+        return self.__reorder_authors_for_item (request, container_uuid, predicate="creators")
+
+    def api_v3_physical_sample_dates (self, request, container_uuid):
+        """Implements /v3/physical-samples/<container_uuid>/dates."""
+
+        if not validator.is_valid_uuid (container_uuid):
+            return self.error_404 (request)
+
+        if request.method in ("GET", "HEAD"):
+            handler = self.default_error_handling (request, "GET", "application/json")
+            if handler is not None:
+                return handler
+
+            account_uuid = self.account_uuid_from_request (request)
+            if account_uuid is None:
+                return self.error_403 (request)
+            records = self.db.physical_sample_dates (container_uuid, account_uuid)
+            return self.default_list_response (records, formatter.format_physical_sample_date_record)
+
+        account_uuid = self.default_authenticated_error_handling (request,
+                                                                  ["POST", "PUT", "DELETE"],
+                                                                  "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
+
+        if request.method in ("POST", "PUT"):
+
+            if request.method == "PUT":
+                return self.error_405 (["GET", "POST"])
+
+            record = request.get_json()
+            ## "issued" is intentionally omitted: the Issued date is set
+            ## automatically to the publication date and cannot be entered by hand.
+            types  = ["collected", "created", "destroyed", "updated", "other"]
+            errors = []
+
+            if not isinstance (record, list):
+                return self.error_400 (request, message = "Expected a list.",
+                                                code    = "UnexpectedContent")
+
+            for date_record in record:
+                date_type = validator.options_value (date_record, "type", types, True, errors)
+                date, date_end = validator.partial_date_range_value (date_record, "date",
+                                                                     True, errors)
+                if date_type is not None and date is not None:
+                    if self.db.add_date_to_physical_sample (container_uuid,
+                                                            date_type,
+                                                            date,
+                                                            account_uuid,
+                                                            date_end) is None:
+                        self.log.error ("Failed to add date (%s, %s) to physical sample %s.",
+                                        date_type, date, container_uuid)
+                        errors.append ({
+                            "field_name": "PhysicalSampleDate",
+                            "message": "Failed to create date."
+                        })
+
+            if errors:
+                return self.error_400_list (request, errors)
+
+            return self.respond_204 ()
+
+        if request.method == "DELETE":
+            return self.error_405 (["GET", "POST"])
+
+        return self.error_405 (["GET", "POST"])
+
+    def api_v3_physical_sample_date_delete (self, request, container_uuid, date_uuid):
+        """Implements /v3/physical-samples/<container_uuid>/dates/<date_uuid>."""
+
+        if not validator.is_valid_uuid (container_uuid) or not validator.is_valid_uuid (date_uuid):
+            return self.error_404 (request)
+
+        if request.method != "DELETE":
+            return self.error_405 (["DELETE"])
+
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
+            return self.error_authorization_failed (request)
+
+        item = self.__editable_physical_sample_draft (container_uuid, account_uuid)
+        if item is None:
+            return self.error_404 (request)
+
+        try:
+            dates = self.db.physical_sample_dates (container_uuid, account_uuid)
+            dates.remove (next (filter (lambda d: d["uuid"] == date_uuid, dates)))
+            dates = list (map (lambda d: URIRef (uuid_to_uri (d["uuid"],
+                                                 "physical-sample-date")), dates))
+
+            if self.db.update_item_list (item["sample_uuid"], account_uuid, dates, "dates"):
+                return self.respond_204 ()
+
+            return self.error_500 ()
+
+        except (IndexError, KeyError, StopIteration):
+            return self.error_500 ()
+
+    def api_v3_physical_sample_related_resources (self, request, container_uuid):
+        """Implements /v3/physical-samples/<container_uuid>/related-resources."""
+
+        if not validator.is_valid_uuid (container_uuid):
+            return self.error_404 (request)
+
+        if request.method in ("GET", "HEAD"):
+            handler = self.default_error_handling (request, "GET", "application/json")
+            if handler is not None:
+                return handler
+
+            account_uuid = self.account_uuid_from_request (request)
+            if account_uuid is None:
+                return self.error_403 (request)
+            records = self.db.physical_sample_related_resources (container_uuid, account_uuid)
+            return self.default_list_response (records, formatter.format_physical_sample_related_resource_record)
+
+        account_uuid = self.default_authenticated_error_handling (request,
+                                                                  ["POST", "PUT", "DELETE"],
+                                                                  "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
+
+        if request.method in ("POST", "PUT"):
+
+            if request.method == "PUT":
+                return self.error_405 (["GET", "POST"])
+
+            records          = request.get_json()
+            identifier_types = ["IGSNDOI", "OtherDOI", "URL"]
+            relation_types   = ["IsPartOf", "HasPart", "IsDerivedFrom", "IsSourceOf",
+                                 "IsReferencedBy", "References", "IsCitedBy", "Cites",
+                                 "IsDescribedBy", "Describes"]
+            errors           = []
+
+            if not isinstance (records, list):
+                return self.error_400 (request, message = "Expected a list.",
+                                                code    = "UnexpectedContent")
+
+            for resource in records:
+                url                 = validator.string_value  (resource, "identifier",       0, 2048, True, errors)
+                identifier_type     = validator.options_value (resource, "identifier-type",  identifier_types, True, errors)
+                identifier_relation = validator.options_value (resource, "relation-type",    relation_types,   True, errors)
+                if (url is not None and
+                    identifier_type is not None and
+                    identifier_relation is not None):
+                    if self.db.add_related_resource_to_physical_sample (container_uuid,
+                                                                          url,
+                                                                          identifier_type,
+                                                                          identifier_relation,
+                                                                          account_uuid) is None:
+                        self.log.error ("Failed to add related identifier (%s, %s, %s) to physical sample %s.",
+                                        url, identifier_type, identifier_relation, container_uuid)
+                        errors.append ({
+                            "field_name": "PhysicalSampleRelatedResource",
+                            "message": "Failed to create record of related identifier."
+                        })
+
+            if errors:
+                return self.error_400_list (request, errors)
+
+            return self.respond_204 ()
+
+        if request.method == "DELETE":
+            return self.error_405 (["GET", "POST"])
+
+        return self.error_405 (["GET", "POST"])
+
+    def api_v3_physical_sample_related_resource_delete (self, request, container_uuid, resource_uuid):
+        """Implements /v3/physical-samples/<container_uuid>/related-resources/<resource_uuid>."""
+
+        if not validator.is_valid_uuid (container_uuid) or not validator.is_valid_uuid (resource_uuid):
+            return self.error_404 (request)
+
+        if request.method != "DELETE":
+            return self.error_405 (["DELETE"])
+
+        account_uuid = self.account_uuid_from_request (request)
+        if account_uuid is None:
+            return self.error_authorization_failed (request)
+
+        item = self.__editable_physical_sample_draft (container_uuid, account_uuid)
+        if item is None:
+            return self.error_404 (request)
+
+        try:
+            resources = self.db.physical_sample_related_resources (container_uuid, account_uuid)
+            resources.remove (next (filter (lambda r: r["uuid"] == resource_uuid, resources)))
+            resources = list (map (lambda r: URIRef (uuid_to_uri (r["uuid"],
+                                                     "physical-sample-related-resource")), resources))
+
+            if self.db.update_item_list (item["sample_uuid"], account_uuid, resources, "related_resources"):
+                return self.respond_204 ()
+
+            return self.error_500 ()
+
+        except (IndexError, KeyError, StopIteration):
+            return self.error_500 ()
+
+    def __physical_sample_by_id_or_uri (self, identifier, account_uuid=None,
+                                        is_published=False, is_latest=False,
+                                        is_under_review=None, version=None,
+                                        use_cache=True):
+        try:
+            if version is not None and not parses_to_int (version):
+                return None
+
+            parameters = {
+                "is_published":    is_published,
+                "is_latest":       is_latest,
+                "is_under_review": is_under_review,
+                "account_uuid":    account_uuid,
+            }
+            sample = None
+            if validator.is_valid_uuid (identifier):
+                sample = self.db.physical_samples (container_uuid = identifier,
+                                                   **parameters)[0]
+            if sample is not None:
+                sample["uri"]  = f"physical-sample:{sample['sample_uuid']}"
+                sample["uuid"] = sample["sample_uuid"]
+            return sample
+        except IndexError:
+            return None
+
+    def api_v3_physical_sample_submit (self, request, container_uuid):
+        """Implements /v3/physical-samples/<id>/submit-for-review."""
+
+        account_uuid = self.default_authenticated_error_handling (request, "PUT",
+                                                                  "application/json",
+                                                                  self.db.is_depositor)
+
+        if isinstance (account_uuid, Response):
+            return account_uuid
+
+        if not validator.is_valid_uuid (container_uuid):
+            return self.error_404 (request)
+
+        ## Submitting is guarded so that two concurrent submits (a double click
+        ## or a second tab) cannot both pass the is_under_review check and each
+        ## insert a review for the same draft.
+        sample     = None
+        account    = None
+        review_uri = None
+        self.locks.lock (locks.LockTypes.SUBMIT_PHYSICAL_SAMPLE)
+        try:
+            sample = self.__physical_sample_by_id_or_uri (container_uuid,
+                                                          account_uuid    = account_uuid,
+                                                          is_published    = False,
+                                                          is_under_review = False)
+            if sample is None:
+                return self.error_404 (request)
+
+            record = request.get_json ()
+            errors = []
+            ## The Deposit Agreement does not yet cover physical samples, so
+            ## agreeing to it is not required for now.  To be replaced by the
+            ## Terms of Service at a later time.
+            agreed_to_deposit_agreement = validator.boolean_value (record, "agreed_to_deposit_agreement", False, False, errors)
+            agreed_to_publish = validator.boolean_value (record, "agreed_to_publish", True, False, errors)
+
+            if not agreed_to_publish:
+                errors.append ({
+                    "field_name": "agreed_to_publish",
+                    "message": "The physical sample cannot be published without giving the reviewer permission to do so."})
+
+            creators = self.db.physical_sample_creators (container_uuid, account_uuid)
+            if not creators:
+                errors.append ({
+                    "field_name": "authors",
+                    "message": "The physical sample must have at least one creator."})
+
+            tags = self.db.tags (item_uri     = sample["uri"],
+                                 account_uuid = account_uuid)
+            if len (tags) < config.minimum_keywords_count:
+                keyword_noun = ("keyword" if config.minimum_keywords_count == 1
+                                else "keywords")
+                errors.append ({
+                    "field_name": "tag",
+                    "message": (f"The physical sample must have at least "
+                                f"{config.minimum_keywords_count} {keyword_noun}.")})
+
+            categories, category_errors = self.__category_list_from_request_input (record)
+            if category_errors:
+                errors += category_errors
+            if not categories:
+                errors.append ({
+                    "field_name": "categories",
+                    "message": "Please specify at least one category."})
+
+            parameters = {
+                "sample_uuid":          sample["uuid"],
+                "account_uuid":         account_uuid,
+                "container_uuid":       container_uuid,
+                "title":                validator.string_value  (record, "title",            3, 1000,  True,  errors),
+                "abstract":             validator.string_value  (record, "abstract",         0, 8000,  True,  errors, strip_html=False),
+                "methods":              validator.string_value  (record, "methods",          0, 8000,  False, errors, strip_html=False),
+                "resource_type":        validator.string_value  (record, "resource_type",    0, 512,   False, errors),
+                "subject":              validator.string_value  (record, "subject",          0, 512,   False, errors),
+                "publisher":            validator.string_value  (record, "publisher",        0, 10000, True,  errors),
+                "publication_year":     datetime.now().strftime("%Y"),
+                "alternate_identifier": validator.string_value  (record, "alternate_identifier", 0, 255, False, errors),
+                "organizations":        validator.string_value  (record, "organizations",    0, 2048,  True,  errors),
+                "physical_storage_location": validator.string_value (record, "physical_storage_location", 1, 2048, True, errors),
+                "geolocation":          validator.string_value  (record, "geolocation",      0, 255,   False, errors),
+                "longitude":            validator.coordinate_value (record, "longitude", "E", False, errors),
+                "latitude":             validator.coordinate_value (record, "latitude",  "N", False, errors),
+                "sample_owner_name":    validator.string_value  (record, "sample_owner_name",  0, 255, True,  errors),
+                "sample_owner_email":   validator.email_value   (record, "sample_owner_email", True, errors),
+                "group_id":             validator.integer_value (record, "group_id", 0, pow(2, 63), True, errors),
+                "agreed_to_deposit_agreement": agreed_to_deposit_agreement,
+                "agreed_to_publish":    agreed_to_publish,
+                "categories":           categories,
+            }
+
+            if errors:
+                return self.error_400_list (request, errors)
+
+            account = self.db.account_by_uuid (sample["account_uuid"])
+            if not account:
+                return self.error_500 ()
+
+            if not self.db.update_physical_sample (**parameters):
+                return self.error_500 ()
+
+            review_uri = self.db.insert_review (sample["uri"])
+
+        except validator.ValidationException as error:
+            return self.error_400 (request, error.message, error.code)
+        except (IndexError, KeyError):
+            return self.error_500 ()
+        finally:
+            self.locks.unlock (locks.LockTypes.SUBMIT_PHYSICAL_SAMPLE)
+
+        if review_uri is None:
+            return self.error_500 ()
+
+        subject = f"Request for review: {sample['container_uuid']}"
+        self.__send_email_to_reviewers (subject, "physical_sample_submitted_notification",
+                                        account_email = value_or_none (account, "email"),
+                                        dataset = sample,
+                                        account = account)
+        return self.respond_204 ()
+
+    def api_v3_physical_sample_publish (self, request, container_uuid):
+        """Implements /v3/physical-samples/<id>/publish."""
+
+        account_uuid = self.default_authenticated_error_handling (request, "POST",
+                                                                  "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
+
+        reviewer_token = self.token_from_cookie (request, self.impersonator_cookie_key)
+        may_review_all = self.db.may_review (reviewer_token)
+        may_review_institution = self.db.may_review_institution (reviewer_token)
+        if not may_review_all and not may_review_institution:
+            # When using the API, the impersonator cookie isn't set, so we fall
+            # back to the caller's own token.  Keep using it as the reviewer's
+            # token from here on, otherwise the institutional check below has no
+            # reviewer to compare the sample against.
+            reviewer_token = self.token_from_request (request)
+            may_review_all = self.db.may_review (reviewer_token)
+            may_review_institution = self.db.may_review_institution (reviewer_token)
+            if not may_review_all and not may_review_institution:
+                return self.error_403 (request)
+
+        sample = self.__physical_sample_by_id_or_uri (container_uuid,
+                                                      account_uuid = account_uuid,
+                                                      is_published = False)
+        if sample is None:
+            return self.error_403 (request)
+
+        reviewer_account = self.db.account_by_session_token (reviewer_token)
+        if may_review_institution:
+            if value_or (sample, "group_id", "A") != value_or (reviewer_account, "group_id", "not-A"):
+                return self.error_403 (request)
+
+        ## The draft stays editable after submission, so re-check the fields
+        ## DataCite requires before minting: without a title the XML build
+        ## raises, and without a named creator DataCite rejects an empty
+        ## <creators>.  Bail out cleanly rather than half-publishing.
+        creators = self.db.physical_sample_creators (container_uuid, account_uuid)
+        has_named_creator = any (str (value_or (creator, "full_name", "")).strip ()
+                                 for creator in creators)
+        if not str (value_or (sample, "title", "")).strip () or not has_named_creator:
+            return self.error_400 (
+                request,
+                ("The physical sample needs a title and at least one creator "
+                 "before it can be published."),
+                "PublishValidation")
+
+        review_uri = value_or_none (sample, "review_uri")
+        if review_uri is not None and reviewer_account is not None:
+            if not self.db.update_review (review_uri,
+                                          author_account_uuid = sample["account_uuid"],
+                                          assigned_to = reviewer_account["uuid"],
+                                          status      = "assigned"):
+                self.log.error ("Unable to assign reviewer before publishing for %s.",
+                                container_uuid)
+
+        ## Persist the Issued date (= the publication date) on the first
+        ## publication.  It is captured automatically rather than entered by the
+        ## depositor, and it is kept as-is on later updates so the original issue
+        ## date is preserved.
+        existing_dates = self.db.physical_sample_dates (container_uuid, account_uuid)
+        if not any (value_or (entry, "date_type", "") == "Issued"
+                    for entry in existing_dates):
+            if self.db.add_date_to_physical_sample (container_uuid, "issued",
+                                                    date.today().isoformat(),
+                                                    account_uuid) is None:
+                self.log.error ("Failed to record Issued date for physical sample %s.",
+                                container_uuid)
+
+        ## Register the IGSN at DataCite before flipping the draft to published,
+        if (config.igsn_prefix is not None
+                and config.in_production and not config.in_preproduction):
+            if not self.__register_physical_sample_doi (sample, account_uuid):
+                return self.error_502 ((f"Registering IGSN for {container_uuid} failed."))
+
+        if self.db.publish_physical_sample (container_uuid, account_uuid):
+            try:
+                account = self.db.account_by_uuid (sample["account_uuid"])
+                subject = f"Approved: {sample['title']}"
+                parameters = {
+                    "base_url": config.base_url,
+                    "support_email": config.support_email_address,
+                    "title": sample["title"],
+                    "container_uuid": sample["container_uuid"]
+                }
+                self.__send_templated_email ([account["email"]], subject,
+                                             "physical_sample_approved", **parameters)
+            except (TypeError, IndexError, KeyError) as error:
+                self.log.error ("Unable to send approval e-mail for physical sample %s: %s.",
+                                sample["uuid"], error)
+
+            location = f"{config.base_url}/physical_sample/{container_uuid}"
+            output = self.response (json.dumps({ "location": location }))
+            output.status_code = 201
+            output.headers["Location"] = location
+            return output
+
+        return self.error_500 ()
+
+    def api_v3_physical_sample_decline (self, request, container_uuid):
+        """Implements /v3/physical-samples/<id>/decline."""
+
+        account_uuid = self.default_authenticated_error_handling (request, "POST", "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
+
+        reviewer_token = self.token_from_cookie (request, self.impersonator_cookie_key)
+        may_review_all = self.db.may_review (reviewer_token)
+        may_review_institution = self.db.may_review_institution (reviewer_token)
+        if not may_review_all and not may_review_institution:
+            reviewer_token = self.token_from_request (request)
+            may_review_all = self.db.may_review (reviewer_token)
+            may_review_institution = self.db.may_review_institution (reviewer_token)
+            if not may_review_all and not may_review_institution:
+                return self.error_403 (request)
+
+        sample = self.__physical_sample_by_id_or_uri (container_uuid,
+                                                      account_uuid = account_uuid,
+                                                      is_published = False)
+        if sample is None:
+            return self.error_403 (request)
+
+        reviewer_account = self.db.account_by_session_token (reviewer_token)
+        if may_review_institution:
+            if value_or (sample, "group_id", "A") != value_or (reviewer_account, "group_id", "not-A"):
+                return self.error_403 (request)
+
+        if self.db.decline_physical_sample (container_uuid, account_uuid):
+            try:
+                account = self.db.account_by_uuid (sample["account_uuid"])
+                subject = f"Declined: {sample['title']}"
+                parameters = {
+                    "base_url": config.base_url,
+                    "support_email": config.support_email_address,
+                    "title": sample["title"]
+                }
+                self.__send_templated_email ([account["email"]], subject,
+                                             "physical_sample_declined", **parameters)
+            except (TypeError, IndexError, KeyError):
+                self.log.error ("Unable to send decline e-mail for physical sample: %s.",
+                                sample["uuid"])
+
+            return self.respond_204 ()
+
+        return self.error_500 ()
+
+    def api_v3_physical_samples_assign_reviewer (self, request, container_uuid, reviewer_uuid):
+        """Implements /v3/physical-samples/<id>/assign-reviewer/<rid>."""
+
+        account_uuid = self.default_authenticated_error_handling (request, "PUT", "application/json")
+        if isinstance (account_uuid, Response):
+            return account_uuid
+
+        if not validator.is_valid_uuid (reviewer_uuid):
+            return self.error_400 (request, "Invalid reviewer UUID.", "InvalidReviewerUuid")
+
+        if not validator.is_valid_uuid (container_uuid):
+            return self.error_404 (request)
+
+        account_token = self.token_from_cookie (request, self.cookie_key)
+        may_review_all = self.db.may_review (account_token)
+        may_review_institution = self.db.may_review_institution (account_token)
+        if not may_review_all and not may_review_institution:
+            return self.error_403 (request)
+
+        reviewer = self.db.account_by_uuid (reviewer_uuid)
+        sample   = None
+        try:
+            sample = self.db.physical_samples (container_uuid   = container_uuid,
+                                               is_published    = False,
+                                               is_latest       = False,
+                                               is_under_review = True)[0]
+        except (IndexError, TypeError):
+            pass
+
+        if sample is None or reviewer is None:
+            return self.error_403 (request)
+
+        ## An institutional reviewer may only act on samples of its own group,
+        if may_review_institution:
+            account = self.db.account_by_session_token (account_token)
+            if value_or (sample, "group_id", "A") != value_or (account, "group_id", "not-A"):
+                return self.error_403 (request)
+
+        if self.db.update_review (value_or_none (sample, "review_uri"),
+                                  author_account_uuid = sample["account_uuid"],
+                                  assigned_to = reviewer["uuid"],
+                                  status      = "assigned"):
+
+            self.db.cache.invalidate_by_prefix ("physical-samples")
+            self.db.cache.invalidate_by_prefix (f"physical-samples_{sample['account_uuid']}")
+            return self.respond_204 ()
 
         return self.error_500 ()
 
@@ -3383,6 +4277,65 @@ class WebServer:
 
         return self.__render_template (request, "review/published.html",
                                        container_uuid=dataset["container_uuid"])
+
+    def ui_review_impersonate_to_physical_sample (self, request, container_uuid):
+        """Implements /review/goto-physical-sample/<id>."""
+
+        account_uuid = self.default_authenticated_error_handling (request, "GET", "text/html",
+                                                                  self.db.may_impersonate)
+        if isinstance (account_uuid, Response):
+            return account_uuid
+
+        if not validator.is_valid_uuid (container_uuid):
+            return self.error_404 (request)
+
+        sample = None
+        try:
+            sample = self.db.physical_samples (container_uuid   = container_uuid,
+                                               is_published    = False,
+                                               is_latest       = False,
+                                               is_under_review = True)[0]
+        except (IndexError, TypeError):
+            pass
+
+        if sample is None:
+            return self.error_403 (request, (f"account:{account_uuid} attempted impersonation "
+                                             f"on physical-sample container:{container_uuid}."))
+
+        # Add a secondary cookie to go back to at one point.
+        response = redirect (f"/my/physical-samples/{sample['container_uuid']}/edit", code=302)
+        response.set_cookie (key    = self.impersonator_cookie_key,
+                             value  = self.token_from_request (request),
+                             secure = config.in_production)
+        response.set_cookie (key    = "redirect_to",
+                             value  = "/review/overview",
+                             secure = config.in_production)
+
+        # Create a new session for the user to be impersonated as.
+        new_token, _, _ = self.db.insert_session (sample["account_uuid"],
+                                                  name="Reviewer",
+                                                  override_mfa=True)
+        response.set_cookie (key    = self.cookie_key,
+                             value  = new_token,
+                             secure = config.in_production)
+        return response
+
+    def ui_review_physical_sample_published (self, request, container_uuid):
+        """Implements /review/physical-sample/published/<id>."""
+        account_uuid, error_response = self.__reviewer_account_uuid (request)
+        if error_response is not None:
+            self.log.error ("Account %s attempted a reviewer action.", account_uuid)
+            return error_response
+
+        sample = self.__physical_sample_by_id_or_uri (container_uuid,
+                                                      is_published = True,
+                                                      is_latest    = True)
+        if sample is None:
+            return self.error_403 (request)
+
+        return self.__render_template (request, "review/published.html",
+                                       container_uuid = sample["container_uuid"],
+                                       item_type      = "physical-sample")
 
     def __process_quota_request (self, request, quota_request_uuid, status):
         token = self.token_from_cookie (request)
@@ -4319,6 +5272,28 @@ class WebServer:
 
         return self.error_404 (request)
 
+    def ui_private_physical_sample (self, request, private_link_id):
+        """Implements /private_physical_sample/<id>."""
+        handler = self.default_error_handling (request, "GET", "text/html")
+        if handler is not None:
+            return handler
+
+        try:
+            physical_sample = self.db.physical_samples (private_link_id_string = private_link_id,
+                                                is_published = None,
+                                                is_latest    = None)[0]
+
+            if value_or (physical_sample, "private_link_is_expired", False):
+                return self.__render_template (request, "private_link_is_expired.html")
+
+            self.__log_event (request, physical_sample["container_uuid"], "physical_sample", "privateView")
+            return self.ui_physical_sample (request, physical_sample["container_uuid"],
+                                            physical_sample=physical_sample, private_view=True)
+        except IndexError:
+            pass
+
+        return self.error_404 (request)
+
     def ui_compat_dataset (self, request, slug, dataset_id, version=None):  # pylint: disable=unused-argument
         """Implements backward-compatibility landing page URLs for datasets."""
         return self.ui_dataset (request, dataset_id, version)
@@ -4637,6 +5612,124 @@ class WebServer:
                                        statistics=statistics,
                                        private_view=private_view,
                                        page_title=f"{collection['title']} (collection)")
+
+    def ui_physical_sample (self, request, physical_sample_id, version=None,
+                            physical_sample=None, private_view=False):
+        """Implements /physical_sample/<id>."""
+
+        handler = self.default_error_handling (request, "GET", "text/html")
+        if handler is not None:
+            return handler
+
+        if physical_sample is None:
+            try:
+                physical_sample = self.db.physical_samples (
+                    container_uuid = physical_sample_id,
+                    is_published   = True,
+                    is_latest      = True)[0]
+            except IndexError:
+                return self.error_404 (request)
+
+        container_uuid = physical_sample["container_uuid"]
+        account_uuid   = self.account_uuid_from_request (request)
+        is_own_item    = (account_uuid is not None and
+                          account_uuid == value_or_none (physical_sample, "account_uuid"))
+
+        physical_sample["uri"] = f"physical-sample:{physical_sample['sample_uuid']}"
+
+        sample_uri        = physical_sample["uri"]
+        creators          = self.db.physical_sample_creators (container_uuid, None, sample_uri=sample_uri)
+        raw_dates         = self.db.physical_sample_dates (container_uuid, None, sample_uri=sample_uri)
+        related_resources = self.db.physical_sample_related_resources (container_uuid, None, sample_uri=sample_uri)
+        tags              = self.db.tags (item_uri=physical_sample["uri"], limit=None)
+        categories        = self.db.categories (item_uri=physical_sample["uri"], limit=None)
+
+        posted_date = value_or_none (physical_sample, "published_date")
+        posted_date = posted_date[:4] if posted_date else "unpublished"
+        citation    = make_citation (creators, posted_date, physical_sample["title"],
+                                     value_or (physical_sample, "version", 1),
+                                     "Physical Sample",
+                                     value_or (physical_sample, "doi", "unavailable"))
+
+        qr_code_svg = None
+        sample_doi  = value_or_none (physical_sample, "doi")
+        if sample_doi is None and private_view and config.igsn_prefix is not None:
+            sample_doi = f"{config.igsn_prefix}/{container_uuid}"
+        if sample_doi:
+            qr_buf = BytesIO()
+            qrcode.make (f"https://doi.org/{sample_doi}",
+                         image_factory = qrcode.image.svg.SvgPathImage).save (qr_buf)
+            qr_code_svg = qr_buf.getvalue().decode("utf-8")
+
+        dates = [(date_or_range (d.get("date"), d.get("date_end")),
+                  str(d.get("date_type", "")))
+                 for d in raw_dates if d.get("date")]
+
+        published_date = value_or_none (physical_sample, "published_date")
+        if published_date:
+            dates.append ((published_date[:10], "published"))
+
+        physical_sample["publisher"] = value_or (physical_sample, "publisher",
+                                                 config.site_name)
+
+        lat = self_or_value_or_none (physical_sample, "latitude")
+        lon = self_or_value_or_none (physical_sample, "longitude")
+        lat_valid, lon_valid = decimal_coords (lat, lon)
+        coordinates = {"lat": lat, "lon": lon, "lat_valid": lat_valid, "lon_valid": lon_valid}
+
+        if not private_view:
+            self.__log_event (request, container_uuid, "physical_sample", "view")
+
+        member          = value_or (group_to_member, value_or_none (physical_sample, "group_id"), "other")
+        member_url_name = member_url_names[member]
+
+        return self.__render_template (request, "physical_sample.html",
+                                       item             = physical_sample,
+                                       version          = version,
+                                       creators         = creators,
+                                       citation         = citation,
+                                       qr_code_svg      = qr_code_svg,
+                                       qr_doi           = sample_doi,
+                                       dates            = dates,
+                                       related_resources= related_resources,
+                                       tags             = tags,
+                                       categories       = categories,
+                                       coordinates      = coordinates,
+                                       is_own_item      = is_own_item,
+                                       private_view     = private_view,
+                                       member           = member,
+                                       member_url_name  = member_url_name,
+                                       publisher_rors   = config.publisher_rors,
+                                       page_title       = physical_sample["title"])
+
+    def ui_physical_sample_qr_code (self, request, physical_sample_id):
+        """Implements /physical_sample/<id>/qr-code (downloadable QR image)."""
+
+        handler = self.default_error_handling (request, "GET", "image/png")
+        if handler is not None:
+            return handler
+
+        try:
+            physical_sample = self.db.physical_samples (
+                container_uuid = physical_sample_id,
+                is_published   = True,
+                is_latest      = True)[0]
+        except IndexError:
+            return self.error_404 (request)
+
+        sample_doi = value_or_none (physical_sample, "doi")
+        if sample_doi is None and config.igsn_prefix is not None:
+            sample_doi = f"{config.igsn_prefix}/{physical_sample_id}"
+        if sample_doi is None:
+            return self.error_404 (request)
+
+        qr_buf = BytesIO()
+        qrcode.make (f"https://doi.org/{sample_doi}").save (qr_buf, format="PNG")
+
+        filename = f"{sample_doi.replace('/', '_')}.png"
+        response = self.response (qr_buf.getvalue(), mimetype="image/png")
+        response.headers["Content-disposition"] = f"attachment; filename={filename}"
+        return response
 
     def ui_author (self, request, author_uuid):
         """Implements /authors/<id>."""
@@ -5633,7 +6726,7 @@ class WebServer:
                     title           = validator.string_value  (record, "title",          3, 1000),
                     description     = validator.string_value  (record, "description",    0, 10000, strip_html=False),
                     resource_doi    = validator.string_value  (record, "resource_doi",   0, 255),
-                    resource_title  = validator.string_value  (record, "resource_title", 0, 255),
+                    # resource_title  = validator.string_value  (record, "resource_title", 0, 255),
                     license_url     = license_url,
                     group_id        = validator.integer_value (record, "group_id",       0, pow(2, 63)),
                     time_coverage   = validator.string_value  (record, "time_coverage",  0, 512),
@@ -6608,24 +7701,35 @@ class WebServer:
 
         return self.error_500 ()
 
-    def __datacite_reserve_doi (self, doi=None):
+    def __datacite_credentials (self, use_igsn=False):
+        """Returns the (api_url, repository_id, password, prefix) tuple to use
+        when talking to DataCite.  Physical samples are registered through the
+        IGSN repository; datasets and collections through the regular one."""
+        if use_igsn:
+            return (config.igsn_url, config.igsn_id,
+                    config.igsn_password, config.igsn_prefix)
+        return (config.datacite_url, config.datacite_id,
+                config.datacite_password, config.datacite_prefix)
+
+    def __datacite_reserve_doi (self, doi=None, use_igsn=False):
         """
         Reserve a DOI at DataCite and return its API response on success or
         None on failure.
         """
 
+        api_url, repository_id, password, prefix = self.__datacite_credentials (use_igsn)
         headers = {
             "Accept": "application/vnd.api+json",
             "Content-Type": "application/vnd.api+json"
         }
-        attributes = { "doi": doi } if doi else { "prefix": config.datacite_prefix }
+        attributes = { "doi": doi } if doi else { "prefix": prefix }
         json_data = { "data": { "type": "dois", "attributes": attributes } }
 
         try:
-            response = requests.post(f"{config.datacite_url}/dois",
+            response = requests.post(f"{api_url}/dois",
                                      headers = headers,
-                                     auth    = (config.datacite_id,
-                                                config.datacite_password),
+                                     auth    = (repository_id,
+                                                password),
                                      timeout = 60,
                                      json    = json_data)
             data = None
@@ -6799,6 +7903,119 @@ class WebServer:
                             response.status_code, response.text)
         except requests.exceptions.ConnectionError:
             self.log.error ("Failed to update a DOI due to a connection error.")
+
+        return False
+
+    def __physical_sample_datacite_parameters (self, sample, doi):
+        """Collect the parameters needed to render a physical sample's DataCite
+        (IGSN) metadata."""
+
+        container_uuid = sample["container_uuid"]
+        sample_uri = f"physical-sample:{sample['sample_uuid']}"
+
+        creators   = self.db.physical_sample_creators (container_uuid, None, sample_uri=sample_uri)
+        categories = self.db.categories (item_uri=sample_uri, limit=None)
+        tags       = [tag["tag"] for tag in self.db.tags (item_uri=sample_uri, limit=None)]
+        dates      = self.db.physical_sample_dates (container_uuid, None, sample_uri=sample_uri)
+        related    = self.db.physical_sample_related_resources (container_uuid, None, sample_uri=sample_uri)
+
+        lat = self_or_value_or_none (sample, "latitude")
+        lon = self_or_value_or_none (sample, "longitude")
+        lat_valid, lon_valid = decimal_coords (lat, lon)
+
+        ## A physical sample is published once and keeps that publication date.
+        ## Use the Issued date recorded at first publication so that
+        ## re-publishing a correction does not overwrite the IGSN's
+        ## publicationYear/Issued with the current date.  Fall back to today
+        ## only when it is somehow missing.
+        issued_date = next (
+            (value_or (entry, "date", None) for entry in dates
+             if value_or (entry, "date_type", "") == "Issued"),
+            None)
+        published_date = issued_date or date.today().isoformat()
+
+        sample["publisher"] = value_or (sample, "publisher", config.site_name)
+
+        return {
+            "item"              : sample,
+            "doi"               : doi,
+            "creators"          : creators,
+            "categories"        : categories,
+            "tags"              : tags,
+            "dates"             : dates,
+            "related_resources" : related,
+            "organizations"     : self.parse_organizations (value_or (sample, "organizations", "")),
+            "published_date"    : published_date,
+            "published_year"    : published_date[:4],
+            "coordinates"       : {"lat_valid": lat_valid, "lon_valid": lon_valid},
+        }
+
+    def __register_physical_sample_doi (self, sample, account_uuid):
+        """Reserves and registers the IGSN for a physical sample at DataCite.
+
+        Physical samples are not versioned, so there is a single IGSN per
+        container.  Returns True on success, False otherwise."""
+
+        container_uuid = sample["container_uuid"]
+        if config.igsn_prefix is None or config.igsn_url is None:
+            self.log.error ("IGSN is not configured; cannot register sample %s.",
+                            container_uuid)
+            return False
+
+        doi = f"{config.igsn_prefix}/{container_uuid}"
+
+        ## Reserve the DOI.  An 'errors' payload means it was already reserved,
+        ## harmless when (re)publishing.
+        data = self.__datacite_reserve_doi (doi, use_igsn=True)
+        if data is None:
+            return False
+
+        parameters = self.__physical_sample_datacite_parameters (sample, doi)
+        xml = str (xml_formatter.datacite_physical_sample (parameters, indent=False),
+                   encoding="utf-8")
+        xml = '<?xml version="1.0" encoding="UTF-8"?>' + xml.split('?>', 1)[1] #Datacite is very choosy about this
+        encoded_bytes = base64.b64encode (xml.encode ("utf-8"))
+
+        api_url, repository_id, password, _ = self.__datacite_credentials (use_igsn=True)
+        headers = {
+            "Accept": "application/vnd.api+json",
+            "Content-Type": "application/vnd.api+json"
+        }
+        json_data = {
+            "data": {
+                "attributes": {
+                    "event": "publish", #does no harm when already published
+                    "url": f"{config.base_url}/physical_sample/{container_uuid}",
+                    "xml": str (encoded_bytes, "utf-8")
+                }
+            }
+        }
+
+        try:
+            response = requests.put (f"{api_url}/dois/{doi}",
+                                     headers = headers,
+                                     auth    = (repository_id, password),
+                                     timeout = 60,
+                                     json    = json_data)
+            if response.status_code in (200, 201):
+                if response.status_code == 200:
+                    self.log.warning ("IGSN %s already active, updated", doi)
+
+                ## Persist the IGSN on the draft only once DataCite accepted it,
+                ## so a failed registration doesn't leave a draft carrying an
+                ## IGSN.
+                if not self.db.update_doi_after_publishing (sample["sample_uuid"],
+                                                            "physical-sample", doi):
+                    self.log.error ("Saving IGSN %s on sample %s failed.", doi, container_uuid)
+                    return False
+                self.db.cache.invalidate_by_prefix (f"physical-samples_{account_uuid}")
+                self.db.cache.invalidate_by_prefix ("physical-samples")
+                return True
+
+            self.log.error ("DataCite responded with %s (%s)",
+                            response.status_code, response.text)
+        except requests.exceptions.RequestException as error:
+            self.log.error ("Failed to register IGSN %s: %s", doi, error)
 
         return False
 
@@ -7494,7 +8711,7 @@ class WebServer:
 
         return self.error_405 (["GET", "PUT"])
 
-    def __reorder_authors_for_item (self, request, container_uuid):
+    def __reorder_authors_for_item (self, request, container_uuid, predicate="authors"):
         """Generalization for api_v3_[datasets|collections]_authors_reorder."""
 
         if not validator.is_valid_uuid (container_uuid):
@@ -7517,7 +8734,8 @@ class WebServer:
         if errors:
             return self.error_400_list (request, errors)
 
-        if self.db.reorder_authors (account_uuid, container_uuid, author_uuid, direction):
+        if self.db.reorder_authors (account_uuid, container_uuid, author_uuid, direction,
+                                    predicate=predicate):
             return self.respond_205()
 
         return self.error_500()
@@ -9123,6 +10341,145 @@ class WebServer:
     def api_v3_dataset_tags (self, request, dataset_id):
         """Implements /v3/datasets/<id>/tags."""
         return self.__api_v3_item_tags (request, "dataset", dataset_id, self.__dataset_by_id_or_uri)
+
+    def api_v3_physical_sample_tags (self, request, container_uuid):
+        """Implements /v3/physical-samples/<id>/tags."""
+        return self.__api_v3_item_tags (request, "physical-sample", container_uuid, self.__physical_sample_by_id_or_uri)
+
+    def api_v3_physical_sample_categories (self, request, container_uuid):
+        """Implements /v3/physical-samples/<container_uuid>/categories."""
+        return self.__api_private_item_categories (request, "physical-sample", container_uuid,
+                                                   self.__physical_sample_by_id_or_uri)
+    def api_private_physical_sample_private_links(self, request, container_uuid):
+        """Implements /v3/physical-samples/<container_uuid>/private_links."""
+
+        account_uuid = self.default_authenticated_error_handling(request,
+                                                                 ["GET", "POST"],
+                                                                 "application/json")
+        if isinstance(account_uuid, Response):
+            return account_uuid
+
+        if request.method in ("GET", "HEAD"):
+
+            physical_sample = self.__physical_sample_by_id_or_uri(container_uuid,
+                                                          account_uuid=account_uuid,
+                                                          is_published=False)
+
+            if physical_sample is None:
+                return self.error_404(request)
+
+
+            links = self.db.private_links(item_uri=physical_sample["uri"],
+                                          account_uuid=account_uuid)
+
+            return self.default_list_response(links, formatter.format_private_links_record)
+
+        if request.method == 'POST':
+            parameters = request.get_json()
+            try:
+                physical_sample = self.__physical_sample_by_id_or_uri(container_uuid,
+                                                      is_published=False,
+                                                      account_uuid=account_uuid)
+                if physical_sample is None:
+                    return self.error_404(request)
+
+                id_string = secrets.token_urlsafe()
+                expires_date = validator.date_value(parameters, "expires_date", False)
+
+                # expires_date validates to YYYY-MM-DD but we need a full timestamp.
+                if expires_date:
+                    expires_date = expires_date + "T00:00:00Z"
+
+                link_uri = self.db.insert_private_link(
+                    item_uuid=physical_sample["sample_uuid"],
+                    account_uuid=account_uuid,
+                    item_type="physical_sample",
+                    expires_date=expires_date,
+                    read_only=validator.boolean_value(parameters, "read_only", False),
+                    id_string=id_string,
+                    is_active=True)
+
+                if link_uri is None:
+                    return self.error_500(("Creating a private link failed for physical_sample"
+                                           f"{physical_sample['uuid']}"))
+
+                links = self.db.private_links(item_uri=physical_sample["uri"],
+                                              account_uuid=account_uuid)
+                links = list(map(lambda item: URIRef(item["uri"]), links))
+                links = links + [URIRef(link_uri)]
+
+                if not self.db.update_item_list(physical_sample["uuid"], account_uuid,
+                                                links, "private_links"):
+                    return self.error_500(("Updating private links failed for "
+                                           f"{physical_sample['container_uuid']}."))
+
+                return self.response(json.dumps({
+                    "location": f"{config.base_url}/private_physical_sample/{id_string}"
+                }))
+
+            except validator.ValidationException as error:
+                return self.error_400(request, error.message, error.code)
+
+        return self.error_405 (["GET", "POST"])
+
+    def api_private_physical_sample_private_links_details(self, request, container_uuid, link_id):
+        """Implements /v3/physical-samples/<container_uuid>/private_links/<link_id>."""
+
+        account_uuid = self.default_authenticated_error_handling(request,
+                                                                 ["GET", "PUT", "DELETE"],
+                                                                 "application/json")
+        if isinstance(account_uuid, Response):
+            return account_uuid
+
+        physical_sample = self.__physical_sample_by_id_or_uri(container_uuid,
+                                              account_uuid=account_uuid,
+                                              is_published=False)
+
+        if physical_sample is None:
+            return self.error_404(request)
+
+        if request.method in ("GET", "HEAD"):
+
+            links = self.db.private_links(
+                item_uri=physical_sample["uri"],
+                id_string=link_id,
+                account_uuid=account_uuid)
+
+            return self.default_list_response(links, formatter.format_private_links_record)
+
+        if request.method == 'PUT':
+
+            parameters = request.get_json()
+            try:
+                result = self.db.update_private_link(
+                    physical_sample["uri"],
+                    account_uuid,
+                    link_id,
+                    expires_date=validator.string_value(parameters, "expires_date", 0, 255, False),
+                    is_active=validator.boolean_value(parameters, "is_active", False))
+
+                if result is None:
+                    return self.error_500()
+
+                return self.response(json.dumps({
+                    "location": f"{config.base_url}/private_physical_sample/{link_id}"
+                }))
+
+            except validator.ValidationException as error:
+                return self.error_400(request, error.message, error.code)
+
+        if request.method == 'DELETE':
+
+            result = self.db.delete_private_links(physical_sample["container_uuid"],
+                                                  account_uuid,
+                                                  link_id)
+
+            if result is None:
+                return self.error_500()
+
+            return self.respond_204()
+
+        return self.error_405 (["GET", "PUT", "DELETE"])
 
     def api_v3_groups (self, request):
         """Implements /v3/groups."""
