@@ -5,6 +5,42 @@ appear first; this file is the source of truth for release notes.
 
 Commit links point to <https://github.com/4TUResearchData/djehuty>.
 
+## [v26.6]
+
+This release consists of 29 commits made by 7 authors.
+
+We're happy to announce that this release includes IGSN support for physical samples and a new HTTP stack built upon
+`fastapi`, along with other incremental improvements and better documentation.
+
+### New features
+
+- Add a new HTTP implementation, starting with the foundation. ([9d2424d](https://github.com/4TUResearchData/djehuty/commit/9d2424db6bcff0dae74db2ed72fe1736f8b856b3))
+- Add the v2 API to the new HTTP implementation. ([f04c472](https://github.com/4TUResearchData/djehuty/commit/f04c472f002e54534f5a5daf644f5bbd8cb520c1))
+- Add the v3 API to the new HTTP implementation. ([16469f8](https://github.com/4TUResearchData/djehuty/commit/16469f848abe71abd13a9492eb734b4468ce3fc3))
+- Introduce physical objects with metadata editing. ([cb241eb](https://github.com/4TUResearchData/djehuty/commit/cb241eb0c7fb008f5c5e492619079288c6f619cb))
+- Add IGSN support for physical samples. ([6bdee58](https://github.com/4TUResearchData/djehuty/commit/6bdee58ed0e9150bc8475839b20b4ccfb52f7324))
+
+### Documentation
+
+- Publish the community site together with the documentation. ([97b3341](https://github.com/4TUResearchData/djehuty/commit/97b3341b8cda019e52a21e414115b4a056301edb))
+- Align the documentation styling with the community site. ([df0321a](https://github.com/4TUResearchData/djehuty/commit/df0321ad4481a80b142acd83c545ee37b624533d))
+- Remove the duplicate Community navigation entry. ([d013044](https://github.com/4TUResearchData/djehuty/commit/d0130447fec759eac0424a8c354dca0b6e3a2960))
+- Remove a superfluous section from the community hour page. ([2614214](https://github.com/4TUResearchData/djehuty/commit/26142144f8073c1fde493306eb4407442d98ef31))
+- Add API documentation pages. ([aaa6cb4](https://github.com/4TUResearchData/djehuty/commit/aaa6cb4d015189fde9194548c8f4c09cc08a8fed))
+- Add a deployment guide and restructure the README file. ([8c560ee](https://github.com/4TUResearchData/djehuty/commit/8c560ee6d6b66b428da0054b023bdf5971197ba6))
+- Improve CONTRIBUTING.md. ([1fea1c8](https://github.com/4TUResearchData/djehuty/commit/1fea1c8078b9de1d7f7a084defeaf81613744a86))
+- Update RELEASE.md. ([a7803ef](https://github.com/4TUResearchData/djehuty/commit/a7803ef00493e57ac84b747dd863d584503ff7ee))
+
+### Incremental improvements
+
+- Reuse active authors matching an email address or ORCID. ([4485d8a](https://github.com/4TUResearchData/djehuty/commit/4485d8aac981867a839fbb7e752afabafc559ffe))
+- Replace the Figshare API notice with a link to the new API reference. ([50f960c](https://github.com/4TUResearchData/djehuty/commit/50f960c96810b15e73a9dfac404a54abc666a4ed))
+
+### Technical debt
+
+- Lint and format the web cache and I/O helpers with Ruff, and enforce it. ([78ff956](https://github.com/4TUResearchData/djehuty/commit/78ff95667689fad02a5fa0fb6583b98d45eceda3))
+- Test downloads from S3. ([bc93bf5](https://github.com/4TUResearchData/djehuty/commit/bc93bf5322295847acdc9a641f3b6568ec31b1e0))
+
 ## [v26.5]
 
 This release consists of 17 commits made by 3 authors.
