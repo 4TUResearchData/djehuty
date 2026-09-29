@@ -1,8 +1,7 @@
 # Changelog
 
 All notable changes to djehuty are documented in this file. Newest releases
-appear first; this file is the source of truth for release notes. The LaTeX
-news section (`doc/news.tex`) is regenerated at release time by `just news`.
+appear first; this file is the source of truth for release notes.
 
 Commit links point to <https://github.com/4TUResearchData/djehuty>.
 

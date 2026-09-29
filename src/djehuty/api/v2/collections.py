@@ -11,7 +11,7 @@ from djehuty.api.services.collection_service import CollectionService
 
 router = APIRouter(tags=["V2 / Collections"])
 
-# Example payloads for the OpenAPI docs, based on doc/api.tex (v2 API reference).
+# Example payloads for the OpenAPI docs (v2 API reference).
 _COLLECTION_SUMMARY_EXAMPLE = {
     "id": None,
     "uuid": "07a08d2a-1f7f-4e2b-8c9a-4d5e6f7a8b9c",

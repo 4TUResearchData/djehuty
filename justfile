@@ -58,10 +58,6 @@ publish-test-pypi: build
 guix:
     sed -e 's/@VERSION@/{{ version }}/g' guix.scm.in > guix.scm
 
-# Append the top CHANGELOG.md release section to doc/news.tex
-news:
-    python3 doc/changelog_to_news.py
-
 # Build the documentation site with MkDocs (output in site/)
 docs-md:
     uv run --group docs mkdocs build

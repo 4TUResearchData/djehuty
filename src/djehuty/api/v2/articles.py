@@ -15,8 +15,8 @@ from djehuty.utils.convenience import parse_search_terms
 
 router = APIRouter(tags=["V2 / Articles"])
 
-# Example payloads for the OpenAPI docs, taken from doc/api.tex (the v2 API
-# reference). They document response shapes; the values are illustrative.
+# Example payloads for the OpenAPI docs (the v2 API reference). They document
+# response shapes; the values are illustrative.
 _ARTICLE_SUMMARY_EXAMPLE = {
     "id": None,
     "uuid": "4f8a9423-83fc-4263-9bb7-2aa83d73865d",

@@ -16,13 +16,8 @@ provider and storage back-ends are all configuration.
 
 ## Documentation
 
-The documentation source lives in [`docs/`](./docs/) and is published to GitHub
-Pages at
-[4turesearchdata.github.io/djehuty](https://4turesearchdata.github.io/djehuty/).
-
-An older manual, generated from LaTeX sources in [`doc/`](./doc/), is still
-served at [djehuty.4tu.nl](https://djehuty.4tu.nl/). It is being replaced by the
-Markdown site above; new documentation should be written in `docs/`.
+The documentation source lives in [`docs/`](./docs/) and is published to
+[djehuty.4tu.nl](https://djehuty.4tu.nl/).
 
 | Page | What it covers |
 |------|----------------|

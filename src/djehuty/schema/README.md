@@ -1,7 +1,7 @@
 # Writing a migration
 
 Schema and reference-data migrations, applied by
-`djehuty.schema.migrate.MigrationRunner`. Full design: `doc/database-migrations.md`.
+`djehuty.schema.migrate.MigrationRunner`.
 
 ## What the runner does
 

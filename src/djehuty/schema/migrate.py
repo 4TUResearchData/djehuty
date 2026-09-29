@@ -1,6 +1,6 @@
 """Forward-only migration runner for djehuty's RDF store.
 
-See ``doc/database-migrations.md`` for the full design.  In short, the
+See the package ``README.md`` for the full design.  In short, the
 runner discovers ``NNNN_<slug>.{ttl,sparql}`` files under
 ``migrations/``, applies them in numeric-prefix order, and records each
 application in a dedicated named graph using mu-semtech's ``muMigr:``

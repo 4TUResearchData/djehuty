@@ -10,5 +10,5 @@ reference data stored in the SPARQL endpoint.  It provides:
 * a ``djehuty migrate`` CLI subcommand
   (:mod:`djehuty.schema.cli`).
 
-See ``doc/database-migrations.md`` for the design.
+See the package ``README.md`` for the design and how to write migrations.
 """
