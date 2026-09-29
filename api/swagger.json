@@ -8767,6 +8767,2095 @@
         }
       }
     },
+    "/v3/physical-samples": {
+      "get": {
+        "tags": [
+          "V3 / Physical samples"
+        ],
+        "summary": "Read a physical sample (first match)",
+        "description": "Returns a single physical sample record. AS-IS quirk: with no UUID this returns the *first* matching record (a single object, not a list) \u2014 the caller's first draft when authenticated, else the first published sample.",
+        "operationId": "read_physical_sample_first_v3_physical_samples_get",
+        "responses": {
+          "200": {
+            "description": "A physical sample",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": {
+                  "uuid": "27e6a01d-3f09-4d90-ae02-1d749ae9efb8",
+                  "title": "Basalt core sample BR-2025-014",
+                  "abstract": "<p>Drill core recovered off the coast of Texel.</p>",
+                  "resource_type": "Rock",
+                  "last_modified": "2026-07-03T10:48:50"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "V3 / Physical samples"
+        ],
+        "summary": "Create a physical sample draft",
+        "operationId": "create_physical_sample_v3_physical_samples_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": true,
+                "type": "object",
+                "title": "Body",
+                "default": {}
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "example": {
+                  "location": "https://data.4tu.nl/v3/physical-samples/UUID"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Session token": []
+          }
+        ]
+      }
+    },
+    "/v3/physical-samples/{container_uuid}": {
+      "get": {
+        "tags": [
+          "V3 / Physical samples"
+        ],
+        "summary": "Read a physical sample",
+        "description": "Returns a single physical sample: the caller's draft when authenticated, otherwise the published latest version.",
+        "operationId": "read_physical_sample_v3_physical_samples__container_uuid__get",
+        "parameters": [
+          {
+            "name": "container_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it.",
+              "title": "Container Uuid"
+            },
+            "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A physical sample",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": {
+                  "uuid": "27e6a01d-3f09-4d90-ae02-1d749ae9efb8",
+                  "title": "Basalt core sample BR-2025-014",
+                  "abstract": "<p>Drill core recovered off the coast of Texel.</p>",
+                  "resource_type": "Rock",
+                  "last_modified": "2026-07-03T10:48:50"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "V3 / Physical samples"
+        ],
+        "summary": "Update a physical sample draft",
+        "operationId": "update_physical_sample_v3_physical_samples__container_uuid__put",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "container_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it.",
+              "title": "Container Uuid"
+            },
+            "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it."
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "default": {},
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "204": {
+            "description": "Updated"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/physical-samples/{container_uuid}/submit-for-review": {
+      "put": {
+        "tags": [
+          "V3 / Physical samples / Publishing"
+        ],
+        "summary": "Submit a physical sample for review",
+        "operationId": "submit_for_review_v3_physical_samples__container_uuid__submit_for_review_put",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "container_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it.",
+              "title": "Container Uuid"
+            },
+            "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it."
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "default": {},
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "204": {
+            "description": "Submitted for review"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/physical-samples/{container_uuid}/publish": {
+      "post": {
+        "tags": [
+          "V3 / Physical samples / Publishing"
+        ],
+        "summary": "Publish a physical sample (reviewer)",
+        "description": "Publish a draft physical sample. Requires reviewer permissions on the impersonator cookie session or, when absent, the calling session. In production this registers the IGSN with DataCite before publishing.",
+        "operationId": "publish_physical_sample_v3_physical_samples__container_uuid__publish_post",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "container_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it.",
+              "title": "Container Uuid"
+            },
+            "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "201": {
+            "description": "Published",
+            "content": {
+              "application/json": {
+                "example": {
+                  "location": "https://data.4tu.nl/physical_sample/UUID"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/physical-samples/{container_uuid}/decline": {
+      "post": {
+        "tags": [
+          "V3 / Physical samples / Publishing"
+        ],
+        "summary": "Decline a physical sample (reviewer)",
+        "operationId": "decline_physical_sample_v3_physical_samples__container_uuid__decline_post",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "container_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it.",
+              "title": "Container Uuid"
+            },
+            "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "204": {
+            "description": "Declined"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/physical-samples/{container_uuid}/assign-reviewer/{reviewer_uuid}": {
+      "put": {
+        "tags": [
+          "V3 / Physical samples / Publishing"
+        ],
+        "summary": "Assign a reviewer to a physical sample",
+        "operationId": "assign_reviewer_v3_physical_samples__container_uuid__assign_reviewer__reviewer_uuid__put",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "container_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it.",
+              "title": "Container Uuid"
+            },
+            "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it."
+          },
+          {
+            "name": "reviewer_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Reviewer Uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "204": {
+            "description": "Reviewer assigned"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/physical-samples/{container_uuid}/creators": {
+      "get": {
+        "tags": [
+          "V3 / Physical samples / Creators"
+        ],
+        "summary": "List a physical sample's creators",
+        "operationId": "list_creators_v3_physical_samples__container_uuid__creators_get",
+        "parameters": [
+          {
+            "name": "container_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it.",
+              "title": "Container Uuid"
+            },
+            "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The creators",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": [
+                  {
+                    "uuid": "07d6e6ce-b1bf-43ca-86e6-7a3ab8bc8416",
+                    "first_name": "Ada",
+                    "last_name": "Lovelace",
+                    "full_name": "Ada Lovelace",
+                    "is_editable": true
+                  }
+                ]
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "V3 / Physical samples / Creators"
+        ],
+        "summary": "Add creators to a physical sample",
+        "description": "Accepts either a JSON object with an `authors` list (creating new author records and appending them) or a JSON array of existing author UUIDs.",
+        "operationId": "add_creators_v3_physical_samples__container_uuid__creators_post",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "container_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it.",
+              "title": "Container Uuid"
+            },
+            "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it."
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "204": {
+            "description": "Creators added"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/v3/physical-samples/{container_uuid}/creators/{creator_uuid}": {
+      "get": {
+        "tags": [
+          "V3 / Physical samples / Creators"
+        ],
+        "summary": "Get a single creator",
+        "operationId": "get_creator_v3_physical_samples__container_uuid__creators__creator_uuid__get",
+        "parameters": [
+          {
+            "name": "container_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it.",
+              "title": "Container Uuid"
+            },
+            "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it."
+          },
+          {
+            "name": "creator_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Creator Uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A creator",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": {
+                  "uuid": "07d6e6ce-b1bf-43ca-86e6-7a3ab8bc8416",
+                  "first_name": "Ada",
+                  "last_name": "Lovelace",
+                  "full_name": "Ada Lovelace",
+                  "is_editable": true
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "V3 / Physical samples / Creators"
+        ],
+        "summary": "Remove a creator",
+        "operationId": "delete_creator_v3_physical_samples__container_uuid__creators__creator_uuid__delete",
+        "parameters": [
+          {
+            "name": "container_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it.",
+              "title": "Container Uuid"
+            },
+            "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it."
+          },
+          {
+            "name": "creator_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Creator Uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "204": {
+            "description": "Creator removed"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/physical-samples/{container_uuid}/reorder-creators": {
+      "post": {
+        "tags": [
+          "V3 / Physical samples / Creators"
+        ],
+        "summary": "Reorder creators",
+        "operationId": "reorder_creators_v3_physical_samples__container_uuid__reorder_creators_post",
+        "parameters": [
+          {
+            "name": "container_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it.",
+              "title": "Container Uuid"
+            },
+            "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it."
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "default": {},
+                "title": "Body"
+              },
+              "examples": {
+                "move_up": {
+                  "summary": "Move a creator up",
+                  "value": {
+                    "author": "07d6e6ce-b1bf-43ca-86e6-7a3ab8bc8416",
+                    "direction": "up"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "205": {
+            "description": "Creators reordered"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/v3/physical-samples/{container_uuid}/dates": {
+      "get": {
+        "tags": [
+          "V3 / Physical samples / Dates"
+        ],
+        "summary": "List a physical sample's dates",
+        "operationId": "list_dates_v3_physical_samples__container_uuid__dates_get",
+        "parameters": [
+          {
+            "name": "container_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it.",
+              "title": "Container Uuid"
+            },
+            "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The dates",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": [
+                  {
+                    "uuid": "b6f8d3c1-2b4e-4c6a-8d1f-3e5b7c9a0d2f",
+                    "type": "Collected",
+                    "date": "2010-11-02",
+                    "created_date": "2026-07-03T10:48:50"
+                  }
+                ]
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "V3 / Physical samples / Dates"
+        ],
+        "summary": "Add dates to a physical sample",
+        "operationId": "add_dates_v3_physical_samples__container_uuid__dates_post",
+        "parameters": [
+          {
+            "name": "container_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it.",
+              "title": "Container Uuid"
+            },
+            "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it."
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "204": {
+            "description": "Dates added"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/v3/physical-samples/{container_uuid}/dates/{date_uuid}": {
+      "delete": {
+        "tags": [
+          "V3 / Physical samples / Dates"
+        ],
+        "summary": "Remove a date",
+        "operationId": "delete_date_v3_physical_samples__container_uuid__dates__date_uuid__delete",
+        "parameters": [
+          {
+            "name": "container_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it.",
+              "title": "Container Uuid"
+            },
+            "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it."
+          },
+          {
+            "name": "date_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Date Uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "204": {
+            "description": "Date removed"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/physical-samples/{container_uuid}/related-resources": {
+      "get": {
+        "tags": [
+          "V3 / Physical samples / Related resources"
+        ],
+        "summary": "List a physical sample's related resources",
+        "operationId": "list_related_resources_v3_physical_samples__container_uuid__related_resources_get",
+        "parameters": [
+          {
+            "name": "container_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it.",
+              "title": "Container Uuid"
+            },
+            "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The related resources",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": [
+                  {
+                    "uuid": "d1e2f3a4-5b6c-7d8e-9f0a-1b2c3d4e5f6a",
+                    "url": "10.4121/related-dataset",
+                    "relation": "IsDerivedFrom",
+                    "type": "IGSNDOI",
+                    "created_date": "2026-07-03T10:48:50"
+                  }
+                ]
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "V3 / Physical samples / Related resources"
+        ],
+        "summary": "Add related resources to a physical sample",
+        "operationId": "add_related_resources_v3_physical_samples__container_uuid__related_resources_post",
+        "parameters": [
+          {
+            "name": "container_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it.",
+              "title": "Container Uuid"
+            },
+            "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it."
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "204": {
+            "description": "Related resources added"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/v3/physical-samples/{container_uuid}/related-resources/{resource_uuid}": {
+      "delete": {
+        "tags": [
+          "V3 / Physical samples / Related resources"
+        ],
+        "summary": "Remove a related resource",
+        "operationId": "delete_related_resource_v3_physical_samples__container_uuid__related_resources__resource_uuid__delete",
+        "parameters": [
+          {
+            "name": "container_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it.",
+              "title": "Container Uuid"
+            },
+            "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it."
+          },
+          {
+            "name": "resource_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Resource Uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "204": {
+            "description": "Related resource removed"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/physical-samples/{container_uuid}/tags": {
+      "get": {
+        "tags": [
+          "V3 / Physical samples / Tags"
+        ],
+        "summary": "List a physical sample's tags",
+        "operationId": "list_tags_v3_physical_samples__container_uuid__tags_get",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "container_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it.",
+              "title": "Container Uuid"
+            },
+            "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The tags",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": [
+                  "basalt",
+                  "core sample",
+                  "north sea"
+                ]
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "V3 / Physical samples / Tags"
+        ],
+        "summary": "Add tags to a physical sample",
+        "operationId": "add_tags_v3_physical_samples__container_uuid__tags_post",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "container_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it.",
+              "title": "Container Uuid"
+            },
+            "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Body"
+              },
+              "examples": {
+                "default": {
+                  "value": {
+                    "tags": [
+                      "basalt",
+                      "core sample"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "205": {
+            "description": "Tags added"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "V3 / Physical samples / Tags"
+        ],
+        "summary": "Delete a tag",
+        "operationId": "delete_tag_v3_physical_samples__container_uuid__tags_delete",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "container_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it.",
+              "title": "Container Uuid"
+            },
+            "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it."
+          },
+          {
+            "name": "tag",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 1024,
+              "title": "Tag"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "204": {
+            "description": "Tag removed"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/physical-samples/{container_uuid}/categories": {
+      "get": {
+        "tags": [
+          "V3 / Physical samples / Categories"
+        ],
+        "summary": "List a physical sample's categories",
+        "operationId": "list_categories_v3_physical_samples__container_uuid__categories_get",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "container_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it.",
+              "title": "Container Uuid"
+            },
+            "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The categories",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": [
+                  {
+                    "id": 13555,
+                    "uuid": "a9f8d3c1-2b4e-4c6a-8d1f-3e5b7c9a0d2f",
+                    "title": "Geochemistry",
+                    "parent_id": 13537
+                  }
+                ]
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "V3 / Physical samples / Categories"
+        ],
+        "summary": "Add categories to a physical sample",
+        "operationId": "add_categories_v3_physical_samples__container_uuid__categories_post",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "container_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it.",
+              "title": "Container Uuid"
+            },
+            "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Body"
+              },
+              "examples": {
+                "default": {
+                  "value": {
+                    "categories": [
+                      13555
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "205": {
+            "description": "Categories added"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "V3 / Physical samples / Categories"
+        ],
+        "summary": "Replace a physical sample's categories",
+        "operationId": "replace_categories_v3_physical_samples__container_uuid__categories_put",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "container_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it.",
+              "title": "Container Uuid"
+            },
+            "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Body"
+              },
+              "examples": {
+                "default": {
+                  "value": {
+                    "categories": [
+                      13555
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "205": {
+            "description": "Categories replaced"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/v3/physical-samples/{container_uuid}/private_links": {
+      "get": {
+        "tags": [
+          "V3 / Physical samples / Private links"
+        ],
+        "summary": "List a physical sample's private links",
+        "operationId": "list_private_links_v3_physical_samples__container_uuid__private_links_get",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "container_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it.",
+              "title": "Container Uuid"
+            },
+            "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The private links",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": [
+                  {
+                    "id": "9c8b7a6d5e4f",
+                    "is_active": true
+                  }
+                ]
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "V3 / Physical samples / Private links"
+        ],
+        "summary": "Create a private link",
+        "description": "Creates a private link. AS-IS: returns 200 (not 201) with the link location.",
+        "operationId": "create_private_link_v3_physical_samples__container_uuid__private_links_post",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "container_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it.",
+              "title": "Container Uuid"
+            },
+            "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it."
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "default": {},
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": {
+                  "location": "https://data.4tu.nl/private_physical_sample/TOKEN"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/physical-samples/{container_uuid}/private_links/{link_id}": {
+      "get": {
+        "tags": [
+          "V3 / Physical samples / Private links"
+        ],
+        "summary": "Get a private link",
+        "operationId": "get_private_link_v3_physical_samples__container_uuid__private_links__link_id__get",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "container_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it.",
+              "title": "Container Uuid"
+            },
+            "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it."
+          },
+          {
+            "name": "link_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Link Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The private link",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": [
+                  {
+                    "id": "9c8b7a6d5e4f",
+                    "is_active": true
+                  }
+                ]
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "V3 / Physical samples / Private links"
+        ],
+        "summary": "Update a private link",
+        "operationId": "update_private_link_v3_physical_samples__container_uuid__private_links__link_id__put",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "container_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it.",
+              "title": "Container Uuid"
+            },
+            "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it."
+          },
+          {
+            "name": "link_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Link Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "default": {},
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": {
+                  "location": "https://data.4tu.nl/private_physical_sample/TOKEN"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "V3 / Physical samples / Private links"
+        ],
+        "summary": "Delete a private link",
+        "operationId": "delete_private_link_v3_physical_samples__container_uuid__private_links__link_id__delete",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "container_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it.",
+              "title": "Container Uuid"
+            },
+            "description": "The physical sample's version-independent container UUID \u2014 the public /physical_sample/<id> URL and the IGSN use it."
+          },
+          {
+            "name": "link_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Link Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "204": {
+            "description": "Private link removed"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v3/profile": {
       "put": {
         "tags": [
@@ -9811,7 +11900,7 @@
           "V3 / SSI"
         ],
         "summary": "Receive dataset from SSI",
-        "operationId": "receive_from_ssi_v3_receive_from_ssi_post",
+        "operationId": "receive_from_ssi_v3_receive_from_ssi_get",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -9831,7 +11920,7 @@
           "V3 / SSI"
         ],
         "summary": "Receive dataset from SSI",
-        "operationId": "receive_from_ssi_v3_receive_from_ssi_post",
+        "operationId": "receive_from_ssi_v3_receive_from_ssi_get",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -9851,7 +11940,7 @@
           "V3 / SSI"
         ],
         "summary": "Receive dataset from SSI",
-        "operationId": "receive_from_ssi_v3_receive_from_ssi_post",
+        "operationId": "receive_from_ssi_v3_receive_from_ssi_get",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -9871,7 +11960,7 @@
           "V3 / SSI"
         ],
         "summary": "Receive dataset from SSI",
-        "operationId": "receive_from_ssi_v3_receive_from_ssi_post",
+        "operationId": "receive_from_ssi_v3_receive_from_ssi_get",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -10878,7 +12967,7 @@
         ],
         "summary": "Search accounts",
         "description": "Search for user accounts (autocomplete for adding collaborators).",
-        "operationId": "search_accounts_v3_accounts_search_post",
+        "operationId": "search_accounts_v3_accounts_search_get",
         "responses": {
           "200": {
             "description": "Matching accounts",
@@ -10932,7 +13021,7 @@
         ],
         "summary": "Search accounts",
         "description": "Search for user accounts (autocomplete for adding collaborators).",
-        "operationId": "search_accounts_v3_accounts_search_post",
+        "operationId": "search_accounts_v3_accounts_search_get",
         "responses": {
           "200": {
             "description": "Matching accounts",
