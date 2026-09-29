@@ -32,3 +32,19 @@ def _resolve_private_collection(db, collection_id, account_uuid):
     if collection is None:
         raise NotFoundError()
     return collection
+
+
+def _editable_collection(db, collection_id, account_uuid):
+    """Return the account's draft collection, drafting a published one first."""
+    collection = _find_collection(db, collection_id, account_uuid, is_published=False)
+    if collection is not None:
+        return collection
+
+    published = _find_collection(db, collection_id, account_uuid, is_published=True)
+    if published is None:
+        return None
+
+    if db.create_draft_from_published_collection(published["container_uuid"]) is None:
+        return None
+
+    return _find_collection(db, published["container_uuid"], account_uuid, is_published=False)
