@@ -151,7 +151,7 @@ class TestAdminLicenseAccessControl:
         account_uuid = get_non_admin_account_uuid()
         impersonate(admin_page, account_uuid)
         response = admin_page.request.post(
-            "/admin/update-published-dataset/license/search",
+            "/admin/update-published-dataset/search",
             data=json.dumps({"search_for": "anything"}),
             headers={"Content-Type": "application/json"},
         )

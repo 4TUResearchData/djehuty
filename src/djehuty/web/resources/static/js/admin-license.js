@@ -45,7 +45,7 @@ jQuery(document).ready(function () {
         jQuery("#license-results").addClass("license-hidden");
 
         jQuery.ajax({
-            url:  "/admin/update-published-dataset/license/search",
+            url:  "/admin/update-published-dataset/search",
             type: "POST",
             contentType: "application/json",
             data: JSON.stringify({ search_for: search_for })

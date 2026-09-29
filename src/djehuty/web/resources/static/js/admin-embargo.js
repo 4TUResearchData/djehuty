@@ -38,7 +38,7 @@ jQuery(document).ready(function () {
         jQuery("#embargo-results").addClass("embargo-hidden");
 
         jQuery.ajax({
-            url:  "/admin/update-published-dataset/embargos/search",
+            url:  "/admin/update-published-dataset/search",
             type: "POST",
             contentType: "application/json",
             data: JSON.stringify({ search_for: search_for })

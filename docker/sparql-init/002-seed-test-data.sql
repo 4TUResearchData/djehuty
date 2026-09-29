@@ -195,3 +195,125 @@ WHERE {
               djht:id        13431 .
   }
 };
+
+
+-- Third seed dataset for the admin remove-files test. Single published
+-- version with two files and a DOI, so the remove-files flow can search,
+-- pick a version, select a file, pass the DOI gate, and detach it.
+SPARQL
+PREFIX djht: <https://ontologies.data.4tu.nl/djehuty/0.0.1/>
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+INSERT {
+  GRAPH <djehuty://local> {
+    <container:c0ffee00-0000-4000-8000-000000000001>
+        rdf:type                          djht:DatasetContainer ;
+        djht:account                      ?account ;
+        djht:dataset_id                   "c0ffee00-0000-4000-8000-000000000001"^^xsd:string ;
+        djht:latest_published_version     <dataset:c0ffee00-0000-4000-8000-000000000002> ;
+        djht:published_versions           <blank:c0ffee00-0000-4000-8000-00000000000a> ;
+        djht:first_online_date            "2026-03-01T12:00:00"^^xsd:dateTime ;
+        djht:total_downloads              0 ;
+        djht:total_views                  0 ;
+        djht:total_shares                 0 ;
+        djht:total_cites                  0 .
+
+    <blank:c0ffee00-0000-4000-8000-00000000000a>
+        rdf:type                          rdf:List ;
+        rdf:first                         <dataset:c0ffee00-0000-4000-8000-000000000002> ;
+        rdf:rest                          rdf:nil ;
+        djht:index                        0 .
+
+    <dataset:c0ffee00-0000-4000-8000-000000000002>
+        rdf:type                          djht:Dataset ;
+        djht:container                    <container:c0ffee00-0000-4000-8000-000000000001> ;
+        djht:title                        "Remove Files Test Seed Dataset"^^xsd:string ;
+        djht:description                  "<p>Dataset seeded for the admin remove-files E2E test.</p>"^^xsd:string ;
+        djht:doi                          "10.4121/remove-files-seed-c0ffee00-0000-4000-8000-000000000001"^^xsd:string ;
+        djht:defined_type                 3 ;
+        djht:defined_type_name            "Dataset"^^xsd:string ;
+        djht:language                     "en"^^xsd:string ;
+        djht:publisher                    "4TU.ResearchData"^^xsd:string ;
+        djht:is_public                    "true"^^xsd:boolean ;
+        djht:is_active                    1 ;
+        djht:is_latest                    "true"^^xsd:boolean ;
+        djht:is_editable                  "false"^^xsd:boolean ;
+        djht:is_under_review              "false"^^xsd:boolean ;
+        djht:version                      1 ;
+        djht:group_id                     28586 ;
+        djht:created_date                 "2026-03-01T12:00:00"^^xsd:dateTime ;
+        djht:modified_date                "2026-03-01T12:00:00"^^xsd:dateTime ;
+        djht:published_date               "2026-03-01T12:00:00"^^xsd:dateTime ;
+        djht:posted_date                  "2026-03-01T12:00:00"^^xsd:dateTime ;
+        djht:submission_date              "2026-03-01T12:00:00"^^xsd:dateTime ;
+        djht:tags                         <blank:c0ffee00-0000-4000-8000-00000000000d> ;
+        djht:authors                      <blank:c0ffee00-0000-4000-8000-00000000000e> ;
+        djht:categories                   <blank:c0ffee00-0000-4000-8000-000000000010> ;
+        djht:files                        <blank:c0ffee00-0000-4000-8000-00000000000b> .
+
+    # -- Files list (two entries) -------------------------------------------
+    <blank:c0ffee00-0000-4000-8000-00000000000b>
+        rdf:type                          rdf:List ;
+        rdf:first                         <file:c0ffee00-0000-4000-8000-0000000000f1> ;
+        rdf:rest                          <blank:c0ffee00-0000-4000-8000-00000000000c> ;
+        djht:index                        0 .
+
+    <blank:c0ffee00-0000-4000-8000-00000000000c>
+        rdf:type                          rdf:List ;
+        rdf:first                         <file:c0ffee00-0000-4000-8000-0000000000f2> ;
+        rdf:rest                          rdf:nil ;
+        djht:index                        1 .
+
+    <file:c0ffee00-0000-4000-8000-0000000000f1>
+        rdf:type                          djht:File ;
+        djht:id                           900001 ;
+        djht:name                         "remove-me.csv"^^xsd:string ;
+        djht:size                         2048 ;
+        djht:is_link_only                 "false"^^xsd:boolean ;
+        djht:computed_md5                 "0123456789abcdef0123456789abcdef"^^xsd:string .
+
+    <file:c0ffee00-0000-4000-8000-0000000000f2>
+        rdf:type                          djht:File ;
+        djht:id                           900002 ;
+        djht:name                         "keep-me.txt"^^xsd:string ;
+        djht:size                         4096 ;
+        djht:is_link_only                 "false"^^xsd:boolean ;
+        djht:computed_md5                 "fedcba9876543210fedcba9876543210"^^xsd:string .
+
+    <blank:c0ffee00-0000-4000-8000-00000000000d>
+        rdf:type                          rdf:List ;
+        rdf:first                         "e2e-test"^^xsd:string ;
+        rdf:rest                          rdf:nil ;
+        djht:index                        0 .
+
+    <blank:c0ffee00-0000-4000-8000-00000000000e>
+        rdf:type                          rdf:List ;
+        rdf:first                         <author:c0ffee00-0000-4000-8000-00000000000f> ;
+        rdf:rest                          rdf:nil ;
+        djht:index                        0 .
+
+    <author:c0ffee00-0000-4000-8000-00000000000f>
+        rdf:type                          djht:Author ;
+        djht:first_name                   "Test"^^xsd:string ;
+        djht:last_name                    "Author"^^xsd:string ;
+        djht:full_name                    "Test Author"^^xsd:string ;
+        djht:is_active                    "true"^^xsd:boolean ;
+        djht:is_public                    "true"^^xsd:boolean .
+
+    <blank:c0ffee00-0000-4000-8000-000000000010>
+        rdf:type                          rdf:List ;
+        rdf:first                         ?category ;
+        rdf:rest                          rdf:nil ;
+        djht:index                        0 .
+  }
+}
+WHERE {
+  GRAPH <djehuty://local> {
+    ?account  rdf:type       djht:Account ;
+              djht:email     "dev@djehuty.com"^^xsd:string .
+    ?category rdf:type       djht:Category ;
+              djht:id        13431 .
+  }
+};

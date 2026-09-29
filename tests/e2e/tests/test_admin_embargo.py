@@ -194,7 +194,7 @@ class TestAdminEmbargoAccessControl:
         impersonate(admin_page, account_uuid)
 
         response = admin_page.request.post(
-            "/admin/update-published-dataset/embargos/search",
+            "/admin/update-published-dataset/search",
             data=json.dumps({"search_for": "anything"}),
             headers={"Content-Type": "application/json"},
         )

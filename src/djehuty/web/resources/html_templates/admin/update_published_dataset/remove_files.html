@@ -1,0 +1,157 @@
+{% extends "layout.html" %}
+{% block headers %}
+<script src="/static/js/jquery-3.6.0.min.js"></script>
+<script src="/static/js/utils.js?cache=1744290797"></script>
+<script src="/static/js/admin-remove-files.js?cache={{nonce}}"></script>
+<style nonce="{{nonce}}">
+#rmf-search-input { width: 400px; padding: .4em; font-size: 1em; }
+#rmf-search-button { background: #009900; color: #fff; text-decoration: none; }
+#rmf-search-button:hover { background: #006600; }
+#rmf-search-button:active { background: #003300; }
+#rmf-results { margin-top: 1em; }
+#rmf-results table, #rmf-versions table, #rmf-files table { width: 100%; }
+#rmf-results-body tr, #rmf-versions-body tr { cursor: pointer; }
+#rmf-results-body tr:hover, #rmf-versions-body tr:hover { background: #f0f0f0; }
+#rmf-results-body tr.selected-row, #rmf-versions-body tr.selected-row { background: #e0e8ff; }
+.rmf-step { margin-top: 1em; }
+.rmf-step h2 { margin-top: 0; }
+.rmf-step table { margin-bottom: 1em; }
+.rmf-primary-button { background: #cc0000; color: #fff; text-decoration: none; }
+.rmf-primary-button:hover { background: #990000; }
+.rmf-primary-button:active { background: #660000; }
+.rmf-primary-button.disabled { background: #ccc; color: #fff; pointer-events: none; cursor: not-allowed; }
+.rmf-secondary-button { background: #777; color: #fff; text-decoration: none; }
+.rmf-secondary-button:hover { background: #555; }
+.rmf-secondary-button:active { background: #333; }
+.rmf-hidden { display: none !important; }
+.rmf-actions { margin-top: 1em; }
+.rmf-actions a + a { margin-left: .5em; }
+.rmf-steps-indicator { margin-bottom: 1em; color: #666; font-size: .95em; }
+.rmf-steps-indicator span { margin-right: .8em; }
+.rmf-steps-indicator span.active { color: #000; font-weight: bold; }
+.rmf-warning { background: #fff0f0; padding: .8em 1em; border-radius: .3em; border: 1px solid #cc0000; color: #660000; margin-bottom: 1em; }
+.rmf-warning strong { color: #cc0000; }
+.rmf-note { color: #444; }
+.rmf-shared { color: #b06000; }
+.rmf-latest-badge { background: #cc0000; color: #fff; padding: 0 .4em; border-radius: .3em; font-size: .85em; margin-left: .4em; }
+#rmf-files-body td:first-child { width: 1.5em; }
+#rmf-doi-confirm-input { padding: .3em; font-size: 1em; width: 360px; }
+</style>
+{% endblock %}
+{% block submenu %}
+<ul>
+  <li><a href="/admin/dashboard">Dashboard</a>
+  <li><a href="/admin/users">Users</a>
+  <li><a href="/admin/exploratory">Exploratory</a>
+  <li class="active corporate-identity-submenu-active">Update Published Dataset
+  <li><a href="/admin/reports">Reports</a>
+  {% if may_query %}<li><a href="/admin/sparql">Query</a>{% endif %}
+  {% if may_review_quotas %}<li><a href="/admin/quota-requests">Quota requests</a>{% endif %}
+</ul>
+{% endblock %}
+{% block body %}
+<noscript>
+  <p class="no-script">Sorry, this page requires JavaScript to function properly.</p>
+</noscript>
+<div class="hide-for-javascript">
+<h1>Remove files from a version</h1>
+
+<div class="rmf-steps-indicator" id="rmf-steps-indicator">
+  <span id="rmf-step-indicator-1" class="active">1. Select dataset</span>
+  <span id="rmf-step-indicator-2">2. Select version</span>
+  <span id="rmf-step-indicator-3">3. Select files</span>
+  <span id="rmf-step-indicator-4">4. Review &amp; remove</span>
+</div>
+
+<!-- Step 1: search & select dataset -->
+<div id="rmf-step-1" class="rmf-step">
+  <h2>Step 1 &mdash; Select dataset</h2>
+  <p>Search for a published dataset by title, then pick it from the results.</p>
+  <div id="rmf-search">
+    <input type="text" id="rmf-search-input" placeholder="Search by title">
+    <a id="rmf-search-button" href="#" class="button corporate-identity-standard-button">Search</a>
+  </div>
+
+  <div id="rmf-results" class="rmf-hidden">
+    <h3>Search results</h3>
+    <p>Click a row to select the dataset.</p>
+    <table class="corporate-identity-table">
+      <thead><tr><th>Title</th><th>DOI</th><th>Latest version</th><th>Versions</th></tr></thead>
+      <tbody id="rmf-results-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Step 2: select version -->
+<div id="rmf-step-2" class="rmf-step rmf-hidden">
+  <h2>Step 2 &mdash; Select version</h2>
+  <p>Selected dataset: <strong id="rmf-dataset-title"></strong></p>
+  <p>Click the version you want to remove files from.</p>
+  <table class="corporate-identity-table">
+    <thead><tr><th>Version</th><th>DOI</th><th>Posted</th><th>Files</th></tr></thead>
+    <tbody id="rmf-versions-body"></tbody>
+  </table>
+  <div class="rmf-actions">
+    <a id="rmf-back-to-search-button" href="#" class="button rmf-secondary-button">&larr; Change dataset</a>
+  </div>
+</div>
+
+<!-- Step 3: select files -->
+<div id="rmf-step-3" class="rmf-step rmf-hidden">
+  <h2>Step 3 &mdash; Select files</h2>
+  <p>Version <strong id="rmf-files-version"></strong> &mdash; <span id="rmf-files-doi"></span></p>
+  <p class="rmf-note">Tick the files to remove from this version. A file marked
+  <span class="rmf-shared">"also in v&hellip;"</span> is shared with another version and
+  will stay available there; its stored blob is never deleted by this tool.</p>
+  <p>
+    <label><input type="checkbox" id="rmf-select-all"> Select all</label>
+  </p>
+  <table class="corporate-identity-table">
+    <thead><tr><th></th><th>Name</th><th>Size</th><th>Shared with</th></tr></thead>
+    <tbody id="rmf-files-body"></tbody>
+  </table>
+  <div class="rmf-actions">
+    <a id="rmf-back-to-versions-button" href="#" class="button rmf-secondary-button">&larr; Change version</a>
+    <a id="rmf-continue-button" href="#" class="button corporate-identity-standard-button rmf-primary-button disabled">Continue to review &rarr;</a>
+  </div>
+</div>
+
+<!-- Step 4: review & confirm -->
+<div id="rmf-step-4" class="rmf-step rmf-hidden">
+  <h2>Step 4 &mdash; Review &amp; remove</h2>
+
+  <div class="rmf-warning">
+    <p><strong>You are about to remove files from a published version.</strong> This will:</p>
+    <ul>
+      <li>Detach the selected files from this version's file list (they stop being downloadable through this version).</li>
+      <li>Leave the version's metadata, DOI, and landing page online.</li>
+      <li>Leave other versions and any shared files untouched. Stored file blobs are not deleted.</li>
+    </ul>
+    <p id="rmf-latest-warning" class="rmf-hidden"><strong>This is the latest published version</strong> &mdash; it is the default public view of the dataset.</p>
+  </div>
+
+  <table>
+    <tr><td>Title</td><td id="rmf-confirm-title"></td></tr>
+    <tr><td>Version</td><td id="rmf-confirm-version"></td></tr>
+    <tr><td>DOI</td><td id="rmf-confirm-doi"></td></tr>
+  </table>
+
+  <p><strong>Files to remove:</strong></p>
+  <ul id="rmf-confirm-file-list"></ul>
+
+  <p>
+    <label for="rmf-doi-confirm-input">
+      To confirm, type the version DOI:
+      <strong id="rmf-expected-doi-hint"></strong>
+    </label><br>
+    <input type="text" id="rmf-doi-confirm-input" placeholder="Type DOI to enable Remove">
+  </p>
+
+  <div class="rmf-actions">
+    <a id="rmf-back-to-files-button" href="#" class="button rmf-secondary-button">&larr; Back</a>
+    <a id="rmf-confirm-button" href="#" class="button rmf-primary-button disabled">Remove files</a>
+  </div>
+</div>
+
+</div>
+{% endblock %}
