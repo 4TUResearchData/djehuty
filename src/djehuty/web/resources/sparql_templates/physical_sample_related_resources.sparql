@@ -1,0 +1,42 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT DISTINCT ?uuid ?url ?type ?type_id ?relation ?relation_id ?created_date
+                (?rest AS ?originating_blank_node) ?order_index
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?container         rdf:type                 djht:PhysicalSampleContainer .
+    {%- if sample_uri is not none %}
+    BIND(<{{sample_uri}}> AS ?item_uri)
+    ?item_uri          djht:container           ?container .
+    {%- else %}
+    ?container         djht:draft               ?item_uri .
+    {%- endif %}
+    ?item_uri          djht:related_resources/rdf:rest* ?rest .
+    ?rest              rdf:first                ?related ;
+                       djht:index               ?order_index .
+
+    ?related           djht:type              ?type_uri .
+    ?type_uri          rdfs:label             ?type .
+    ?related           djht:relation          ?relation_uri .
+    ?relation_uri      rdfs:label             ?relation .
+    ?related           djht:url               ?url .
+
+    BIND(STRAFTER(STR(?type_uri),     "PhysicalSampleRelatedResource") AS ?type_id)
+    BIND(STRAFTER(STR(?relation_uri), "PhysicalSampleRelatedResource") AS ?relation_id)
+    ?related           djht:created_date      ?created_date .
+
+    {%- if account_uuid is not none %}
+    ?container         djht:account             ?account .
+    BIND (xsd:boolean (EXISTS { ?related djht:created_by <account:{{account_uuid}}> . }) AS ?is_editable)
+    {%- else %}
+    BIND("false"^^xsd:boolean AS ?is_editable)
+    {%- endif %}
+
+    BIND(STRAFTER(STR(?related), "physical-sample-related-resource:") AS ?uuid)
+  }
+  FILTER (?container = <container:{{container_uuid}}>)
+{%- if account_uuid is not none %}
+  FILTER (?account = <account:{{account_uuid}}>)
+{%- endif %}
+}
+{% endblock %}

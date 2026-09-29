@@ -20,7 +20,16 @@ configuration file, for which an example is available at
   \t{allow-crawlers}         & Set to 1 to allow crawlers in the \t{robots.txt},
                                otherwise set to 0.\\
   \t{production}             & Performs extra checks before starting. Enable
-                               this when running a production instance.\\
+                               this when running a production instance.  It
+                               also gates the registration of persistent
+                               identifiers: DOIs and IGSNs are only registered at
+                               DataCite when \t{production} is set to 1.  This
+                               element takes an attribute \t{pre-production},
+                               and when set to 1, \t{djehuty} runs the full
+                               publication workflow but skips register the
+                               identifiers and sending depositor e-mails, so a
+                               staging instance can be exercised without
+                               registering real DOIs or IGSNs.\\
   \t{live-reload}            & When set to 1, it reloads Python code on-the-fly.
                                We recommend to set it to 0 when running in
                                production.\\
@@ -422,6 +431,51 @@ djehuty web --config-file=config.xml --apply-transactions
   \t{password}                & The password to authenticate with to DataCite.\\
   \t{prefix}                  & The DOI prefix to use when registering a DOI.
 \end{tabularx}
+
+  The \t{datacite} node is used for datasets and collections.  Physical
+  samples are registered separately, under the \t{igsn} node described in
+  the next section.
+
+\section{Configuring IGSN registration for physical samples}
+
+  In addition to datasets and collections, \t{djehuty} can publish physical
+  samples and assign each one an IGSN (International Generic Sample Number).
+  IGSNs are registered through DataCite, but from a \emph{separate} DataCite
+  repository than the one used for datasets and collections.  DataCite issues
+  this repository its own repository identifier, password and prefix, so the
+  \t{igsn} node is configured independently from the \t{datacite} node and
+  the two prefixes differ: the \t{datacite} prefix is used for dataset and
+  collection DOIs, while the \t{igsn} prefix is used for sample IGSNs.
+
+  Configure it under the \t{igsn} node.  The following parameters can be
+  configured:
+
+\begin{tabularx}{\textwidth}{*{1}{!{\VRule[-1pt]}l}!{\VRule[-1pt]}X}
+  \headrow
+  \textbf{Option}             & \textbf{Description}\\
+  \t{api-url}                 & The URL of the API endpoint of DataCite.\\
+  \t{repository-id}           & The repository identifier given by DataCite
+                                for the IGSN repository.\\
+  \t{password}                & The password to authenticate with to the IGSN
+                                repository.\\
+  \t{prefix}                  & The prefix to use when registering an IGSN.
+                                This must be the prefix assigned to the IGSN
+                                repository, and differs from the \t{datacite}
+                                prefix.
+\end{tabularx}
+
+  Setting the \t{prefix} is what enables the physical-sample feature: when an
+  \t{igsn} prefix is configured, the physical-sample deposit, review and
+  publication workflow becomes available in the user interface.  When the
+  prefix is unset, the feature stays hidden.
+
+  Note that an IGSN is only registered at DataCite when the \t{production}
+  element is set to 1 \emph{and} its \t{pre-production} attribute is not set
+  (or set to 0).  On a non-production or pre-production instance, samples can
+  still be moved through the publication workflow, but no IGSN is registered.
+
+  The physical-sample feature also renders a QR code for each sample, which
+  requires the \t{qrcode} Python package to be installed.
 
 \section{Configuring Handle registration}
 

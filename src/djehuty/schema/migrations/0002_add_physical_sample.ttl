@@ -1,0 +1,31 @@
+@prefix djht: <https://ontologies.data.4tu.nl/djehuty/0.0.1/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+## Container hierarchy
+djht:PhysicalSampleContainer rdfs:subClassOf djht:Container .
+
+## Physical-sample date types
+djht:PhysicalSampleDateCollected rdfs:label "Collected"^^xsd:string .
+djht:PhysicalSampleDateCreated rdfs:label "Created"^^xsd:string .
+djht:PhysicalSampleDateDestroyed rdfs:label "Destroyed"^^xsd:string .
+djht:PhysicalSampleDateIssued rdfs:label "Issued"^^xsd:string .
+djht:PhysicalSampleDateUpdated rdfs:label "Updated"^^xsd:string .
+djht:PhysicalSampleDateOther rdfs:label "Other"^^xsd:string .
+
+## Physical-sample related-resource identifier types
+djht:PhysicalSampleRelatedResourceIGSNDOI rdfs:label "IGSN"^^xsd:string .
+djht:PhysicalSampleRelatedResourceOtherDOI rdfs:label "DOI"^^xsd:string .
+djht:PhysicalSampleRelatedResourceURL rdfs:label "URL"^^xsd:string .
+
+## Physical-sample related-resource relation types
+djht:PhysicalSampleRelatedResourceIsPartOf rdfs:label "Is part of"^^xsd:string .
+djht:PhysicalSampleRelatedResourceHasPart rdfs:label "Has part"^^xsd:string .
+djht:PhysicalSampleRelatedResourceIsDerivedFrom rdfs:label "Is derived from"^^xsd:string .
+djht:PhysicalSampleRelatedResourceIsSourceOf rdfs:label "Is source of"^^xsd:string .
+djht:PhysicalSampleRelatedResourceIsReferencedBy rdfs:label "Is referenced by"^^xsd:string .
+djht:PhysicalSampleRelatedResourceReferences rdfs:label "References"^^xsd:string .
+djht:PhysicalSampleRelatedResourceIsCitedBy rdfs:label "Is cited by"^^xsd:string .
+djht:PhysicalSampleRelatedResourceCites rdfs:label "Cites"^^xsd:string .
+djht:PhysicalSampleRelatedResourceIsDescribedBy rdfs:label "Is described by"^^xsd:string .
+djht:PhysicalSampleRelatedResourceDescribes rdfs:label "Describes"^^xsd:string .

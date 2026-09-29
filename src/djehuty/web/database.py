@@ -154,6 +154,15 @@ class SparqlInterface:
 
         return template.render ({ **args, **parameters })
 
+    def __date_datatype (self, date):
+        """Returns the datatype matching the precision of the partial date DATE."""
+
+        if date is None:
+            return None
+
+        ## A year (YYYY), a year and month (YYYY-MM) or a full date (YYYY-MM-DD).
+        return {4: XSD.gYear, 7: XSD.gYearMonth}.get (len (date), XSD.date)
+
     def __run_logged_query (self, query):
         """Passthrough for '__run_query' that handles the audit log feature."""
 
@@ -1119,7 +1128,7 @@ class SparqlInterface:
     def container_uri (self, graph, item_id, item_type, account_uuid):
         """Returns the URI of the container belonging to item with item_id."""
 
-        prefix     = item_type.capitalize()
+        prefix     = "".join(word.capitalize() for word in item_type.split("-"))
         item_class = f"{prefix}Container"
         uri        = None
         if conv.parses_to_int (item_id):
@@ -2071,7 +2080,8 @@ class SparqlInterface:
         rdf.add (graph, link_uri, rdf.DJHT["purpose"], purpose,  XSD.string)
 
         if self.add_triples_from_graph (graph):
-            item_uri       = rdf.uuid_to_uri (item_uuid, item_type)
+            uri_prefix     = "physical-sample" if item_type == "physical_sample" else item_type
+            item_uri       = rdf.uuid_to_uri (item_uuid, uri_prefix)
             existing_links = self.private_links (item_uri=item_uri, account_uuid=account_uuid)
             if existing_links:
                 return self.__append_to_existing_list (link_uri, existing_links)
@@ -2094,6 +2104,12 @@ class SparqlInterface:
                                               is_published = None,
                                               is_latest    = None,
                                               limit        = 1)[0]
+            elif item_type == "physical_sample":
+                item      = self.physical_samples (sample_uuid  = item_uuid,
+                                                   account_uuid = account_uuid,
+                                                   is_published = None,
+                                                   is_latest    = None)[0]
+                item["uuid"] = item["sample_uuid"]
 
             if item is None:
                 self.log.error ("Could not find item to insert a private link %s for.",
@@ -2442,17 +2458,19 @@ class SparqlInterface:
 
         return None
 
-    def reorder_authors (self, account_uuid, container_uuid, author_uuid, action):
+    def reorder_authors (self, account_uuid, container_uuid, author_uuid, action,
+                         predicate="authors"):
         """
-        Change the order of author with AUTHOR_UUID in the authors list of
+        Change the order of author with AUTHOR_UUID in the authors/creators list of
         the draft of the container identified by CONTAINER_UUID.
         """
 
         query = self.__query_from_template ("update_authors_order", {
             "container_uuid": container_uuid,
-            "account_uuid": account_uuid,
-            "author_uuid": author_uuid,
-            "action": "+1" if action == "down" else "-1"
+            "account_uuid":   account_uuid,
+            "author_uuid":    author_uuid,
+            "action":         "+1" if action == "down" else "-1",
+            "predicate":      predicate,
         })
 
         return self.__run_logged_query (query)
@@ -3182,6 +3200,522 @@ class SparqlInterface:
 
         results = self.__run_query (query)
         return results
+
+    ## ------------------------------------------------------------------------
+    ## PHYSICAL OBJECTS
+    ## ------------------------------------------------------------------------
+
+    def physical_samples (self, account_uuid=None, container_uuid=None,
+                          sample_uuid=None,
+                          is_published=True, is_latest=True, limit=None,
+                          order=None, order_direction=None,
+                          offset=None, private_link_id_string=None,
+                          is_under_review=None, use_cache=True):
+        """Procedure to retrieve physical samples."""
+
+        filters  = rdf.sparql_filter ("container", rdf.uuid_to_uri (container_uuid, "container"), is_uri=True)
+        filters += rdf.sparql_filter ("sample_uuid", sample_uuid, escape=True)
+        filters += rdf.sparql_filter ("private_link_id_string", private_link_id_string, escape=True)
+
+        query = self.__query_from_template ("physical-samples", {
+            "account_uuid":            account_uuid,
+            "is_published":            is_published,
+            "is_latest":               is_latest,
+            "is_under_review":         is_under_review,
+            "private_link_id_string":  private_link_id_string,
+            "filters":                 filters
+        })
+
+        query += rdf.sparql_suffix (order, order_direction, limit, offset)
+
+        if use_cache:
+            cache_prefix = (f"physical-samples_{account_uuid}"
+                            if account_uuid is not None else "physical-samples")
+            return self.__run_query (query, query, cache_prefix)
+
+        return self.__run_query (query)
+
+    def insert_physical_sample (self, title, account_uuid, container_uuid=None,
+                                description=None, publisher=None,
+                                published_date=None, resource_type=None,
+                                subject=None, alternate_identifier=None,
+                                related_resource=None, doi=None):
+        """Inserts a physical sample."""
+
+        graph           = Graph()
+        uri             = rdf.unique_node ("physical-sample")
+        container_uri   = None
+        if container_uuid is not None:
+            container_uri   = URIRef(rdf.uuid_to_uri (container_uuid, "container"))
+
+        container       = self.container_uri (graph, container_uri, "physical-sample", account_uuid)
+        account_uri     = URIRef(rdf.uuid_to_uri (account_uuid, "account"))
+
+        # Add the dataset to its container.
+        graph.add ((container, rdf.DJHT["draft"],       uri))
+        graph.add ((container, rdf.DJHT["account"],     account_uri))
+
+        graph.add ((uri, RDF.type,                       rdf.DJHT["PhysicalSample"]))
+        graph.add ((uri, rdf.DJHT["title"],              Literal(title, datatype=XSD.string)))
+        graph.add ((uri, rdf.DJHT["container"],          container))
+
+        rdf.add (graph, uri, rdf.DJHT["abstract"],       description,    XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["publisher"],      publisher,      XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["published_date"], published_date, XSD.dateTime)
+        rdf.add (graph, uri, rdf.DJHT["resource_type"],  resource_type,  XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["subject"],        subject, XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["alternate_identifier"], alternate_identifier, XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["related_resource"], related_resource, XSD.string)
+        rdf.add (graph, uri, rdf.DJHT["doi"],            doi,            XSD.string)
+
+        current_time = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
+        rdf.add (graph, uri, rdf.DJHT["created_date"],   current_time, XSD.dateTime)
+        rdf.add (graph, uri, rdf.DJHT["modified_date"],  current_time, XSD.dateTime)
+
+        self.cache.invalidate_by_prefix ("physical-samples")
+        if self.add_triples_from_graph (graph):
+            container_uuid = rdf.uri_to_uuid (container)
+            self.cache.invalidate_by_prefix (f"physical-samples_{account_uuid}")
+            return container_uuid, rdf.uri_to_uuid (uri)
+
+        return None, None
+
+    def delete_physical_sample (self, account_uuid, sample_uuid):
+        """Removes an unpublished physical sample."""
+
+        query = self.__query_from_template ("delete_physical_sample_draft", {
+            "account_uuid": account_uuid,
+            "sample_uuid": sample_uuid
+        })
+
+        if self.__run_logged_query (query):
+            self.cache.invalidate_by_prefix (f"physical-samples_{account_uuid}")
+            self.cache.invalidate_by_prefix ("physical-samples")
+            return True
+
+        return False
+
+    def publish_physical_sample (self, container_uuid, account_uuid):
+        """Procedure to publish a draft physical sample."""
+
+        # Prevent caches from playing a role.
+        self.cache.invalidate_by_prefix (f"physical-samples_{account_uuid}")
+        self.cache.invalidate_by_prefix ("physical-samples")
+
+        # Read the current state fresh so these reads don't repopulate the
+        # cache with the pre-publish data.
+        draft = None
+        try:
+            draft = self.physical_samples (container_uuid = container_uuid,
+                                           is_published   = False,
+                                           is_latest      = False,
+                                           use_cache      = False)[0]
+        except IndexError:
+            self.log.error ("Attempted to publish without a draft <container:%s>.",
+                            container_uuid)
+            return False
+
+        # Physical samples are not versioned: an update replaces the single
+        # published record in place, so the version number stays at 1.
+        latest = None
+        try:
+            latest = self.physical_samples (container_uuid = container_uuid,
+                                            is_published   = True,
+                                            is_latest      = True,
+                                            use_cache      = False)[0]
+        except IndexError:
+            self.log.info ("No published version yet for <container:%s>.", container_uuid)
+
+        sample_uuid  = draft["sample_uuid"]
+        blank_node   = self.wrap_in_blank_node (sample_uuid, "physical-sample")
+        current_time = datetime.strftime (datetime.now(), datetime_format)
+        query        = self.__query_from_template ("publish_draft_physical_sample", {
+            "blank_node":        blank_node,
+            "version":           1,
+            "container_uuid":    container_uuid,
+            "sample_uuid":       sample_uuid,
+            "timestamp":         current_time,
+            "first_publication": not latest
+        })
+
+        if self.__run_logged_query (query):
+            self.cache.invalidate_by_prefix ("repository_statistics")
+            self.cache.invalidate_by_prefix ("reviews")
+            self.cache.invalidate_by_prefix (f"physical-samples_{account_uuid}")
+            self.cache.invalidate_by_prefix ("physical-samples")
+            if not self.__physical_sample_is_published (container_uuid, sample_uuid):
+                self.log.error ("Publishing physical sample %s did not change its state.",
+                                container_uuid)
+                return False
+            return True
+
+        return False
+
+    def __physical_sample_is_published (self, container_uuid, sample_uuid):
+        """Returns True when SAMPLE_UUID is the published record of its container."""
+
+        try:
+            published = self.physical_samples (container_uuid = container_uuid,
+                                               is_published   = True,
+                                               is_latest      = True,
+                                               use_cache      = False)[0]
+        except IndexError:
+            return False
+
+        return conv.value_or_none (published, "sample_uuid") == sample_uuid
+
+    def decline_physical_sample (self, container_uuid, account_uuid):
+        """Procedure to decline a draft physical sample."""
+
+        # Prevent caches from playing a role.
+        self.cache.invalidate_by_prefix (f"physical-samples_{account_uuid}")
+        self.cache.invalidate_by_prefix ("physical-samples")
+
+        # Read the current state fresh so this read doesn't repopulate the
+        # cache with some pre-decline data.
+        try:
+            self.physical_samples (container_uuid = container_uuid,
+                                   is_published   = False,
+                                   is_latest      = False,
+                                   use_cache      = False)[0]
+        except IndexError:
+            self.log.error ("Attempted to decline without a draft <container:%s>.",
+                            container_uuid)
+            return False
+
+        query = self.__query_from_template ("decline_draft_physical_sample", {
+            "container_uuid": container_uuid,
+        })
+
+        if self.__run_logged_query (query):
+            self.cache.invalidate_by_prefix ("reviews")
+            self.cache.invalidate_by_prefix (f"physical-samples_{account_uuid}")
+            self.cache.invalidate_by_prefix ("physical-samples")
+            if self.__physical_sample_is_under_review (container_uuid):
+                self.log.error ("Declining physical sample %s did not change its state.",
+                                container_uuid)
+                return False
+            return True
+
+        self.log.error ("Failed to decline physical sample %s", container_uuid)
+        return False
+
+    def __physical_sample_is_under_review (self, container_uuid):
+        """Returns True when the container's draft is still under review.
+
+        An UPDATE whose WHERE clause matches nothing is not an error, so the
+        outcome of publishing or declining has to be verified separately.
+        """
+
+        try:
+            draft = self.physical_samples (container_uuid = container_uuid,
+                                           is_published   = False,
+                                           is_latest      = False,
+                                           use_cache      = False)[0]
+        except IndexError:
+            return False
+
+        return bool (conv.value_or (draft, "is_under_review", False))
+
+    def update_physical_sample (self, title, sample_uuid, account_uuid,
+                                container_uuid=None, abstract=None, methods=None,
+                                publisher=None, publication_year=None, published_date=None,
+                                resource_type=None, subject=None, doi=None,
+                                alternate_identifier=None, related_resource=None,
+                                organizations=None, physical_storage_location=None,
+                                geolocation=None, longitude=None, latitude=None,
+                                sample_owner_name=None, sample_owner_email=None,
+                                group_id=None, categories=None,
+                                agreed_to_deposit_agreement=None,
+                                agreed_to_publish=None):
+        """Updates a physical sample record."""
+
+        query = self.__query_from_template ("update_physical_sample_draft", {
+            "title":                  rdf.escape_string_value (title),
+            "abstract":               rdf.escape_string_value (abstract),
+            "methods":                rdf.escape_string_value (methods),
+            "publisher":              rdf.escape_string_value (publisher),
+            "publication_year":       publication_year,
+            "published_date":         rdf.escape_datetime_value (published_date),
+            "resource_type":          rdf.escape_string_value (resource_type),
+            "subject":                rdf.escape_string_value (subject),
+            "alternate_identifier":   rdf.escape_string_value (alternate_identifier),
+            "related_resource":       rdf.escape_string_value (related_resource),
+            "doi":                    rdf.escape_string_value (doi),
+            "organizations":          rdf.escape_string_value (organizations),
+            "physical_storage_location":   rdf.escape_string_value (physical_storage_location),
+            "geolocation":            rdf.escape_string_value (geolocation),
+            "longitude":              rdf.escape_string_value (longitude),
+            "latitude":               rdf.escape_string_value (latitude),
+            "sample_owner_name":      rdf.escape_string_value (sample_owner_name),
+            "sample_owner_email":     rdf.escape_string_value (sample_owner_email),
+            "agreed_to_deposit_agreement": rdf.escape_boolean_value (agreed_to_deposit_agreement),
+            "agreed_to_publish":      rdf.escape_boolean_value (agreed_to_publish),
+            "group_id":               group_id,
+            "modified_date":          datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%S"),
+            "account_uuid":           account_uuid,
+            "container_uuid":         container_uuid
+        })
+
+        self.cache.invalidate_by_prefix(f"physical-samples_{account_uuid}")
+        self.cache.invalidate_by_prefix("physical-samples")
+
+        results = self.__run_logged_query(query)
+        if results:
+            if categories and isinstance(categories, list):
+                items = rdf.uris_from_records(categories, "category", "uuid")
+                self.update_item_list(sample_uuid, account_uuid, items, "categories")
+        else:
+            return False
+
+        return results
+
+    def create_draft_from_published_physical_sample (self, container_uuid, account_uuid):
+        """Procedure to copy a published physical sample as a draft in its container.
+
+        Physical samples are not versioned: an update reuses the same container
+        (and therefore the same IGSN).  This creates a separate editable draft so
+        the published record stays untouched until a reviewer approves the update.
+        Returns the new draft's sample UUID, or None on failure. It uses similar
+        workflow than dataset but without create a versioning at end
+        """
+
+        try:
+            published = self.physical_samples (container_uuid = container_uuid,
+                                               account_uuid   = account_uuid,
+                                               is_published   = True,
+                                               is_latest      = True)[0]
+        except (IndexError, TypeError):
+            return None
+
+        published_uri = f"physical-sample:{published['sample_uuid']}"
+
+        ## Mint a new draft node linked to the existing container.
+        container_uuid, draft_uuid = self.insert_physical_sample (
+            title          = conv.value_or (published, "title", "Untitled item"),
+            account_uuid   = account_uuid,
+            container_uuid = container_uuid)
+
+        if draft_uuid is None:
+            return None
+
+        ## Copy the scalar metadata onto the draft.  We deliberately skip the DOI,
+        ## published/posted dates and version: the IGSN lives on the container and
+        ## the draft is yet-to-be-published.
+        copied = self.update_physical_sample (
+            title                     = conv.value_or (published, "title", "Untitled item"),
+            sample_uuid               = draft_uuid,
+            account_uuid              = account_uuid,
+            container_uuid            = container_uuid,
+            abstract                  = conv.value_or_none (published, "abstract"),
+            methods                   = conv.value_or_none (published, "methods"),
+            publisher                 = conv.value_or_none (published, "publisher"),
+            publication_year          = conv.value_or_none (published, "publication_year"),
+            resource_type             = conv.value_or_none (published, "resource_type"),
+            subject                   = conv.value_or_none (published, "subject"),
+            alternate_identifier      = conv.value_or_none (published, "alternate_identifier"),
+            related_resource          = conv.value_or_none (published, "related_resource"),
+            organizations             = conv.value_or_none (published, "organizations"),
+            physical_storage_location = conv.value_or_none (published, "physical_storage_location"),
+            geolocation               = conv.value_or_none (published, "geolocation"),
+            longitude                 = conv.value_or_none (published, "longitude"),
+            latitude                  = conv.value_or_none (published, "latitude"),
+            sample_owner_name         = conv.value_or_none (published, "sample_owner_name"),
+            sample_owner_email        = conv.value_or_none (published, "sample_owner_email"),
+            group_id                  = conv.value_or_none (published, "group_id"))
+
+        if not copied:
+            self.log.error ("Failed to copy the metadata of %s into draft %s.",
+                            container_uuid, draft_uuid)
+
+        ## Copy the lists metadata.  Like, creators reference shared author URIs,
+        ## so only a new list cell is created.  Dates and related resources are
+        ## per sample, so fresh entities are created for the draft.  We read the
+        ## published lists by sample URI only (account_uuid=None): the URI already
+        ## pins the sample, and combining sample_uri with account_uuid triggers a
+        ## pathological query plan on the large state graph.
+        for creator in self.physical_sample_creators (container_uuid, None,
+                                                       sample_uri = published_uri):
+            if self.add_creator_to_physical_sample (container_uuid, creator["uuid"],
+                                                    account_uuid) is None:
+                self.log.error ("Failed to copy creator %s into draft %s.",
+                                creator["uuid"], draft_uuid)
+
+        for date in self.physical_sample_dates (container_uuid, None,
+                                                 sample_uri = published_uri):
+            if self.add_date_to_physical_sample (container_uuid,
+                                                 conv.value_or (date, "date_type", "other"),
+                                                 conv.value_or_none (date, "date"),
+                                                 account_uuid,
+                                                 conv.value_or_none (date, "date_end")) is None:
+                self.log.error ("Failed to copy date %s into draft %s.",
+                                conv.value_or_none (date, "uuid"), draft_uuid)
+
+        for resource in self.physical_sample_related_resources (container_uuid, None,
+                                                                sample_uri = published_uri):
+            resource_uuid = self.add_related_resource_to_physical_sample (
+                container_uuid,
+                conv.value_or_none (resource, "url"),
+                conv.value_or (resource, "type_id", "URL"),
+                conv.value_or (resource, "relation_id", "IsPartOf"),
+                account_uuid)
+            if resource_uuid is None:
+                self.log.error ("Failed to copy related resource %s into draft %s.",
+                                conv.value_or_none (resource, "uuid"), draft_uuid)
+
+        ## Copy the categories, which reference shared category URIs.
+        categories = self.categories (item_uri = published_uri, limit = None)
+        if categories:
+            category_uris = rdf.uris_from_records (categories, "category", "uuid")
+            if not self.update_item_list (draft_uuid, account_uuid, category_uris, "categories"):
+                self.log.error ("Failed to copy the categories into draft %s.", draft_uuid)
+
+        ## Copy the keywords/tags (stored as a list of string literals).
+        tags = self.tags (item_uri = published_uri, limit = None)
+        if tags:
+            tag_values = [tag["tag"] for tag in tags if conv.value_or_none (tag, "tag")]
+            if not self.update_item_list (draft_uuid, account_uuid, tag_values, "tags"):
+                self.log.error ("Failed to copy the keywords into draft %s.", draft_uuid)
+
+        self.cache.invalidate_by_prefix (f"physical-samples_{account_uuid}")
+        self.cache.invalidate_by_prefix ("physical-samples")
+        return draft_uuid
+
+    def physical_sample_creators (self, container_uuid, account_uuid, sample_uri=None):
+        """Returns the creators of a physical sample.
+
+        By default the container's draft is used.  Pass SAMPLE_URI to read the
+        creators of a specific sample (e.g. the published one), so a draft and a
+        published sample can coexist in the same container.
+        """
+
+        query = self.__query_from_template ("physical_sample_creators", {
+            "container_uuid": container_uuid,
+            "account_uuid":   account_uuid,
+            "sample_uri":     sample_uri
+        })
+        return self.__run_query (query)
+
+    def add_creator_to_physical_sample (self, container_uuid, creator_uuid, account_uuid):
+        """Adds a creator to a physical sample."""
+
+        creator_uri = URIRef(rdf.uuid_to_uri (creator_uuid, "author"))
+        existing_objects = self.physical_sample_creators (container_uuid, account_uuid)
+        self.log.debug ("Existing objects: %s", existing_objects)
+        if existing_objects:
+            return self.__append_to_existing_list (creator_uri, existing_objects)
+
+        query = self.__query_from_template ("initiate_creator_for_physical_sample", {
+            "container_uuid": container_uuid,
+            "creator_uuid":   creator_uuid,
+            "account_uuid":   account_uuid,
+            "blank_uuid":     rdf.uri_to_uuid (rdf.blank_node ())
+        })
+        if self.__run_logged_query (query):
+            return creator_uuid
+
+        return None
+
+    def physical_sample_dates (self, container_uuid, account_uuid, sample_uri=None):
+        """Returns dates of a physical sample.
+
+        By default the container's draft is used.  Pass SAMPLE_URI to read the
+        dates of a specific sample (e.g. the published one).
+        """
+
+        query = self.__query_from_template ("physical_sample_dates", {
+            "container_uuid": container_uuid,
+            "account_uuid":   account_uuid,
+            "sample_uri":     sample_uri
+        })
+        return self.__run_query (query)
+
+    def add_date_to_physical_sample (self, container_uuid, date_type, date,
+                                     account_uuid, date_end=None):
+        """Adds a date or a range of dates to a physical sample.
+
+        Set DATE_END for a range, where DATE is the start.  The two are stored
+        apart so that both stay real dates.
+        """
+
+        graph          = Graph()
+        uri            = rdf.unique_node ("physical-sample-date")
+        date_type_uri  = rdf.DJHT[f"PhysicalSampleDate{date_type.capitalize()}"]
+        current_time   = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
+        date_uuid      = rdf.uri_to_uuid (uri)
+
+        rdf.add (graph, uri, rdf.DJHT["created_date"], current_time, XSD.dateTime)
+        rdf.add (graph, uri, rdf.DJHT["date_type"],    date_type_uri, "uri")
+        rdf.add (graph, uri, rdf.DJHT["date"],         date, self.__date_datatype (date))
+        rdf.add (graph, uri, rdf.DJHT["date_end"],     date_end, self.__date_datatype (date_end))
+        rdf.add (graph, uri, RDF.type,                 rdf.DJHT["PhysicalSampleDate"], "uri")
+
+        if not self.add_triples_from_graph (graph):
+            return None
+
+        existing_objects = self.physical_sample_dates (container_uuid, account_uuid)
+        if existing_objects:
+            return self.__append_to_existing_list (uri, existing_objects)
+
+        query = self.__query_from_template ("initiate_date_for_physical_sample", {
+            "container_uuid": container_uuid,
+            "date_uuid":      date_uuid,
+            "account_uuid":   account_uuid,
+            "blank_uuid":     rdf.uri_to_uuid (rdf.blank_node ())
+        })
+        if self.__run_logged_query (query):
+            return date_uuid
+
+        return None
+
+    def physical_sample_related_resources (self, container_uuid, account_uuid, sample_uri=None):
+        """Returns related identifiers of a physical sample.
+
+        By default the container's draft is used.  Pass SAMPLE_URI to read the
+        related resources of a specific sample (e.g. the published one).
+        """
+
+        query = self.__query_from_template ("physical_sample_related_resources", {
+            "container_uuid": container_uuid,
+            "account_uuid":   account_uuid,
+            "sample_uri":     sample_uri
+        })
+        return self.__run_query (query)
+
+    def add_related_resource_to_physical_sample (self, container_uuid,
+                                                   identifier, identifier_type,
+                                                   identifier_relation,
+                                                   account_uuid):
+        graph         = Graph()
+        uri           = rdf.unique_node ("physical-sample-related-resource")
+        type_uri      = rdf.DJHT[f"PhysicalSampleRelatedResource{identifier_type}"]
+        relation_uri  = rdf.DJHT[f"PhysicalSampleRelatedResource{identifier_relation}"]
+        current_time  = datetime.strftime (datetime.now(), "%Y-%m-%dT%H:%M:%SZ")
+
+        rdf.add (graph, uri, rdf.DJHT["created_date"], current_time, XSD.dateTime)
+        rdf.add (graph, uri, rdf.DJHT["type"],         type_uri, "uri")
+        rdf.add (graph, uri, rdf.DJHT["relation"],     relation_uri, "uri")
+        rdf.add (graph, uri, rdf.DJHT["url"],          identifier, XSD.string)
+        rdf.add (graph, uri, RDF.type, rdf.DJHT["PhysicalSampleRelatedResource"], "uri")
+
+        if not self.add_triples_from_graph (graph):
+            return None
+
+        existing_objects = self.physical_sample_related_resources (container_uuid, account_uuid)
+        if existing_objects:
+            return self.__append_to_existing_list (uri, existing_objects)
+
+        identifier_uuid = rdf.uri_to_uuid (uri)
+        query = self.__query_from_template ("initiate_related_resource_for_physical_sample", {
+            "container_uuid":  container_uuid,
+            "identifier_uuid": identifier_uuid,
+            "account_uuid":    account_uuid,
+            "blank_uuid":      rdf.uri_to_uuid (rdf.blank_node ())
+        })
+        if self.__run_logged_query (query):
+            return identifier_uuid
+
+        return None
 
     ## ------------------------------------------------------------------------
     ## REVIEWS

@@ -1,0 +1,41 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT DISTINCT ?uuid (STR(?date_raw) AS ?date) (STR(?date_end_raw) AS ?date_end)
+                ?date_type ?created_date
+                (?rest AS ?originating_blank_node) ?order_index
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?container         rdf:type                 djht:PhysicalSampleContainer .
+    {%- if sample_uri is not none %}
+    BIND(<{{sample_uri}}> AS ?item_uri)
+    ?item_uri          djht:container           ?container .
+    {%- else %}
+    ?container         djht:draft               ?item_uri .
+    {%- endif %}
+    ?item_uri          djht:dates/rdf:rest*     ?rest .
+    ?rest              rdf:first                ?date_entry ;
+                       djht:index               ?order_index .
+
+    ?date_entry        djht:date_type           ?date_type_uri .
+    ?date_type_uri     rdfs:label               ?date_type .
+    ?date_entry        djht:date                ?date_raw .
+    ?date_entry        djht:created_date        ?created_date .
+
+    # Only a range has an end date. It is kept apart from the start so that
+    # both stay real dates instead of one piece of text.
+    OPTIONAL { ?date_entry djht:date_end        ?date_end_raw . }
+
+    {%- if account_uuid is not none %}
+    ?container         djht:account             ?account .
+    BIND (xsd:boolean (EXISTS { ?date_entry djht:created_by <account:{{account_uuid}}> . }) AS ?is_editable)    {%- else %}
+    BIND("false"^^xsd:boolean AS ?is_editable)
+    {%- endif %}
+
+    BIND(STRAFTER(STR(?date_entry), "physical-sample-date:") AS ?uuid)
+  }
+  FILTER (?container = <container:{{container_uuid}}>)
+{%- if account_uuid is not none %}
+  FILTER (?account = <account:{{account_uuid}}>)
+{%- endif %}
+}
+{% endblock %}

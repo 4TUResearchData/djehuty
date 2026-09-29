@@ -1,0 +1,29 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+DELETE {
+  GRAPH <{{state_graph}}> {
+    ?physical_sample  ?predicate       ?object .
+    ?list             djht:index       ?list_index .
+    ?list             ?any             ?list_item .
+
+    ?container        djht:draft       ?physical_sample .
+  }
+}
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?container    rdf:type         djht:PhysicalSampleContainer ;
+                  djht:account     <account:{{account_uuid}}> ;
+                  djht:draft       ?physical_sample .
+
+    ?physical_sample   ?predicate           ?object .
+    OPTIONAL {
+      ?object ?list_predicate      ?list .
+      ?list   rdf:type             rdf:List ;
+              djht:index           ?list_index ;
+              rdf:rest*/rdf:first  ?list_item .
+    }
+  }
+
+  FILTER (?physical_sample = <physical-sample:{{sample_uuid}}>)
+}
+{% endblock %}

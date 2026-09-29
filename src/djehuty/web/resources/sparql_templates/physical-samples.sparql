@@ -1,0 +1,105 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+{%- if return_count %}
+SELECT (COUNT(DISTINCT ?sample) AS ?samples)
+{%- else %}
+SELECT DISTINCT ?account_uuid ?container_uuid ?sample_uuid ?created_date
+                ?title ?abstract ?methods ?publisher ?published_date ?resource_type
+                ?subject ?alternate_identifier ?related_resource ?doi
+                ?publication_year ?modified_date ?version
+                ?geolocation ?longitude ?latitude ?organizations
+                ?physical_storage_location ?sample_owner_name ?sample_owner_email
+                ?group_id ?agreed_to_deposit_agreement ?agreed_to_publish
+                ?private_link_is_expired
+                ?is_under_review (?review AS ?review_uri) ?review_submit_date
+                ?review_status
+{%endif%}
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?container      rdf:type                  djht:PhysicalSampleContainer .
+    ?container      djht:account              ?account .
+
+    {%- if is_published is none and is_latest is none: %}
+    ?sample         djht:container            ?container .
+    {%- elif is_latest %}
+    ?container      djht:latest_published_version ?sample .
+    {%- elif is_published %}
+    ?container      djht:published_versions/rdf:rest*/rdf:first ?sample .
+    {%- else %}
+    ?container      djht:draft                ?sample .
+    {%- endif %}
+
+    {%- if private_link_id_string is not none %}
+    ?sample         djht:private_links/rdf:rest*/rdf:first ?private_link .
+    ?private_link   djht:id                   ?private_link_id_string .
+    OPTIONAL { ?private_link djht:expires_date ?private_link_expires_date . }
+    BIND((BOUND(?private_link_expires_date) && STR(?private_link_expires_date) < STR(NOW())) AS ?private_link_is_expired)
+    {%- else %}
+    BIND("false"^^xsd:boolean AS ?private_link_is_expired)
+    {%- endif %}
+
+    ?sample         djht:title                ?title .
+
+    OPTIONAL {
+      ?review           rdf:type                  djht:Review ;
+                        djht:dataset              ?sample ;
+                        djht:request_date         ?review_submit_date .
+      OPTIONAL { ?review  djht:status/rdfs:label  ?review_status . }
+      # Only consider the most recent review, so samples that went through
+      # multiple decline/re-submit cycles do not appear once per review.
+      FILTER NOT EXISTS {
+        ?newer_review   rdf:type                  djht:Review ;
+                        djht:dataset              ?sample ;
+                        djht:request_date         ?newer_review_date .
+        FILTER (?newer_review_date > ?review_submit_date)
+      }
+    }
+    OPTIONAL { ?sample djht:is_under_review       ?is_under_review_tmp . }
+    BIND(COALESCE(?is_under_review_tmp, "false"^^xsd:boolean) AS ?is_under_review)
+
+    OPTIONAL { ?container djht:doi                ?container_doi . }
+    OPTIONAL { ?sample djht:version               ?version . }
+    OPTIONAL { ?sample djht:title                 ?title . }
+    OPTIONAL { ?sample djht:abstract              ?abstract . }
+    OPTIONAL { ?sample djht:methods               ?methods . }
+    OPTIONAL { ?sample djht:publisher             ?publisher . }
+    OPTIONAL { ?sample djht:publication_year      ?publication_year . }
+    OPTIONAL { ?sample djht:published_date        ?published_date . }
+    OPTIONAL { ?sample djht:resource_type         ?resource_type . }
+    OPTIONAL { ?sample djht:subject               ?subject . }
+    OPTIONAL { ?sample djht:alternate_identifier  ?alternate_identifier . }
+    OPTIONAL { ?sample djht:related_resource      ?related_resource . }
+    OPTIONAL { ?sample djht:doi                   ?doi . }
+    OPTIONAL { ?sample djht:organizations         ?organizations . }
+    OPTIONAL { ?sample djht:physical_storage_location    ?physical_storage_location . }
+    OPTIONAL { ?sample djht:geolocation           ?geolocation . }
+    OPTIONAL { ?sample djht:longitude             ?longitude . }
+    OPTIONAL { ?sample djht:latitude              ?latitude . }
+    OPTIONAL { ?sample djht:sample_owner_name     ?sample_owner_name . }
+    OPTIONAL { ?sample djht:sample_owner_email    ?sample_owner_email . }
+    OPTIONAL { ?sample djht:group_id              ?group_id . }
+    OPTIONAL { ?sample djht:agreed_to_deposit_agreement ?agreed_to_deposit_agreement . }
+    OPTIONAL { ?sample djht:agreed_to_publish     ?agreed_to_publish . }
+    OPTIONAL { ?sample djht:modified_date         ?modified_date . }
+    OPTIONAL { ?sample djht:created_date          ?created_date . }
+
+    BIND(STRAFTER(STR(?container), "container:")    AS ?container_uuid)
+    BIND(STRAFTER(STR(?sample), "physical-sample:") AS ?sample_uuid)
+    BIND(STRAFTER(STR(?account), "account:")        AS ?account_uuid)
+    {%- if is_published or is_latest %}
+    BIND (xsd:boolean (EXISTS { ?container djht:draft ?draft_dataset . }) AS ?has_draft)
+    {%- endif %}
+  }
+{%- if account_uuid is not none: %}
+FILTER (?account = <account:{{account_uuid}}>)
+{%- endif %}
+{%- if is_under_review is not none: %}
+{%- if is_under_review: %}
+FILTER (?is_under_review = "true"^^xsd:boolean)
+{%- else %}
+FILTER (?is_under_review = "false"^^xsd:boolean)
+{%- endif %}
+{%- endif %}
+{% if filters is not none %}{{ filters | safe }}{% endif %}
+}
+{% endblock %}
