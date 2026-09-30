@@ -42,6 +42,7 @@ website:
         href: https://github.com/4TUResearchData/djehuty
 
   page-footer:
+    left: "Built with [Quarto](https://quarto.org), based on the [Code Cafés website template](https://github.com/code-cafes-nl/website_template)."
     right:
       - text: Code of Conduct
         href: https://github.com/4TUResearchData/djehuty?tab=coc-ov-file
