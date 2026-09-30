@@ -180,8 +180,9 @@ def _account_can_use_igsn(db, account_uuid):
     """True when IGSN is enabled and the account may use it.
 
     The feature must be configured (a prefix is set) and enabled, and -- when an
-    allow-list is configured -- the account's e-mail domain must appear in
-    ``config.igsn_allowed_domains``. An empty allow-list permits every depositor.
+    allow-list is configured -- the account's e-mail domain must match an entry in
+    ``config.igsn_allowed_domains``, either exactly or as a subdomain of it. An
+    empty allow-list permits every depositor.
     """
     if not (config.supports_igsn and config.igsn_enabled):
         return False
@@ -191,5 +192,9 @@ def _account_can_use_igsn(db, account_uuid):
     if account is None:
         return False
     if "domain" in account:
-        return account["domain"] in config.igsn_allowed_domains
+        domain = account["domain"]
+        return any(
+            domain == allowed or domain.endswith(f".{allowed}")
+            for allowed in config.igsn_allowed_domains
+        )
     return False
