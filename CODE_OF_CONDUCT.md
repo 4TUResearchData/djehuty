@@ -20,6 +20,7 @@ With these considerations in mind, we agree to behave mindfully toward each othe
 - **Sexualization**. Behaving in a way that would generally be considered inappropriately intimate in the context or purpose of the community.
 - **Violating confidentiality**.Sharing private or security-sensitive information without consent.
 - **Endangerment**. Causing, encouraging, or threatening violence or other harm toward any person or group.
+- **Commercial advertising and solicitation**. Using community spaces to advertise products or services, promote businesses, recruit clients, or offer paid development services through issues, pull requests, discussions, or other project communication channels.
 
 ## Reporting an Issue
 
