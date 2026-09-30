@@ -5,6 +5,27 @@ appear first; this file is the source of truth for release notes.
 
 Commit links point to <https://github.com/4TUResearchData/djehuty>.
 
+## [v26.7]
+
+This release consists of 5 commits made by 2 authors.
+
+It lets administrators remove files from a version of a published dataset, and
+includes IGSN and documentation improvements.
+
+### New features
+
+- Allow administrators to remove files from a version of a published dataset. ([3420599](https://github.com/4TUResearchData/djehuty/commit/34205999fa37dbfa21f5f5057611b9ad78c9462c))
+
+### Bugfixes
+
+- Allow e-mail subdomains to use IGSN. ([50ec548](https://github.com/4TUResearchData/djehuty/commit/50ec548b2e09f6fdba6d5a7f7a81b6006758333d))
+- Point the API documentation link to the repository's own OpenAPI docs. ([7fb0805](https://github.com/4TUResearchData/djehuty/commit/7fb0805cc84d178c610534ceb10f6abb9e85d0d8))
+
+### Documentation
+
+- Add a reference to the template used to create the community website. ([209ceb3](https://github.com/4TUResearchData/djehuty/commit/209ceb3fad862bffb45a2f6e5b419898eb275113))
+- Add a clause about commercial solicitation to the Code of Conduct. ([4411b77](https://github.com/4TUResearchData/djehuty/commit/4411b772a8e6deda3ede72f63470446e89416c11))
+
 ## [v26.6]
 
 This release consists of 29 commits made by 7 authors.
