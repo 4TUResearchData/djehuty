@@ -12,10 +12,14 @@ from djehuty.api.exceptions import (
     InvalidInputError,
     NotFoundError,
 )
-from djehuty.api.models.common import ErrorResponse
 from djehuty.api.models.physical_samples import PhysicalSampleDateRecord
-from djehuty.api.v3._shared import _ok
+from djehuty.api.v3._shared import _err, _ok, _req
 from djehuty.api.v3.physical_samples._shared import (
+    ERR_FORBIDDEN,
+    ERR_NOT_FOUND,
+    ERR_SESSION,
+    ERR_VALIDATION_LIST,
+    DateId,
     PhysicalSampleId,
     _editable_physical_sample_draft,
 )
@@ -35,6 +39,19 @@ _DATE_EXAMPLE = {
     "created_date": "2026-07-03T10:48:50",
 }
 
+_DATES_BODY_SCHEMA = {
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "type": {"type": "string", "enum": _DATE_TYPES},
+            "date": {"type": "string", "description": "Date, or start of a range."},
+            "date_end": {"type": "string", "description": "End of a range (optional)."},
+        },
+        "required": ["type", "date"],
+    },
+}
+
 
 @router.get(
     "/physical-samples/{container_uuid}/dates",
@@ -42,8 +59,8 @@ _DATE_EXAMPLE = {
     response_model=list[PhysicalSampleDateRecord],
     responses={
         200: _ok("The dates", [_DATE_EXAMPLE]),
-        403: {"model": ErrorResponse, "description": "Not allowed"},
-        404: {"model": ErrorResponse, "description": "No such sample"},
+        403: _err("Not allowed", ERR_FORBIDDEN),
+        404: _err("No such sample", ERR_NOT_FOUND),
     },
 )
 def list_dates(
@@ -69,11 +86,13 @@ def list_dates(
         "(collected, created, destroyed, updated or other) and a `date` "
         "(`date_end` optional, for a range)."
     ),
+    status_code=204,
+    openapi_extra=_req(_DATES_BODY_SCHEMA),
     responses={
         204: {"description": "Dates added"},
-        400: {"model": ErrorResponse, "description": "Invalid date data"},
-        403: {"model": ErrorResponse, "description": "Not authenticated"},
-        404: {"model": ErrorResponse, "description": "No such sample"},
+        400: _err("Invalid date data", ERR_VALIDATION_LIST),
+        403: _err("Not authenticated", ERR_SESSION),
+        404: _err("No such sample", ERR_NOT_FOUND),
     },
 )
 def add_dates(
@@ -123,16 +142,17 @@ def add_dates(
 @router.delete(
     "/physical-samples/{container_uuid}/dates/{date_uuid}",
     summary="Remove a date",
+    status_code=204,
     responses={
         204: {"description": "Date removed"},
-        403: {"model": ErrorResponse, "description": "Not authenticated"},
-        404: {"model": ErrorResponse, "description": "No such sample"},
+        403: _err("Not authenticated", ERR_SESSION),
+        404: _err("No such sample", ERR_NOT_FOUND),
         500: {"description": "No such date, or the update failed"},
     },
 )
 def delete_date(
     container_uuid: PhysicalSampleId,
-    date_uuid: str,
+    date_uuid: DateId,
     account=Depends(get_current_account),
     db=Depends(get_db),
 ):

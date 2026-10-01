@@ -13,10 +13,14 @@ from djehuty.api.dependencies import (
     require_auth,
 )
 from djehuty.api.exceptions import ForbiddenError, InvalidInputError, NotFoundError
-from djehuty.api.models.common import ErrorResponse
-from djehuty.api.v3._shared import _ok
+from djehuty.api.v3._shared import _err, _ok, _req
 from djehuty.api.v3.physical_samples._shared import (
+    ERR_FORBIDDEN,
+    ERR_NOT_FOUND,
+    ERR_VALIDATION,
+    ERR_VALIDATION_LIST,
     PhysicalSampleId,
+    ReviewerId,
     _category_list_from_request_input,
     _resolve_physical_sample,
 )
@@ -49,6 +53,48 @@ def _reviewer_context(db, impersonator_token, token):
     return reviewer_token, may_review_all, may_review_institution
 
 
+# The complete metadata validated at submission (see submit_for_review). The
+# `required` set mirrors the handler's required=True validators.
+_SUBMIT_BODY_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "title": {"type": "string", "minLength": 3, "maxLength": 1000},
+        "abstract": {"type": "string", "maxLength": 8000},
+        "methods": {"type": "string", "maxLength": 8000},
+        "resource_type": {"type": "string", "maxLength": 512},
+        "subject": {"type": "string", "maxLength": 512},
+        "publisher": {"type": "string", "maxLength": 10000},
+        "alternate_identifier": {"type": "string", "maxLength": 255},
+        "organizations": {"type": "string", "maxLength": 2048},
+        "physical_storage_location": {"type": "string", "minLength": 1, "maxLength": 2048},
+        "geolocation": {"type": "string", "maxLength": 255},
+        "longitude": {"type": "string", "description": "Decimal degrees east."},
+        "latitude": {"type": "string", "description": "Decimal degrees north."},
+        "sample_owner_name": {"type": "string", "maxLength": 255},
+        "sample_owner_email": {"type": "string"},
+        "group_id": {"type": "integer"},
+        "agreed_to_deposit_agreement": {"type": "boolean"},
+        "agreed_to_publish": {"type": "boolean"},
+        "categories": {
+            "type": "array",
+            "items": {"oneOf": [{"type": "integer"}, {"type": "string"}]},
+        },
+    },
+    "required": [
+        "title",
+        "abstract",
+        "publisher",
+        "organizations",
+        "physical_storage_location",
+        "sample_owner_name",
+        "sample_owner_email",
+        "group_id",
+        "agreed_to_publish",
+        "categories",
+    ],
+}
+
+
 @router.put(
     "/physical-samples/{container_uuid}/submit-for-review",
     summary="Submit a physical sample for review",
@@ -58,11 +104,13 @@ def _reviewer_context(db, impersonator_token, token):
         "keywords; the body must set `agreed_to_publish` and the required metadata "
         "fields, and include at least one category."
     ),
+    status_code=204,
+    openapi_extra=_req(_SUBMIT_BODY_SCHEMA),
     responses={
         204: {"description": "Submitted for review"},
-        400: {"model": ErrorResponse, "description": "The draft failed validation"},
-        403: {"model": ErrorResponse, "description": "Not a depositor"},
-        404: {"model": ErrorResponse, "description": "No such sample"},
+        400: _err("The draft failed validation", ERR_VALIDATION_LIST),
+        403: _err("Not a depositor", ERR_FORBIDDEN),
+        404: _err("No such sample", ERR_NOT_FOUND),
         500: {"description": "Could not submit the sample"},
     },
 )
@@ -236,10 +284,11 @@ def submit_for_review(
         "impersonator cookie session or, when absent, the calling session. In "
         "production this registers the IGSN with DataCite before publishing."
     ),
+    status_code=201,
     responses={
         201: _ok("Published", {"location": "https://data.4tu.nl/physical_sample/UUID"}),
-        400: {"model": ErrorResponse, "description": "Missing a title or a named creator"},
-        403: {"model": ErrorResponse, "description": "Reviewer permissions required"},
+        400: _err("Missing a title or a named creator", ERR_VALIDATION),
+        403: _err("Reviewer permissions required", ERR_FORBIDDEN),
         500: {"description": "Could not publish the sample"},
         502: {"description": "DataCite rejected the IGSN registration"},
     },
@@ -337,9 +386,10 @@ def publish_physical_sample(
 @router.post(
     "/physical-samples/{container_uuid}/decline",
     summary="Decline a physical sample (reviewer)",
+    status_code=204,
     responses={
         204: {"description": "Declined"},
-        403: {"model": ErrorResponse, "description": "Reviewer permissions required"},
+        403: _err("Reviewer permissions required", ERR_FORBIDDEN),
         500: {"description": "Could not decline the sample"},
     },
 )
@@ -391,17 +441,18 @@ def decline_physical_sample(
 @router.put(
     "/physical-samples/{container_uuid}/assign-reviewer/{reviewer_uuid}",
     summary="Assign a reviewer to a physical sample",
+    status_code=204,
     responses={
         204: {"description": "Reviewer assigned"},
-        400: {"model": ErrorResponse, "description": "Invalid reviewer UUID"},
-        403: {"model": ErrorResponse, "description": "Reviewer permissions required"},
-        404: {"model": ErrorResponse, "description": "No such sample"},
+        400: _err("Invalid reviewer UUID", ERR_VALIDATION),
+        403: _err("Reviewer permissions required", ERR_FORBIDDEN),
+        404: _err("No such sample", ERR_NOT_FOUND),
         500: {"description": "Could not assign the reviewer"},
     },
 )
 def assign_reviewer(
     container_uuid: PhysicalSampleId,
-    reviewer_uuid: str,
+    reviewer_uuid: ReviewerId,
     account=Depends(require_auth),
     db=Depends(get_db),
     account_token: str | None = Depends(get_token),

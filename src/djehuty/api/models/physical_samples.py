@@ -93,8 +93,10 @@ class PhysicalSampleRelatedResourceRecord(BaseModel):
 
     uuid: str | None = Field(None, description="UUID of the related-resource entry.")
     url: str | None = Field(None, description="Identifier of the related resource (DOI/IGSN/URL).")
-    relation: str | None = Field(None, description="Relation to the sample (e.g. IsDerivedFrom).")
-    type: str | None = Field(None, description="Identifier type (IGSNDOI, OtherDOI or URL).")
+    relation: str | None = Field(
+        None, description="Relation label as returned (e.g. Is derived from)."
+    )
+    type: str | None = Field(None, description="Identifier type label as returned (e.g. IGSN).")
     created_date: str | None = Field(None, description="When this entry was created.")
 
     model_config = {
@@ -103,8 +105,8 @@ class PhysicalSampleRelatedResourceRecord(BaseModel):
                 {
                     "uuid": "d1e2f3a4-5b6c-7d8e-9f0a-1b2c3d4e5f6a",
                     "url": "10.4121/related-dataset",
-                    "relation": "IsDerivedFrom",
-                    "type": "IGSNDOI",
+                    "relation": "Is derived from",
+                    "type": "IGSN",
                     "created_date": "2026-07-03T10:48:50",
                 }
             ]

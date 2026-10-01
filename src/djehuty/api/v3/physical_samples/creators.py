@@ -12,10 +12,14 @@ from djehuty.api.exceptions import (
     InvalidInputError,
     NotFoundError,
 )
-from djehuty.api.models.common import ErrorResponse
 from djehuty.api.models.physical_samples import PhysicalSampleCreatorRecord
-from djehuty.api.v3._shared import _ok
+from djehuty.api.v3._shared import _err, _ok, _req
 from djehuty.api.v3.physical_samples._shared import (
+    ERR_FORBIDDEN,
+    ERR_NOT_FOUND,
+    ERR_SESSION,
+    ERR_VALIDATION_LIST,
+    CreatorId,
     PhysicalSampleId,
     _author_list_from_request_input,
     _editable_physical_sample_draft,
@@ -34,6 +38,50 @@ _CREATOR_EXAMPLE = {
     "is_editable": True,
 }
 
+# Either a JSON object creating new authors, or an array of existing author UUIDs.
+_CREATORS_BODY_SCHEMA = {
+    "oneOf": [
+        {
+            "type": "object",
+            "properties": {
+                "authors": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "first_name": {"type": "string", "maxLength": 255},
+                            "last_name": {"type": "string", "maxLength": 255},
+                            "name": {
+                                "type": "string",
+                                "maxLength": 255,
+                                "description": "Full name; built from first/last when omitted.",
+                            },
+                            "email": {"type": "string", "maxLength": 255},
+                            "orcid_id": {"type": "string", "maxLength": 38},
+                            "job_title": {"type": "string", "maxLength": 255},
+                        },
+                        "required": ["first_name", "last_name"],
+                    },
+                }
+            },
+        },
+        {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Existing author UUIDs.",
+        },
+    ]
+}
+
+_REORDER_BODY_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "author": {"type": "string", "description": "The creator's UUID."},
+        "direction": {"type": "string", "enum": ["up", "down"]},
+    },
+    "required": ["author", "direction"],
+}
+
 
 @router.get(
     "/physical-samples/{container_uuid}/creators",
@@ -41,7 +89,7 @@ _CREATOR_EXAMPLE = {
     response_model=list[PhysicalSampleCreatorRecord],
     responses={
         200: _ok("The creators", [_CREATOR_EXAMPLE]),
-        403: {"model": ErrorResponse, "description": "Not allowed"},
+        403: _err("Not allowed", ERR_FORBIDDEN),
     },
 )
 def list_creators(
@@ -64,10 +112,13 @@ def list_creators(
         "Accepts either a JSON object with an `authors` list (creating new author "
         "records and appending them) or a JSON array of existing author UUIDs."
     ),
+    status_code=204,
+    openapi_extra=_req(_CREATORS_BODY_SCHEMA),
     responses={
         204: {"description": "Creators added"},
-        400: {"model": ErrorResponse, "description": "Invalid author data"},
-        404: {"model": ErrorResponse, "description": "No such sample"},
+        400: _err("Invalid author data", ERR_VALIDATION_LIST),
+        403: _err("Not authenticated", ERR_SESSION),
+        404: _err("No such sample", ERR_NOT_FOUND),
         500: {"description": "Could not store the creators"},
     },
 )
@@ -78,7 +129,15 @@ def add_creators(
         openapi_examples={
             "new_authors": {
                 "summary": "Create and append new authors",
-                "value": {"authors": [{"name": "Ada Lovelace", "orcid_id": "0000-0002-1825-0097"}]},
+                "value": {
+                    "authors": [
+                        {
+                            "first_name": "Ada",
+                            "last_name": "Lovelace",
+                            "orcid_id": "0000-0002-1825-0097",
+                        }
+                    ]
+                },
             },
             "existing_uuids": {
                 "summary": "Append existing authors by UUID",
@@ -137,13 +196,13 @@ def add_creators(
     response_model=PhysicalSampleCreatorRecord,
     responses={
         200: _ok("A creator", _CREATOR_EXAMPLE),
-        403: {"model": ErrorResponse, "description": "Not authenticated"},
-        404: {"model": ErrorResponse, "description": "No such creator"},
+        403: _err("Not authenticated", ERR_SESSION),
+        404: _err("No such creator", ERR_NOT_FOUND),
     },
 )
 def get_creator(
     container_uuid: PhysicalSampleId,
-    creator_uuid: str,
+    creator_uuid: CreatorId,
     account=Depends(get_current_account),
     db=Depends(get_db),
 ):
@@ -166,16 +225,17 @@ def get_creator(
 @router.delete(
     "/physical-samples/{container_uuid}/creators/{creator_uuid}",
     summary="Remove a creator",
+    status_code=204,
     responses={
         204: {"description": "Creator removed"},
-        403: {"model": ErrorResponse, "description": "Not authenticated"},
-        404: {"model": ErrorResponse, "description": "No such sample"},
+        403: _err("Not authenticated", ERR_SESSION),
+        404: _err("No such sample", ERR_NOT_FOUND),
         500: {"description": "No such creator, or the update failed"},
     },
 )
 def delete_creator(
     container_uuid: PhysicalSampleId,
-    creator_uuid: str,
+    creator_uuid: CreatorId,
     account=Depends(get_current_account),
     db=Depends(get_db),
 ):
@@ -210,11 +270,13 @@ def delete_creator(
 @router.post(
     "/physical-samples/{container_uuid}/reorder-creators",
     summary="Reorder creators",
+    status_code=205,
+    openapi_extra=_req(_REORDER_BODY_SCHEMA),
     responses={
         205: {"description": "Creators reordered"},
-        400: {"model": ErrorResponse, "description": "Invalid reorder request"},
-        403: {"model": ErrorResponse, "description": "Not authenticated"},
-        404: {"model": ErrorResponse, "description": "No such sample"},
+        400: _err("Invalid reorder request", ERR_VALIDATION_LIST),
+        403: _err("Not authenticated", ERR_SESSION),
+        404: _err("No such sample", ERR_NOT_FOUND),
         500: {"description": "Could not reorder the creators"},
     },
 )

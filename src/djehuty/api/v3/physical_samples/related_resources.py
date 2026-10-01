@@ -12,11 +12,15 @@ from djehuty.api.exceptions import (
     InvalidInputError,
     NotFoundError,
 )
-from djehuty.api.models.common import ErrorResponse
 from djehuty.api.models.physical_samples import PhysicalSampleRelatedResourceRecord
-from djehuty.api.v3._shared import _ok
+from djehuty.api.v3._shared import _err, _ok, _req
 from djehuty.api.v3.physical_samples._shared import (
+    ERR_FORBIDDEN,
+    ERR_NOT_FOUND,
+    ERR_SESSION,
+    ERR_VALIDATION_LIST,
     PhysicalSampleId,
+    ResourceId,
     _editable_physical_sample_draft,
 )
 from djehuty.web import formatter
@@ -40,9 +44,22 @@ _RELATION_TYPES = [
 _RESOURCE_EXAMPLE = {
     "uuid": "d1e2f3a4-5b6c-7d8e-9f0a-1b2c3d4e5f6a",
     "url": "10.4121/related-dataset",
-    "relation": "IsDerivedFrom",
-    "type": "IGSNDOI",
+    "relation": "Is derived from",
+    "type": "IGSN",
     "created_date": "2026-07-03T10:48:50",
+}
+
+_RELATED_BODY_SCHEMA = {
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "identifier": {"type": "string", "maxLength": 2048},
+            "identifier-type": {"type": "string", "enum": _IDENTIFIER_TYPES},
+            "relation-type": {"type": "string", "enum": _RELATION_TYPES},
+        },
+        "required": ["identifier", "identifier-type", "relation-type"],
+    },
 }
 
 
@@ -52,8 +69,8 @@ _RESOURCE_EXAMPLE = {
     response_model=list[PhysicalSampleRelatedResourceRecord],
     responses={
         200: _ok("The related resources", [_RESOURCE_EXAMPLE]),
-        403: {"model": ErrorResponse, "description": "Not allowed"},
-        404: {"model": ErrorResponse, "description": "No such sample"},
+        403: _err("Not allowed", ERR_FORBIDDEN),
+        404: _err("No such sample", ERR_NOT_FOUND),
     },
 )
 def list_related_resources(
@@ -81,11 +98,13 @@ def list_related_resources(
         "`identifier-type` (IGSNDOI, OtherDOI or URL) and a `relation-type` "
         "(e.g. IsDerivedFrom, References)."
     ),
+    status_code=204,
+    openapi_extra=_req(_RELATED_BODY_SCHEMA),
     responses={
         204: {"description": "Related resources added"},
-        400: {"model": ErrorResponse, "description": "Invalid related-resource data"},
-        403: {"model": ErrorResponse, "description": "Not authenticated"},
-        404: {"model": ErrorResponse, "description": "No such sample"},
+        400: _err("Invalid related-resource data", ERR_VALIDATION_LIST),
+        403: _err("Not authenticated", ERR_SESSION),
+        404: _err("No such sample", ERR_NOT_FOUND),
     },
 )
 def add_related_resources(
@@ -149,16 +168,17 @@ def add_related_resources(
 @router.delete(
     "/physical-samples/{container_uuid}/related-resources/{resource_uuid}",
     summary="Remove a related resource",
+    status_code=204,
     responses={
         204: {"description": "Related resource removed"},
-        403: {"model": ErrorResponse, "description": "Not authenticated"},
-        404: {"model": ErrorResponse, "description": "No such sample"},
+        403: _err("Not authenticated", ERR_SESSION),
+        404: _err("No such sample", ERR_NOT_FOUND),
         500: {"description": "No such related resource, or the update failed"},
     },
 )
 def delete_related_resource(
     container_uuid: PhysicalSampleId,
-    resource_uuid: str,
+    resource_uuid: ResourceId,
     account=Depends(get_current_account),
     db=Depends(get_db),
 ):

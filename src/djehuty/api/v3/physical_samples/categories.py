@@ -6,10 +6,15 @@ from fastapi.responses import JSONResponse
 from djehuty.api.dependencies import get_db, require_auth
 from djehuty.api.exceptions import InvalidInputError, NotFoundError
 from djehuty.api.models.categories import Category
-from djehuty.api.models.common import ErrorResponse
 from djehuty.api.permissions import enforce_collaborative_permissions
-from djehuty.api.v3._shared import _ok
-from djehuty.api.v3.physical_samples._shared import PhysicalSampleId, _resolve_physical_sample
+from djehuty.api.v3._shared import _err, _ok, _req
+from djehuty.api.v3.physical_samples._shared import (
+    ERR_NOT_FOUND,
+    ERR_SESSION,
+    ERR_VALIDATION,
+    PhysicalSampleId,
+    _resolve_physical_sample,
+)
 from djehuty.web import formatter
 
 router = APIRouter(tags=["V3 / Physical samples / Categories"])
@@ -25,6 +30,18 @@ _CATEGORY_EXAMPLE = {
     "taxonomy_id": None,
 }
 
+_CATEGORIES_BODY_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "categories": {
+            "type": "array",
+            "items": {"oneOf": [{"type": "integer"}, {"type": "string"}]},
+            "description": "Category numeric ids (from GET /v2/categories) or UUIDs.",
+        }
+    },
+    "required": ["categories"],
+}
+
 
 @router.get(
     "/physical-samples/{container_uuid}/categories",
@@ -32,7 +49,7 @@ _CATEGORY_EXAMPLE = {
     response_model=list[Category],
     responses={
         200: _ok("The categories", [_CATEGORY_EXAMPLE]),
-        403: {"model": ErrorResponse, "description": "Not authenticated"},
+        403: _err("Not authenticated", ERR_SESSION),
         500: {"description": "No such sample"},
     },
 )
@@ -101,13 +118,15 @@ def _set_categories(db, account_uuid, container_uuid, body, overwrite):
     summary="Add categories to a physical sample",
     description=(
         "Appends categories to the existing set. Accepts a JSON object with a "
-        "`categories` array of numeric category ids or UUIDs."
+        "`categories` array of numeric category ids (from `GET /v2/categories`) or UUIDs."
     ),
+    status_code=205,
+    openapi_extra=_req(_CATEGORIES_BODY_SCHEMA),
     responses={
         205: {"description": "Categories added"},
-        400: {"model": ErrorResponse, "description": "Missing or invalid 'categories'"},
-        403: {"model": ErrorResponse, "description": "Not authenticated"},
-        404: {"model": ErrorResponse, "description": "No such sample"},
+        400: _err("Missing or invalid 'categories'", ERR_VALIDATION),
+        403: _err("Not authenticated", ERR_SESSION),
+        404: _err("No such sample", ERR_NOT_FOUND),
         500: {"description": "Could not store the categories"},
     },
 )
@@ -125,13 +144,15 @@ def add_categories(
     summary="Replace a physical sample's categories",
     description=(
         "Overwrites the category set. Accepts a JSON object with a `categories` "
-        "array of numeric category ids or UUIDs."
+        "array of numeric category ids (from `GET /v2/categories`) or UUIDs."
     ),
+    status_code=205,
+    openapi_extra=_req(_CATEGORIES_BODY_SCHEMA),
     responses={
         205: {"description": "Categories replaced"},
-        400: {"model": ErrorResponse, "description": "Missing or invalid 'categories'"},
-        403: {"model": ErrorResponse, "description": "Not authenticated"},
-        404: {"model": ErrorResponse, "description": "No such sample"},
+        400: _err("Missing or invalid 'categories'", ERR_VALIDATION),
+        403: _err("Not authenticated", ERR_SESSION),
+        404: _err("No such sample", ERR_NOT_FOUND),
         500: {"description": "Could not store the categories"},
     },
 )

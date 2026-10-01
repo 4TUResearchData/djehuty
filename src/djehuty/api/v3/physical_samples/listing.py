@@ -5,10 +5,12 @@ from fastapi.responses import JSONResponse
 
 from djehuty.api.dependencies import get_current_account, get_db, get_token, require_auth
 from djehuty.api.exceptions import ForbiddenError, InvalidInputError, NotFoundError
-from djehuty.api.models.common import ErrorResponse
 from djehuty.api.models.physical_samples import PhysicalSampleRecord
-from djehuty.api.v3._shared import _ok
+from djehuty.api.v3._shared import _err, _ok, _req
 from djehuty.api.v3.physical_samples._shared import (
+    ERR_FORBIDDEN,
+    ERR_NOT_FOUND,
+    ERR_VALIDATION,
     PhysicalSampleId,
     _account_can_use_igsn,
     _category_list_from_request_input,
@@ -39,6 +41,35 @@ _SAMPLE_BODY_EXAMPLE = {
     "latitude": "53.05",
     "longitude": "4.80",
     "categories": [13555],
+}
+
+# Fields accepted by a create/update draft (see _details_put). All optional: a
+# create makes an "Untitled item" and every field is patched in on update.
+_SAMPLE_BODY_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "title": {"type": "string", "maxLength": 1000},
+        "abstract": {"type": "string", "maxLength": 8000},
+        "methods": {"type": "string", "maxLength": 8000},
+        "resource_type": {"type": "string", "maxLength": 512},
+        "subject": {"type": "string", "maxLength": 512},
+        "alternate_identifier": {"type": "string", "maxLength": 512},
+        "organizations": {"type": "string", "maxLength": 2048},
+        "physical_storage_location": {"type": "string", "maxLength": 2048},
+        "geolocation": {"type": "string", "maxLength": 255},
+        "longitude": {"type": "string", "description": "Decimal degrees east."},
+        "latitude": {"type": "string", "description": "Decimal degrees north."},
+        "sample_owner_name": {"type": "string", "maxLength": 255},
+        "sample_owner_email": {"type": "string", "maxLength": 255},
+        "group_id": {"type": "integer"},
+        "agreed_to_deposit_agreement": {"type": "boolean"},
+        "agreed_to_publish": {"type": "boolean"},
+        "categories": {
+            "type": "array",
+            "items": {"oneOf": [{"type": "integer"}, {"type": "string"}]},
+            "description": "Category numeric ids (from GET /v2/categories) or UUIDs.",
+        },
+    },
 }
 
 
@@ -149,7 +180,7 @@ def _details_put(db, account, token, container_uuid, body):
     response_model=PhysicalSampleRecord,
     responses={
         200: _ok("A physical sample", _SAMPLE_EXAMPLE),
-        404: {"model": ErrorResponse, "description": "No such sample"},
+        404: _err("No such sample", ERR_NOT_FOUND),
     },
 )
 def read_physical_sample_first(
@@ -169,7 +200,7 @@ def read_physical_sample_first(
     response_model=PhysicalSampleRecord,
     responses={
         200: _ok("A physical sample", _SAMPLE_EXAMPLE),
-        404: {"model": ErrorResponse, "description": "No such sample"},
+        404: _err("No such sample", ERR_NOT_FOUND),
     },
 )
 def read_physical_sample(
@@ -183,11 +214,13 @@ def read_physical_sample(
 @router.put(
     "/physical-samples",
     summary="Create a physical sample draft",
+    status_code=201,
+    openapi_extra=_req(_SAMPLE_BODY_SCHEMA),
     responses={
         201: _ok("Created", {"location": "https://data.4tu.nl/v3/physical-samples/UUID"}),
-        400: {"model": ErrorResponse, "description": "Invalid field values"},
-        403: {"model": ErrorResponse, "description": "Not a depositor or IGSN not permitted"},
-        404: {"model": ErrorResponse, "description": "No such sample"},
+        400: _err("Invalid field values", ERR_VALIDATION),
+        403: _err("Not a depositor or IGSN not permitted", ERR_FORBIDDEN),
+        404: _err("No such sample", ERR_NOT_FOUND),
         500: {"description": "Could not store the sample"},
     },
 )
@@ -203,11 +236,13 @@ def create_physical_sample(
 @router.put(
     "/physical-samples/{container_uuid}",
     summary="Update a physical sample draft",
+    status_code=204,
+    openapi_extra=_req(_SAMPLE_BODY_SCHEMA),
     responses={
         204: {"description": "Updated"},
-        400: {"model": ErrorResponse, "description": "Invalid field values"},
-        403: {"model": ErrorResponse, "description": "Not a depositor or IGSN not permitted"},
-        404: {"model": ErrorResponse, "description": "No such sample"},
+        400: _err("Invalid field values", ERR_VALIDATION),
+        403: _err("Not a depositor or IGSN not permitted", ERR_FORBIDDEN),
+        404: _err("No such sample", ERR_NOT_FOUND),
         500: {"description": "Could not store the sample"},
     },
 )

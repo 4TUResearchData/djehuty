@@ -5,15 +5,25 @@ from fastapi.responses import JSONResponse
 
 from djehuty.api.dependencies import get_db, require_auth
 from djehuty.api.exceptions import InvalidInputError
-from djehuty.api.models.common import ErrorResponse
 from djehuty.api.permissions import enforce_collaborative_permissions
-from djehuty.api.v3._shared import _ok
-from djehuty.api.v3.physical_samples._shared import PhysicalSampleId, _resolve_physical_sample
+from djehuty.api.v3._shared import _err, _ok, _req
+from djehuty.api.v3.physical_samples._shared import (
+    ERR_SESSION,
+    ERR_VALIDATION,
+    PhysicalSampleId,
+    _resolve_physical_sample,
+)
 from djehuty.web import formatter
 
 router = APIRouter(tags=["V3 / Physical samples / Tags"])
 
 _TAGS_EXAMPLE = ["basalt", "core sample", "north sea"]
+
+_TAGS_BODY_SCHEMA = {
+    "type": "object",
+    "properties": {"tags": {"type": "array", "items": {"type": "string"}}},
+    "required": ["tags"],
+}
 
 
 def _resolve_for_tags(db, container_uuid, account_uuid):
@@ -35,7 +45,7 @@ def _resolve_for_tags(db, container_uuid, account_uuid):
     response_model=list[str],
     responses={
         200: _ok("The tags", _TAGS_EXAMPLE),
-        403: {"model": ErrorResponse, "description": "Not authenticated"},
+        403: _err("Not authenticated", ERR_SESSION),
         500: {"description": "No such sample"},
     },
 )
@@ -55,10 +65,12 @@ def list_tags(
     "/physical-samples/{container_uuid}/tags",
     summary="Add tags to a physical sample",
     description="Accepts a JSON object with a `tags` array; tags are appended to the existing set.",
+    status_code=205,
+    openapi_extra=_req(_TAGS_BODY_SCHEMA),
     responses={
         205: {"description": "Tags added"},
-        400: {"model": ErrorResponse, "description": "Missing 'tags' field"},
-        403: {"model": ErrorResponse, "description": "Not authenticated"},
+        400: _err("Missing 'tags' field", ERR_VALIDATION),
+        403: _err("Not authenticated", ERR_SESSION),
         500: {"description": "No such sample, or the update failed"},
     },
 )
@@ -90,9 +102,10 @@ def add_tags(
 @router.delete(
     "/physical-samples/{container_uuid}/tags",
     summary="Delete a tag",
+    status_code=204,
     responses={
         204: {"description": "Tag removed"},
-        403: {"model": ErrorResponse, "description": "Not authenticated"},
+        403: _err("Not authenticated", ERR_SESSION),
         500: {"description": "No such sample or tag, or the update failed"},
     },
 )
