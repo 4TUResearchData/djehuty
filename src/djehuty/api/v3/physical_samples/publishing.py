@@ -52,11 +52,41 @@ def _reviewer_context(db, impersonator_token, token):
 @router.put(
     "/physical-samples/{container_uuid}/submit-for-review",
     summary="Submit a physical sample for review",
-    responses={204: {"description": "Submitted for review"}, 403: {"model": ErrorResponse}},
+    description=(
+        "Validates the complete draft and submits it for review. The sample must "
+        "already have at least one creator and the configured minimum number of "
+        "keywords; the body must set `agreed_to_publish` and the required metadata "
+        "fields, and include at least one category."
+    ),
+    responses={
+        204: {"description": "Submitted for review"},
+        400: {"model": ErrorResponse, "description": "The draft failed validation"},
+        403: {"model": ErrorResponse, "description": "Not a depositor"},
+        404: {"model": ErrorResponse, "description": "No such sample"},
+        500: {"description": "Could not submit the sample"},
+    },
 )
 def submit_for_review(
     container_uuid: PhysicalSampleId,
-    body: dict = Body(default={}),
+    body: dict = Body(
+        default={},
+        openapi_examples={
+            "default": {
+                "value": {
+                    "title": "Basalt core sample BR-2025-014",
+                    "abstract": "Drill core recovered off the coast of Texel.",
+                    "publisher": "4TU.ResearchData",
+                    "organizations": "Delft University of Technology",
+                    "physical_storage_location": "Core repository, Delft",
+                    "sample_owner_name": "Ada Lovelace",
+                    "sample_owner_email": "a.lovelace@tudelft.nl",
+                    "group_id": 28586,
+                    "categories": [13555],
+                    "agreed_to_publish": True,
+                }
+            }
+        },
+    ),
     account=Depends(require_auth),
     token: str = Depends(get_token),
     db=Depends(get_db),
@@ -208,7 +238,10 @@ def submit_for_review(
     ),
     responses={
         201: _ok("Published", {"location": "https://data.4tu.nl/physical_sample/UUID"}),
-        403: {"model": ErrorResponse},
+        400: {"model": ErrorResponse, "description": "Missing a title or a named creator"},
+        403: {"model": ErrorResponse, "description": "Reviewer permissions required"},
+        500: {"description": "Could not publish the sample"},
+        502: {"description": "DataCite rejected the IGSN registration"},
     },
 )
 def publish_physical_sample(
@@ -304,7 +337,11 @@ def publish_physical_sample(
 @router.post(
     "/physical-samples/{container_uuid}/decline",
     summary="Decline a physical sample (reviewer)",
-    responses={204: {"description": "Declined"}, 403: {"model": ErrorResponse}},
+    responses={
+        204: {"description": "Declined"},
+        403: {"model": ErrorResponse, "description": "Reviewer permissions required"},
+        500: {"description": "Could not decline the sample"},
+    },
 )
 def decline_physical_sample(
     container_uuid: PhysicalSampleId,
@@ -354,7 +391,13 @@ def decline_physical_sample(
 @router.put(
     "/physical-samples/{container_uuid}/assign-reviewer/{reviewer_uuid}",
     summary="Assign a reviewer to a physical sample",
-    responses={204: {"description": "Reviewer assigned"}, 403: {"model": ErrorResponse}},
+    responses={
+        204: {"description": "Reviewer assigned"},
+        400: {"model": ErrorResponse, "description": "Invalid reviewer UUID"},
+        403: {"model": ErrorResponse, "description": "Reviewer permissions required"},
+        404: {"model": ErrorResponse, "description": "No such sample"},
+        500: {"description": "Could not assign the reviewer"},
+    },
 )
 def assign_reviewer(
     container_uuid: PhysicalSampleId,

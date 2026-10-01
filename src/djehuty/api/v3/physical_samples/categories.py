@@ -5,6 +5,7 @@ from fastapi.responses import JSONResponse
 
 from djehuty.api.dependencies import get_db, require_auth
 from djehuty.api.exceptions import InvalidInputError, NotFoundError
+from djehuty.api.models.categories import Category
 from djehuty.api.models.common import ErrorResponse
 from djehuty.api.permissions import enforce_collaborative_permissions
 from djehuty.api.v3._shared import _ok
@@ -28,7 +29,12 @@ _CATEGORY_EXAMPLE = {
 @router.get(
     "/physical-samples/{container_uuid}/categories",
     summary="List a physical sample's categories",
-    responses={200: _ok("The categories", [_CATEGORY_EXAMPLE]), 403: {"model": ErrorResponse}},
+    response_model=list[Category],
+    responses={
+        200: _ok("The categories", [_CATEGORY_EXAMPLE]),
+        403: {"model": ErrorResponse, "description": "Not authenticated"},
+        500: {"description": "No such sample"},
+    },
 )
 def list_categories(
     container_uuid: PhysicalSampleId,
@@ -93,7 +99,17 @@ def _set_categories(db, account_uuid, container_uuid, body, overwrite):
 @router.post(
     "/physical-samples/{container_uuid}/categories",
     summary="Add categories to a physical sample",
-    responses={205: {"description": "Categories added"}, 400: {"model": ErrorResponse}},
+    description=(
+        "Appends categories to the existing set. Accepts a JSON object with a "
+        "`categories` array of numeric category ids or UUIDs."
+    ),
+    responses={
+        205: {"description": "Categories added"},
+        400: {"model": ErrorResponse, "description": "Missing or invalid 'categories'"},
+        403: {"model": ErrorResponse, "description": "Not authenticated"},
+        404: {"model": ErrorResponse, "description": "No such sample"},
+        500: {"description": "Could not store the categories"},
+    },
 )
 def add_categories(
     container_uuid: PhysicalSampleId,
@@ -107,7 +123,17 @@ def add_categories(
 @router.put(
     "/physical-samples/{container_uuid}/categories",
     summary="Replace a physical sample's categories",
-    responses={205: {"description": "Categories replaced"}, 400: {"model": ErrorResponse}},
+    description=(
+        "Overwrites the category set. Accepts a JSON object with a `categories` "
+        "array of numeric category ids or UUIDs."
+    ),
+    responses={
+        205: {"description": "Categories replaced"},
+        400: {"model": ErrorResponse, "description": "Missing or invalid 'categories'"},
+        403: {"model": ErrorResponse, "description": "Not authenticated"},
+        404: {"model": ErrorResponse, "description": "No such sample"},
+        500: {"description": "Could not store the categories"},
+    },
 )
 def replace_categories(
     container_uuid: PhysicalSampleId,

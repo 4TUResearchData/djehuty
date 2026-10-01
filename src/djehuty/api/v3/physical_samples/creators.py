@@ -13,6 +13,7 @@ from djehuty.api.exceptions import (
     NotFoundError,
 )
 from djehuty.api.models.common import ErrorResponse
+from djehuty.api.models.physical_samples import PhysicalSampleCreatorRecord
 from djehuty.api.v3._shared import _ok
 from djehuty.api.v3.physical_samples._shared import (
     PhysicalSampleId,
@@ -37,7 +38,11 @@ _CREATOR_EXAMPLE = {
 @router.get(
     "/physical-samples/{container_uuid}/creators",
     summary="List a physical sample's creators",
-    responses={200: _ok("The creators", [_CREATOR_EXAMPLE]), 403: {"model": ErrorResponse}},
+    response_model=list[PhysicalSampleCreatorRecord],
+    responses={
+        200: _ok("The creators", [_CREATOR_EXAMPLE]),
+        403: {"model": ErrorResponse, "description": "Not allowed"},
+    },
 )
 def list_creators(
     container_uuid: PhysicalSampleId,
@@ -59,11 +64,28 @@ def list_creators(
         "Accepts either a JSON object with an `authors` list (creating new author "
         "records and appending them) or a JSON array of existing author UUIDs."
     ),
-    responses={204: {"description": "Creators added"}, 400: {"model": ErrorResponse}},
+    responses={
+        204: {"description": "Creators added"},
+        400: {"model": ErrorResponse, "description": "Invalid author data"},
+        404: {"model": ErrorResponse, "description": "No such sample"},
+        500: {"description": "Could not store the creators"},
+    },
 )
 def add_creators(
     container_uuid: PhysicalSampleId,
-    body: Any = Body(default=None),
+    body: Any = Body(
+        default=None,
+        openapi_examples={
+            "new_authors": {
+                "summary": "Create and append new authors",
+                "value": {"authors": [{"name": "Ada Lovelace", "orcid_id": "0000-0002-1825-0097"}]},
+            },
+            "existing_uuids": {
+                "summary": "Append existing authors by UUID",
+                "value": ["07d6e6ce-b1bf-43ca-86e6-7a3ab8bc8416"],
+            },
+        },
+    ),
     account=Depends(require_auth),
     db=Depends(get_db),
 ):
@@ -112,7 +134,12 @@ def add_creators(
 @router.get(
     "/physical-samples/{container_uuid}/creators/{creator_uuid}",
     summary="Get a single creator",
-    responses={200: _ok("A creator", _CREATOR_EXAMPLE), 404: {"model": ErrorResponse}},
+    response_model=PhysicalSampleCreatorRecord,
+    responses={
+        200: _ok("A creator", _CREATOR_EXAMPLE),
+        403: {"model": ErrorResponse, "description": "Not authenticated"},
+        404: {"model": ErrorResponse, "description": "No such creator"},
+    },
 )
 def get_creator(
     container_uuid: PhysicalSampleId,
@@ -139,7 +166,12 @@ def get_creator(
 @router.delete(
     "/physical-samples/{container_uuid}/creators/{creator_uuid}",
     summary="Remove a creator",
-    responses={204: {"description": "Creator removed"}, 404: {"model": ErrorResponse}},
+    responses={
+        204: {"description": "Creator removed"},
+        403: {"model": ErrorResponse, "description": "Not authenticated"},
+        404: {"model": ErrorResponse, "description": "No such sample"},
+        500: {"description": "No such creator, or the update failed"},
+    },
 )
 def delete_creator(
     container_uuid: PhysicalSampleId,
@@ -178,7 +210,13 @@ def delete_creator(
 @router.post(
     "/physical-samples/{container_uuid}/reorder-creators",
     summary="Reorder creators",
-    responses={205: {"description": "Creators reordered"}, 400: {"model": ErrorResponse}},
+    responses={
+        205: {"description": "Creators reordered"},
+        400: {"model": ErrorResponse, "description": "Invalid reorder request"},
+        403: {"model": ErrorResponse, "description": "Not authenticated"},
+        404: {"model": ErrorResponse, "description": "No such sample"},
+        500: {"description": "Could not reorder the creators"},
+    },
 )
 def reorder_creators(
     container_uuid: PhysicalSampleId,

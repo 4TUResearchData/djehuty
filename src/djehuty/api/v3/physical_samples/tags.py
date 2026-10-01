@@ -32,7 +32,12 @@ def _resolve_for_tags(db, container_uuid, account_uuid):
 @router.get(
     "/physical-samples/{container_uuid}/tags",
     summary="List a physical sample's tags",
-    responses={200: _ok("The tags", _TAGS_EXAMPLE), 403: {"model": ErrorResponse}},
+    response_model=list[str],
+    responses={
+        200: _ok("The tags", _TAGS_EXAMPLE),
+        403: {"model": ErrorResponse, "description": "Not authenticated"},
+        500: {"description": "No such sample"},
+    },
 )
 def list_tags(
     container_uuid: PhysicalSampleId,
@@ -49,7 +54,13 @@ def list_tags(
 @router.post(
     "/physical-samples/{container_uuid}/tags",
     summary="Add tags to a physical sample",
-    responses={205: {"description": "Tags added"}, 400: {"model": ErrorResponse}},
+    description="Accepts a JSON object with a `tags` array; tags are appended to the existing set.",
+    responses={
+        205: {"description": "Tags added"},
+        400: {"model": ErrorResponse, "description": "Missing 'tags' field"},
+        403: {"model": ErrorResponse, "description": "Not authenticated"},
+        500: {"description": "No such sample, or the update failed"},
+    },
 )
 def add_tags(
     container_uuid: PhysicalSampleId,
@@ -79,7 +90,11 @@ def add_tags(
 @router.delete(
     "/physical-samples/{container_uuid}/tags",
     summary="Delete a tag",
-    responses={204: {"description": "Tag removed"}, 403: {"model": ErrorResponse}},
+    responses={
+        204: {"description": "Tag removed"},
+        403: {"model": ErrorResponse, "description": "Not authenticated"},
+        500: {"description": "No such sample or tag, or the update failed"},
+    },
 )
 def delete_tag(
     container_uuid: PhysicalSampleId,

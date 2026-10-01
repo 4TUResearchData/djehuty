@@ -13,6 +13,7 @@ from djehuty.api.exceptions import (
     NotFoundError,
 )
 from djehuty.api.models.common import ErrorResponse
+from djehuty.api.models.physical_samples import PhysicalSampleRelatedResourceRecord
 from djehuty.api.v3._shared import _ok
 from djehuty.api.v3.physical_samples._shared import (
     PhysicalSampleId,
@@ -48,9 +49,11 @@ _RESOURCE_EXAMPLE = {
 @router.get(
     "/physical-samples/{container_uuid}/related-resources",
     summary="List a physical sample's related resources",
+    response_model=list[PhysicalSampleRelatedResourceRecord],
     responses={
         200: _ok("The related resources", [_RESOURCE_EXAMPLE]),
-        403: {"model": ErrorResponse},
+        403: {"model": ErrorResponse, "description": "Not allowed"},
+        404: {"model": ErrorResponse, "description": "No such sample"},
     },
 )
 def list_related_resources(
@@ -73,11 +76,35 @@ def list_related_resources(
 @router.post(
     "/physical-samples/{container_uuid}/related-resources",
     summary="Add related resources to a physical sample",
-    responses={204: {"description": "Related resources added"}, 400: {"model": ErrorResponse}},
+    description=(
+        "Accepts a JSON array of related resources, each with an `identifier`, an "
+        "`identifier-type` (IGSNDOI, OtherDOI or URL) and a `relation-type` "
+        "(e.g. IsDerivedFrom, References)."
+    ),
+    responses={
+        204: {"description": "Related resources added"},
+        400: {"model": ErrorResponse, "description": "Invalid related-resource data"},
+        403: {"model": ErrorResponse, "description": "Not authenticated"},
+        404: {"model": ErrorResponse, "description": "No such sample"},
+    },
 )
 def add_related_resources(
     container_uuid: PhysicalSampleId,
-    body: Any = Body(default=None),
+    body: Any = Body(
+        default=None,
+        openapi_examples={
+            "default": {
+                "summary": "A single derived-from relation",
+                "value": [
+                    {
+                        "identifier": "10.4121/related-dataset",
+                        "identifier-type": "IGSNDOI",
+                        "relation-type": "IsDerivedFrom",
+                    }
+                ],
+            }
+        },
+    ),
     account=Depends(get_current_account),
     db=Depends(get_db),
 ):
@@ -122,7 +149,12 @@ def add_related_resources(
 @router.delete(
     "/physical-samples/{container_uuid}/related-resources/{resource_uuid}",
     summary="Remove a related resource",
-    responses={204: {"description": "Related resource removed"}, 404: {"model": ErrorResponse}},
+    responses={
+        204: {"description": "Related resource removed"},
+        403: {"model": ErrorResponse, "description": "Not authenticated"},
+        404: {"model": ErrorResponse, "description": "No such sample"},
+        500: {"description": "No such related resource, or the update failed"},
+    },
 )
 def delete_related_resource(
     container_uuid: PhysicalSampleId,
