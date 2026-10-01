@@ -30,8 +30,9 @@ def db():
     return interface
 
 
-def _seed_collection(db, samples=(), datasets=(), published=True, title="A collection",
-                     collection=COLLECTION):
+def _seed_collection(
+    db, samples=(), datasets=(), published=True, title="A collection", collection=COLLECTION
+):
     """Seed a collection whose lists point at the given container UUIDs."""
     graph = Graph()
     container = URIRef(f"container:{collection}")
