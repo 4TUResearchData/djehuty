@@ -132,6 +132,7 @@ V2_ENDPOINTS = [
         "/v2/account/collections/<collection_id>/articles/<dataset_id>",
         "api_private_collection_dataset_delete",
     ),
+    ("/v2/physical_samples/search", "api_physical_samples_search"),
     (
         "/v2/account/collections/<collection_id>/physical_samples",
         "api_private_collection_physical_samples",
@@ -364,13 +365,13 @@ def _routes_from_wsgi():
 
 @pytest.mark.api_inventory
 def test_inventory_totals():
-    """Sanity: 57 unique V2 + 77 V3 = 134 routes.
+    """Sanity: 58 unique V2 + 77 V3 = 135 routes.
 
     Note: wsgi.py registers ``/v2/collections`` twice (both to ``api_collections``);
     we dedupe and count it once.
     """
-    assert len(V2_ENDPOINTS) == 57, (
-        f"V2 endpoint count drifted from 57 to {len(V2_ENDPOINTS)}; verify src/djehuty/web/wsgi.py."
+    assert len(V2_ENDPOINTS) == 58, (
+        f"V2 endpoint count drifted from 58 to {len(V2_ENDPOINTS)}; verify src/djehuty/web/wsgi.py."
     )
     assert len(V3_ENDPOINTS) == 77, (
         f"V3 endpoint count drifted from 77 to {len(V3_ENDPOINTS)}; verify src/djehuty/web/wsgi.py."
