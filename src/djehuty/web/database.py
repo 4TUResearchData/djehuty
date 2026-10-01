@@ -3285,12 +3285,14 @@ class SparqlInterface:
                           order=None, order_direction=None,
                           offset=None, private_link_id_string=None,
                           is_under_review=None, collection_uri=None,
-                          use_cache=True):
+                          search_for=None, use_cache=True):
         """Procedure to retrieve physical samples."""
 
         filters  = rdf.sparql_filter ("container", rdf.uuid_to_uri (container_uuid, "container"), is_uri=True)
         filters += rdf.sparql_filter ("sample_uuid", sample_uuid, escape=True)
         filters += rdf.sparql_filter ("private_link_id_string", private_link_id_string, escape=True)
+        if search_for is not None:
+            filters += rdf.sparql_contains_filter ("title", search_for)
 
         query = self.__query_from_template ("physical-samples", {
             "account_uuid":            account_uuid,

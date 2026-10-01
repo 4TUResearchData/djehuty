@@ -337,6 +337,7 @@ class WebServer:
             R("/v2/account/collections/<collection_id>/categories/<category_id>", self.api_private_delete_collection_category),
             R("/v2/account/collections/<collection_id>/articles",                self.api_private_collection_datasets),
             R("/v2/account/collections/<collection_id>/articles/<dataset_id>",   self.api_private_collection_dataset_delete),
+            R("/v2/physical_samples/search",                                     self.api_physical_samples_search),
             R("/v2/account/collections/<collection_id>/physical_samples",
               self.api_private_collection_physical_samples),
             R("/v2/account/collections/<collection_id>/physical_samples/<container_uuid>",
@@ -8548,6 +8549,27 @@ class WebServer:
         return self.__collection_by_id_or_uri(
             container_uuid, is_published=False, account_uuid=account_uuid
         )
+
+    def api_physical_samples_search(self, request):
+        """Implements /v2/physical_samples/search."""
+
+        handler = self.default_error_handling(request, "POST", "application/json")
+        if handler is not None:
+            return handler
+
+        try:
+            parameters = request.get_json()
+            search_for = validator.string_value(parameters, "search_for", 1, 1024, required=True)
+            records = self.db.physical_samples(
+                search_for=search_for, is_published=True, is_latest=True,
+                limit=20, use_cache=False
+            )
+            return self.default_list_response(
+                records, formatter.format_collection_physical_sample_record,
+                base_url=config.base_url
+            )
+        except validator.ValidationException as error:
+            return self.error_400(request, error.message, error.code)
 
     def api_private_collection_physical_samples(self, request, collection_id):
         """Implements /v2/account/collections/<id>/physical_samples."""
