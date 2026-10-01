@@ -209,6 +209,36 @@ class TestPhysicalSamplesByCollection:
         assert {row["container_uuid"] for row in rows} == {SAMPLE_A, SAMPLE_B}
 
 
+class TestPhysicalSamplesSearch:
+    """Filtering physical samples by a search term in the title."""
+
+    def test_matches_a_substring_of_the_title(self, db):
+        """A search term matching part of the title returns that sample."""
+        _seed_sample(db, SAMPLE_A, "Granite core sample")
+        _seed_sample(db, SAMPLE_B, "Water sample")
+        rows = db.physical_samples(search_for="granite", is_published=True, use_cache=False)
+        assert [row["container_uuid"] for row in rows] == [SAMPLE_A]
+
+    def test_is_case_insensitive(self, db):
+        """The search term matches regardless of case."""
+        _seed_sample(db, SAMPLE_A, "Granite core sample")
+        rows = db.physical_samples(search_for="GRANITE", is_published=True, use_cache=False)
+        assert [row["container_uuid"] for row in rows] == [SAMPLE_A]
+
+    def test_is_empty_without_a_match(self, db):
+        """No matching title returns no samples."""
+        _seed_sample(db, SAMPLE_A, "Granite core sample")
+        rows = db.physical_samples(search_for="basalt", is_published=True, use_cache=False)
+        assert rows == []
+
+    def test_without_a_search_term_all_samples_are_returned(self, db):
+        """Without a search term the filter does not apply."""
+        _seed_sample(db, SAMPLE_A, "Granite core sample")
+        _seed_sample(db, SAMPLE_B, "Water sample")
+        rows = db.physical_samples(is_published=True, use_cache=False)
+        assert {row["container_uuid"] for row in rows} == {SAMPLE_A, SAMPLE_B}
+
+
 def _count_list_heads(db, collection_uri, predicate):
     """Count the distinct list heads a collection has for PREDICATE."""
     rows = list(
