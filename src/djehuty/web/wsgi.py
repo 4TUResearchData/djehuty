@@ -2658,22 +2658,18 @@ class WebServer:
                                       is_published = False,
                                       limit        = 10000)
 
-        for collection in drafts:
-            count = self.db.collections_dataset_count(collection["uri"])
-            collection["number_of_datasets"] = count
-            collection["number_of_physical_samples"] = self.db.collections_physical_sample_count (
-                collection["uri"])
-
         published = self.db.collections (account_uuid = account_uuid,
                                          is_published = True,
                                          is_latest    = True,
                                          limit        = 10000)
 
-        for collection in published:
-            count = self.db.collections_dataset_count(collection["uri"])
-            collection["number_of_datasets"] = count
-            collection["number_of_physical_samples"] = self.db.collections_physical_sample_count (
-                collection["uri"])
+        collection_uris = [collection["uri"] for collection in drafts + published]
+        dataset_counts  = self.db.collections_dataset_counts (collection_uris)
+        sample_counts   = self.db.collections_physical_sample_counts (collection_uris)
+
+        for collection in drafts + published:
+            collection["number_of_datasets"] = dataset_counts.get (collection["uri"], 0)
+            collection["number_of_physical_samples"] = sample_counts.get (collection["uri"], 0)
 
         return self.__render_template (request, "depositor/my-collections.html",
                                        draft_collections     = drafts,

@@ -1002,6 +1002,36 @@ class SparqlInterface:
         except KeyError:
             return 0
 
+    def collections_dataset_counts (self, collection_uris):
+        """Procedure to count the datasets in multiple collections at once."""
+
+        collection_uris = [uri for uri in collection_uris if uri is not None]
+        if not collection_uris:
+            return {}
+
+        filters = rdf.sparql_in_filter ("collection", collection_uris, is_uri=True)
+        query = self.__query_from_template ("collection_datasets_counts", {
+            "filters":  filters
+        })
+        results = self.__run_query (query)
+
+        return { row["collection"]: row["datasets"] for row in results if "collection" in row }
+
+    def collections_physical_sample_counts (self, collection_uris):
+        """Procedure to count the physical samples in multiple collections at once."""
+
+        collection_uris = [uri for uri in collection_uris if uri is not None]
+        if not collection_uris:
+            return {}
+
+        filters = rdf.sparql_in_filter ("collection", collection_uris, is_uri=True)
+        query = self.__query_from_template ("collection_physical_samples_counts", {
+            "filters":  filters
+        })
+        results = self.__run_query (query)
+
+        return { row["collection"]: row["samples"] for row in results if "collection" in row }
+
     def collections (self, limit=10, offset=None, order=None, collection_uuid=None,
                      order_direction=None, institution=None, categories=None,
                      published_since=None, modified_since=None, group=None,
