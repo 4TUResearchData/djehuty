@@ -14,6 +14,8 @@ SAMPLE_B = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"
 DATASET_A = "dddddddd-dddd-dddd-dddd-dddddddddddd"
 COLLECTION = "cccccccc-cccc-cccc-cccc-cccccccccccc"
 COLLECTION_URI = f"collection:{COLLECTION}"
+COLLECTION_B = "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"
+COLLECTION_B_URI = f"collection:{COLLECTION_B}"
 
 
 @pytest.fixture
@@ -28,22 +30,26 @@ def db():
     return interface
 
 
-def _seed_collection(db, samples=(), datasets=(), published=True, title="A collection"):
+def _seed_collection(db, samples=(), datasets=(), published=True, title="A collection",
+                     collection=COLLECTION):
     """Seed a collection whose lists point at the given container UUIDs."""
     graph = Graph()
-    container = URIRef(f"container:{COLLECTION}")
-    collection = URIRef(COLLECTION_URI)
+    container = URIRef(f"container:{collection}")
+    collection_uri = URIRef(f"collection:{collection}")
     link = "latest_published_version" if published else "draft"
 
     rdf.add(graph, container, RDF.type, rdf.DJHT["CollectionContainer"], "uri")
-    rdf.add(graph, container, rdf.DJHT[link], collection, "uri")
-    rdf.add(graph, collection, RDF.type, rdf.DJHT["Collection"], "uri")
-    rdf.add(graph, collection, rdf.DJHT["title"], title, XSD.string)
+    rdf.add(graph, container, rdf.DJHT[link], collection_uri, "uri")
+    rdf.add(graph, collection_uri, RDF.type, rdf.DJHT["Collection"], "uri")
+    rdf.add(graph, collection_uri, rdf.DJHT["title"], title, XSD.string)
     db.insert_item_list(
-        graph, collection, [URIRef(f"container:{u}") for u in samples], "physical_samples"
+        graph, collection_uri, [URIRef(f"container:{u}") for u in samples], "physical_samples"
     )
-    db.insert_item_list(graph, collection, [URIRef(f"container:{u}") for u in datasets], "datasets")
+    db.insert_item_list(
+        graph, collection_uri, [URIRef(f"container:{u}") for u in datasets], "datasets"
+    )
     db.add_triples_from_graph(graph)
+    return str(collection_uri)
 
 
 class TestCollectionPhysicalSampleContainers:
@@ -92,6 +98,43 @@ class TestCollectionsPhysicalSampleCount:
         _seed_collection(db, samples=[SAMPLE_A, SAMPLE_B], datasets=[DATASET_A])
         assert db.collections_physical_sample_count(COLLECTION_URI) == 2
         assert db.collections_dataset_count(COLLECTION_URI) == 1
+
+
+class TestCollectionsPhysicalSampleCounts:
+    """Counting the physical samples in multiple collections in one query."""
+
+    def test_counts_each_collection(self, db):
+        """Each collection's own samples are counted."""
+        _seed_collection(db, samples=[SAMPLE_A, SAMPLE_B], collection=COLLECTION)
+        _seed_collection(db, samples=[SAMPLE_A], collection=COLLECTION_B)
+        counts = db.collections_physical_sample_counts([COLLECTION_URI, COLLECTION_B_URI])
+        assert counts == {COLLECTION_URI: 2, COLLECTION_B_URI: 1}
+
+    def test_omits_collections_without_samples(self, db):
+        """A collection with no samples is left out rather than counted as zero."""
+        _seed_collection(db, collection=COLLECTION)
+        counts = db.collections_physical_sample_counts([COLLECTION_URI])
+        assert counts == {}
+
+    def test_is_empty_without_collections(self, db):
+        """No collection URIs counts nothing."""
+        assert db.collections_physical_sample_counts([]) == {}
+        assert db.collections_physical_sample_counts([None]) == {}
+
+
+class TestCollectionsDatasetCounts:
+    """Counting the datasets in multiple collections in one query."""
+
+    def test_counts_each_collection(self, db):
+        """Each collection's own datasets are counted."""
+        _seed_collection(db, datasets=[DATASET_A], collection=COLLECTION)
+        _seed_collection(db, samples=[SAMPLE_A], collection=COLLECTION_B)
+        counts = db.collections_dataset_counts([COLLECTION_URI, COLLECTION_B_URI])
+        assert counts == {COLLECTION_URI: 1}
+
+    def test_is_empty_without_collections(self, db):
+        """No collection URIs counts nothing."""
+        assert db.collections_dataset_counts([]) == {}
 
 
 class TestCollectionsFromPhysicalSample:
