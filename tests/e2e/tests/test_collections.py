@@ -372,7 +372,7 @@ class TestCollectionPhysicalSamples:
         """A published sample can be added to, listed in and removed from a draft collection."""
         url = create_draft_collection(authenticated_page)
         container_uuid = get_container_uuid_from_url(url)
-        endpoint = f"/v2/account/collections/{container_uuid}/physical_samples"
+        endpoint = f"/v3/collections/{container_uuid}/physical-samples"
 
         try:
             response = authenticated_page.request.post(
@@ -398,7 +398,7 @@ class TestCollectionPhysicalSamples:
     ):
         """Collecting a sample that is already in the collection is a no-op."""
         container_uuid = get_container_uuid_from_url(create_draft_collection(authenticated_page))
-        endpoint = f"/v2/account/collections/{container_uuid}/physical_samples"
+        endpoint = f"/v3/collections/{container_uuid}/physical-samples"
 
         try:
             for _ in range(2):
@@ -420,7 +420,7 @@ class TestCollectionPhysicalSamples:
     ):
         """Check that POST appends, PUT replaces, and PUT with an empty list clears."""
         container_uuid = get_container_uuid_from_url(create_draft_collection(authenticated_page))
-        endpoint = f"/v2/account/collections/{container_uuid}/physical_samples"
+        endpoint = f"/v3/collections/{container_uuid}/physical-samples"
 
         def listed():
             return {item["uuid"] for item in authenticated_page.request.get(endpoint).json()}
@@ -450,7 +450,7 @@ class TestCollectionPhysicalSamples:
 
         try:
             response = authenticated_page.request.post(
-                f"/v2/account/collections/{container_uuid}/physical_samples", data={}
+                f"/v3/collections/{container_uuid}/physical-samples", data={}
             )
             assert response.status == 400
             assert "NoSamplesField" in response.text()
@@ -461,7 +461,7 @@ class TestCollectionPhysicalSamples:
         """Check that only published samples can be collected."""
         draft_uuid = get_sample_uuid_from_url(create_draft_physical_sample(authenticated_page))
         container_uuid = get_container_uuid_from_url(create_draft_collection(authenticated_page))
-        endpoint = f"/v2/account/collections/{container_uuid}/physical_samples"
+        endpoint = f"/v3/collections/{container_uuid}/physical-samples"
 
         try:
             for sample_uuid in (str(uuid.uuid4()), draft_uuid):
@@ -483,7 +483,7 @@ class TestCollectionPhysicalSamples:
     ):
         """An unknown sample id is a 404. A published sample that is not a member is a 204."""
         container_uuid = get_container_uuid_from_url(create_draft_collection(authenticated_page))
-        endpoint = f"/v2/account/collections/{container_uuid}/physical_samples"
+        endpoint = f"/v3/collections/{container_uuid}/physical-samples"
 
         try:
             for sample_uuid in (str(uuid.uuid4()), "not-a-uuid"):
@@ -497,7 +497,7 @@ class TestCollectionPhysicalSamples:
 
     def test_requires_auth(self, page: Page):
         """Without a session every method on the endpoints is refused."""
-        endpoint = f"/v2/account/collections/{uuid.uuid4()}/physical_samples"
+        endpoint = f"/v3/collections/{uuid.uuid4()}/physical-samples"
 
         assert page.request.get(endpoint).status in (401, 403)
         assert page.request.post(endpoint, data={"samples": []}).status in (401, 403)
@@ -506,7 +506,7 @@ class TestCollectionPhysicalSamples:
     def test_other_users_collection_is_not_found(self, admin_page: Page):
         """Another account cannot read or change a collection it does not own."""
         container_uuid = get_container_uuid_from_url(create_draft_collection(admin_page))
-        endpoint = f"/v2/account/collections/{container_uuid}/physical_samples"
+        endpoint = f"/v3/collections/{container_uuid}/physical-samples"
 
         impersonate(admin_page, get_non_admin_account_uuid())
         try:
@@ -1126,7 +1126,7 @@ SAMPLE_TITLE = "Physical Sample for Collection Test"
 def _collection_contains_sample(page: Page, container_uuid: str, sample_uuid: str) -> bool:
     """Return whether a collection lists the given physical sample container."""
     response = page.request.get(
-        f"/v2/account/collections/{container_uuid}/physical_samples",
+        f"/v3/collections/{container_uuid}/physical-samples",
         params={"limit": 10000},
     )
     assert response.ok, f"List physical samples failed: {response.status} {response.text()}"
@@ -1211,7 +1211,7 @@ class TestCollectPhysicalSample:
         title = f"Sample In Collection {uuid.uuid4().hex[:8]}"
         container_uuid = get_container_uuid_from_url(create_draft_collection(authenticated_page))
         authenticated_page.request.post(
-            f"/v2/account/collections/{container_uuid}/physical_samples",
+            f"/v3/collections/{container_uuid}/physical-samples",
             data={"samples": [published_physical_sample]},
         )
         fill_required_fields_and_publish_collection(authenticated_page, container_uuid, title=title)
@@ -1229,7 +1229,7 @@ class TestCollectPhysicalSample:
         """A published collection lists its samples with a link to each."""
         container_uuid = get_container_uuid_from_url(create_draft_collection(authenticated_page))
         authenticated_page.request.post(
-            f"/v2/account/collections/{container_uuid}/physical_samples",
+            f"/v3/collections/{container_uuid}/physical-samples",
             data={"samples": [published_physical_sample]},
         )
         fill_required_fields_and_publish_collection(

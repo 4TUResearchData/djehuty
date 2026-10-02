@@ -7,12 +7,10 @@ from djehuty.api.v2.articles import router as articles_router
 from djehuty.api.v2.categories import router as categories_router
 from djehuty.api.v2.collections import router as collections_router
 from djehuty.api.v2.licenses import router as licenses_router
-from djehuty.api.v2.physical_samples import router as physical_samples_router
 
 router = APIRouter(prefix="/v2")
 router.include_router(articles_router)
 router.include_router(collections_router)
 router.include_router(categories_router)
 router.include_router(licenses_router)
-router.include_router(physical_samples_router)
 router.include_router(account_router)

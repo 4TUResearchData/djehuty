@@ -1,11 +1,12 @@
 function add_dataset_to_collection (dataset_id, collection_id) {
     const button = jQuery("#collect-btn");
+    const base   = button.data("collect-base")  || "v2/account/collections";
     const path   = button.data("collect-path")  || "articles";
     const field  = button.data("collect-field") || "articles";
     const label  = button.data("collect-label") || "Dataset";
 
     jQuery.ajax({
-        url:         `/v2/account/collections/${collection_id}/${path}`,
+        url:         `/${base}/${collection_id}/${path}`,
         type:        "POST",
         contentType: "application/json",
         accept:      "application/json",

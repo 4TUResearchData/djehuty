@@ -86,7 +86,7 @@ function remove_physical_sample_event (event) {
 
 function render_physical_samples_for_collection (collection_id) {
     jQuery.ajax({
-        url:         `/v2/account/collections/${collection_id}/physical_samples`,
+        url:         `/v3/collections/${collection_id}/physical-samples`,
         data:        { "limit": 10000, "order": "id", "order_direction": "asc" },
         type:        "GET",
         accept:      "application/json",
@@ -331,7 +331,7 @@ function add_physical_sample_event (event) {
 
 function add_physical_sample (sample_id, collection_id) {
     jQuery.ajax({
-        url:         `/v2/account/collections/${collection_id}/physical_samples`,
+        url:         `/v3/collections/${collection_id}/physical-samples`,
         type:        "POST",
         contentType: "application/json",
         accept:      "application/json",
@@ -430,7 +430,7 @@ function remove_dataset (dataset_id, collection_id) {
 
 function remove_physical_sample (sample_id, collection_id) {
     jQuery.ajax({
-        url:         `/v2/account/collections/${collection_id}/physical_samples/${sample_id}`,
+        url:         `/v3/collections/${collection_id}/physical-samples/${sample_id}`,
         type:        "DELETE",
         accept:      "application/json",
     }).done(function () {
@@ -617,7 +617,7 @@ function autocomplete_physical_sample (event, collection_id) {
         jQuery("#physical-sample-search").removeClass("input-for-ac");
     } else if (current_text.length > 2) {
         jQuery.ajax({
-            url:         `/v2/physical_samples/search`,
+            url:         `/v3/physical-samples/search`,
             type:        "POST",
             contentType: "application/json",
             accept:      "application/json",

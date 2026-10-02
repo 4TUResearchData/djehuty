@@ -1,4 +1,4 @@
-"""Authenticated /v2/account/collections physical sample endpoints."""
+"""Authenticated /v3/collections physical sample endpoints."""
 
 import logging
 
@@ -9,18 +9,15 @@ from rdflib import URIRef
 from djehuty.api.dependencies import get_db, pagination_params, require_auth
 from djehuty.api.exceptions import ForbiddenError, InvalidInputError, NotFoundError
 from djehuty.api.services.physical_sample_service import PhysicalSampleService
-from djehuty.api.v2.account.collections._shared import (
-    _editable_collection,
-    _resolve_private_collection,
-)
+from djehuty.api.v3.collections._shared import _editable_collection, _resolve_collection_for_owner
 from djehuty.web import formatter, validator
 
-router = APIRouter(tags=["V2 / Account / Collections / Physical samples"])
+router = APIRouter(tags=["V3 / Collections / Physical samples"])
 _log = logging.getLogger(__name__)
 
 
 @router.get(
-    "/account/collections/{collection_id}/physical_samples",
+    "/collections/{collection_id}/physical-samples",
     summary="List collection physical samples (private)",
 )
 def list_collection_physical_samples(
@@ -29,7 +26,7 @@ def list_collection_physical_samples(
     db=Depends(get_db),
     paging: dict = Depends(pagination_params),
 ):
-    collection = _resolve_private_collection(db, collection_id, account["uuid"])
+    collection = _resolve_collection_for_owner(db, collection_id, account["uuid"])
     samples = db.physical_samples(
         collection_uri=collection["uri"],
         is_latest=True,
@@ -43,11 +40,11 @@ def list_collection_physical_samples(
 
 
 @router.post(
-    "/account/collections/{collection_id}/physical_samples",
+    "/collections/{collection_id}/physical-samples",
     summary="Add physical samples to collection",
 )
 @router.put(
-    "/account/collections/{collection_id}/physical_samples",
+    "/collections/{collection_id}/physical-samples",
     summary="Replace collection physical samples",
 )
 def upsert_collection_physical_samples(
@@ -95,13 +92,13 @@ def upsert_collection_physical_samples(
 
 
 @router.delete(
-    "/account/collections/{collection_id}/physical_samples/{container_uuid}",
+    "/collections/{collection_id}/physical-samples/{container_uuid}",
     summary="Remove physical sample from collection",
 )
 def delete_collection_physical_sample(
     collection_id: str, container_uuid: str, account=Depends(require_auth), db=Depends(get_db)
 ):
-    collection = _resolve_private_collection(db, collection_id, account["uuid"])
+    collection = _resolve_collection_for_owner(db, collection_id, account["uuid"])
     sample = PhysicalSampleService(db)._resolve_physical_sample(
         container_uuid, is_latest=True, is_published=True
     )

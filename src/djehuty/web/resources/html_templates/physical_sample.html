@@ -54,7 +54,7 @@ const dataset_uuid = "{{item.container_uuid}}";
     <div id="doi"><span class="doi-label">IGSN:</span><a class="corporate-identity" href="https://doi.org/{{doi}}" target="_blank" rel="noopener noreferrer" title="opens in new window"><span class="doi-value">{{doi}}</span></a></div>
     <button id="cite-btn" class="corporate-identity-standard-button" title="Show citation.">Cite</button>
   {%- if my_collections %}
-    <button id="collect-btn" class="corporate-identity-standard-button" title="Add this physical sample to one of your collections." data-collect-path="physical_samples" data-collect-field="samples" data-collect-label="Physical sample">Collect</button>
+    <button id="collect-btn" class="corporate-identity-standard-button" title="Add this physical sample to one of your collections." data-collect-base="v3/collections" data-collect-path="physical-samples" data-collect-field="samples" data-collect-label="Physical sample">Collect</button>
   {%- endif %}
     <div id="cite">
         <h3>Datacite citation style</h3>

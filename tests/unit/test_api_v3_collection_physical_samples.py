@@ -1,4 +1,4 @@
-"""Unit tests for the /v2/account/collections physical sample endpoints."""
+"""Unit tests for the /v3/collections physical sample endpoints."""
 
 from fastapi.testclient import TestClient
 from rdflib import URIRef
@@ -10,7 +10,7 @@ EXISTING_UUID = "b2222222-2222-4222-8222-222222222222"
 NEW_UUID = "c3333333-3333-4333-8333-333333333333"
 UNKNOWN_UUID = "d4444444-4444-4444-8444-444444444444"
 AUTH = {"Authorization": "good"}
-BASE = f"/v2/account/collections/{COLLECTION_UUID}/physical_samples"
+BASE = f"/v3/collections/{COLLECTION_UUID}/physical-samples"
 
 
 class _Cache:

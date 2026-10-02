@@ -8,7 +8,6 @@ from djehuty.api.v2.account.collections import (
     categories,
     collections,
     funding,
-    physical_samples,
     publishing,
 )
 
@@ -18,7 +17,6 @@ for _m in (
     authors,
     categories,
     articles,
-    physical_samples,
     funding,
     publishing,
 ):
