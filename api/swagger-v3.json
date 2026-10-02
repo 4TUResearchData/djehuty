@@ -2762,7 +2762,9 @@
             "description": "A physical sample",
             "content": {
               "application/json": {
-                "schema": {},
+                "schema": {
+                  "$ref": "#/components/schemas/PhysicalSampleRecord"
+                },
                 "example": {
                   "uuid": "27e6a01d-3f09-4d90-ae02-1d749ae9efb8",
                   "title": "Basalt core sample BR-2025-014",
@@ -2774,11 +2776,14 @@
             }
           },
           "404": {
-            "description": "Not Found",
+            "description": "No such sample",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "message": "This resource does not exist."
                 }
               }
             }
@@ -2795,27 +2800,114 @@
           "content": {
             "application/json": {
               "schema": {
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "maxLength": 1000
+                  },
+                  "abstract": {
+                    "type": "string",
+                    "maxLength": 8000
+                  },
+                  "methods": {
+                    "type": "string",
+                    "maxLength": 8000
+                  },
+                  "resource_type": {
+                    "type": "string",
+                    "maxLength": 512
+                  },
+                  "subject": {
+                    "type": "string",
+                    "maxLength": 512
+                  },
+                  "alternate_identifier": {
+                    "type": "string",
+                    "maxLength": 512
+                  },
+                  "organizations": {
+                    "type": "string",
+                    "maxLength": 2048
+                  },
+                  "physical_storage_location": {
+                    "type": "string",
+                    "maxLength": 2048
+                  },
+                  "geolocation": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "longitude": {
+                    "type": "string",
+                    "description": "Decimal degrees east."
+                  },
+                  "latitude": {
+                    "type": "string",
+                    "description": "Decimal degrees north."
+                  },
+                  "sample_owner_name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "sample_owner_email": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "group_id": {
+                    "type": "integer"
+                  },
+                  "agreed_to_deposit_agreement": {
+                    "type": "boolean"
+                  },
+                  "agreed_to_publish": {
+                    "type": "boolean"
+                  },
+                  "categories": {
+                    "items": {
+                      "oneOf": [
+                        {
+                          "type": "integer"
+                        },
+                        {
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "type": "array",
+                    "description": "Category numeric ids (from GET /v2/categories) or UUIDs."
+                  }
+                },
                 "additionalProperties": true,
                 "type": "object",
                 "title": "Body",
                 "default": {}
+              },
+              "examples": {
+                "default": {
+                  "value": {
+                    "title": "Basalt core sample BR-2025-014",
+                    "abstract": "Drill core recovered off the coast of Texel.",
+                    "methods": "Rotary drilling.",
+                    "resource_type": "Rock",
+                    "subject": "Petrology",
+                    "geolocation": "North Sea",
+                    "latitude": "53.05",
+                    "longitude": "4.80",
+                    "categories": [
+                      13555
+                    ]
+                  }
+                }
               }
             }
           }
         },
         "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
           "201": {
             "description": "Created",
             "content": {
               "application/json": {
+                "schema": {},
                 "example": {
                   "location": "https://data.4tu.nl/v3/physical-samples/UUID"
                 }
@@ -2823,22 +2915,47 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Invalid field values",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    },
-                    "code": {
-                      "type": "string"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "message": "Invalid or missing field.",
+                  "code": "ValidationError"
                 }
               }
             }
+          },
+          "403": {
+            "description": "Not a depositor or IGSN not permitted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "message": "Not allowed."
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such sample",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "message": "This resource does not exist."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Could not store the sample"
           }
         },
         "security": [
@@ -2874,7 +2991,9 @@
             "description": "A physical sample",
             "content": {
               "application/json": {
-                "schema": {},
+                "schema": {
+                  "$ref": "#/components/schemas/PhysicalSampleRecord"
+                },
                 "example": {
                   "uuid": "27e6a01d-3f09-4d90-ae02-1d749ae9efb8",
                   "title": "Basalt core sample BR-2025-014",
@@ -2886,14 +3005,17 @@
             }
           },
           "404": {
+            "description": "No such sample",
             "content": {
               "application/json": {
+                "example": {
+                  "message": "This resource does not exist."
+                },
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            },
-            "description": "Not Found"
+            }
           },
           "400": {
             "description": "Bad Request",
@@ -2946,50 +3068,151 @@
                 "type": "object",
                 "additionalProperties": true,
                 "default": {},
-                "title": "Body"
+                "title": "Body",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "maxLength": 1000
+                  },
+                  "abstract": {
+                    "type": "string",
+                    "maxLength": 8000
+                  },
+                  "methods": {
+                    "type": "string",
+                    "maxLength": 8000
+                  },
+                  "resource_type": {
+                    "type": "string",
+                    "maxLength": 512
+                  },
+                  "subject": {
+                    "type": "string",
+                    "maxLength": 512
+                  },
+                  "alternate_identifier": {
+                    "type": "string",
+                    "maxLength": 512
+                  },
+                  "organizations": {
+                    "type": "string",
+                    "maxLength": 2048
+                  },
+                  "physical_storage_location": {
+                    "type": "string",
+                    "maxLength": 2048
+                  },
+                  "geolocation": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "longitude": {
+                    "type": "string",
+                    "description": "Decimal degrees east."
+                  },
+                  "latitude": {
+                    "type": "string",
+                    "description": "Decimal degrees north."
+                  },
+                  "sample_owner_name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "sample_owner_email": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "group_id": {
+                    "type": "integer"
+                  },
+                  "agreed_to_deposit_agreement": {
+                    "type": "boolean"
+                  },
+                  "agreed_to_publish": {
+                    "type": "boolean"
+                  },
+                  "categories": {
+                    "type": "array",
+                    "items": {
+                      "oneOf": [
+                        {
+                          "type": "integer"
+                        },
+                        {
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "description": "Category numeric ids (from GET /v2/categories) or UUIDs."
+                  }
+                }
+              },
+              "examples": {
+                "default": {
+                  "value": {
+                    "title": "Basalt core sample BR-2025-014",
+                    "abstract": "Drill core recovered off the coast of Texel.",
+                    "methods": "Rotary drilling.",
+                    "resource_type": "Rock",
+                    "subject": "Petrology",
+                    "geolocation": "North Sea",
+                    "latitude": "53.05",
+                    "longitude": "4.80",
+                    "categories": [
+                      13555
+                    ]
+                  }
+                }
               }
             }
           }
         },
         "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
           "204": {
             "description": "Updated"
           },
-          "403": {
+          "400": {
+            "description": "Invalid field values",
             "content": {
               "application/json": {
+                "example": {
+                  "message": "Invalid or missing field.",
+                  "code": "ValidationError"
+                },
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            },
-            "description": "Forbidden"
+            }
           },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Not a depositor or IGSN not permitted",
             "content": {
               "application/json": {
+                "example": {
+                  "message": "Not allowed."
+                },
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    },
-                    "code": {
-                      "type": "string"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
+          },
+          "404": {
+            "description": "No such sample",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "This resource does not exist."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Could not store the sample"
           }
         }
       }
@@ -3000,6 +3223,7 @@
           "V3 / Physical samples / Publishing"
         ],
         "summary": "Submit a physical sample for review",
+        "description": "Validates the complete draft and submits it for review. The sample must already have at least one creator and the configured minimum number of keywords; the body must set `agreed_to_publish` and the required metadata fields, and include at least one category.",
         "operationId": "submit_for_review_v3_physical_samples__container_uuid__submit_for_review_put",
         "security": [
           {
@@ -3026,50 +3250,167 @@
                 "type": "object",
                 "additionalProperties": true,
                 "default": {},
-                "title": "Body"
+                "title": "Body",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 1000
+                  },
+                  "abstract": {
+                    "type": "string",
+                    "maxLength": 8000
+                  },
+                  "methods": {
+                    "type": "string",
+                    "maxLength": 8000
+                  },
+                  "resource_type": {
+                    "type": "string",
+                    "maxLength": 512
+                  },
+                  "subject": {
+                    "type": "string",
+                    "maxLength": 512
+                  },
+                  "publisher": {
+                    "type": "string",
+                    "maxLength": 10000
+                  },
+                  "alternate_identifier": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "organizations": {
+                    "type": "string",
+                    "maxLength": 2048
+                  },
+                  "physical_storage_location": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2048
+                  },
+                  "geolocation": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "longitude": {
+                    "type": "string",
+                    "description": "Decimal degrees east."
+                  },
+                  "latitude": {
+                    "type": "string",
+                    "description": "Decimal degrees north."
+                  },
+                  "sample_owner_name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "sample_owner_email": {
+                    "type": "string"
+                  },
+                  "group_id": {
+                    "type": "integer"
+                  },
+                  "agreed_to_deposit_agreement": {
+                    "type": "boolean"
+                  },
+                  "agreed_to_publish": {
+                    "type": "boolean"
+                  },
+                  "categories": {
+                    "type": "array",
+                    "items": {
+                      "oneOf": [
+                        {
+                          "type": "integer"
+                        },
+                        {
+                          "type": "string"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "title",
+                  "abstract",
+                  "publisher",
+                  "organizations",
+                  "physical_storage_location",
+                  "sample_owner_name",
+                  "sample_owner_email",
+                  "group_id",
+                  "agreed_to_publish",
+                  "categories"
+                ]
+              },
+              "examples": {
+                "default": {
+                  "value": {
+                    "title": "Basalt core sample BR-2025-014",
+                    "abstract": "Drill core recovered off the coast of Texel.",
+                    "publisher": "4TU.ResearchData",
+                    "organizations": "Delft University of Technology",
+                    "physical_storage_location": "Core repository, Delft",
+                    "sample_owner_name": "Ada Lovelace",
+                    "sample_owner_email": "a.lovelace@tudelft.nl",
+                    "group_id": 28586,
+                    "categories": [
+                      13555
+                    ],
+                    "agreed_to_publish": true
+                  }
+                }
               }
             }
           }
         },
         "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
           "204": {
             "description": "Submitted for review"
           },
-          "403": {
+          "400": {
+            "description": "The draft failed validation",
             "content": {
               "application/json": {
+                "example": [
+                  {
+                    "field_name": "field",
+                    "message": "Invalid or missing value."
+                  }
+                ]
+              }
+            }
+          },
+          "403": {
+            "description": "Not a depositor",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Not allowed."
+                },
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            },
-            "description": "Forbidden"
+            }
           },
-          "400": {
-            "description": "Bad Request",
+          "404": {
+            "description": "No such sample",
             "content": {
               "application/json": {
+                "example": {
+                  "message": "This resource does not exist."
+                },
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    },
-                    "code": {
-                      "type": "string"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
+          },
+          "500": {
+            "description": "Could not submit the sample"
           }
         }
       }
@@ -3101,51 +3442,49 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
           "201": {
             "description": "Published",
             "content": {
               "application/json": {
+                "schema": {},
                 "example": {
                   "location": "https://data.4tu.nl/physical_sample/UUID"
                 }
               }
             }
           },
-          "403": {
+          "400": {
+            "description": "Missing a title or a named creator",
             "content": {
               "application/json": {
+                "example": {
+                  "message": "Invalid or missing field.",
+                  "code": "ValidationError"
+                },
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            },
-            "description": "Forbidden"
+            }
           },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Reviewer permissions required",
             "content": {
               "application/json": {
+                "example": {
+                  "message": "Not allowed."
+                },
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    },
-                    "code": {
-                      "type": "string"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
+          },
+          "500": {
+            "description": "Could not publish the sample"
+          },
+          "502": {
+            "description": "DataCite rejected the IGSN registration"
           }
         }
       }
@@ -3176,26 +3515,24 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
           "204": {
             "description": "Declined"
           },
           "403": {
+            "description": "Reviewer permissions required",
             "content": {
               "application/json": {
+                "example": {
+                  "message": "Not allowed."
+                },
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            },
-            "description": "Forbidden"
+            }
+          },
+          "500": {
+            "description": "Could not decline the sample"
           },
           "400": {
             "description": "Bad Request",
@@ -3248,49 +3585,58 @@
             "required": true,
             "schema": {
               "type": "string",
+              "description": "UUID of the reviewer account to assign.",
               "title": "Reviewer Uuid"
-            }
+            },
+            "description": "UUID of the reviewer account to assign."
           }
         ],
         "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
           "204": {
             "description": "Reviewer assigned"
           },
-          "403": {
+          "400": {
+            "description": "Invalid reviewer UUID",
             "content": {
               "application/json": {
+                "example": {
+                  "message": "Invalid or missing field.",
+                  "code": "ValidationError"
+                },
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            },
-            "description": "Forbidden"
+            }
           },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Reviewer permissions required",
             "content": {
               "application/json": {
+                "example": {
+                  "message": "Not allowed."
+                },
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    },
-                    "code": {
-                      "type": "string"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
+          },
+          "404": {
+            "description": "No such sample",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "This resource does not exist."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Could not assign the reviewer"
           }
         }
       }
@@ -3320,7 +3666,13 @@
             "description": "The creators",
             "content": {
               "application/json": {
-                "schema": {},
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PhysicalSampleCreatorRecord"
+                  },
+                  "title": "Response List Creators V3 Physical Samples  Container Uuid  Creators Get"
+                },
                 "example": [
                   {
                     "uuid": "07d6e6ce-b1bf-43ca-86e6-7a3ab8bc8416",
@@ -3334,14 +3686,17 @@
             }
           },
           "403": {
+            "description": "Not allowed",
             "content": {
               "application/json": {
+                "example": {
+                  "message": "Not allowed."
+                },
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            },
-            "description": "Forbidden"
+            }
           },
           "400": {
             "description": "Bad Request",
@@ -3392,32 +3747,128 @@
           "content": {
             "application/json": {
               "schema": {
-                "title": "Body"
+                "title": "Body",
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "authors": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "first_name": {
+                              "type": "string",
+                              "maxLength": 255
+                            },
+                            "last_name": {
+                              "type": "string",
+                              "maxLength": 255
+                            },
+                            "name": {
+                              "type": "string",
+                              "maxLength": 255,
+                              "description": "Full name; built from first/last when omitted."
+                            },
+                            "email": {
+                              "type": "string",
+                              "maxLength": 255
+                            },
+                            "orcid_id": {
+                              "type": "string",
+                              "maxLength": 38
+                            },
+                            "job_title": {
+                              "type": "string",
+                              "maxLength": 255
+                            }
+                          },
+                          "required": [
+                            "first_name",
+                            "last_name"
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Existing author UUIDs."
+                  }
+                ]
+              },
+              "examples": {
+                "new_authors": {
+                  "summary": "Create and append new authors",
+                  "value": {
+                    "authors": [
+                      {
+                        "first_name": "Ada",
+                        "last_name": "Lovelace",
+                        "orcid_id": "0000-0002-1825-0097"
+                      }
+                    ]
+                  }
+                },
+                "existing_uuids": {
+                  "summary": "Append existing authors by UUID",
+                  "value": [
+                    "07d6e6ce-b1bf-43ca-86e6-7a3ab8bc8416"
+                  ]
+                }
               }
             }
           }
         },
         "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
           "204": {
             "description": "Creators added"
           },
           "400": {
+            "description": "Invalid author data",
             "content": {
               "application/json": {
+                "example": [
+                  {
+                    "field_name": "field",
+                    "message": "Invalid or missing value."
+                  }
+                ]
+              }
+            }
+          },
+          "403": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Invalid or unknown session token",
+                  "code": "InvalidSessionToken"
+                },
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            },
-            "description": "Bad Request"
+            }
+          },
+          "404": {
+            "description": "No such sample",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "This resource does not exist."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Could not store the creators"
           }
         }
       }
@@ -3447,8 +3898,10 @@
             "required": true,
             "schema": {
               "type": "string",
+              "description": "The creator's `uuid` from `GET .../creators`.",
               "title": "Creator Uuid"
-            }
+            },
+            "description": "The creator's `uuid` from `GET .../creators`."
           }
         ],
         "responses": {
@@ -3456,7 +3909,9 @@
             "description": "A creator",
             "content": {
               "application/json": {
-                "schema": {},
+                "schema": {
+                  "$ref": "#/components/schemas/PhysicalSampleCreatorRecord"
+                },
                 "example": {
                   "uuid": "07d6e6ce-b1bf-43ca-86e6-7a3ab8bc8416",
                   "first_name": "Ada",
@@ -3467,15 +3922,32 @@
               }
             }
           },
-          "404": {
+          "403": {
+            "description": "Not authenticated",
             "content": {
               "application/json": {
+                "example": {
+                  "message": "Invalid or unknown session token",
+                  "code": "InvalidSessionToken"
+                },
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            },
-            "description": "Not Found"
+            }
+          },
+          "404": {
+            "description": "No such creator",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "This resource does not exist."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "400": {
             "description": "Bad Request",
@@ -3521,31 +3993,45 @@
             "required": true,
             "schema": {
               "type": "string",
+              "description": "The creator's `uuid` from `GET .../creators`.",
               "title": "Creator Uuid"
-            }
+            },
+            "description": "The creator's `uuid` from `GET .../creators`."
           }
         ],
         "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
           "204": {
             "description": "Creator removed"
           },
-          "404": {
+          "403": {
+            "description": "Not authenticated",
             "content": {
               "application/json": {
+                "example": {
+                  "message": "Invalid or unknown session token",
+                  "code": "InvalidSessionToken"
+                },
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            },
-            "description": "Not Found"
+            }
+          },
+          "404": {
+            "description": "No such sample",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "This resource does not exist."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "No such creator, or the update failed"
           },
           "400": {
             "description": "Bad Request",
@@ -3595,7 +4081,24 @@
                 "type": "object",
                 "additionalProperties": true,
                 "default": {},
-                "title": "Body"
+                "title": "Body",
+                "properties": {
+                  "author": {
+                    "type": "string",
+                    "description": "The creator's UUID."
+                  },
+                  "direction": {
+                    "type": "string",
+                    "enum": [
+                      "up",
+                      "down"
+                    ]
+                  }
+                },
+                "required": [
+                  "author",
+                  "direction"
+                ]
               },
               "examples": {
                 "move_up": {
@@ -3610,26 +4113,51 @@
           }
         },
         "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
           "205": {
             "description": "Creators reordered"
           },
           "400": {
+            "description": "Invalid reorder request",
             "content": {
               "application/json": {
+                "example": [
+                  {
+                    "field_name": "field",
+                    "message": "Invalid or missing value."
+                  }
+                ]
+              }
+            }
+          },
+          "403": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Invalid or unknown session token",
+                  "code": "InvalidSessionToken"
+                },
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            },
-            "description": "Bad Request"
+            }
+          },
+          "404": {
+            "description": "No such sample",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "This resource does not exist."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Could not reorder the creators"
           }
         }
       }
@@ -3659,7 +4187,13 @@
             "description": "The dates",
             "content": {
               "application/json": {
-                "schema": {},
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PhysicalSampleDateRecord"
+                  },
+                  "title": "Response List Dates V3 Physical Samples  Container Uuid  Dates Get"
+                },
                 "example": [
                   {
                     "uuid": "b6f8d3c1-2b4e-4c6a-8d1f-3e5b7c9a0d2f",
@@ -3672,14 +4206,30 @@
             }
           },
           "403": {
+            "description": "Not allowed",
             "content": {
               "application/json": {
+                "example": {
+                  "message": "Not allowed."
+                },
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            },
-            "description": "Forbidden"
+            }
+          },
+          "404": {
+            "description": "No such sample",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "This resource does not exist."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "400": {
             "description": "Bad Request",
@@ -3706,6 +4256,7 @@
           "V3 / Physical samples / Dates"
         ],
         "summary": "Add dates to a physical sample",
+        "description": "Accepts a JSON array of date objects, each with a `type` (collected, created, destroyed, updated or other) and a `date` (`date_end` optional, for a range).",
         "operationId": "add_dates_v3_physical_samples__container_uuid__dates_post",
         "parameters": [
           {
@@ -3724,32 +4275,93 @@
           "content": {
             "application/json": {
               "schema": {
-                "title": "Body"
+                "title": "Body",
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "collected",
+                        "created",
+                        "destroyed",
+                        "updated",
+                        "other"
+                      ]
+                    },
+                    "date": {
+                      "type": "string",
+                      "description": "Date, or start of a range."
+                    },
+                    "date_end": {
+                      "type": "string",
+                      "description": "End of a range (optional)."
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "date"
+                  ]
+                }
+              },
+              "examples": {
+                "default": {
+                  "summary": "A single collected date",
+                  "value": [
+                    {
+                      "type": "collected",
+                      "date": "2010-11-02"
+                    }
+                  ]
+                }
               }
             }
           }
         },
         "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
           "204": {
             "description": "Dates added"
           },
           "400": {
+            "description": "Invalid date data",
             "content": {
               "application/json": {
+                "example": [
+                  {
+                    "field_name": "field",
+                    "message": "Invalid or missing value."
+                  }
+                ]
+              }
+            }
+          },
+          "403": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Invalid or unknown session token",
+                  "code": "InvalidSessionToken"
+                },
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            },
-            "description": "Bad Request"
+            }
+          },
+          "404": {
+            "description": "No such sample",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "This resource does not exist."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -3779,31 +4391,45 @@
             "required": true,
             "schema": {
               "type": "string",
+              "description": "The date's `uuid` from `GET .../dates`.",
               "title": "Date Uuid"
-            }
+            },
+            "description": "The date's `uuid` from `GET .../dates`."
           }
         ],
         "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
           "204": {
             "description": "Date removed"
           },
-          "404": {
+          "403": {
+            "description": "Not authenticated",
             "content": {
               "application/json": {
+                "example": {
+                  "message": "Invalid or unknown session token",
+                  "code": "InvalidSessionToken"
+                },
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            },
-            "description": "Not Found"
+            }
+          },
+          "404": {
+            "description": "No such sample",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "This resource does not exist."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "No such date, or the update failed"
           },
           "400": {
             "description": "Bad Request",
@@ -3851,13 +4477,19 @@
             "description": "The related resources",
             "content": {
               "application/json": {
-                "schema": {},
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PhysicalSampleRelatedResourceRecord"
+                  },
+                  "title": "Response List Related Resources V3 Physical Samples  Container Uuid  Related Resources Get"
+                },
                 "example": [
                   {
                     "uuid": "d1e2f3a4-5b6c-7d8e-9f0a-1b2c3d4e5f6a",
                     "url": "10.4121/related-dataset",
-                    "relation": "IsDerivedFrom",
-                    "type": "IGSNDOI",
+                    "relation": "Is derived from",
+                    "type": "IGSN",
                     "created_date": "2026-07-03T10:48:50"
                   }
                 ]
@@ -3865,14 +4497,30 @@
             }
           },
           "403": {
+            "description": "Not allowed",
             "content": {
               "application/json": {
+                "example": {
+                  "message": "Not allowed."
+                },
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            },
-            "description": "Forbidden"
+            }
+          },
+          "404": {
+            "description": "No such sample",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "This resource does not exist."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "400": {
             "description": "Bad Request",
@@ -3899,6 +4547,7 @@
           "V3 / Physical samples / Related resources"
         ],
         "summary": "Add related resources to a physical sample",
+        "description": "Accepts a JSON array of related resources, each with an `identifier`, an `identifier-type` (IGSNDOI, OtherDOI or URL) and a `relation-type` (e.g. IsDerivedFrom, References).",
         "operationId": "add_related_resources_v3_physical_samples__container_uuid__related_resources_post",
         "parameters": [
           {
@@ -3917,32 +4566,104 @@
           "content": {
             "application/json": {
               "schema": {
-                "title": "Body"
+                "title": "Body",
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "identifier": {
+                      "type": "string",
+                      "maxLength": 2048
+                    },
+                    "identifier-type": {
+                      "type": "string",
+                      "enum": [
+                        "IGSNDOI",
+                        "OtherDOI",
+                        "URL"
+                      ]
+                    },
+                    "relation-type": {
+                      "type": "string",
+                      "enum": [
+                        "IsPartOf",
+                        "HasPart",
+                        "IsDerivedFrom",
+                        "IsSourceOf",
+                        "IsReferencedBy",
+                        "References",
+                        "IsCitedBy",
+                        "Cites",
+                        "IsDescribedBy",
+                        "Describes"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "identifier",
+                    "identifier-type",
+                    "relation-type"
+                  ]
+                }
+              },
+              "examples": {
+                "default": {
+                  "summary": "A single derived-from relation",
+                  "value": [
+                    {
+                      "identifier": "10.4121/related-dataset",
+                      "identifier-type": "IGSNDOI",
+                      "relation-type": "IsDerivedFrom"
+                    }
+                  ]
+                }
               }
             }
           }
         },
         "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
           "204": {
             "description": "Related resources added"
           },
           "400": {
+            "description": "Invalid related-resource data",
             "content": {
               "application/json": {
+                "example": [
+                  {
+                    "field_name": "field",
+                    "message": "Invalid or missing value."
+                  }
+                ]
+              }
+            }
+          },
+          "403": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Invalid or unknown session token",
+                  "code": "InvalidSessionToken"
+                },
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            },
-            "description": "Bad Request"
+            }
+          },
+          "404": {
+            "description": "No such sample",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "This resource does not exist."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -3972,31 +4693,45 @@
             "required": true,
             "schema": {
               "type": "string",
+              "description": "The related resource's `uuid` from `GET .../related-resources`.",
               "title": "Resource Uuid"
-            }
+            },
+            "description": "The related resource's `uuid` from `GET .../related-resources`."
           }
         ],
         "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
           "204": {
             "description": "Related resource removed"
           },
-          "404": {
+          "403": {
+            "description": "Not authenticated",
             "content": {
               "application/json": {
+                "example": {
+                  "message": "Invalid or unknown session token",
+                  "code": "InvalidSessionToken"
+                },
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            },
-            "description": "Not Found"
+            }
+          },
+          "404": {
+            "description": "No such sample",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "This resource does not exist."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "No such related resource, or the update failed"
           },
           "400": {
             "description": "Bad Request",
@@ -4049,7 +4784,13 @@
             "description": "The tags",
             "content": {
               "application/json": {
-                "schema": {},
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "title": "Response List Tags V3 Physical Samples  Container Uuid  Tags Get"
+                },
                 "example": [
                   "basalt",
                   "core sample",
@@ -4059,14 +4800,21 @@
             }
           },
           "403": {
+            "description": "Not authenticated",
             "content": {
               "application/json": {
+                "example": {
+                  "message": "Invalid or unknown session token",
+                  "code": "InvalidSessionToken"
+                },
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            },
-            "description": "Forbidden"
+            }
+          },
+          "500": {
+            "description": "No such sample"
           },
           "400": {
             "description": "Bad Request",
@@ -4093,6 +4841,7 @@
           "V3 / Physical samples / Tags"
         ],
         "summary": "Add tags to a physical sample",
+        "description": "Accepts a JSON object with a `tags` array; tags are appended to the existing set.",
         "operationId": "add_tags_v3_physical_samples__container_uuid__tags_post",
         "security": [
           {
@@ -4119,7 +4868,18 @@
               "schema": {
                 "type": "object",
                 "additionalProperties": true,
-                "title": "Body"
+                "title": "Body",
+                "properties": {
+                  "tags": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "tags"
+                ]
               },
               "examples": {
                 "default": {
@@ -4135,26 +4895,39 @@
           }
         },
         "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
           "205": {
             "description": "Tags added"
           },
           "400": {
+            "description": "Missing 'tags' field",
             "content": {
               "application/json": {
+                "example": {
+                  "message": "Invalid or missing field.",
+                  "code": "ValidationError"
+                },
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            },
-            "description": "Bad Request"
+            }
+          },
+          "403": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Invalid or unknown session token",
+                  "code": "InvalidSessionToken"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "No such sample, or the update failed"
           }
         }
       },
@@ -4193,26 +4966,25 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
           "204": {
             "description": "Tag removed"
           },
           "403": {
+            "description": "Not authenticated",
             "content": {
               "application/json": {
+                "example": {
+                  "message": "Invalid or unknown session token",
+                  "code": "InvalidSessionToken"
+                },
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            },
-            "description": "Forbidden"
+            }
+          },
+          "500": {
+            "description": "No such sample or tag, or the update failed"
           },
           "400": {
             "description": "Bad Request",
@@ -4265,7 +5037,13 @@
             "description": "The categories",
             "content": {
               "application/json": {
-                "schema": {},
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Category"
+                  },
+                  "title": "Response List Categories V3 Physical Samples  Container Uuid  Categories Get"
+                },
                 "example": [
                   {
                     "id": 13555,
@@ -4278,14 +5056,21 @@
             }
           },
           "403": {
+            "description": "Not authenticated",
             "content": {
               "application/json": {
+                "example": {
+                  "message": "Invalid or unknown session token",
+                  "code": "InvalidSessionToken"
+                },
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            },
-            "description": "Forbidden"
+            }
+          },
+          "500": {
+            "description": "No such sample"
           },
           "400": {
             "description": "Bad Request",
@@ -4312,6 +5097,7 @@
           "V3 / Physical samples / Categories"
         ],
         "summary": "Add categories to a physical sample",
+        "description": "Appends categories to the existing set. Accepts a JSON object with a `categories` array of numeric category ids (from `GET /v2/categories`) or UUIDs.",
         "operationId": "add_categories_v3_physical_samples__container_uuid__categories_post",
         "security": [
           {
@@ -4338,7 +5124,26 @@
               "schema": {
                 "type": "object",
                 "additionalProperties": true,
-                "title": "Body"
+                "title": "Body",
+                "properties": {
+                  "categories": {
+                    "type": "array",
+                    "items": {
+                      "oneOf": [
+                        {
+                          "type": "integer"
+                        },
+                        {
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "description": "Category numeric ids (from GET /v2/categories) or UUIDs."
+                  }
+                },
+                "required": [
+                  "categories"
+                ]
               },
               "examples": {
                 "default": {
@@ -4353,26 +5158,52 @@
           }
         },
         "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
           "205": {
             "description": "Categories added"
           },
           "400": {
+            "description": "Missing or invalid 'categories'",
             "content": {
               "application/json": {
+                "example": {
+                  "message": "Invalid or missing field.",
+                  "code": "ValidationError"
+                },
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            },
-            "description": "Bad Request"
+            }
+          },
+          "403": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Invalid or unknown session token",
+                  "code": "InvalidSessionToken"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such sample",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "This resource does not exist."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Could not store the categories"
           }
         }
       },
@@ -4381,6 +5212,7 @@
           "V3 / Physical samples / Categories"
         ],
         "summary": "Replace a physical sample's categories",
+        "description": "Overwrites the category set. Accepts a JSON object with a `categories` array of numeric category ids (from `GET /v2/categories`) or UUIDs.",
         "operationId": "replace_categories_v3_physical_samples__container_uuid__categories_put",
         "security": [
           {
@@ -4407,7 +5239,26 @@
               "schema": {
                 "type": "object",
                 "additionalProperties": true,
-                "title": "Body"
+                "title": "Body",
+                "properties": {
+                  "categories": {
+                    "type": "array",
+                    "items": {
+                      "oneOf": [
+                        {
+                          "type": "integer"
+                        },
+                        {
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "description": "Category numeric ids (from GET /v2/categories) or UUIDs."
+                  }
+                },
+                "required": [
+                  "categories"
+                ]
               },
               "examples": {
                 "default": {
@@ -4422,26 +5273,52 @@
           }
         },
         "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
           "205": {
             "description": "Categories replaced"
           },
           "400": {
+            "description": "Missing or invalid 'categories'",
             "content": {
               "application/json": {
+                "example": {
+                  "message": "Invalid or missing field.",
+                  "code": "ValidationError"
+                },
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            },
-            "description": "Bad Request"
+            }
+          },
+          "403": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Invalid or unknown session token",
+                  "code": "InvalidSessionToken"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such sample",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "This resource does not exist."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Could not store the categories"
           }
         }
       }
@@ -4476,7 +5353,13 @@
             "description": "The private links",
             "content": {
               "application/json": {
-                "schema": {},
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PrivateLinkRecord"
+                  },
+                  "title": "Response List Private Links V3 Physical Samples  Container Uuid  Private Links Get"
+                },
                 "example": [
                   {
                     "id": "9c8b7a6d5e4f",
@@ -4486,15 +5369,32 @@
               }
             }
           },
-          "404": {
+          "403": {
+            "description": "Not authenticated",
             "content": {
               "application/json": {
+                "example": {
+                  "message": "Invalid or unknown session token",
+                  "code": "InvalidSessionToken"
+                },
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            },
-            "description": "Not Found"
+            }
+          },
+          "404": {
+            "description": "No such sample",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "This resource does not exist."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "400": {
             "description": "Bad Request",
@@ -4521,7 +5421,7 @@
           "V3 / Physical samples / Private links"
         ],
         "summary": "Create a private link",
-        "description": "Creates a private link. AS-IS: returns 200 (not 201) with the link location.",
+        "description": "Creates a private link. The body may set `expires_date` (YYYY-MM-DD) and `read_only`. AS-IS: returns 200 (not 201) with the link location.",
         "operationId": "create_private_link_v3_physical_samples__container_uuid__private_links_post",
         "security": [
           {
@@ -4548,7 +5448,25 @@
                 "type": "object",
                 "additionalProperties": true,
                 "default": {},
-                "title": "Body"
+                "title": "Body",
+                "properties": {
+                  "expires_date": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "YYYY-MM-DD."
+                  },
+                  "read_only": {
+                    "type": "boolean"
+                  }
+                }
+              },
+              "examples": {
+                "default": {
+                  "value": {
+                    "expires_date": "2027-01-01",
+                    "read_only": true
+                  }
+                }
               }
             }
           }
@@ -4565,33 +5483,49 @@
               }
             }
           },
-          "404": {
+          "400": {
+            "description": "Invalid field values",
             "content": {
               "application/json": {
+                "example": {
+                  "message": "Invalid or missing field.",
+                  "code": "ValidationError"
+                },
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            },
-            "description": "Not Found"
+            }
           },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Not authenticated",
             "content": {
               "application/json": {
+                "example": {
+                  "message": "Invalid or unknown session token",
+                  "code": "InvalidSessionToken"
+                },
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    },
-                    "code": {
-                      "type": "string"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
+          },
+          "404": {
+            "description": "No such sample",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "This resource does not exist."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Could not create the private link"
           }
         }
       }
@@ -4602,6 +5536,7 @@
           "V3 / Physical samples / Private links"
         ],
         "summary": "Get a private link",
+        "description": "AS-IS: returns a list, not a single object, and responds 200 with an empty list when no link matches `link_id`.",
         "operationId": "get_private_link_v3_physical_samples__container_uuid__private_links__link_id__get",
         "security": [
           {
@@ -4626,16 +5561,24 @@
             "required": true,
             "schema": {
               "type": "string",
+              "description": "The private link `id` from `GET .../private_links`.",
               "title": "Link Id"
-            }
+            },
+            "description": "The private link `id` from `GET .../private_links`."
           }
         ],
         "responses": {
           "200": {
-            "description": "The private link",
+            "description": "The matching private links (a list)",
             "content": {
               "application/json": {
-                "schema": {},
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PrivateLinkRecord"
+                  },
+                  "title": "Response Get Private Link V3 Physical Samples  Container Uuid  Private Links  Link Id  Get"
+                },
                 "example": [
                   {
                     "id": "9c8b7a6d5e4f",
@@ -4645,15 +5588,32 @@
               }
             }
           },
-          "404": {
+          "403": {
+            "description": "Not authenticated",
             "content": {
               "application/json": {
+                "example": {
+                  "message": "Invalid or unknown session token",
+                  "code": "InvalidSessionToken"
+                },
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            },
-            "description": "Not Found"
+            }
+          },
+          "404": {
+            "description": "No such sample",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "This resource does not exist."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "400": {
             "description": "Bad Request",
@@ -4680,6 +5640,7 @@
           "V3 / Physical samples / Private links"
         ],
         "summary": "Update a private link",
+        "description": "Updates a private link. The body may set `expires_date` and `is_active`.",
         "operationId": "update_private_link_v3_physical_samples__container_uuid__private_links__link_id__put",
         "security": [
           {
@@ -4704,8 +5665,10 @@
             "required": true,
             "schema": {
               "type": "string",
+              "description": "The private link `id` from `GET .../private_links`.",
               "title": "Link Id"
-            }
+            },
+            "description": "The private link `id` from `GET .../private_links`."
           }
         ],
         "requestBody": {
@@ -4715,7 +5678,24 @@
                 "type": "object",
                 "additionalProperties": true,
                 "default": {},
-                "title": "Body"
+                "title": "Body",
+                "properties": {
+                  "expires_date": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "is_active": {
+                    "type": "boolean"
+                  }
+                }
+              },
+              "examples": {
+                "default": {
+                  "value": {
+                    "expires_date": "2027-01-01",
+                    "is_active": false
+                  }
+                }
               }
             }
           }
@@ -4732,33 +5712,49 @@
               }
             }
           },
-          "404": {
+          "400": {
+            "description": "Invalid field values",
             "content": {
               "application/json": {
+                "example": {
+                  "message": "Invalid or missing field.",
+                  "code": "ValidationError"
+                },
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            },
-            "description": "Not Found"
+            }
           },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Not authenticated",
             "content": {
               "application/json": {
+                "example": {
+                  "message": "Invalid or unknown session token",
+                  "code": "InvalidSessionToken"
+                },
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    },
-                    "code": {
-                      "type": "string"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
+          },
+          "404": {
+            "description": "No such sample",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "This resource does not exist."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Could not update the private link"
           }
         }
       },
@@ -4791,31 +5787,45 @@
             "required": true,
             "schema": {
               "type": "string",
+              "description": "The private link `id` from `GET .../private_links`.",
               "title": "Link Id"
-            }
+            },
+            "description": "The private link `id` from `GET .../private_links`."
           }
         ],
         "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
           "204": {
             "description": "Private link removed"
           },
-          "404": {
+          "403": {
+            "description": "Not authenticated",
             "content": {
               "application/json": {
+                "example": {
+                  "message": "Invalid or unknown session token",
+                  "code": "InvalidSessionToken"
+                },
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            },
-            "description": "Not Found"
+            }
+          },
+          "404": {
+            "description": "No such sample",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "This resource does not exist."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Could not remove the private link"
           },
           "400": {
             "description": "Bad Request",
@@ -5882,7 +6892,7 @@
           "V3 / SSI"
         ],
         "summary": "Receive dataset from SSI",
-        "operationId": "receive_from_ssi_v3_receive_from_ssi_post",
+        "operationId": "receive_from_ssi_v3_receive_from_ssi_get",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -5902,7 +6912,7 @@
           "V3 / SSI"
         ],
         "summary": "Receive dataset from SSI",
-        "operationId": "receive_from_ssi_v3_receive_from_ssi_post",
+        "operationId": "receive_from_ssi_v3_receive_from_ssi_get",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -5922,7 +6932,7 @@
           "V3 / SSI"
         ],
         "summary": "Receive dataset from SSI",
-        "operationId": "receive_from_ssi_v3_receive_from_ssi_post",
+        "operationId": "receive_from_ssi_v3_receive_from_ssi_get",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -5942,7 +6952,7 @@
           "V3 / SSI"
         ],
         "summary": "Receive dataset from SSI",
-        "operationId": "receive_from_ssi_v3_receive_from_ssi_post",
+        "operationId": "receive_from_ssi_v3_receive_from_ssi_get",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -6949,7 +7959,7 @@
         ],
         "summary": "Search accounts",
         "description": "Search for user accounts (autocomplete for adding collaborators).",
-        "operationId": "search_accounts_v3_accounts_search_post",
+        "operationId": "search_accounts_v3_accounts_search_get",
         "responses": {
           "200": {
             "description": "Matching accounts",
@@ -7002,7 +8012,7 @@
         ],
         "summary": "Search accounts",
         "description": "Search for user accounts (autocomplete for adding collaborators).",
-        "operationId": "search_accounts_v3_accounts_search_post",
+        "operationId": "search_accounts_v3_accounts_search_get",
         "responses": {
           "200": {
             "description": "Matching accounts",
@@ -8868,15 +9878,21 @@
             "description": "Human-readable error description"
           },
           "code": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Code",
-            "description": "Machine-readable error code"
+            "description": "Machine-readable error code (absent on 403/404)"
           }
         },
         "type": "object",
         "required": [
-          "message",
-          "code"
+          "message"
         ],
         "title": "ErrorResponse",
         "description": "Standard error response.",
@@ -8970,6 +9986,406 @@
             "type": "data",
             "url": "https://creativecommons.org/licenses/by/4.0/",
             "value": 1
+          }
+        ]
+      },
+      "PhysicalSampleCreatorRecord": {
+        "properties": {
+          "uuid": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uuid",
+            "description": "UUID of the creator."
+          },
+          "first_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Name",
+            "description": "First name."
+          },
+          "last_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Name",
+            "description": "Last name."
+          },
+          "full_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Full Name",
+            "description": "Full name."
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email",
+            "description": "E-mail address (only for editable creators)."
+          },
+          "orcid": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Orcid",
+            "description": "ORCID identifier."
+          },
+          "is_editable": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Editable",
+            "description": "Whether the caller may edit this creator."
+          }
+        },
+        "type": "object",
+        "title": "PhysicalSampleCreatorRecord",
+        "description": "A creator/author record (formatter.format_author_record_v3).",
+        "examples": [
+          {
+            "first_name": "Ada",
+            "full_name": "Ada Lovelace",
+            "is_editable": true,
+            "last_name": "Lovelace",
+            "uuid": "07d6e6ce-b1bf-43ca-86e6-7a3ab8bc8416"
+          }
+        ]
+      },
+      "PhysicalSampleDateRecord": {
+        "properties": {
+          "uuid": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uuid",
+            "description": "UUID of the date entry."
+          },
+          "type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Type",
+            "description": "Date type (e.g. Collected, Created, Issued)."
+          },
+          "date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date",
+            "description": "The date, or the start of a range."
+          },
+          "date_end": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date End",
+            "description": "End of the date range, if any."
+          },
+          "created_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created Date",
+            "description": "When this date entry was created."
+          }
+        },
+        "type": "object",
+        "title": "PhysicalSampleDateRecord",
+        "description": "A date entry (formatter.format_physical_sample_date_record).",
+        "examples": [
+          {
+            "created_date": "2026-07-03T10:48:50",
+            "date": "2010-11-02",
+            "type": "Collected",
+            "uuid": "b6f8d3c1-2b4e-4c6a-8d1f-3e5b7c9a0d2f"
+          }
+        ]
+      },
+      "PhysicalSampleRecord": {
+        "properties": {
+          "uuid": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uuid",
+            "description": "UUID of the physical sample record."
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title",
+            "description": "Title of the physical sample."
+          },
+          "abstract": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Abstract",
+            "description": "Abstract or description (may contain HTML)."
+          },
+          "methods": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Methods",
+            "description": "Methods used to collect or produce the sample."
+          },
+          "resource_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resource Type",
+            "description": "Type of physical resource (e.g. Rock)."
+          },
+          "subject": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subject",
+            "description": "Subject classification."
+          },
+          "last_modified": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Modified",
+            "description": "Timestamp of the last modification."
+          }
+        },
+        "type": "object",
+        "title": "PhysicalSampleRecord",
+        "description": "A physical sample metadata record (formatter.format_physical_sample_record).",
+        "examples": [
+          {
+            "abstract": "<p>Drill core recovered off the coast of Texel.</p>",
+            "last_modified": "2026-07-03T10:48:50",
+            "resource_type": "Rock",
+            "title": "Basalt core sample BR-2025-014",
+            "uuid": "27e6a01d-3f09-4d90-ae02-1d749ae9efb8"
+          }
+        ]
+      },
+      "PhysicalSampleRelatedResourceRecord": {
+        "properties": {
+          "uuid": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uuid",
+            "description": "UUID of the related-resource entry."
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url",
+            "description": "Identifier of the related resource (DOI/IGSN/URL)."
+          },
+          "relation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Relation",
+            "description": "Relation label as returned (e.g. Is derived from)."
+          },
+          "type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Type",
+            "description": "Identifier type label as returned (e.g. IGSN)."
+          },
+          "created_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created Date",
+            "description": "When this entry was created."
+          }
+        },
+        "type": "object",
+        "title": "PhysicalSampleRelatedResourceRecord",
+        "description": "A related resource (formatter.format_physical_sample_related_resource_record).",
+        "examples": [
+          {
+            "created_date": "2026-07-03T10:48:50",
+            "relation": "Is derived from",
+            "type": "IGSN",
+            "url": "10.4121/related-dataset",
+            "uuid": "d1e2f3a4-5b6c-7d8e-9f0a-1b2c3d4e5f6a"
+          }
+        ]
+      },
+      "PrivateLinkRecord": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id",
+            "description": "Private-link token."
+          },
+          "is_active": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Active",
+            "description": "Whether the link is currently active."
+          },
+          "expires_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires Date",
+            "description": "Expiry date, or null for no expiry."
+          }
+        },
+        "type": "object",
+        "title": "PrivateLinkRecord",
+        "description": "A private link (formatter.format_private_links_record).",
+        "examples": [
+          {
+            "id": "9c8b7a6d5e4f",
+            "is_active": true
           }
         ]
       },

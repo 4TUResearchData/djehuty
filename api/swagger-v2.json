@@ -7119,15 +7119,21 @@
             "description": "Human-readable error description"
           },
           "code": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Code",
-            "description": "Machine-readable error code"
+            "description": "Machine-readable error code (absent on 403/404)"
           }
         },
         "type": "object",
         "required": [
-          "message",
-          "code"
+          "message"
         ],
         "title": "ErrorResponse",
         "description": "Standard error response.",
@@ -7221,6 +7227,406 @@
             "type": "data",
             "url": "https://creativecommons.org/licenses/by/4.0/",
             "value": 1
+          }
+        ]
+      },
+      "PhysicalSampleCreatorRecord": {
+        "properties": {
+          "uuid": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uuid",
+            "description": "UUID of the creator."
+          },
+          "first_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Name",
+            "description": "First name."
+          },
+          "last_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Name",
+            "description": "Last name."
+          },
+          "full_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Full Name",
+            "description": "Full name."
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email",
+            "description": "E-mail address (only for editable creators)."
+          },
+          "orcid": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Orcid",
+            "description": "ORCID identifier."
+          },
+          "is_editable": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Editable",
+            "description": "Whether the caller may edit this creator."
+          }
+        },
+        "type": "object",
+        "title": "PhysicalSampleCreatorRecord",
+        "description": "A creator/author record (formatter.format_author_record_v3).",
+        "examples": [
+          {
+            "first_name": "Ada",
+            "full_name": "Ada Lovelace",
+            "is_editable": true,
+            "last_name": "Lovelace",
+            "uuid": "07d6e6ce-b1bf-43ca-86e6-7a3ab8bc8416"
+          }
+        ]
+      },
+      "PhysicalSampleDateRecord": {
+        "properties": {
+          "uuid": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uuid",
+            "description": "UUID of the date entry."
+          },
+          "type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Type",
+            "description": "Date type (e.g. Collected, Created, Issued)."
+          },
+          "date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date",
+            "description": "The date, or the start of a range."
+          },
+          "date_end": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date End",
+            "description": "End of the date range, if any."
+          },
+          "created_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created Date",
+            "description": "When this date entry was created."
+          }
+        },
+        "type": "object",
+        "title": "PhysicalSampleDateRecord",
+        "description": "A date entry (formatter.format_physical_sample_date_record).",
+        "examples": [
+          {
+            "created_date": "2026-07-03T10:48:50",
+            "date": "2010-11-02",
+            "type": "Collected",
+            "uuid": "b6f8d3c1-2b4e-4c6a-8d1f-3e5b7c9a0d2f"
+          }
+        ]
+      },
+      "PhysicalSampleRecord": {
+        "properties": {
+          "uuid": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uuid",
+            "description": "UUID of the physical sample record."
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title",
+            "description": "Title of the physical sample."
+          },
+          "abstract": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Abstract",
+            "description": "Abstract or description (may contain HTML)."
+          },
+          "methods": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Methods",
+            "description": "Methods used to collect or produce the sample."
+          },
+          "resource_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resource Type",
+            "description": "Type of physical resource (e.g. Rock)."
+          },
+          "subject": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subject",
+            "description": "Subject classification."
+          },
+          "last_modified": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Modified",
+            "description": "Timestamp of the last modification."
+          }
+        },
+        "type": "object",
+        "title": "PhysicalSampleRecord",
+        "description": "A physical sample metadata record (formatter.format_physical_sample_record).",
+        "examples": [
+          {
+            "abstract": "<p>Drill core recovered off the coast of Texel.</p>",
+            "last_modified": "2026-07-03T10:48:50",
+            "resource_type": "Rock",
+            "title": "Basalt core sample BR-2025-014",
+            "uuid": "27e6a01d-3f09-4d90-ae02-1d749ae9efb8"
+          }
+        ]
+      },
+      "PhysicalSampleRelatedResourceRecord": {
+        "properties": {
+          "uuid": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uuid",
+            "description": "UUID of the related-resource entry."
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url",
+            "description": "Identifier of the related resource (DOI/IGSN/URL)."
+          },
+          "relation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Relation",
+            "description": "Relation label as returned (e.g. Is derived from)."
+          },
+          "type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Type",
+            "description": "Identifier type label as returned (e.g. IGSN)."
+          },
+          "created_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created Date",
+            "description": "When this entry was created."
+          }
+        },
+        "type": "object",
+        "title": "PhysicalSampleRelatedResourceRecord",
+        "description": "A related resource (formatter.format_physical_sample_related_resource_record).",
+        "examples": [
+          {
+            "created_date": "2026-07-03T10:48:50",
+            "relation": "Is derived from",
+            "type": "IGSN",
+            "url": "10.4121/related-dataset",
+            "uuid": "d1e2f3a4-5b6c-7d8e-9f0a-1b2c3d4e5f6a"
+          }
+        ]
+      },
+      "PrivateLinkRecord": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id",
+            "description": "Private-link token."
+          },
+          "is_active": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Active",
+            "description": "Whether the link is currently active."
+          },
+          "expires_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires Date",
+            "description": "Expiry date, or null for no expiry."
+          }
+        },
+        "type": "object",
+        "title": "PrivateLinkRecord",
+        "description": "A private link (formatter.format_private_links_record).",
+        "examples": [
+          {
+            "id": "9c8b7a6d5e4f",
+            "is_active": true
           }
         ]
       },
