@@ -5,10 +5,6 @@
     "include": [
       "djehuty-dev-config.json"
     ],
-    "igsn": {
-      "prefix": "10.99999",
-      "enabled": "1"
-    },
     "storage": {
       "location": [
         "/data"

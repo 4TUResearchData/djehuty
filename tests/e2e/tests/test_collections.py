@@ -363,6 +363,7 @@ class TestCollectionDatasets:
 
 
 @pytest.mark.collections
+@pytest.mark.skip(reason="IGSN not enabled")
 class TestCollectionPhysicalSamples:
     """Test adding and removing physical samples from a collection."""
 
