@@ -31,9 +31,7 @@ def test_returns_matching_samples():
     client, db = _client()
     response = client.post(BASE, json={"search_for": "granite"})
     assert response.status_code == 200
-    assert response.json() == [
-        {"uuid": "a1111111-1111-4111-8111-111111111111", "title": "Granite"}
-    ]
+    assert response.json() == [{"uuid": "a1111111-1111-4111-8111-111111111111", "title": "Granite"}]
     assert db.search_calls[-1]["search_for"] == "granite"
     assert db.search_calls[-1]["is_published"] is True
     assert db.search_calls[-1]["is_latest"] is True
