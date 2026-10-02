@@ -7,9 +7,16 @@ from fastapi.responses import JSONResponse
 
 from djehuty.api.dependencies import get_db, require_auth
 from djehuty.api.exceptions import InvalidInputError, NotFoundError
-from djehuty.api.models.common import ErrorResponse
-from djehuty.api.v3._shared import _ok
-from djehuty.api.v3.physical_samples._shared import PhysicalSampleId, _resolve_physical_sample
+from djehuty.api.models.physical_samples import PrivateLinkRecord
+from djehuty.api.v3._shared import _err, _ok, _req
+from djehuty.api.v3.physical_samples._shared import (
+    ERR_NOT_FOUND,
+    ERR_SESSION,
+    ERR_VALIDATION,
+    LinkId,
+    PhysicalSampleId,
+    _resolve_physical_sample,
+)
 from djehuty.web import formatter
 from djehuty.web.config import config
 
@@ -17,11 +24,32 @@ router = APIRouter(tags=["V3 / Physical samples / Private links"])
 
 _LINK_EXAMPLE = {"id": "9c8b7a6d5e4f", "is_active": True, "expires_date": None}
 
+_LINK_CREATE_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "expires_date": {"type": "string", "format": "date", "description": "YYYY-MM-DD."},
+        "read_only": {"type": "boolean"},
+    },
+}
+
+_LINK_UPDATE_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "expires_date": {"type": "string", "maxLength": 255},
+        "is_active": {"type": "boolean"},
+    },
+}
+
 
 @router.get(
     "/physical-samples/{container_uuid}/private_links",
     summary="List a physical sample's private links",
-    responses={200: _ok("The private links", [_LINK_EXAMPLE]), 404: {"model": ErrorResponse}},
+    response_model=list[PrivateLinkRecord],
+    responses={
+        200: _ok("The private links", [_LINK_EXAMPLE]),
+        403: _err("Not authenticated", ERR_SESSION),
+        404: _err("No such sample", ERR_NOT_FOUND),
+    },
 )
 def list_private_links(
     container_uuid: PhysicalSampleId,
@@ -38,15 +66,25 @@ def list_private_links(
 @router.post(
     "/physical-samples/{container_uuid}/private_links",
     summary="Create a private link",
-    description="Creates a private link. AS-IS: returns 200 (not 201) with the link location.",
+    description=(
+        "Creates a private link. The body may set `expires_date` (YYYY-MM-DD) and "
+        "`read_only`. AS-IS: returns 200 (not 201) with the link location."
+    ),
+    openapi_extra=_req(_LINK_CREATE_SCHEMA),
     responses={
         200: _ok("Created", {"location": "https://data.4tu.nl/private_physical_sample/TOKEN"}),
-        404: {"model": ErrorResponse},
+        400: _err("Invalid field values", ERR_VALIDATION),
+        403: _err("Not authenticated", ERR_SESSION),
+        404: _err("No such sample", ERR_NOT_FOUND),
+        500: {"description": "Could not create the private link"},
     },
 )
 def create_private_link(
     container_uuid: PhysicalSampleId,
-    body: dict = Body(default={}),
+    body: dict = Body(
+        default={},
+        openapi_examples={"default": {"value": {"expires_date": "2027-01-01", "read_only": True}}},
+    ),
     account=Depends(require_auth),
     db=Depends(get_db),
 ):
@@ -93,11 +131,20 @@ def create_private_link(
 @router.get(
     "/physical-samples/{container_uuid}/private_links/{link_id}",
     summary="Get a private link",
-    responses={200: _ok("The private link", [_LINK_EXAMPLE]), 404: {"model": ErrorResponse}},
+    description=(
+        "AS-IS: returns a list, not a single object, and responds 200 with an empty "
+        "list when no link matches `link_id`."
+    ),
+    response_model=list[PrivateLinkRecord],
+    responses={
+        200: _ok("The matching private links (a list)", [_LINK_EXAMPLE]),
+        403: _err("Not authenticated", ERR_SESSION),
+        404: _err("No such sample", ERR_NOT_FOUND),
+    },
 )
 def get_private_link(
     container_uuid: PhysicalSampleId,
-    link_id: str,
+    link_id: LinkId,
     account=Depends(require_auth),
     db=Depends(get_db),
 ):
@@ -113,15 +160,23 @@ def get_private_link(
 @router.put(
     "/physical-samples/{container_uuid}/private_links/{link_id}",
     summary="Update a private link",
+    description="Updates a private link. The body may set `expires_date` and `is_active`.",
+    openapi_extra=_req(_LINK_UPDATE_SCHEMA),
     responses={
         200: _ok("Updated", {"location": "https://data.4tu.nl/private_physical_sample/TOKEN"}),
-        404: {"model": ErrorResponse},
+        400: _err("Invalid field values", ERR_VALIDATION),
+        403: _err("Not authenticated", ERR_SESSION),
+        404: _err("No such sample", ERR_NOT_FOUND),
+        500: {"description": "Could not update the private link"},
     },
 )
 def update_private_link(
     container_uuid: PhysicalSampleId,
-    link_id: str,
-    body: dict = Body(default={}),
+    link_id: LinkId,
+    body: dict = Body(
+        default={},
+        openapi_examples={"default": {"value": {"expires_date": "2027-01-01", "is_active": False}}},
+    ),
     account=Depends(require_auth),
     db=Depends(get_db),
 ):
@@ -151,11 +206,17 @@ def update_private_link(
 @router.delete(
     "/physical-samples/{container_uuid}/private_links/{link_id}",
     summary="Delete a private link",
-    responses={204: {"description": "Private link removed"}, 404: {"model": ErrorResponse}},
+    status_code=204,
+    responses={
+        204: {"description": "Private link removed"},
+        403: _err("Not authenticated", ERR_SESSION),
+        404: _err("No such sample", ERR_NOT_FOUND),
+        500: {"description": "Could not remove the private link"},
+    },
 )
 def delete_private_link(
     container_uuid: PhysicalSampleId,
-    link_id: str,
+    link_id: LinkId,
     account=Depends(require_auth),
     db=Depends(get_db),
 ):

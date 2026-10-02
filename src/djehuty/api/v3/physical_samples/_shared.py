@@ -19,6 +19,26 @@ PhysicalSampleId = Annotated[
     ),
 ]
 
+# Sub-resource path parameters. Each is the identifier returned by the matching
+# list endpoint; naming the source stops callers from guessing.
+CreatorId = Annotated[str, Path(description="The creator's `uuid` from `GET .../creators`.")]
+DateId = Annotated[str, Path(description="The date's `uuid` from `GET .../dates`.")]
+ResourceId = Annotated[
+    str,
+    Path(description="The related resource's `uuid` from `GET .../related-resources`."),
+]
+LinkId = Annotated[str, Path(description="The private link `id` from `GET .../private_links`.")]
+ReviewerId = Annotated[str, Path(description="UUID of the reviewer account to assign.")]
+
+# Error-response example bodies, matching what the exception handlers actually
+# return (see djehuty/api/exceptions.py). A single-field validation error is an
+# object; a multi-field one is a bare array of {field_name, message} entries.
+ERR_NOT_FOUND = {"message": "This resource does not exist."}
+ERR_FORBIDDEN = {"message": "Not allowed."}
+ERR_SESSION = {"message": "Invalid or unknown session token", "code": "InvalidSessionToken"}
+ERR_VALIDATION = {"message": "Invalid or missing field.", "code": "ValidationError"}
+ERR_VALIDATION_LIST = [{"field_name": "field", "message": "Invalid or missing value."}]
+
 
 def _resolve_physical_sample(
     db,

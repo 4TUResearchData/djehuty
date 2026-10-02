@@ -5,9 +5,12 @@ from fastapi.responses import JSONResponse
 
 from djehuty.api.dependencies import get_current_account, get_db, get_token, require_auth
 from djehuty.api.exceptions import ForbiddenError, InvalidInputError, NotFoundError
-from djehuty.api.models.common import ErrorResponse
-from djehuty.api.v3._shared import _ok
+from djehuty.api.models.physical_samples import PhysicalSampleRecord
+from djehuty.api.v3._shared import _err, _ok, _req
 from djehuty.api.v3.physical_samples._shared import (
+    ERR_FORBIDDEN,
+    ERR_NOT_FOUND,
+    ERR_VALIDATION,
     PhysicalSampleId,
     _account_can_use_igsn,
     _category_list_from_request_input,
@@ -26,6 +29,47 @@ _SAMPLE_EXAMPLE = {
     "resource_type": "Rock",
     "subject": None,
     "last_modified": "2026-07-03T10:48:50",
+}
+
+_SAMPLE_BODY_EXAMPLE = {
+    "title": "Basalt core sample BR-2025-014",
+    "abstract": "Drill core recovered off the coast of Texel.",
+    "methods": "Rotary drilling.",
+    "resource_type": "Rock",
+    "subject": "Petrology",
+    "geolocation": "North Sea",
+    "latitude": "53.05",
+    "longitude": "4.80",
+    "categories": [13555],
+}
+
+# Fields accepted by a create/update draft (see _details_put). All optional: a
+# create makes an "Untitled item" and every field is patched in on update.
+_SAMPLE_BODY_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "title": {"type": "string", "maxLength": 1000},
+        "abstract": {"type": "string", "maxLength": 8000},
+        "methods": {"type": "string", "maxLength": 8000},
+        "resource_type": {"type": "string", "maxLength": 512},
+        "subject": {"type": "string", "maxLength": 512},
+        "alternate_identifier": {"type": "string", "maxLength": 512},
+        "organizations": {"type": "string", "maxLength": 2048},
+        "physical_storage_location": {"type": "string", "maxLength": 2048},
+        "geolocation": {"type": "string", "maxLength": 255},
+        "longitude": {"type": "string", "description": "Decimal degrees east."},
+        "latitude": {"type": "string", "description": "Decimal degrees north."},
+        "sample_owner_name": {"type": "string", "maxLength": 255},
+        "sample_owner_email": {"type": "string", "maxLength": 255},
+        "group_id": {"type": "integer"},
+        "agreed_to_deposit_agreement": {"type": "boolean"},
+        "agreed_to_publish": {"type": "boolean"},
+        "categories": {
+            "type": "array",
+            "items": {"oneOf": [{"type": "integer"}, {"type": "string"}]},
+            "description": "Category numeric ids (from GET /v2/categories) or UUIDs.",
+        },
+    },
 }
 
 
@@ -133,7 +177,11 @@ def _details_put(db, account, token, container_uuid, body):
         "returns the *first* matching record (a single object, not a list) — the "
         "caller's first draft when authenticated, else the first published sample."
     ),
-    responses={200: _ok("A physical sample", _SAMPLE_EXAMPLE), 404: {"model": ErrorResponse}},
+    response_model=PhysicalSampleRecord,
+    responses={
+        200: _ok("A physical sample", _SAMPLE_EXAMPLE),
+        404: _err("No such sample", ERR_NOT_FOUND),
+    },
 )
 def read_physical_sample_first(
     account=Depends(get_current_account),
@@ -149,7 +197,11 @@ def read_physical_sample_first(
         "Returns a single physical sample: the caller's draft when authenticated, "
         "otherwise the published latest version."
     ),
-    responses={200: _ok("A physical sample", _SAMPLE_EXAMPLE), 404: {"model": ErrorResponse}},
+    response_model=PhysicalSampleRecord,
+    responses={
+        200: _ok("A physical sample", _SAMPLE_EXAMPLE),
+        404: _err("No such sample", ERR_NOT_FOUND),
+    },
 )
 def read_physical_sample(
     container_uuid: PhysicalSampleId,
@@ -162,10 +214,18 @@ def read_physical_sample(
 @router.put(
     "/physical-samples",
     summary="Create a physical sample draft",
-    responses={201: _ok("Created", {"location": "https://data.4tu.nl/v3/physical-samples/UUID"})},
+    status_code=201,
+    openapi_extra=_req(_SAMPLE_BODY_SCHEMA),
+    responses={
+        201: _ok("Created", {"location": "https://data.4tu.nl/v3/physical-samples/UUID"}),
+        400: _err("Invalid field values", ERR_VALIDATION),
+        403: _err("Not a depositor or IGSN not permitted", ERR_FORBIDDEN),
+        404: _err("No such sample", ERR_NOT_FOUND),
+        500: {"description": "Could not store the sample"},
+    },
 )
 def create_physical_sample(
-    body: dict = Body(default={}),
+    body: dict = Body(default={}, openapi_examples={"default": {"value": _SAMPLE_BODY_EXAMPLE}}),
     account=Depends(require_auth),
     token: str = Depends(get_token),
     db=Depends(get_db),
@@ -176,11 +236,19 @@ def create_physical_sample(
 @router.put(
     "/physical-samples/{container_uuid}",
     summary="Update a physical sample draft",
-    responses={204: {"description": "Updated"}, 403: {"model": ErrorResponse}},
+    status_code=204,
+    openapi_extra=_req(_SAMPLE_BODY_SCHEMA),
+    responses={
+        204: {"description": "Updated"},
+        400: _err("Invalid field values", ERR_VALIDATION),
+        403: _err("Not a depositor or IGSN not permitted", ERR_FORBIDDEN),
+        404: _err("No such sample", ERR_NOT_FOUND),
+        500: {"description": "Could not store the sample"},
+    },
 )
 def update_physical_sample(
     container_uuid: PhysicalSampleId,
-    body: dict = Body(default={}),
+    body: dict = Body(default={}, openapi_examples={"default": {"value": _SAMPLE_BODY_EXAMPLE}}),
     account=Depends(require_auth),
     token: str = Depends(get_token),
     db=Depends(get_db),

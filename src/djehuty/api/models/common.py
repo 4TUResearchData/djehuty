@@ -32,7 +32,7 @@ class ErrorResponse(BaseModel):
     """Standard error response."""
 
     message: str = Field(..., description="Human-readable error description")
-    code: str = Field(..., description="Machine-readable error code")
+    code: str | None = Field(None, description="Machine-readable error code (absent on 403/404)")
 
     model_config = {
         "json_schema_extra": {
