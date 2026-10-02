@@ -40,6 +40,7 @@ WHERE {
     {%- endif %}
     {%- endif %}
     OPTIONAL { ?dataset_uri djht:embargo_until_date ?embargo_until_date . }
+    OPTIONAL { ?dataset_uri djht:embargo_type       ?embargo_type . }
     OPTIONAL { ?file  djht:id                   ?id . }
     OPTIONAL { ?file  djht:name                 ?name . }
     OPTIONAL { ?file  djht:filesystem_location  ?filesystem_location . }
@@ -68,7 +69,8 @@ WHERE {
     BIND (REPLACE(STR(?filesystem_location), "^.*/([^/]*)$", "$1") as ?filename)
   }
   {%- if account_uuid is none and (private_view is not true) %}
-  FILTER (! (BOUND(?embargo_until_date) && ?embargo_until_date > NOW()))
+  FILTER (! ((BOUND(?embargo_until_date) && ?embargo_until_date > NOW()) ||
+             (!BOUND(?embargo_until_date) && BOUND(?embargo_type))))
   {%- endif %}
 {%- if dataset_uri is not none %}
   FILTER (?dataset_uri = <{{dataset_uri}}>)

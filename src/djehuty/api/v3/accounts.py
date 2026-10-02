@@ -17,7 +17,6 @@ _ACCOUNT_EXAMPLE = {
     "first_name": "Dev",
     "last_name": "User",
     "full_name": None,
-    "email": "dev@djehuty.com",
     "is_active": True,
     "is_public": False,
     "job_title": None,
@@ -71,6 +70,6 @@ async def search_accounts(
             record = accounts[index]
             if record["uuid"] in exclude:
                 accounts.pop(index)
-        return JSONResponse(content=[formatter.format_account_details_record(r) for r in accounts])
+        return JSONResponse(content=[formatter.format_account_record(r) for r in accounts])
     except (validator.ValidationException, KeyError) as error:
         raise InvalidInputError(error.message, error.code) from error

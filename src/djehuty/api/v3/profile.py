@@ -62,6 +62,16 @@ def update_profile(
     if not isinstance(body, dict):
         raise InvalidInputError("Request body must be a JSON object.", "BadBody")
 
+    disallowed = sorted(
+        {"email", "active", "institution_id", "institution_user_id", "maximum_file_size"}
+        & body.keys()
+    )
+    if disallowed:
+        raise InvalidInputError(
+            f"These fields cannot be set via the profile endpoint: {', '.join(disallowed)}.",
+            "ForbiddenField",
+        )
+
     try:
         categories = validator.array_value(body, "categories")
         if categories is not None:
@@ -70,9 +80,7 @@ def update_profile(
 
         if db.update_account(
             account["uuid"],
-            active=validator.integer_value(body, "active", 0, 1),
             job_title=validator.string_value(body, "job_title", 0, 255),
-            email=validator.string_value(body, "email", 0, 255),
             first_name=validator.string_value(body, "first_name", 0, 255),
             last_name=validator.string_value(body, "last_name", 0, 255),
             location=validator.string_value(body, "location", 0, 255),
@@ -80,9 +88,6 @@ def update_profile(
             linkedin=validator.string_value(body, "linkedin", 0, 255),
             website=validator.string_value(body, "website", 0, 255),
             biography=validator.string_value(body, "biography", 0, 32768),
-            institution_user_id=validator.integer_value(body, "institution_user_id"),
-            institution_id=validator.integer_value(body, "institution_id"),
-            maximum_file_size=validator.integer_value(body, "maximum_file_size"),
             modified_date=validator.string_value(body, "modified_date", 0, 32),
             categories=categories,
         ):

@@ -391,7 +391,7 @@ def format_file_details_record (record):
       "viewer_type":   conv.value_or_none(record, "viewer_type"),
       "preview_state": conv.value_or_none(record, "preview_state"),
       "upload_url":    conv.value_or_none(record, "upload_url"),
-      "upload_token":  conv.value_or_none(record, "upload_token"),
+      "upload_token":  None,
       "uuid":          conv.value_or_none(record, "uuid"),
       "id":            conv.value_or_none(record, "id"),
       "name":          conv.value_or_none(record, "name"),

@@ -93,10 +93,10 @@ function toggle_collaborators (dataset_uuid, may_edit_metadata, event) {
     }
 }
 
-function fill_collaborator (email, full_name, account_uuid) {
-    let input_text = `${full_name}, (${email})`;
-    if (full_name == "null") {
-        input_text = `${email}`;
+function fill_collaborator (full_name, account_uuid) {
+    let input_text = full_name;
+    if (full_name == null || full_name == "null") {
+        input_text = account_uuid;
     }
     jQuery("#add_collaborator").val(`${input_text}`);
     jQuery("#account_uuid").val(`${account_uuid}`);
@@ -106,7 +106,7 @@ function fill_collaborator (email, full_name, account_uuid) {
 
 function add_collaborator_event (event) {
     stop_event_propagation (event);
-    fill_collaborator (event.data["email"], event.data["full_name"], event.data["uuid"]);
+    fill_collaborator (event.data["full_name"], event.data["uuid"]);
 }
 
 function autocomplete_collaborator (event, item_id) {
@@ -129,13 +129,12 @@ function autocomplete_collaborator (event, item_id) {
                 let html = "<ul>";
                 for (let item of data) {
                     let full_name = item["full_name"];
-                    let account_text = `${item["full_name"]}, ${item["email"]}`;
-                    if (full_name == null) { account_text = `${item["email"]}`; }
+                    let account_text = (full_name == null) ? item["uuid"] : full_name;
                     let list_item = jQuery("<li/>");
                     let anchor = jQuery("<a/>", { "href": "#" });
                     anchor.text (account_text);
                     anchor.on("click",
-                              { "email": item["email"], "full_name": item["full_name"], "uuid": item["uuid"] },
+                              { "full_name": item["full_name"], "uuid": item["uuid"] },
                               add_collaborator_event);
                     list_item.html (anchor);
                     unordered_list.append (list_item);

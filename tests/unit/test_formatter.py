@@ -1,6 +1,6 @@
 """Unit tests for djehuty.web.formatter."""
 
-from djehuty.web.formatter import format_collection_record
+from djehuty.web.formatter import format_collection_record, format_file_details_record
 
 
 class TestFormatCollectionRecord:
@@ -89,3 +89,24 @@ class TestFormatCollectionRecord:
         assert timeline["submission"] is None
         assert timeline["revision"] is None
         assert timeline["publisherPublication"] is None
+
+
+class TestFormatFileDetailsRecord:
+    """The stored ``upload_token`` is the uploader's session token, so
+    ``format_file_details_record`` must never disclose it in its output.
+    """
+
+    def test_upload_token_is_never_disclosed(self):
+        record = {
+            "uuid": "file-123",
+            "name": "data.bin",
+            "upload_token": "a-live-session-token",
+        }
+        formatted = format_file_details_record(record)
+        assert formatted.get("upload_token") != "a-live-session-token"
+
+    def test_other_fields_are_still_mapped(self):
+        record = {"uuid": "file-123", "name": "data.bin", "upload_token": "secret"}
+        formatted = format_file_details_record(record)
+        assert formatted["uuid"] == "file-123"
+        assert formatted["name"] == "data.bin"

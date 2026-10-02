@@ -3084,7 +3084,7 @@ class WebServer:
                 account = accounts[index]
                 if account["uuid"] in exclude:
                     accounts.pop(index)
-            return self.default_list_response (accounts, formatter.format_account_details_record)
+            return self.default_list_response (accounts, formatter.format_account_record)
         except (validator.ValidationException, KeyError) as error:
             return self.error_400(request, error.message, error.code)
 
@@ -7594,6 +7594,11 @@ class WebServer:
                     return self.error_403 (request, (f"account:{account_uuid} attempted to remove "
                                                      f"all files from dataset:{dataset_id}."))
 
+                _, error_response = self.__needs_collaborative_permissions (
+                    account_uuid, request, "dataset", dataset, "data_remove")
+                if error_response is not None:
+                    return error_response
+
                 if self.db.delete_items_all_from_list (dataset["uri"], "files"):
                     self.db.cache.invalidate_by_prefix (f"{account_uuid}_storage")
                     self.db.cache.invalidate_by_prefix (f"{dataset['uuid']}_dataset_storage")
@@ -11156,15 +11161,20 @@ class WebServer:
 
         try:
             record = request.get_json()
+            disallowed = sorted (
+                {"email", "active", "institution_id", "institution_user_id",
+                 "maximum_file_size"}.intersection (record or {}))
+            if disallowed:
+                return self.error_400 (request,
+                    "These fields cannot be set via the profile endpoint: "
+                    f"{', '.join(disallowed)}.", "ForbiddenField")
             categories = validator.array_value (record, "categories")
             if categories is not None:
                 for index, _ in enumerate(categories):
                     categories[index] = validator.string_value (categories, index, 36, 36)
 
             if self.db.update_account (account_uuid,
-                    active                = validator.integer_value (record, "active", 0, 1),
                     job_title             = validator.string_value  (record, "job_title", 0, 255),
-                    email                 = validator.string_value  (record, "email", 0, 255),
                     first_name            = validator.string_value  (record, "first_name", 0, 255),
                     last_name             = validator.string_value  (record, "last_name", 0, 255),
                     location              = validator.string_value  (record, "location", 0, 255),
@@ -11172,9 +11182,6 @@ class WebServer:
                     linkedin              = validator.string_value  (record, "linkedin", 0, 255),
                     website               = validator.string_value  (record, "website", 0, 255),
                     biography             = validator.string_value  (record, "biography", 0, 32768),
-                    institution_user_id   = validator.integer_value (record, "institution_user_id"),
-                    institution_id        = validator.integer_value (record, "institution_id"),
-                    maximum_file_size     = validator.integer_value (record, "maximum_file_size"),
                     modified_date         = validator.string_value  (record, "modified_date", 0, 32),
                     categories            = categories):
                 return self.respond_204 ()

@@ -5,6 +5,7 @@ from fastapi.responses import JSONResponse
 
 from djehuty.api.dependencies import get_db, get_token, require_auth
 from djehuty.api.exceptions import ForbiddenError, InvalidInputError, NotFoundError
+from djehuty.api.permissions import enforce_collaborative_permissions
 from djehuty.api.services.article_service import ArticleService
 from djehuty.api.v2.account.articles._shared import _ok, _resolve_private_dataset
 from djehuty.web import formatter
@@ -33,6 +34,7 @@ _FILE_EXAMPLE = {
 )
 def list_private_article_files(dataset_id: str, account=Depends(require_auth), db=Depends(get_db)):
     dataset = _resolve_private_dataset(db, dataset_id, account["uuid"])
+    enforce_collaborative_permissions(db, account["uuid"], dataset, "dataset", "data_read")
     files = db.dataset_files(dataset_uri=dataset["uri"], account_uuid=account["uuid"])
     return JSONResponse(
         content=[
@@ -51,6 +53,7 @@ def get_private_article_file(
     dataset_id: str, file_id: str, account=Depends(require_auth), db=Depends(get_db)
 ):
     dataset = _resolve_private_dataset(db, dataset_id, account["uuid"])
+    enforce_collaborative_permissions(db, account["uuid"], dataset, "dataset", "data_read")
     files = db.dataset_files(
         dataset_uri=dataset["uri"], file_uuid=file_id, account_uuid=account["uuid"]
     )
@@ -82,6 +85,7 @@ def create_article_file(
         )
         if dataset is None:
             raise ForbiddenError()
+        enforce_collaborative_permissions(db, account["uuid"], dataset, "dataset", "data_edit")
 
         if link is not None:
             file_id = db.insert_file(
@@ -134,6 +138,7 @@ def delete_all_article_files(
     dataset = service._resolve_dataset(dataset_id, account_uuid=account["uuid"], is_published=False)
     if dataset is None:
         raise ForbiddenError()
+    enforce_collaborative_permissions(db, account["uuid"], dataset, "dataset", "data_remove")
 
     if db.delete_items_all_from_list(dataset["uri"], "files"):
         db.cache.invalidate_by_prefix(f"{account['uuid']}_storage")
@@ -154,6 +159,7 @@ def delete_private_article_file(
     from djehuty.utils.rdf import uuid_to_uri
 
     dataset = _resolve_private_dataset(db, dataset_id, account["uuid"])
+    enforce_collaborative_permissions(db, account["uuid"], dataset, "dataset", "data_remove")
     files = db.dataset_files(
         dataset_uri=dataset["uri"], file_uuid=file_id, account_uuid=account["uuid"]
     )
