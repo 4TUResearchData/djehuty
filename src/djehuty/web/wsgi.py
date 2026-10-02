@@ -337,9 +337,6 @@ class WebServer:
             R("/v2/account/collections/<collection_id>/categories/<category_id>", self.api_private_delete_collection_category),
             R("/v2/account/collections/<collection_id>/articles",                self.api_private_collection_datasets),
             R("/v2/account/collections/<collection_id>/articles/<dataset_id>",   self.api_private_collection_dataset_delete),
-            R("/v2/physical_samples/search",                                     self.api_physical_samples_search),
-            R("/v2/account/collections/<collection_id>/physical_samples",           self.api_private_collection_physical_samples),
-            R("/v2/account/collections/<collection_id>/physical_samples/<container_uuid>", self.api_private_collection_physical_sample_delete),
             R("/v2/account/collections/<collection_id>/reserve_doi",             self.api_private_collection_reserve_doi),
             R("/v2/account/collections/<collection_id>/funding",                 self.api_private_collection_funding),
             R("/v2/account/collections/<collection_id>/funding/<funding_id>",    self.api_private_collection_funding_delete),
@@ -386,6 +383,8 @@ class WebServer:
             R("/v3/collections/<collection_id>/references",                      self.api_v3_collection_references),
             R("/v3/datasets/<dataset_id>/tags",                                  self.api_v3_dataset_tags),
             R("/v3/collections/<collection_id>/tags",                            self.api_v3_collection_tags),
+            R("/v3/collections/<collection_id>/physical-samples",                self.api_v3_collection_physical_samples),
+            R("/v3/collections/<collection_id>/physical-samples/<container_uuid>", self.api_v3_collection_physical_sample_delete),
             R("/v3/groups",                                                      self.api_v3_groups),
             R("/v3/profile",                                                     self.api_v3_profile),
             R("/v3/profile/categories",                                          self.api_v3_profile_categories),
@@ -406,6 +405,7 @@ class WebServer:
 
             ## Physical samples
             ## ----------------------------------------------------------------
+            R("/v3/physical-samples/search",                                     self.api_v3_physical_samples_search),
             R("/v3/physical-samples",                                            self.api_v3_physical_sample_details),
             R("/v3/physical-samples/<container_uuid>",                           self.api_v3_physical_sample_details),
             R("/v3/physical-samples/<container_uuid>/creators",                  self.api_v3_physical_sample_creators),
@@ -8548,8 +8548,8 @@ class WebServer:
             container_uuid, is_published=False, account_uuid=account_uuid
         )
 
-    def api_physical_samples_search(self, request):
-        """Implements /v2/physical_samples/search."""
+    def api_v3_physical_samples_search(self, request):
+        """Implements /v3/physical-samples/search."""
 
         handler = self.default_error_handling(request, "POST", "application/json")
         if handler is not None:
@@ -8569,8 +8569,8 @@ class WebServer:
         except validator.ValidationException as error:
             return self.error_400(request, error.message, error.code)
 
-    def api_private_collection_physical_samples(self, request, collection_id):
-        """Implements /v2/account/collections/<id>/physical_samples."""
+    def api_v3_collection_physical_samples(self, request, collection_id):
+        """Implements /v3/collections/<id>/physical-samples."""
 
         account_uuid = self.default_authenticated_error_handling(
             request, ["GET", "POST", "PUT"], "application/json"
@@ -8676,10 +8676,10 @@ class WebServer:
 
         return self.error_500()
 
-    def api_private_collection_physical_sample_delete(
+    def api_v3_collection_physical_sample_delete(
         self, request, collection_id, container_uuid
     ):
-        """Implements /v2/account/collections/<id>/physical_samples/<container_uuid>."""
+        """Implements /v3/collections/<id>/physical-samples/<container_uuid>."""
         if request.method != "DELETE":
             return self.error_405("DELETE")
 

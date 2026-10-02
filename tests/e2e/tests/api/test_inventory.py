@@ -132,15 +132,6 @@ V2_ENDPOINTS = [
         "/v2/account/collections/<collection_id>/articles/<dataset_id>",
         "api_private_collection_dataset_delete",
     ),
-    ("/v2/physical_samples/search", "api_physical_samples_search"),
-    (
-        "/v2/account/collections/<collection_id>/physical_samples",
-        "api_private_collection_physical_samples",
-    ),
-    (
-        "/v2/account/collections/<collection_id>/physical_samples/<container_uuid>",
-        "api_private_collection_physical_sample_delete",
-    ),
     (
         "/v2/account/collections/<collection_id>/reserve_doi",
         "api_private_collection_reserve_doi",
@@ -212,6 +203,14 @@ V3_ENDPOINTS = [
     ),
     ("/v3/collections/<collection_id>/references", "api_v3_collection_references"),
     ("/v3/collections/<collection_id>/tags", "api_v3_collection_tags"),
+    (
+        "/v3/collections/<collection_id>/physical-samples",
+        "api_v3_collection_physical_samples",
+    ),
+    (
+        "/v3/collections/<collection_id>/physical-samples/<container_uuid>",
+        "api_v3_collection_physical_sample_delete",
+    ),
     # Profile
     ("/v3/profile", "api_v3_profile"),
     ("/v3/profile/categories", "api_v3_profile_categories"),
@@ -267,6 +266,7 @@ V3_ENDPOINTS = [
     ("/v3/receive-from-ssi", "api_v3_receive_from_ssi"),
     ("/v3/redirect-from-ssi/<container_uuid>/<token>", "api_v3_redirect_from_ssi"),
     # Physical samples (IGSN)
+    ("/v3/physical-samples/search", "api_v3_physical_samples_search"),
     ("/v3/physical-samples", "api_v3_physical_sample_details"),
     ("/v3/physical-samples/<container_uuid>", "api_v3_physical_sample_details"),
     ("/v3/physical-samples/<container_uuid>/creators", "api_v3_physical_sample_creators"),
@@ -365,16 +365,16 @@ def _routes_from_wsgi():
 
 @pytest.mark.api_inventory
 def test_inventory_totals():
-    """Sanity: 58 unique V2 + 77 V3 = 135 routes.
+    """Sanity: 55 unique V2 + 80 V3 = 135 routes.
 
     Note: wsgi.py registers ``/v2/collections`` twice (both to ``api_collections``);
     we dedupe and count it once.
     """
-    assert len(V2_ENDPOINTS) == 58, (
-        f"V2 endpoint count drifted from 58 to {len(V2_ENDPOINTS)}; verify src/djehuty/web/wsgi.py."
+    assert len(V2_ENDPOINTS) == 55, (
+        f"V2 endpoint count drifted from 55 to {len(V2_ENDPOINTS)}; verify src/djehuty/web/wsgi.py."
     )
-    assert len(V3_ENDPOINTS) == 77, (
-        f"V3 endpoint count drifted from 77 to {len(V3_ENDPOINTS)}; verify src/djehuty/web/wsgi.py."
+    assert len(V3_ENDPOINTS) == 80, (
+        f"V3 endpoint count drifted from 80 to {len(V3_ENDPOINTS)}; verify src/djehuty/web/wsgi.py."
     )
 
 

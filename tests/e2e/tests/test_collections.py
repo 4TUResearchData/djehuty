@@ -524,11 +524,11 @@ class TestCollectionPhysicalSamples:
         """A collection holds datasets and samples in separate lists."""
         container_uuid = get_container_uuid_from_url(create_draft_collection(authenticated_page))
         base = f"/v2/account/collections/{container_uuid}"
+        samples_base = f"/v3/collections/{container_uuid}/physical-samples"
 
         def listed(kind):
-            return [
-                item["uuid"] for item in authenticated_page.request.get(f"{base}/{kind}").json()
-            ]
+            url = samples_base if kind == "physical_samples" else f"{base}/{kind}"
+            return [item["uuid"] for item in authenticated_page.request.get(url).json()]
 
         try:
             response = authenticated_page.request.post(
@@ -536,7 +536,7 @@ class TestCollectionPhysicalSamples:
             )
             assert response.ok, f"Add dataset failed: {response.status} {response.text()}"
             response = authenticated_page.request.post(
-                f"{base}/physical_samples", data={"samples": [published_physical_sample]}
+                samples_base, data={"samples": [published_physical_sample]}
             )
             assert response.status == 205
 
@@ -544,14 +544,14 @@ class TestCollectionPhysicalSamples:
             assert listed("physical_samples") == [published_physical_sample]
 
             response = authenticated_page.request.delete(
-                f"{base}/physical_samples/{published_physical_sample}"
+                f"{samples_base}/{published_physical_sample}"
             )
             assert response.status == 204
             assert listed("articles") == [published_dataset]
             assert listed("physical_samples") == []
 
             authenticated_page.request.post(
-                f"{base}/physical_samples", data={"samples": [published_physical_sample]}
+                samples_base, data={"samples": [published_physical_sample]}
             )
             response = authenticated_page.request.delete(f"{base}/articles/{published_dataset}")
             assert response.ok
@@ -570,23 +570,21 @@ class TestCollectionPhysicalSamples:
         """The draft made from a published collection carries both lists over."""
         container_uuid = get_container_uuid_from_url(create_draft_collection(authenticated_page))
         base = f"/v2/account/collections/{container_uuid}"
+        samples_base = f"/v3/collections/{container_uuid}/physical-samples"
 
         def listed(kind):
-            return {
-                item["uuid"] for item in authenticated_page.request.get(f"{base}/{kind}").json()
-            }
+            url = samples_base if kind == "physical_samples" else f"{base}/{kind}"
+            return {item["uuid"] for item in authenticated_page.request.get(url).json()}
 
         authenticated_page.request.post(f"{base}/articles", data={"articles": [published_dataset]})
-        authenticated_page.request.post(
-            f"{base}/physical_samples", data={"samples": [published_physical_sample]}
-        )
+        authenticated_page.request.post(samples_base, data={"samples": [published_physical_sample]})
         fill_required_fields_and_publish_collection(
             authenticated_page, container_uuid, title="Collection With Both Lists"
         )
 
         # Collecting another sample makes the app draft the published collection.
         response = authenticated_page.request.post(
-            f"{base}/physical_samples", data={"samples": [second_published_physical_sample]}
+            samples_base, data={"samples": [second_published_physical_sample]}
         )
         assert response.status == 205, f"Add failed: {response.status} {response.text()}"
 
@@ -1286,7 +1284,8 @@ class TestCollectPhysicalSample:
 
         try:
             authenticated_page.request.post(
-                f"{base}/physical_samples", data={"samples": [published_physical_sample]}
+                f"/v3/collections/{container_uuid}/physical-samples",
+                data={"samples": [published_physical_sample]},
             )
             expect(count_label()).to_have_text("(1)")
 
