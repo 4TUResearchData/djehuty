@@ -11900,7 +11900,7 @@
           "V3 / SSI"
         ],
         "summary": "Receive dataset from SSI",
-        "operationId": "receive_from_ssi_v3_receive_from_ssi_delete",
+        "operationId": "receive_from_ssi_v3_receive_from_ssi_post",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -11920,7 +11920,7 @@
           "V3 / SSI"
         ],
         "summary": "Receive dataset from SSI",
-        "operationId": "receive_from_ssi_v3_receive_from_ssi_delete",
+        "operationId": "receive_from_ssi_v3_receive_from_ssi_post",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -11940,7 +11940,7 @@
           "V3 / SSI"
         ],
         "summary": "Receive dataset from SSI",
-        "operationId": "receive_from_ssi_v3_receive_from_ssi_delete",
+        "operationId": "receive_from_ssi_v3_receive_from_ssi_post",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -11960,7 +11960,7 @@
           "V3 / SSI"
         ],
         "summary": "Receive dataset from SSI",
-        "operationId": "receive_from_ssi_v3_receive_from_ssi_delete",
+        "operationId": "receive_from_ssi_v3_receive_from_ssi_post",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -12979,7 +12979,6 @@
                     "uuid": "84cae99f-a691-4af2-9d21-f5c0817c26df",
                     "first_name": "Dev",
                     "last_name": "User",
-                    "email": "dev@djehuty.com",
                     "is_active": true,
                     "is_public": false,
                     "orcid_id": ""
@@ -13033,7 +13032,6 @@
                     "uuid": "84cae99f-a691-4af2-9d21-f5c0817c26df",
                     "first_name": "Dev",
                     "last_name": "User",
-                    "email": "dev@djehuty.com",
                     "is_active": true,
                     "is_public": false,
                     "orcid_id": ""
