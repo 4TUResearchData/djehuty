@@ -5,6 +5,38 @@ appear first; this file is the source of truth for release notes.
 
 Commit links point to <https://github.com/4TUResearchData/djehuty>.
 
+## [v26.7.1]
+
+This patch release resolves five coordinated-disclosure security advisories in
+the shared djehuty codebase, alongside documentation, a bugfix and dependency
+updates.
+
+### Security
+
+See the published advisories for details, impact and remediation.
+
+- Privilege escalation to administrator via unverified e-mail change in `PUT /v3/profile`. ([GHSA-jj2h-4p8q-v53g](https://github.com/4TUResearchData/djehuty/security/advisories/GHSA-jj2h-4p8q-v53g))
+- Session-token disclosure via file `upload_token` enabling account takeover. ([GHSA-j7qm-mfj9-7hvh](https://github.com/4TUResearchData/djehuty/security/advisories/GHSA-j7qm-mfj9-7hvh))
+- Missing authorization on collaborative file operations (list/read/add/delete). ([GHSA-p9rx-3rr4-xm8r](https://github.com/4TUResearchData/djehuty/security/advisories/GHSA-p9rx-3rr4-xm8r))
+- Account e-mail enumeration via `/v3/accounts/search`. ([GHSA-mc23-9g93-mxmh](https://github.com/4TUResearchData/djehuty/security/advisories/GHSA-mc23-9g93-mxmh))
+- Restricted file disclosure through version-ambiguous download authorization. ([GHSA-p325-q859-8h8w](https://github.com/4TUResearchData/djehuty/security/advisories/GHSA-p325-q859-8h8w))
+
+> After upgrading, operators should **invalidate all existing sessions**
+> (`/admin/maintenance/clear-sessions`), because the `upload_token` issue exposed
+> live session tokens. A server restart alone does not revoke them.
+
+### Documentation
+
+- Add IGSN API documentation. ([2902512](https://github.com/4TUResearchData/djehuty/commit/2902512a))
+
+### Bugfixes
+
+- Add missing `edit_author` functions in `edit-collection.js`. ([1dad77f](https://github.com/4TUResearchData/djehuty/commit/1dad77fd))
+
+### Incremental improvements
+
+- Update Python dependencies. ([bd95236](https://github.com/4TUResearchData/djehuty/commit/bd95236e), [a014db9](https://github.com/4TUResearchData/djehuty/commit/a014db9a), [99beb6a](https://github.com/4TUResearchData/djehuty/commit/99beb6a7))
+
 ## [v26.7]
 
 This release consists of 5 commits made by 2 authors.
