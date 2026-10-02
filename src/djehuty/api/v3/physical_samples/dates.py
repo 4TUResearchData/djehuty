@@ -90,7 +90,7 @@ def list_dates(
     openapi_extra=_req(_DATES_BODY_SCHEMA),
     responses={
         204: {"description": "Dates added"},
-        400: _err("Invalid date data", ERR_VALIDATION_LIST),
+        400: _err("Invalid date data", ERR_VALIDATION_LIST, model=None),
         403: _err("Not authenticated", ERR_SESSION),
         404: _err("No such sample", ERR_NOT_FOUND),
     },

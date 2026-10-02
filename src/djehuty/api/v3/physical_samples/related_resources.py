@@ -102,7 +102,7 @@ def list_related_resources(
     openapi_extra=_req(_RELATED_BODY_SCHEMA),
     responses={
         204: {"description": "Related resources added"},
-        400: _err("Invalid related-resource data", ERR_VALIDATION_LIST),
+        400: _err("Invalid related-resource data", ERR_VALIDATION_LIST, model=None),
         403: _err("Not authenticated", ERR_SESSION),
         404: _err("No such sample", ERR_NOT_FOUND),
     },

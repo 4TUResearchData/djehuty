@@ -108,7 +108,7 @@ _SUBMIT_BODY_SCHEMA = {
     openapi_extra=_req(_SUBMIT_BODY_SCHEMA),
     responses={
         204: {"description": "Submitted for review"},
-        400: _err("The draft failed validation", ERR_VALIDATION_LIST),
+        400: _err("The draft failed validation", ERR_VALIDATION_LIST, model=None),
         403: _err("Not a depositor", ERR_FORBIDDEN),
         404: _err("No such sample", ERR_NOT_FOUND),
         500: {"description": "Could not submit the sample"},

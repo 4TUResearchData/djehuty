@@ -116,7 +116,7 @@ def list_creators(
     openapi_extra=_req(_CREATORS_BODY_SCHEMA),
     responses={
         204: {"description": "Creators added"},
-        400: _err("Invalid author data", ERR_VALIDATION_LIST),
+        400: _err("Invalid author data", ERR_VALIDATION_LIST, model=None),
         403: _err("Not authenticated", ERR_SESSION),
         404: _err("No such sample", ERR_NOT_FOUND),
         500: {"description": "Could not store the creators"},
@@ -274,7 +274,7 @@ def delete_creator(
     openapi_extra=_req(_REORDER_BODY_SCHEMA),
     responses={
         205: {"description": "Creators reordered"},
-        400: _err("Invalid reorder request", ERR_VALIDATION_LIST),
+        400: _err("Invalid reorder request", ERR_VALIDATION_LIST, model=None),
         403: _err("Not authenticated", ERR_SESSION),
         404: _err("No such sample", ERR_NOT_FOUND),
         500: {"description": "Could not reorder the creators"},
