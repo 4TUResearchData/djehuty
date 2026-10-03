@@ -7990,9 +7990,12 @@ class WebServer:
             more_parm = {doi_type: doi,
                          "is_first_online": "timeline_first_online" not in item}
             if item_type == "dataset":
+                derived_from = value_or_none (
+                    self.db.derived_from (item["uri"], limit=1), 0)
                 if self.db.update_dataset (
                         item["uuid"],
                         account_uuid,
+                        derived_from                = derived_from,
                         time_coverage               = value_or_none (item, "time_coverage"),
                         publisher                   = value_or_none (item, "publisher"),
                         mimetype                    = value_or_none (item, "format"),
