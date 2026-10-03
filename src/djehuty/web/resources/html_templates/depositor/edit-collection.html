@@ -3,7 +3,7 @@
 <script src="/static/js/jquery-3.6.0.min.js"></script>
 <script src="/static/js/quill.min.js"></script>
 <script src="/static/js/utils.js?cache=1744290797"></script>
-<script src="/static/js/edit-collection.js?cache=1774629850"></script>
+<script src="/static/js/edit-collection.js?cache=1790942921"></script>
 <script nonce="{{nonce}}">
 jQuery(document).ready(function () {
     root_categories = []
@@ -34,6 +34,8 @@ jQuery(document).ready(function () {
 #authors-list thead { display: none; }
 #articles-list { display: none; border: none; }
 #articles-list thead { display: none; }
+#physical-samples-list { display: none; border: none; }
+#physical-samples-list thead { display: none; }
 #new-author { text-align: center; line-height: 3.5em; height: 3.5em; }
 #new-funding { text-align: center; line-height: 3.5em; height: 3.5em; }
 #new-author-form { padding: 1em; }
@@ -221,6 +223,15 @@ jQuery(document).ready(function () {
   <input type="text" id="article-search" name="article-search" />
   <table id="articles-list" class="inside-form-table">
     <thead><th>Dataset</th><th>Actions</th></thead>
+    <tbody></tbody>
+  </table>
+</div>
+<h3>Physical samples</h3>
+<div id="physical-samples-selection">
+  <label for="physical-sample-search">Physical sample search</label>
+  <input type="text" id="physical-sample-search" name="physical-sample-search" />
+  <table id="physical-samples-list" class="inside-form-table">
+    <thead><th>Physical sample</th><th>Actions</th></thead>
     <tbody></tbody>
   </table>
 </div>

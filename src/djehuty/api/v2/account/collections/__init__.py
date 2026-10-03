@@ -12,5 +12,12 @@ from djehuty.api.v2.account.collections import (
 )
 
 router = APIRouter()
-for _m in (collections, authors, categories, articles, funding, publishing):
+for _m in (
+    collections,
+    authors,
+    categories,
+    articles,
+    funding,
+    publishing,
+):
     router.include_router(_m.router)

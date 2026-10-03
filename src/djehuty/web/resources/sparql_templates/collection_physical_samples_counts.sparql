@@ -1,0 +1,13 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT ?collection (COUNT(DISTINCT ?sample) AS ?samples)
+
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?collection rdf:type                                 djht:Collection ;
+               djht:physical_samples/rdf:rest*/rdf:first ?sample .
+    {{ filters | safe }}
+  }
+}
+GROUP BY ?collection
+{% endblock %}

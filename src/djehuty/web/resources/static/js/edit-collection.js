@@ -79,6 +79,40 @@ function render_datasets_for_collection (collection_id) {
     });
 }
 
+function remove_physical_sample_event (event) {
+    stop_event_propagation (event);
+    remove_physical_sample (event.data["sample_uuid"], event.data["collection_id"]);
+}
+
+function render_physical_samples_for_collection (collection_id) {
+    jQuery.ajax({
+        url:         `/v3/collections/${collection_id}/physical-samples`,
+        data:        { "limit": 10000, "order": "id", "order_direction": "asc" },
+        type:        "GET",
+        accept:      "application/json",
+    }).done(function (samples) {
+        jQuery("#physical-samples-list tbody").empty();
+        for (let sample of samples) {
+            let row = jQuery("<tr/>");
+            let column1 = jQuery("<td/>");
+            let column2 = jQuery("<td/>");
+            let anchor = jQuery("<a/>", { "href": `/physical_sample/${sample.uuid}` }).text(sample.title);
+            column1.html(anchor);
+            column2.html(jQuery("<a/>", {
+                "href": "#",
+                "class": "fas fa-trash-can",
+                "title": "Remove"
+            }).on("click", { "sample_uuid": sample.uuid, "collection_id": collection_id },
+                  remove_physical_sample_event));
+            row.append([column1, column2]);
+            jQuery("#physical-samples-list tbody").append(row);
+        }
+        jQuery("#physical-samples-list").show();
+    }).fail(function () {
+        show_message ("failure","<p>Failed to retrieve physical sample details.</p>");
+    });
+}
+
 function reorder_author (collection_id, author_uuid, direction) {
     jQuery.ajax({
         url:  `/v3/collections/${collection_id}/reorder-authors`,
@@ -376,6 +410,27 @@ function add_dataset (dataset_id, collection_id) {
     });
 }
 
+function add_physical_sample_event (event) {
+    stop_event_propagation (event);
+    add_physical_sample (event.data["sample_uuid"], event.data["collection_id"]);
+}
+
+function add_physical_sample (sample_id, collection_id) {
+    jQuery.ajax({
+        url:         `/v3/collections/${collection_id}/physical-samples`,
+        type:        "POST",
+        contentType: "application/json",
+        accept:      "application/json",
+        data:        JSON.stringify({ "samples": [sample_id] }),
+    }).done(function () {
+        render_physical_samples_for_collection (collection_id);
+        jQuery("#physical-sample-search").val("");
+        autocomplete_physical_sample(null, collection_id);
+    }).fail(function () {
+        show_message ("failure",`<p>Failed to add ${sample_id}.</p>`);
+    });
+}
+
 function add_reference (collection_id) {
     let url = jQuery.trim(jQuery("#references").val());
     if (url != "") {
@@ -456,6 +511,18 @@ function remove_dataset (dataset_id, collection_id) {
         render_datasets_for_collection (collection_id);
     }).fail(function () {
         show_message ("failure",`<p>Failed to remove ${dataset_id}.</p>`);
+    });
+}
+
+function remove_physical_sample (sample_id, collection_id) {
+    jQuery.ajax({
+        url:         `/v3/collections/${collection_id}/physical-samples/${sample_id}`,
+        type:        "DELETE",
+        accept:      "application/json",
+    }).done(function () {
+        render_physical_samples_for_collection (collection_id);
+    }).fail(function () {
+        show_message ("failure",`<p>Failed to remove ${sample_id}.</p>`);
     });
 }
 
@@ -629,6 +696,43 @@ function autocomplete_dataset (event, collection_id) {
     }
 }
 
+function autocomplete_physical_sample (event, collection_id) {
+    let current_text = jQuery.trim(jQuery("#physical-sample-search").val());
+    if (current_text == "") {
+        jQuery("#physical-samples-ac").remove();
+        jQuery("#physical-sample-search").removeClass("input-for-ac");
+    } else if (current_text.length > 2) {
+        jQuery.ajax({
+            url:         `/v3/physical-samples/search`,
+            type:        "POST",
+            contentType: "application/json",
+            accept:      "application/json",
+            data:        JSON.stringify({ "search_for": current_text }),
+            dataType:    "json"
+        }).done(function (data) {
+            jQuery("#physical-samples-ac").remove();
+            let list = jQuery("<ul/>");
+            for (let item of data) {
+                let row = jQuery("<li/>");
+                let anchor = jQuery("<a/>", {
+                    "href": "#" }).on("click", {
+                        "sample_uuid": item["uuid"],
+                        "collection_id": collection_id
+                    }, add_physical_sample_event);
+
+                anchor.text (item["title"]);
+                row.append(anchor);
+                list.append(row);
+            }
+            jQuery("#physical-sample-search")
+                .addClass("input-for-ac")
+                .after(jQuery("<div/>", {
+                    "id": "physical-samples-ac",
+                    "class": "autocomplete" }).html(list));
+        });
+    }
+}
+
 function submit_new_author_event (event) {
     stop_event_propagation (event);
     submit_new_author (event.data["collection_id"]);
@@ -767,6 +871,9 @@ function activate (collection_id) {
     jQuery("#article-search").on("input", function (event) {
         return autocomplete_dataset (event, collection_id);
     });
+    jQuery("#physical-sample-search").on("input", function (event) {
+        return autocomplete_physical_sample (event, collection_id);
+    });
 
     jQuery.ajax({
         url:         `/v2/account/collections/${collection_id}`,
@@ -777,6 +884,7 @@ function activate (collection_id) {
         render_authors_for_collection (collection_id);
         render_references_for_collection (collection_id);
         render_datasets_for_collection (collection_id);
+        render_physical_samples_for_collection (collection_id);
         render_tags_for_collection (collection_id);
         render_funding_for_collection (collection_id);
 
