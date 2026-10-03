@@ -596,11 +596,11 @@ function autocomplete_dataset (event, collection_id) {
         jQuery("#article-search").removeClass("input-for-ac");
     } else if (current_text.length > 2) {
         jQuery.ajax({
-            url:         `/v2/articles/search`,
+            url:         `/v3/datasets/search`,
             type:        "POST",
             contentType: "application/json",
             accept:      "application/json",
-            data:        JSON.stringify({ "search_for": current_text, "is_latest": true }),
+            data:        JSON.stringify({ "search_for": current_text, search_operator: "AND", search_scope: ["title"], "is_latest": true }),
             dataType:    "json"
         }).done(function (data) {
             jQuery("#articles-ac").remove();
