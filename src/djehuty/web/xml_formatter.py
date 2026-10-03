@@ -253,7 +253,9 @@ def datacite_tree(parameters, debug=False):
                 subjects_element,
                 "subject",
                 {
-                    "subjectScheme": "Australian and New Zealand Standard Research Classification (ANZSRC), 2008",
+                    "subjectScheme": (
+                        "Australian and New Zealand Standard Research Classification (ANZSRC), 2008"
+                    ),
                     "classificationCode": cat["classification_code"],
                 },
                 cat["title"],
@@ -461,7 +463,10 @@ def datacite_physical_sample_tree(parameters, debug=False):
                     subjects_element,
                     "subject",
                     {
-                        "subjectScheme": "Australian and New Zealand Standard Research Classification (ANZSRC), 2008",
+                        "subjectScheme": (
+                            "Australian and New Zealand Standard Research Classification "
+                            "(ANZSRC), 2008"
+                        ),
                         "classificationCode": cat["classification_code"],
                     },
                     cat["title"],
