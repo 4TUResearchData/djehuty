@@ -52,6 +52,13 @@
       "clear-on-start": "1",
       "#text": "/data/cache"
     },
+    "cache-backend": {
+      "type": "valkey",
+      "host": "valkey",
+      "port": 6379,
+      "db": 0,
+      "deployment": "dev"
+    },
     "live-reload": "1",
     "debug-mode": "1",
     "production": "0",
