@@ -3,11 +3,18 @@
 Never imports djehuty.web.wsgi; the legacy app is passed in.
 """
 
+import json
 import logging
 
 from djehuty.route_groups import target_for_path
+from djehuty.storage_seal import is_sealed_storage_path
+from djehuty.web.config import config
 
 _log = logging.getLogger(__name__)
+
+_STORAGE_SEALED_BODY = json.dumps(
+    {"message": "Storage is temporarily unavailable for maintenance.", "code": "StorageMaintenance"}
+).encode("utf-8")
 
 
 class WebServiceDispatcher:
@@ -19,6 +26,17 @@ class WebServiceDispatcher:
 
     def __call__(self, environ, start_response):
         path = environ.get("PATH_INFO", "")
+        if config.storage_maintenance and is_sealed_storage_path(path):
+            # Seal every byte-backed route (both stacks) before it is served.
+            start_response(
+                "503 Service Unavailable",
+                [
+                    ("Content-Type", "application/json"),
+                    ("Content-Length", str(len(_STORAGE_SEALED_BODY))),
+                    ("Retry-After", str(config.storage_maintenance_retry_after)),
+                ],
+            )
+            return [_STORAGE_SEALED_BODY]
         if target_for_path(path, self.default, self.overrides) == "new":
             return self.new(environ, start_response)
         return self.legacy(environ, start_response)
