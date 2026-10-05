@@ -16,6 +16,7 @@ from werkzeug.serving import run_simple
 from djehuty.schema.migrate import DriftDetectedError, MigrationRunner
 from djehuty.utils import convenience
 from djehuty.web import wsgi
+from djehuty.web.cache import build_cache_backend
 from djehuty.web.config import config
 from djehuty.web.config.json_parser import JsonConfigElement, parse_config_root
 
@@ -119,6 +120,14 @@ def read_boolean_value(xml_root, path, default_value, logger):
         logger.error("Erroneous value for '%s' - assuming '%s'.", path, default_value)
 
     return default_value
+
+
+def resolve_work_dir(xml_root, cache_storage):
+    """Return the configured 'work-dir', defaulting to the cache directory."""
+    work_dir = config_value(xml_root, "work-dir")
+    if work_dir is not None:
+        return work_dir
+    return cache_storage
 
 
 def read_raw_xml(xml_root, path, default_value=None):
@@ -265,6 +274,48 @@ def read_web_service_configuration(xml_root, logger):
     groups_node = node.find("groups")
     if groups_node is not None:
         config.web_service_groups.update(_read_web_service_targets(groups_node, logger))
+
+
+def read_cache_backend_configuration(xml_root, logger):
+    """Read the optional 'cache-backend' block (absent = on-disk file cache)."""
+    cache_type = config_value(xml_root, "cache-backend/type")
+    if cache_type is None:
+        return
+
+    config.cache_backend_type = cache_type.strip().lower()
+    if config.cache_backend_type not in ("file", "valkey"):
+        logger.error(
+            "Unknown cache-backend type '%s'; use 'file' or 'valkey'.",
+            config.cache_backend_type,
+        )
+        raise SystemExit
+
+    config.cache_backend_host = config_value(
+        xml_root, "cache-backend/host", None, config.cache_backend_host
+    )
+    config.cache_backend_port = read_integer_value(
+        xml_root, "cache-backend/port", config.cache_backend_port
+    )
+    config.cache_backend_db = read_integer_value(
+        xml_root, "cache-backend/db", config.cache_backend_db
+    )
+    config.cache_backend_tls = read_boolean_value(
+        xml_root, "cache-backend/tls", config.cache_backend_tls, logger
+    )
+    config.cache_backend_password = config_value(
+        xml_root, "cache-backend/password", None, config.cache_backend_password
+    )
+    config.cache_ttl = read_integer_value(xml_root, "cache-backend/ttl", config.cache_ttl)
+    config.cache_coarse_invalidation = read_boolean_value(
+        xml_root, "cache-backend/coarse-invalidation", config.cache_coarse_invalidation, logger
+    )
+    deployment = config_value(xml_root, "cache-backend/deployment")
+    if deployment is not None:
+        config.cache_deployment = deployment
+
+    if config.cache_backend_type == "valkey" and config.cache_backend_host is None:
+        logger.error("A Valkey cache-backend requires a 'host'.")
+        raise SystemExit
 
 
 def read_quotas_configuration(xml_root):
@@ -506,7 +557,7 @@ def setup_saml_service_provider(server, logger):
             logger.error("Cannot initiate authentication with SAML.")
             raise DependencyNotAvailable
 
-        saml_cache_dir = os.path.join(server.db.cache.storage, "saml-config")
+        saml_cache_dir = os.path.join(config.work_dir, "saml-config")
         os.makedirs(saml_cache_dir, mode=0o700, exist_ok=True)
         if os.path.isdir(saml_cache_dir):
             filename = os.path.join(saml_cache_dir, "settings.json")
@@ -600,7 +651,7 @@ def write_pem_file(file_stream, contents, format_name):
 def setup_handle_registration(server, logger):
     """Write the Handle configuration to a file."""
 
-    handle_cache_dir = os.path.join(server.db.cache.storage, "handle-config")
+    handle_cache_dir = os.path.join(config.work_dir, "handle-config")
     os.makedirs(handle_cache_dir, mode=0o700, exist_ok=True)
     if not os.path.isdir(handle_cache_dir):
         logger.error("Failed to create '%s'.", handle_cache_dir)
@@ -1108,6 +1159,11 @@ def read_configuration_file(server, config_file, logger, config_files):
         elif server.db.cache.storage is None:
             server.db.cache.storage = os.path.join(config.storage, "cache")
 
+        config.work_dir = resolve_work_dir(xml_root, server.db.cache.storage)
+
+        read_cache_backend_configuration(xml_root, logger)
+        server.db.cache = build_cache_backend(config, server.db.cache)
+
         profile_images_root = xml_root.find("profile-images-root")
         if profile_images_root is not None:
             config.profile_images_storage = profile_images_root.text
@@ -1609,6 +1665,12 @@ def main(
             logger.error("The storage directory '%s' does not exist.", config.storage)
             raise FileNotFoundError
 
+        if config.work_dir is not None and not inside_reload:
+            try:
+                os.makedirs(config.work_dir, mode=0o700, exist_ok=True)
+            except PermissionError:
+                logger.error("Cannot create %s directory.", config.work_dir)
+
         if config.profile_images_storage is not None and not inside_reload:
             try:
                 os.makedirs(config.profile_images_storage, mode=0o700, exist_ok=True)
@@ -1680,7 +1742,17 @@ def main(
                 for location in config.storage_locations:
                     logger.info("Storage path:            %s", location["path"])
             logger.info("Secondary storage path:  %s", config.secondary_storage)
-            logger.info("Cache storage path:      %s", server.db.cache.storage)
+            logger.info("Cache backend:           %s", config.cache_backend_type)
+            if config.cache_backend_type == "valkey":
+                logger.info(
+                    "Valkey cache:            %s:%s (deployment: %s)",
+                    config.cache_backend_host,
+                    config.cache_backend_port,
+                    config.cache_deployment,
+                )
+            else:
+                logger.info("Cache storage path:      %s", server.db.cache.storage)
+            logger.info("Working directory:       %s", config.work_dir)
             logger.info("Static pages loaded:     %s", len(server.static_pages))
             if config.handle_url is None:
                 logger.info("Handle registration is disabled.")
