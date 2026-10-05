@@ -1464,6 +1464,55 @@ def perform_rdf_export(logger, server, full_export):
 ## ----------------------------------------------------------------------------
 
 
+def start_http_server(app, logger, config_files, inside_reload):
+    """Serve APP with Werkzeug's built-in server.
+
+    Pre-tests the listen port (and falls back to the alternative one if it is
+    taken) because 'run_simple' cannot report an address-already-in-use error
+    cleanly. The test is skipped inside a reloader child."""
+    if not inside_reload:
+        try:
+            bind_test = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            bind_test.bind((config.address, config.port))
+            bind_test.close()
+        except OSError as error:
+            if config.alternative_port is not None:
+                logger.info("Falling back to port %s.", config.alternative_port)
+                config.port = config.alternative_port
+            else:
+                logger.info("Unable to bind to port %s: %s.", config.port, error)
+
+    run_simple(
+        config.address,
+        config.port,
+        app,
+        threaded=(config.maximum_workers <= 1),
+        processes=config.maximum_workers,
+        extra_files=list(config_files),
+        use_debugger=config.use_debugger,
+        use_reloader=config.use_reloader,
+    )
+
+
+def run_maintenance_server(server, logger, run_internal_server, config_files, inside_reload):
+    """Serve only the maintenance page, without initialising external resources.
+
+    In maintenance mode every request is answered with the maintenance page, so
+    there is no need to reach the SPARQL store, S3, e-mail or any other
+    back-end. The legacy app is served directly; the new HTTP stack is not
+    built."""
+    config.djehuty_version = importlib.metadata.version("djehuty")
+    config.startup_timestamp = int(datetime.now().timestamp())
+    logger.warning("Maintenance mode is enabled; serving the maintenance page only.")
+
+    if not run_internal_server:
+        config.using_uwsgi = True
+        return server
+
+    start_http_server(server, logger, config_files, inside_reload)
+    return None
+
+
 def main(
     config_file=None,
     run_internal_server=True,
@@ -1516,6 +1565,14 @@ def main(
             return extract_transactions(since_datetime, delayed=True)
 
         inside_reload = os.environ.get("WERKZEUG_RUN_MAIN")
+
+        ## In maintenance mode, serve only the maintenance page without reaching
+        ## any external resource. Data operations still need the RDF store, so
+        ## they fall through to the regular start-up below.
+        if config.maintenance_mode and apply_transactions is None and not perform_export:
+            return run_maintenance_server(
+                server, logger, run_internal_server, config_files, inside_reload
+            )
 
         if (
             isinstance(config.endpoint, str)
@@ -1709,20 +1766,6 @@ def main(
         if not inside_reload:
             refresh_group_configuration(server, logger, config_files)
 
-            # The 'run_simple' procedure below doesn't allow to catch an
-            # address-already-in-use error, so we have to test beforehand to
-            # figure out if we need to use the fallback port instead.
-            try:
-                bind_test = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                bind_test.bind((config.address, config.port))
-                bind_test.close()
-            except OSError as error:
-                if config.alternative_port is not None:
-                    logger.info("Falling back to port %s.", config.alternative_port)
-                    config.port = config.alternative_port
-                else:
-                    logger.info("Unable to bind to port %s: %s.", config.port, error)
-
             if config.static_cache_root is not None:
                 server.create_static_error_pages()
 
@@ -1733,16 +1776,7 @@ def main(
 
         wsgi_app = build_wsgi_app(server, server.db, config.web_service, config.web_service_groups)
 
-        run_simple(
-            config.address,
-            config.port,
-            wsgi_app,
-            threaded=(config.maximum_workers <= 1),
-            processes=config.maximum_workers,
-            extra_files=list(config_files),
-            use_debugger=config.use_debugger,
-            use_reloader=config.use_reloader,
-        )
+        start_http_server(wsgi_app, logger, config_files, inside_reload)
 
     except (FileNotFoundError, DependencyNotAvailable, MissingConfigurationError):
         pass
@@ -1783,9 +1817,15 @@ def application(env, start_response):
         if server is None:
             start_response("500 Internal Server Error", [("Content-Type", "text/html")])
             return [b"<p>djehuty failed to start. See the log for details.</p>"]
-        from djehuty.dispatch import build_wsgi_app
 
-        _UWSGI_APP = build_wsgi_app(
-            server, server.db, config.web_service, config.web_service_groups
-        )
+        if config.maintenance_mode:
+            ## Serve the legacy app directly: every request renders the
+            ## maintenance page and the new HTTP stack is not built.
+            _UWSGI_APP = server
+        else:
+            from djehuty.dispatch import build_wsgi_app
+
+            _UWSGI_APP = build_wsgi_app(
+                server, server.db, config.web_service, config.web_service_groups
+            )
     return _UWSGI_APP(env, start_response)
