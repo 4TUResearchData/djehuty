@@ -49,6 +49,11 @@ jQuery(document).ready(function (){
     jQuery(".upload-container").after('<div style="padding: .5em; margin-bottom: 1em; text-align: left" class="notice-box">You do not have permission to upload files.</div>');
     jQuery(".upload-container").hide();
 {%- endif %}
+{%- if storage_maintenance %}
+    jQuery(".upload-container").after('<div style="padding: .5em; margin-bottom: 1em; text-align: left" class="notice-box">File uploads are temporarily unavailable while storage is under maintenance.</div>');
+    jQuery(".upload-container").hide();
+    jQuery("#api-upload").hide();
+{%- endif %}
     });
 });
 </script>

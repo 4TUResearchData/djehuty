@@ -47,7 +47,7 @@ var categories = "{% for item in subcategories: %}{{item.id}}{{ ',' if not loop.
 <h2>Collections</h2>
 {% for item in collections %}
 <div class="tile-item">
-  <a href="/collections/{{item.container_uuid}}">{% if item.thumb | length: %}
+  <a href="/collections/{{item.container_uuid}}">{% if item.thumb | length and not storage_maintenance: %}
   <img class="tile-preview" src="{{item.thumb}}" aria-hidden="true" alt="thumbnail for {{item.container_uuid}}" />
   {% else: %}
   <img class="tile-preview" src="/static/images/collection-thumb.svg" aria-hidden="true" alt="thumbnail for {{item.container_uuid}}" />
@@ -62,7 +62,7 @@ var categories = "{% for item in subcategories: %}{{item.id}}{{ ',' if not loop.
 <h2>All datasets</h2>
 {% for item in articles %}
 <div class="tile-item">
-  <a href="/datasets/{{item.container_uuid}}">{% if item.thumb | length: %}
+  <a href="/datasets/{{item.container_uuid}}">{% if item.thumb | length and not storage_maintenance: %}
   <img class="tile-preview" src="{{item.thumb}}" aria-hidden="true" alt="thumbnail for {{item.container_uuid}}" />
   {% else: %}
   <img class="tile-preview" src="/static/images/dataset-thumb.svg" aria-hidden="true" alt="thumbnail for {{item.container_uuid}}" />

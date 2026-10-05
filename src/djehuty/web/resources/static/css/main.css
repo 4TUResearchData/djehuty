@@ -613,6 +613,7 @@ img { user-select: none; }
     text-align: center;
 }
 #sandbox-message { display: block; width: 100%; text-align: center; }
+#storage-maintenance-message { display: block; width: 100%; text-align: center; background: #946b00; color: #fff; }
 .pre-header p { padding: .5em; line-height: 2em; font-size: 1.25em; margin: auto; }
 .pre-header a { color: #fff; }
 .pre-header a:hover { color: #ccc; }

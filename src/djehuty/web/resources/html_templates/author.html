@@ -11,7 +11,7 @@
 {% endblock %}
 {% block body %}
 <div id="right_column">
-{%- if profile.image %}
+{%- if profile.image and not storage_maintenance %}
     <div id="profile_image">
         <img src="/v3/profile/picture/{{profile.account_uuid}}" alt="Profile of {{profile.full_name}}" />
     </div>
