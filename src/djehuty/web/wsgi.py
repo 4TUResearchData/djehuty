@@ -607,33 +607,40 @@ class WebServer:
         template = self.jinja.get_template (template_name)
         return self.response (template.render (context), mimetype="text/css")
 
-    def __render_template (self, request, template_name, **context):
-        template      = self.jinja.get_template (template_name)
-        token         = self.token_from_cookie (request)
-        account       = self.db.account_by_session_token (token)
-        parameters    = {
-            "base_url":            config.base_url,
+    def __base_template_parameters (self, request):
+        """Template parameters sourced from configuration only, so they can be
+        built without any back-end access (also used by the maintenance page)."""
+        return {
             "nonce":               uuid.uuid4().hex,
             "custom_stylesheets":  config.custom_stylesheets,
-            "identity_provider":   config.identity_provider,
-            "in_production":       config.in_production,
-            "is_logged_in":        account is not None,
-            "may_deposit":         self.db.is_depositor (token, account),
-            "large_footer":        config.large_footer,
             "djehuty_version":     config.djehuty_version,
+            "large_footer":        config.large_footer,
+            "small_footer":        config.small_footer,
             "maintenance_mode":    config.maintenance_mode,
-            "menu":                config.menu,
-            "orcid_client_id":     config.orcid_client_id,
-            "orcid_endpoint":      config.orcid_endpoint,
             "path":                request.path,
             "sandbox_message":     config.sandbox_message,
             "site_description":    config.site_description,
             "site_name":           config.site_name,
             "site_shorttag":       config.site_shorttag,
+            "startup_timestamp":   config.startup_timestamp,
+        }
+
+    def __render_template (self, request, template_name, **context):
+        template      = self.jinja.get_template (template_name)
+        token         = self.token_from_cookie (request)
+        account       = self.db.account_by_session_token (token)
+        parameters    = {
+            **self.__base_template_parameters (request),
+            "base_url":            config.base_url,
+            "identity_provider":   config.identity_provider,
+            "in_production":       config.in_production,
+            "is_logged_in":        account is not None,
+            "may_deposit":         self.db.is_depositor (token, account),
+            "menu":                config.menu,
+            "orcid_client_id":     config.orcid_client_id,
+            "orcid_endpoint":      config.orcid_endpoint,
             "publisher_rors":      config.publisher_rors,
             "support_email_address": config.support_email_address,
-            "small_footer":        config.small_footer,
-            "startup_timestamp":   config.startup_timestamp,
         }
         if account is None:
             parameters = { **parameters,
@@ -679,11 +686,15 @@ class WebServer:
         template      = self.metadata_jinja.get_template (template_name)
         return self.response (template.render(**context), mimetype=mimetype)
 
+    ## Paths that keep working in maintenance mode: they style the maintenance
+    ## page itself and render from configuration only (no back-end access).
+    maintenance_style_paths = ("/theme/colors.css", "/theme/fonts.css", "/theme/loader.svg")
+
     def __dispatch_request (self, request):
         adapter = self.url_map.bind_to_environ(request.environ)
         try:
             self.log_access (request)
-            if config.maintenance_mode:
+            if config.maintenance_mode and request.path not in self.maintenance_style_paths:
                 return self.ui_maintenance (request)
             endpoint, values = adapter.match() #  pylint: disable=unpacking-non-sequence
             return endpoint (request, **values)
@@ -1907,13 +1918,21 @@ class WebServer:
                                           base_url = config.base_url,
                                           datasets = datasets)
 
+    def __render_maintenance_page (self, request):
+        """Render the maintenance page using configuration only, without any
+        back-end access so it works while external resources are unavailable."""
+        template = self.jinja.get_template ("maintenance.html")
+        return self.response (
+            template.render (self.__base_template_parameters (request)),
+            mimetype="text/html")
+
     def ui_maintenance (self, request):
         """Implements a maintenance page."""
         if not config.maintenance_mode:
-            self.error_404 (request)
+            return self.error_404 (request)
 
         if self.accepts_html (request):
-            return self.__render_template (request, "maintenance.html")
+            return self.__render_maintenance_page (request)
 
         return self.response (json.dumps({ "status": "maintenance" }))
 
