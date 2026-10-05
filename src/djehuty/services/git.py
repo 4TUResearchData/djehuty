@@ -179,6 +179,21 @@ def repository_by_dataset_id(
     return pygit2.Repository(git_directory)
 
 
+def repository_by_git_uuid(git_uuid: str) -> "pygit2.Repository | None":
+    """Open the bare repository for GIT_UUID, or None when it does not exist."""
+    from djehuty.web import validator
+
+    if not validator.is_valid_uuid(git_uuid):
+        return None
+
+    git_directory = os.path.join(config.storage, f"{git_uuid}.git")
+    if not os.path.exists(git_directory):
+        _log.error("No Git repository at '%s'", git_directory)
+        return None
+
+    return pygit2.Repository(git_directory)
+
+
 def create_repository(git_uuid: str) -> bool:
     """Create the on-disk bare repository for GIT_UUID when it does not exist.
 
