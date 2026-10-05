@@ -21,6 +21,23 @@ services:
       retries: 30
       start_period: 30s
 
+  valkey:
+    image: valkey/valkey:8-alpine
+    command:
+      - valkey-server
+      - --maxmemory
+      - 256mb
+      - --maxmemory-policy
+      - allkeys-lru
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 5s
+
   djehuty:
     build:
       context: ..
@@ -30,6 +47,8 @@ services:
     # Forwarded from `just db_backup=... dev` so the container loads the
     # gitignored *.local.json override instead of the tracked dev config.
     # The image's default CMD runs `djehuty web --initialize` against this.
+    # The dev config enables the Valkey cache backend; the e2e config includes it,
+    # so both dev and the e2e suite run against the shared Valkey by default.
     environment:
       DJEHUTY_CONFIG: ${DJEHUTY_CONFIG:-/config/djehuty/djehuty-dev-config.json}
     volumes:
@@ -38,6 +57,8 @@ services:
       - djehuty-data:/data
     depends_on:
       virtuoso:
+        condition: service_healthy
+      valkey:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:8080/ > /dev/null"]
