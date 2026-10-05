@@ -26,6 +26,7 @@ file. A JSON example is available at `etc/djehuty/djehuty-example-config.json`.
 | `disable-collaboration` | When set to 1, it disables the "collaborators" feature. |
 | `allowed-depositing-domains` | When unset, any authenticated user may deposit data. Otherwise, this option limits the ability to deposit to users with an e-mail address of the listed domain names. |
 | `cache-root` | `djehuty` can cache query responses to lower the load on the database server. Specify the directory where to store cache files. This element takes an attribute `clear-on-start`, and when set to 1, it will remove all cache files on start-up of `djehuty`. |
+| `work-dir` | A directory for non-cache working files (SAML and Handle configuration). Defaults to the `cache-root` directory, so existing deployments are unaffected. Set it explicitly when the cache is a shared backend (Valkey) that has no filesystem of its own. |
 | `profile-images-root` | Users can upload a profile image in `djehuty`. This option should point to a filesystem directory where these profile images can be stored. |
 | `disable-2fa` | Accounts with privileges receive a code by e-mail as a second factor when logging in. Setting this option to 1 disables the second factor authentication. |
 | `sandbox-message` | Display a message on the top of every page. |
@@ -42,6 +43,103 @@ Configuring the connection details is done in the `rdf-store` node.
 | `state-graph` | The graph name to store triplets in. |
 | `sparql-uri` | The URI at which the SPARQL 1.1 endpoint can be reached. When the `sparql-uri` begins with `bdb://`, followed by a path to a filesystem directory, it will use the BerkeleyDB back-end, for which the `berkeleydb` Python package needs to be installed. |
 | `sparql-update-uri` | The URI at which the SPARQL 1.1 Update endpoint can be reached (in case it is different from the `sparql-uri`). |
+
+## Configuring the cache backend
+
+By default `djehuty` caches query responses as files under `cache-root` (see
+above). For a multi-instance deployment that on-disk cache is node-local: a write
+on one instance does not invalidate the cache of another. The optional
+`cache-backend` node selects a **shared** cache instead, so an invalidation is
+visible to every instance at once. When the node is absent, the file cache is used
+and nothing changes.
+
+The only supported shared backend is [Valkey](https://valkey.io/) (a BSD-licensed,
+Redis-compatible keyspace). It is configured in the `cache-backend` node:
+
+| Option | Description |
+|--------|-------------|
+| `type` | `file` (the default) or `valkey`. |
+| `host` | The Valkey host. Required when `type` is `valkey`. |
+| `port` | The Valkey port. Defaults to `6379`. |
+| `db` | The Valkey logical database number. Defaults to `0`. |
+| `tls` | Set to `1` to connect over TLS. Defaults to `0`. |
+| `password` | The Valkey password. Use a `${env:NAME}` or `${file:/path}` reference in JSON configuration (XML does not resolve these). |
+| `deployment` | A namespace so one Valkey can host several deployments without their invalidations colliding. Defaults to `default`. |
+| `ttl` | An optional expiry (seconds) for cache entries. Defaults to off (no expiry), matching the file cache. Setting it (for example `3600`) is recommended when running multiple instances. |
+
+The Valkey backend is **fail-open**: when Valkey is unreachable, reads go straight
+to the SPARQL store (correct but slower, never stale) and writes still succeed.
+Valkey holds only regenerable cache content, so losing it means a cold cache, never
+data loss. Run it with a bounded `maxmemory` and an `allkeys-lru` eviction policy.
+
+A JSON example:
+
+```json
+"cache-backend": {
+  "type": "valkey",
+  "host": "valkey",
+  "port": 6379,
+  "db": 0,
+  "tls": "0",
+  "password": "${env:VALKEY_PASSWORD}",
+  "deployment": "production",
+  "ttl": "3600"
+}
+```
+
+## Horizontal scaling: readers, a writer, and a git tier
+
+With a shared cache in place, `djehuty` can run as more than one instance behind a
+load balancer. There is **no "scaling mode" to turn on** — the application is
+role-agnostic. You make it scalable by two deployment choices:
+
+1. Point every instance at the same shared cache (`cache-backend` of `type`
+   `valkey`, above), so an invalidation on one instance is visible to all.
+2. Route traffic in the reverse proxy so that one **writer** receives all
+   deposit/metadata mutations, N **readers** serve public read traffic, and one
+   **git tier** serves every per-dataset git operation.
+
+The single-writer rule is a routing decision, not an application setting: writes use
+per-process locks, so they must all land on one instance. The instances themselves
+do not need to know their role.
+
+Routing is done in the reverse proxy. The split is by **HTTP method**, not by listing
+paths: every state-changing request uses a non-`GET` method, so routing all non-`GET`
+traffic to the writer covers *every* mutation — create, edit, delete, file upload,
+submit, publish, physical samples, authors, collections, profile images — without
+enumerating them. Git URLs go to the git tier by path (any method); reads go to the
+readers.
+
+```nginx
+# Git operations (clone, fetch, push, repo browsing, stats, zip) -> git tier.
+location ~ ^/v3/datasets/[^/]+\.git {
+    proxy_pass http://git-tier;
+}
+
+# Admin and reviewer actions can change state on GET, so pin them to the writer.
+location /admin/   { proxy_pass http://writer; }
+location /review/  { proxy_pass http://writer; }
+
+# Everything else: writes -> the single writer, reads -> the readers.
+location / {
+    if ($request_method ~ ^(POST|PUT|PATCH|DELETE)$) {
+        proxy_pass http://writer;
+    }
+    proxy_pass http://readers;
+}
+```
+
+The read-only `*/search` endpoints use `POST` but are reads; the rule above sends them
+to the writer, which is correct but does not offload them. To serve search from the
+readers too, add before `location /`:
+
+```nginx
+location ~ /search$ { proxy_pass http://readers; }
+```
+
+Git repositories live on the git tier's local disk and must never be placed on a
+shared network filesystem. Uploaded data files sit on a shared ReadWriteMany volume
+that the writer writes and the readers serve.
 
 ## Audit trails and database reconstruction
 
