@@ -5,6 +5,19 @@ appear first; this file is the source of truth for release notes.
 
 Commit links point to <https://github.com/4TUResearchData/djehuty>.
 
+## [v26.7.2]
+
+This patch release makes maintenance mode work without any external resource,
+and refreshes the Docker base image.
+
+### Bugfixes
+
+- Serve maintenance mode without reaching the database or storage, so the maintenance page is shown even while the back-ends are offline. ([e91d106](https://github.com/4TUResearchData/djehuty/commit/e91d106c))
+
+### Incremental improvements
+
+- Update the Python base image used for the Docker image. ([06f7400](https://github.com/4TUResearchData/djehuty/commit/06f74006))
+
 ## [v26.7.1]
 
 This patch release resolves five coordinated-disclosure security advisories in
