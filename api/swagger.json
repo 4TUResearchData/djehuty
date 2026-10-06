@@ -8767,6 +8767,373 @@
         }
       }
     },
+    "/v3/collections/{collection_id}/physical-samples": {
+      "get": {
+        "tags": [
+          "V3 / Collections / Physical samples"
+        ],
+        "summary": "List collection physical samples (private)",
+        "operationId": "list_collection_physical_samples_v3_collections__collection_id__physical_samples_get",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "collection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Collection Id"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Page number (1-based). Mutually exclusive with offset.",
+              "title": "Page"
+            },
+            "description": "Page number (1-based). Mutually exclusive with offset."
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 1000,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Number of items per page. Used with `page`.",
+              "title": "Page Size"
+            },
+            "description": "Number of items per page. Used with `page`."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Maximum number of results to return.",
+              "title": "Limit"
+            },
+            "description": "Maximum number of results to return."
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Number of results to skip.",
+              "title": "Offset"
+            },
+            "description": "Number of results to skip."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "V3 / Collections / Physical samples"
+        ],
+        "summary": "Replace collection physical samples",
+        "operationId": "upsert_collection_physical_samples_v3_collections__collection_id__physical_samples_put",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "collection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Collection Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "V3 / Collections / Physical samples"
+        ],
+        "summary": "Add physical samples to collection",
+        "operationId": "upsert_collection_physical_samples_v3_collections__collection_id__physical_samples_post",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "collection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Collection Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/collections/{collection_id}/physical-samples/{container_uuid}": {
+      "delete": {
+        "tags": [
+          "V3 / Collections / Physical samples"
+        ],
+        "summary": "Remove physical sample from collection",
+        "operationId": "delete_collection_physical_sample_v3_collections__collection_id__physical_samples__container_uuid__delete",
+        "security": [
+          {
+            "Session token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "collection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Collection Id"
+            }
+          },
+          {
+            "name": "container_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Container Uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/physical-samples/search": {
+      "post": {
+        "tags": [
+          "V3 / Physical samples"
+        ],
+        "summary": "Search published physical samples",
+        "operationId": "search_physical_samples_v3_physical_samples_search_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": true,
+                "type": "object",
+                "title": "Body"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v3/physical-samples": {
       "get": {
         "tags": [
@@ -12910,7 +13277,7 @@
           "V3 / SSI"
         ],
         "summary": "Receive dataset from SSI",
-        "operationId": "receive_from_ssi_v3_receive_from_ssi_delete",
+        "operationId": "receive_from_ssi_v3_receive_from_ssi_put",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -12930,7 +13297,7 @@
           "V3 / SSI"
         ],
         "summary": "Receive dataset from SSI",
-        "operationId": "receive_from_ssi_v3_receive_from_ssi_delete",
+        "operationId": "receive_from_ssi_v3_receive_from_ssi_put",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -12950,7 +13317,7 @@
           "V3 / SSI"
         ],
         "summary": "Receive dataset from SSI",
-        "operationId": "receive_from_ssi_v3_receive_from_ssi_delete",
+        "operationId": "receive_from_ssi_v3_receive_from_ssi_put",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -12970,7 +13337,7 @@
           "V3 / SSI"
         ],
         "summary": "Receive dataset from SSI",
-        "operationId": "receive_from_ssi_v3_receive_from_ssi_delete",
+        "operationId": "receive_from_ssi_v3_receive_from_ssi_put",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -13977,7 +14344,7 @@
         ],
         "summary": "Search accounts",
         "description": "Search for user accounts (autocomplete for adding collaborators).",
-        "operationId": "search_accounts_v3_accounts_search_get",
+        "operationId": "search_accounts_v3_accounts_search_post",
         "responses": {
           "200": {
             "description": "Matching accounts",
@@ -14030,7 +14397,7 @@
         ],
         "summary": "Search accounts",
         "description": "Search for user accounts (autocomplete for adding collaborators).",
-        "operationId": "search_accounts_v3_accounts_search_get",
+        "operationId": "search_accounts_v3_accounts_search_post",
         "responses": {
           "200": {
             "description": "Matching accounts",
