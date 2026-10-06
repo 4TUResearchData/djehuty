@@ -1133,6 +1133,7 @@ def _collection_contains_sample(page: Page, container_uuid: str, sample_uuid: st
 
 
 @pytest.mark.collections
+@pytest.mark.skip(reason="IGSN not enabled")
 class TestCollectPhysicalSample:
     """Tests for the COLLECT button on a physical sample and its collection page."""
 
