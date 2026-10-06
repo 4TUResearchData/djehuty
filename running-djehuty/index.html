@@ -335,6 +335,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#configuring-the-cache-backend" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring the cache backend
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#horizontal-scaling-readers-a-writer-and-a-git-tier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Horizontal scaling: readers, a writer, and a git tier
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#audit-trails-and-database-reconstruction" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1001,6 +1023,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#configuring-the-cache-backend" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring the cache backend
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#horizontal-scaling-readers-a-writer-and-a-git-tier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Horizontal scaling: readers, a writer, and a git tier
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#audit-trails-and-database-reconstruction" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1398,6 +1442,10 @@ Migrate to JSON (see <code>etc/djehuty/djehuty-example-config.json</code>).</p>
 <td><code>djehuty</code> can cache query responses to lower the load on the database server. Specify the directory where to store cache files. This element takes an attribute <code>clear-on-start</code>, and when set to 1, it will remove all cache files on start-up of <code>djehuty</code>.</td>
 </tr>
 <tr>
+<td><code>work-dir</code></td>
+<td>A directory for non-cache working files (SAML and Handle configuration). Defaults to the <code>cache-root</code> directory, so existing deployments are unaffected. Set it explicitly when the cache is a shared backend (Valkey) that has no filesystem of its own.</td>
+</tr>
+<tr>
 <td><code>profile-images-root</code></td>
 <td>Users can upload a profile image in <code>djehuty</code>. This option should point to a filesystem directory where these profile images can be stored.</td>
 </tr>
@@ -1444,6 +1492,118 @@ Configuring the connection details is done in the <code>rdf-store</code> node.</
 </tr>
 </tbody>
 </table>
+<h2 id="configuring-the-cache-backend">Configuring the cache backend</h2>
+<p>By default <code>djehuty</code> caches query responses as files under <code>cache-root</code> (see
+above). For a multi-instance deployment that on-disk cache is node-local: a write
+on one instance does not invalidate the cache of another. The optional
+<code>cache-backend</code> node selects a <strong>shared</strong> cache instead, so an invalidation is
+visible to every instance at once. When the node is absent, the file cache is used
+and nothing changes.</p>
+<p>The only supported shared backend is <a href="https://valkey.io/">Valkey</a> (a BSD-licensed,
+Redis-compatible keyspace). It is configured in the <code>cache-backend</code> node:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>type</code></td>
+<td><code>file</code> (the default) or <code>valkey</code>.</td>
+</tr>
+<tr>
+<td><code>host</code></td>
+<td>The Valkey host. Required when <code>type</code> is <code>valkey</code>.</td>
+</tr>
+<tr>
+<td><code>port</code></td>
+<td>The Valkey port. Defaults to <code>6379</code>.</td>
+</tr>
+<tr>
+<td><code>db</code></td>
+<td>The Valkey logical database number. Defaults to <code>0</code>.</td>
+</tr>
+<tr>
+<td><code>tls</code></td>
+<td>Set to <code>1</code> to connect over TLS. Defaults to <code>0</code>.</td>
+</tr>
+<tr>
+<td><code>password</code></td>
+<td>The Valkey password. Use a <code>${env:NAME}</code> or <code>${file:/path}</code> reference in JSON configuration (XML does not resolve these).</td>
+</tr>
+<tr>
+<td><code>deployment</code></td>
+<td>A namespace so one Valkey can host several deployments without their invalidations colliding. Defaults to <code>default</code>.</td>
+</tr>
+<tr>
+<td><code>ttl</code></td>
+<td>An optional expiry (seconds) for cache entries. Defaults to off (no expiry), matching the file cache. Setting it (for example <code>3600</code>) is recommended when running multiple instances.</td>
+</tr>
+</tbody>
+</table>
+<p>The Valkey backend is <strong>fail-open</strong>: when Valkey is unreachable, reads go straight
+to the SPARQL store (correct but slower, never stale) and writes still succeed.
+Valkey holds only regenerable cache content, so losing it means a cold cache, never
+data loss. Run it with a bounded <code>maxmemory</code> and an <code>allkeys-lru</code> eviction policy.</p>
+<p>A JSON example:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nt">&quot;cache-backend&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;valkey&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="nt">&quot;host&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;valkey&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="nt">&quot;port&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">6379</span><span class="p">,</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span><span class="nt">&quot;db&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="nt">&quot;tls&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span><span class="nt">&quot;password&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;${env:VALKEY_PASSWORD}&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">  </span><span class="nt">&quot;deployment&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;production&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">  </span><span class="nt">&quot;ttl&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;3600&quot;</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="p">}</span>
+</code></pre></div>
+<h2 id="horizontal-scaling-readers-a-writer-and-a-git-tier">Horizontal scaling: readers, a writer, and a git tier</h2>
+<p>With a shared cache in place, <code>djehuty</code> can run as more than one instance behind a
+load balancer. There is <strong>no "scaling mode" to turn on</strong> — the application is
+role-agnostic. You make it scalable by two deployment choices:</p>
+<ol>
+<li>Point every instance at the same shared cache (<code>cache-backend</code> of <code>type</code>
+   <code>valkey</code>, above), so an invalidation on one instance is visible to all.</li>
+<li>Route traffic in the reverse proxy so that one <strong>writer</strong> receives all
+   deposit/metadata mutations, N <strong>readers</strong> serve public read traffic, and one
+   <strong>git tier</strong> serves every per-dataset git operation.</li>
+</ol>
+<p>The single-writer rule is a routing decision, not an application setting: writes use
+per-process locks, so they must all land on one instance. The instances themselves
+do not need to know their role.</p>
+<p>Routing is done in the reverse proxy. The split is by <strong>HTTP method</strong>, not by listing
+paths: every state-changing request uses a non-<code>GET</code> method, so routing all non-<code>GET</code>
+traffic to the writer covers <em>every</em> mutation — create, edit, delete, file upload,
+submit, publish, physical samples, authors, collections, profile images — without
+enumerating them. Git URLs go to the git tier by path (any method); reads go to the
+readers.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Git operations (clone, fetch, push, repo browsing, stats, zip) -&gt; git tier.</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">location</span><span class="w"> </span><span class="p">~</span><span class="w"> </span><span class="sr">^/v3/datasets/[^/]+\.git</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="kn">proxy_pass</span><span class="w"> </span><span class="s">http://git-tier</span><span class="p">;</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="p">}</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="c1"># Admin and reviewer actions can change state on GET, so pin them to the writer.</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="k">location</span><span class="w"> </span><span class="s">/admin/</span><span class="w">   </span><span class="p">{</span><span class="w"> </span><span class="kn">proxy_pass</span><span class="w"> </span><span class="s">http://writer</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="k">location</span><span class="w"> </span><span class="s">/review/</span><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="kn">proxy_pass</span><span class="w"> </span><span class="s">http://writer</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="c1"># Everything else: writes -&gt; the single writer, reads -&gt; the readers.</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="k">location</span><span class="w"> </span><span class="s">/</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">    </span><span class="kn">if</span><span class="w"> </span><span class="s">(</span><span class="nv">$request_method</span><span class="w"> </span><span class="p">~</span><span class="w"> </span><span class="sr">^(POST|PUT|PATCH|DELETE)$)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">        </span><span class="kn">proxy_pass</span><span class="w"> </span><span class="s">http://writer</span><span class="p">;</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">    </span><span class="kn">proxy_pass</span><span class="w"> </span><span class="s">http://readers</span><span class="p">;</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="p">}</span>
+</code></pre></div>
+<p>The read-only <code>*/search</code> endpoints use <code>POST</code> but are reads; the rule above sends them
+to the writer, which is correct but does not offload them. To serve search from the
+readers too, add before <code>location /</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">location</span><span class="w"> </span><span class="p">~</span><span class="w"> </span><span class="sr">/search$</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="kn">proxy_pass</span><span class="w"> </span><span class="s">http://readers</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+<p>Git repositories live on the git tier's local disk and must never be placed on a
+shared network filesystem. Uploaded data files sit on a shared ReadWriteMany volume
+that the writer writes and the readers serve.</p>
 <h2 id="audit-trails-and-database-reconstruction">Audit trails and database reconstruction</h2>
 <p>The <code>djehuty</code> program can keep an audit log of all database modifications made
 by itself from which a database state can be reconstructed. Whether <code>djehuty</code>
@@ -1468,17 +1628,17 @@ enabled can be extracted from the query audit log using the
 <code>--extract-transactions-from-log</code> command-line option. A timestamp to specify
 the starting point to extract from can be specified as an argument. The
 following example displays its use:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>djehuty<span class="w"> </span>web<span class="w"> </span>--config-file<span class="o">=</span>config.json<span class="w"> </span>--extract-transactions-from-log<span class="o">=</span><span class="s2">&quot;YYYY-MM-DD HH:MM:SS&quot;</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="c1"># or, with the deprecated XML format:</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>djehuty<span class="w"> </span>web<span class="w"> </span>--config-file<span class="o">=</span>config.xml<span class="w"> </span>--extract-transactions-from-log<span class="o">=</span><span class="s2">&quot;YYYY-MM-DD HH:MM:SS&quot;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>djehuty<span class="w"> </span>web<span class="w"> </span>--config-file<span class="o">=</span>config.json<span class="w"> </span>--extract-transactions-from-log<span class="o">=</span><span class="s2">&quot;YYYY-MM-DD HH:MM:SS&quot;</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="c1"># or, with the deprecated XML format:</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>djehuty<span class="w"> </span>web<span class="w"> </span>--config-file<span class="o">=</span>config.xml<span class="w"> </span>--extract-transactions-from-log<span class="o">=</span><span class="s2">&quot;YYYY-MM-DD HH:MM:SS&quot;</span>
 </code></pre></div>
 <p>This will create a file for each query in the folder specified in the
 <code>transactions-directory</code> attribute.</p>
 <p>To replay the extracted transactions, use the <code>--apply-transactions</code>
 command-line option:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>djehuty<span class="w"> </span>web<span class="w"> </span>--config-file<span class="o">=</span>config.json<span class="w"> </span>--apply-transactions
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="c1"># or, with the deprecated XML format:</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>djehuty<span class="w"> </span>web<span class="w"> </span>--config-file<span class="o">=</span>config.xml<span class="w"> </span>--apply-transactions
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>djehuty<span class="w"> </span>web<span class="w"> </span>--config-file<span class="o">=</span>config.json<span class="w"> </span>--apply-transactions
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="c1"># or, with the deprecated XML format:</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>djehuty<span class="w"> </span>web<span class="w"> </span>--config-file<span class="o">=</span>config.xml<span class="w"> </span>--apply-transactions
 </code></pre></div>
 <p>When a query cannot be executed, the command stops, allowing to fix or remove
 the query to-be-replayed. Invoking <code>--apply-transactions</code> a second time will
@@ -1548,15 +1708,15 @@ parameters must be configured within a <code>s3-bucket</code> node.</p>
 </table>
 <p>For example, configuring one filesystem location and one S3 bucket as storage
 locations looks as following:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nt">&lt;storage&gt;</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">&lt;location&gt;</span>/data<span class="nt">&lt;/location&gt;</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="nt">&lt;s3-bucket&gt;</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="nt">&lt;endpoint&gt;</span>https://some.example<span class="nt">&lt;/endpoint&gt;</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="nt">&lt;name&gt;</span>example-bucket<span class="nt">&lt;/name&gt;</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="nt">&lt;key-id&gt;</span>...<span class="nt">&lt;/key-id&gt;</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="nt">&lt;secret-key&gt;</span>...<span class="nt">&lt;/secret-key&gt;</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">  </span><span class="nt">&lt;/s3-bucket&gt;</span>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="nt">&lt;/storage&gt;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nt">&lt;storage&gt;</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="nt">&lt;location&gt;</span>/data<span class="nt">&lt;/location&gt;</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span><span class="nt">&lt;s3-bucket&gt;</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="nt">&lt;endpoint&gt;</span>https://some.example<span class="nt">&lt;/endpoint&gt;</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="nt">&lt;name&gt;</span>example-bucket<span class="nt">&lt;/name&gt;</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">    </span><span class="nt">&lt;key-id&gt;</span>...<span class="nt">&lt;/key-id&gt;</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">    </span><span class="nt">&lt;secret-key&gt;</span>...<span class="nt">&lt;/secret-key&gt;</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">  </span><span class="nt">&lt;/s3-bucket&gt;</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="nt">&lt;/storage&gt;</span>
 </code></pre></div>
 <p>There are a few scenarios in which <code>djehuty</code> downloads an S3 object to perform
 some operation on: creating thumbnails and IIIF image transformations. To direct
@@ -1585,11 +1745,11 @@ mechanism.</p>
 <h3 id="saml20">SAML2.0</h3>
 <p>For SAML 2.0, the configuration can be placed in the <code>saml</code> section under
 <code>authentication</code>. That looks as following:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nt">&lt;authentication&gt;</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nt">&lt;saml</span><span class="w"> </span><span class="na">version=</span><span class="s">&quot;2.0&quot;</span><span class="nt">&gt;</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="cm">&lt;!-- Configuration goes here. --&gt;</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="nt">&lt;/saml&gt;</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="nt">&lt;/authentication&gt;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nt">&lt;authentication&gt;</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="nt">&lt;saml</span><span class="w"> </span><span class="na">version=</span><span class="s">&quot;2.0&quot;</span><span class="nt">&gt;</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="cm">&lt;!-- Configuration goes here. --&gt;</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">  </span><span class="nt">&lt;/saml&gt;</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="nt">&lt;/authentication&gt;</span>
 </code></pre></div>
 <p>The options outlined in the remainder of this section should be placed where the
 example shows <code>&lt;!-- Configuration goes here. --&gt;</code>.</p>
@@ -1668,23 +1828,23 @@ can be configured. The following attributes must be configured.</p>
 </tbody>
 </table>
 <p>As an example, the attributes configuration for SURFConext looks like this:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nt">&lt;attributes&gt;</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="nt">&lt;first-name&gt;</span>urn:mace:dir:attribute-def:givenName<span class="nt">&lt;/first-name&gt;</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="nt">&lt;last-name&gt;</span>urn:mace:dir:attribute-def:sn<span class="nt">&lt;/last-name&gt;</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span><span class="nt">&lt;common-name&gt;</span>urn:mace:dir:attribute-def:cn<span class="nt">&lt;/common-name&gt;</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span><span class="nt">&lt;email&gt;</span>urn:mace:dir:attribute-def:mail<span class="nt">&lt;/email&gt;</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="nt">&lt;/attributes&gt;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nt">&lt;attributes&gt;</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="nt">&lt;first-name&gt;</span>urn:mace:dir:attribute-def:givenName<span class="nt">&lt;/first-name&gt;</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">  </span><span class="nt">&lt;last-name&gt;</span>urn:mace:dir:attribute-def:sn<span class="nt">&lt;/last-name&gt;</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">  </span><span class="nt">&lt;common-name&gt;</span>urn:mace:dir:attribute-def:cn<span class="nt">&lt;/common-name&gt;</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">  </span><span class="nt">&lt;email&gt;</span>urn:mace:dir:attribute-def:mail<span class="nt">&lt;/email&gt;</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="nt">&lt;/attributes&gt;</span>
 </code></pre></div>
 <p>And for SURF Research Access Management (SRAM), the attributes configuration
 looks like this:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nt">&lt;attributes&gt;</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="nt">&lt;first-name&gt;</span>urn:oid:2.5.4.42<span class="nt">&lt;/first-name&gt;</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span><span class="nt">&lt;last-name&gt;</span>urn:oid:2.5.4.4<span class="nt">&lt;/last-name&gt;</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span><span class="nt">&lt;common-name&gt;</span>urn:oid:2.5.4.3<span class="nt">&lt;/common-name&gt;</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">  </span><span class="nt">&lt;email&gt;</span>urn:oid:0.9.2342.19200300.100.1.3<span class="nt">&lt;/email&gt;</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">  </span><span class="nt">&lt;groups&gt;</span>urn:oid:1.3.6.1.4.1.5923.1.1.1.7<span class="nt">&lt;/groups&gt;</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">  </span><span class="nt">&lt;group-prefix&gt;</span>urn:mace:surf.nl:sram:group:[organisation]:[service]<span class="nt">&lt;/group-prefix&gt;</span>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="nt">&lt;/attributes&gt;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nt">&lt;attributes&gt;</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="nt">&lt;first-name&gt;</span>urn:oid:2.5.4.42<span class="nt">&lt;/first-name&gt;</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">  </span><span class="nt">&lt;last-name&gt;</span>urn:oid:2.5.4.4<span class="nt">&lt;/last-name&gt;</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">  </span><span class="nt">&lt;common-name&gt;</span>urn:oid:2.5.4.3<span class="nt">&lt;/common-name&gt;</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">  </span><span class="nt">&lt;email&gt;</span>urn:oid:0.9.2342.19200300.100.1.3<span class="nt">&lt;/email&gt;</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">  </span><span class="nt">&lt;groups&gt;</span>urn:oid:1.3.6.1.4.1.5923.1.1.1.7<span class="nt">&lt;/groups&gt;</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">  </span><span class="nt">&lt;group-prefix&gt;</span>urn:mace:surf.nl:sram:group:[organisation]:[service]<span class="nt">&lt;/group-prefix&gt;</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="nt">&lt;/attributes&gt;</span>
 </code></pre></div>
 <h4 id="the-sram-configuration">The <code>sram</code> configuration</h4>
 <p>When using SURF Research Access Management (SRAM), <code>djehuty</code> can persuade SRAM
@@ -1784,11 +1944,11 @@ provider will be used as primary and ORCID will only be used to couple author
 records to the author's ORCID record.</p>
 <p>To configure ORCID, the configuration can be placed in the <code>orcid</code> section
 under <code>authentication</code>. That looks as following:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nt">&lt;authentication&gt;</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="nt">&lt;orcid&gt;</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="cm">&lt;!-- Configuration goes here. --&gt;</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">  </span><span class="nt">&lt;/orcid&gt;</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="nt">&lt;/authentication&gt;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nt">&lt;authentication&gt;</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="nt">&lt;orcid&gt;</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">    </span><span class="cm">&lt;!-- Configuration goes here. --&gt;</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">  </span><span class="nt">&lt;/orcid&gt;</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="nt">&lt;/authentication&gt;</span>
 </code></pre></div>
 <p>Then the following parameters can be configured:</p>
 <table>
@@ -1990,12 +2150,12 @@ Currently you can:</p>
 </tbody>
 </table>
 <p>How to use:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nt">&lt;upload-dataset&gt;</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="nt">&lt;allow-full-embargo&gt;</span>0<span class="nt">&lt;/allow-full-embargo&gt;</span>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">  </span><span class="nt">&lt;file-deposit&gt;</span>
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">    </span><span class="nt">&lt;notice&gt;</span>Your<span class="w"> </span>message<span class="w"> </span>here<span class="nt">&lt;/notice&gt;</span>
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">  </span><span class="nt">&lt;/file-deposit&gt;</span>
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="nt">&lt;/upload-dataset&gt;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="nt">&lt;upload-dataset&gt;</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">  </span><span class="nt">&lt;allow-full-embargo&gt;</span>0<span class="nt">&lt;/allow-full-embargo&gt;</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">  </span><span class="nt">&lt;file-deposit&gt;</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">    </span><span class="nt">&lt;notice&gt;</span>Your<span class="w"> </span>message<span class="w"> </span>here<span class="nt">&lt;/notice&gt;</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">  </span><span class="nt">&lt;/file-deposit&gt;</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="nt">&lt;/upload-dataset&gt;</span>
 </code></pre></div>
 <h2 id="customizing-appearance">Customizing Appearance</h2>
 <p>With the following options, the instance can be branded as necessary. They are set
@@ -2118,17 +2278,17 @@ directly on the root element <code>djehuty</code> in the configuration file.</p>
 </tr>
 </tbody>
 </table>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="p">{</span>
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="nt">&quot;colors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="nt">&quot;primary-color&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#004A99&quot;</span><span class="p">,</span>
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">    </span><span class="nt">&quot;primary-foreground-color&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#FFFFFF&quot;</span><span class="p">,</span>
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">    </span><span class="nt">&quot;primary-color-hover&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#003366&quot;</span><span class="p">,</span>
-<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">    </span><span class="nt">&quot;primary-color-active&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#001F3F&quot;</span><span class="p">,</span>
-<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">    </span><span class="nt">&quot;privilege-button-color&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#B00020&quot;</span><span class="p">,</span>
-<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">    </span><span class="nt">&quot;footer-background-color&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#F2F2F2&quot;</span><span class="p">,</span>
-<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">    </span><span class="nt">&quot;background-color&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#FFFFFF&quot;</span>
-<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="w">  </span><span class="p">}</span>
-<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="p">{</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">  </span><span class="nt">&quot;colors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">    </span><span class="nt">&quot;primary-color&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#004A99&quot;</span><span class="p">,</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">    </span><span class="nt">&quot;primary-foreground-color&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#FFFFFF&quot;</span><span class="p">,</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">    </span><span class="nt">&quot;primary-color-hover&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#003366&quot;</span><span class="p">,</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="w">    </span><span class="nt">&quot;primary-color-active&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#001F3F&quot;</span><span class="p">,</span>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="w">    </span><span class="nt">&quot;privilege-button-color&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#B00020&quot;</span><span class="p">,</span>
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="w">    </span><span class="nt">&quot;footer-background-color&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#F2F2F2&quot;</span><span class="p">,</span>
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="w">    </span><span class="nt">&quot;background-color&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#FFFFFF&quot;</span>
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="p">}</span>
 </code></pre></div>
 <h3 id="loading-custom-stylesheets-and-assets">Loading custom stylesheets and assets</h3>
 <div class="admonition tip">
@@ -2145,10 +2305,10 @@ Relative paths are resolved against the directory of the configuration file.</p>
 <code>custom-stylesheet</code> elements, each pointing at a URL served
 from <code>custom-assets-root</code>. They are injected after <code>djehuty</code>'s own
 stylesheets and after <code>/theme/fonts.css</code>, so custom rules can override them.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="p">{</span>
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="nt">&quot;custom-assets-root&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/etc/djehuty/assets&quot;</span><span class="p">,</span>
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">  </span><span class="nt">&quot;custom-stylesheet&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/assets/css/custom.css&quot;</span>
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="p">{</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">  </span><span class="nt">&quot;custom-assets-root&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/etc/djehuty/assets&quot;</span><span class="p">,</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">  </span><span class="nt">&quot;custom-stylesheet&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/assets/css/custom.css&quot;</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="p">}</span>
 </code></pre></div>
 <p>If a <code>font-face</code>'s <code>src</code> or a <code>custom-stylesheet</code> points under <code>/assets/</code>
 but <code>custom-assets-root</code> is unset, or the referenced file does not exist
@@ -2158,25 +2318,25 @@ possible to define a palette or spacing scale as <code>:root</code> custom prope
 an early stylesheet (e.g. <code>--warm-orange</code>, <code>--brand-space-m</code>), then reuse
 them with <code>var(...)</code> in the stylesheets loaded after it. For example, an
 instance's <code>palette.css</code>, loaded first, could define:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="p">:</span><span class="nd">root</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">    </span><span class="nv">--warm-orange</span><span class="p">:</span><span class="w">   </span><span class="mh">#F29100</span><span class="p">;</span>
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">    </span><span class="nv">--vibrant-orange</span><span class="p">:</span><span class="w"> </span><span class="mh">#FF6829</span><span class="p">;</span>
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="p">:</span><span class="nd">root</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">    </span><span class="nv">--warm-orange</span><span class="p">:</span><span class="w">   </span><span class="mh">#F29100</span><span class="p">;</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">    </span><span class="nv">--vibrant-orange</span><span class="p">:</span><span class="w"> </span><span class="mh">#FF6829</span><span class="p">;</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="p">}</span>
 </code></pre></div>
 <p>and a <code>buttons.css</code>, loaded after it, could then reuse those variables:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="p">.</span><span class="nc">corporate-identity-standard-button</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">    </span><span class="k">background</span><span class="p">:</span><span class="w"> </span><span class="nf">var</span><span class="p">(</span><span class="nv">--warm-orange</span><span class="p">);</span>
-<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="p">}</span>
-<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="p">.</span><span class="nc">corporate-identity-standard-button</span><span class="p">:</span><span class="nd">hover</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">    </span><span class="k">background</span><span class="p">:</span><span class="w"> </span><span class="nf">var</span><span class="p">(</span><span class="nv">--vibrant-orange</span><span class="p">);</span>
-<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="p">.</span><span class="nc">corporate-identity-standard-button</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">    </span><span class="k">background</span><span class="p">:</span><span class="w"> </span><span class="nf">var</span><span class="p">(</span><span class="nv">--warm-orange</span><span class="p">);</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="p">}</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="p">.</span><span class="nc">corporate-identity-standard-button</span><span class="p">:</span><span class="nd">hover</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="w">    </span><span class="k">background</span><span class="p">:</span><span class="w"> </span><span class="nf">var</span><span class="p">(</span><span class="nv">--vibrant-orange</span><span class="p">);</span>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="p">}</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="p">{</span>
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">  </span><span class="nt">&quot;custom-stylesheet&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">    </span><span class="s2">&quot;/assets/css/palette.css&quot;</span><span class="p">,</span>
-<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">    </span><span class="s2">&quot;/assets/css/buttons.css&quot;</span>
-<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">  </span><span class="p">]</span>
-<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="p">{</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="w">  </span><span class="nt">&quot;custom-stylesheet&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="w">    </span><span class="s2">&quot;/assets/css/palette.css&quot;</span><span class="p">,</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="w">    </span><span class="s2">&quot;/assets/css/buttons.css&quot;</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="w">  </span><span class="p">]</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="p">}</span>
 </code></pre></div>
 <h3 id="setting-custom-fonts">Setting custom fonts</h3>
 <p>The following options can be configured in the <code>fonts</code> element, a child of
@@ -2246,31 +2406,31 @@ already references.</p>
 </table>
 <p>For example, to load a custom body typeface with a regular and a bold cut,
 and a separate family for UI elements:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="p">{</span>
-<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">  </span><span class="nt">&quot;fonts&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">    </span><span class="nt">&quot;body-font-family&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&#39;Example Sans&#39;, sans-serif&quot;</span><span class="p">,</span>
-<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="w">    </span><span class="nt">&quot;ui-font-family&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&#39;Example UI&#39;, sans-serif&quot;</span><span class="p">,</span>
-<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="w">    </span><span class="nt">&quot;font-face&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="w">      </span><span class="p">{</span>
-<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="w">        </span><span class="nt">&quot;family&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Example Sans&quot;</span><span class="p">,</span>
-<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="w">        </span><span class="nt">&quot;src&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/assets/fonts/example-regular.woff2&quot;</span><span class="p">,</span>
-<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a><span class="w">        </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;400&quot;</span><span class="p">,</span>
-<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a><span class="w">        </span><span class="nt">&quot;style&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;normal&quot;</span>
-<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a><span class="w">      </span><span class="p">},</span>
-<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a><span class="w">      </span><span class="p">{</span>
-<a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a><span class="w">        </span><span class="nt">&quot;family&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Example Sans&quot;</span><span class="p">,</span>
-<a id="__codelineno-13-14" name="__codelineno-13-14" href="#__codelineno-13-14"></a><span class="w">        </span><span class="nt">&quot;src&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/assets/fonts/example-bold.woff2&quot;</span><span class="p">,</span>
-<a id="__codelineno-13-15" name="__codelineno-13-15" href="#__codelineno-13-15"></a><span class="w">        </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;700&quot;</span>
-<a id="__codelineno-13-16" name="__codelineno-13-16" href="#__codelineno-13-16"></a><span class="w">      </span><span class="p">},</span>
-<a id="__codelineno-13-17" name="__codelineno-13-17" href="#__codelineno-13-17"></a><span class="w">      </span><span class="p">{</span>
-<a id="__codelineno-13-18" name="__codelineno-13-18" href="#__codelineno-13-18"></a><span class="w">        </span><span class="nt">&quot;family&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Example UI&quot;</span><span class="p">,</span>
-<a id="__codelineno-13-19" name="__codelineno-13-19" href="#__codelineno-13-19"></a><span class="w">        </span><span class="nt">&quot;src&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/assets/fonts/example-ui-regular.woff2&quot;</span><span class="p">,</span>
-<a id="__codelineno-13-20" name="__codelineno-13-20" href="#__codelineno-13-20"></a><span class="w">        </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;400&quot;</span><span class="p">,</span>
-<a id="__codelineno-13-21" name="__codelineno-13-21" href="#__codelineno-13-21"></a><span class="w">        </span><span class="nt">&quot;style&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;normal&quot;</span>
-<a id="__codelineno-13-22" name="__codelineno-13-22" href="#__codelineno-13-22"></a><span class="w">      </span><span class="p">}</span>
-<a id="__codelineno-13-23" name="__codelineno-13-23" href="#__codelineno-13-23"></a><span class="w">    </span><span class="p">]</span>
-<a id="__codelineno-13-24" name="__codelineno-13-24" href="#__codelineno-13-24"></a><span class="w">  </span><span class="p">}</span>
-<a id="__codelineno-13-25" name="__codelineno-13-25" href="#__codelineno-13-25"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="p">{</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">  </span><span class="nt">&quot;fonts&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="w">    </span><span class="nt">&quot;body-font-family&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&#39;Example Sans&#39;, sans-serif&quot;</span><span class="p">,</span>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="w">    </span><span class="nt">&quot;ui-font-family&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&#39;Example UI&#39;, sans-serif&quot;</span><span class="p">,</span>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="w">    </span><span class="nt">&quot;font-face&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="w">      </span><span class="p">{</span>
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="w">        </span><span class="nt">&quot;family&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Example Sans&quot;</span><span class="p">,</span>
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="w">        </span><span class="nt">&quot;src&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/assets/fonts/example-regular.woff2&quot;</span><span class="p">,</span>
+<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a><span class="w">        </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;400&quot;</span><span class="p">,</span>
+<a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a><span class="w">        </span><span class="nt">&quot;style&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;normal&quot;</span>
+<a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a><span class="w">      </span><span class="p">},</span>
+<a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a><span class="w">      </span><span class="p">{</span>
+<a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a><span class="w">        </span><span class="nt">&quot;family&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Example Sans&quot;</span><span class="p">,</span>
+<a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a><span class="w">        </span><span class="nt">&quot;src&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/assets/fonts/example-bold.woff2&quot;</span><span class="p">,</span>
+<a id="__codelineno-16-15" name="__codelineno-16-15" href="#__codelineno-16-15"></a><span class="w">        </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;700&quot;</span>
+<a id="__codelineno-16-16" name="__codelineno-16-16" href="#__codelineno-16-16"></a><span class="w">      </span><span class="p">},</span>
+<a id="__codelineno-16-17" name="__codelineno-16-17" href="#__codelineno-16-17"></a><span class="w">      </span><span class="p">{</span>
+<a id="__codelineno-16-18" name="__codelineno-16-18" href="#__codelineno-16-18"></a><span class="w">        </span><span class="nt">&quot;family&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Example UI&quot;</span><span class="p">,</span>
+<a id="__codelineno-16-19" name="__codelineno-16-19" href="#__codelineno-16-19"></a><span class="w">        </span><span class="nt">&quot;src&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/assets/fonts/example-ui-regular.woff2&quot;</span><span class="p">,</span>
+<a id="__codelineno-16-20" name="__codelineno-16-20" href="#__codelineno-16-20"></a><span class="w">        </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;400&quot;</span><span class="p">,</span>
+<a id="__codelineno-16-21" name="__codelineno-16-21" href="#__codelineno-16-21"></a><span class="w">        </span><span class="nt">&quot;style&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;normal&quot;</span>
+<a id="__codelineno-16-22" name="__codelineno-16-22" href="#__codelineno-16-22"></a><span class="w">      </span><span class="p">}</span>
+<a id="__codelineno-16-23" name="__codelineno-16-23" href="#__codelineno-16-23"></a><span class="w">    </span><span class="p">]</span>
+<a id="__codelineno-16-24" name="__codelineno-16-24" href="#__codelineno-16-24"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-16-25" name="__codelineno-16-25" href="#__codelineno-16-25"></a><span class="p">}</span>
 </code></pre></div>
 <h2 id="customizing-the-menu">Customizing the menu</h2>
 <p>The top navigation menu is defined using the <code>menu</code> XML element, which can be
@@ -2311,49 +2471,49 @@ its <code>sub-menu</code> children in a dropdown panel. A <code>sub-menu</code> 
 </tbody>
 </table>
 <h3 id="example">Example</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="nt">&lt;djehuty&gt;</span>
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">  </span><span class="nt">&lt;menu&gt;</span>
-<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>
-<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">    </span><span class="nt">&lt;primary-menu&gt;</span>
-<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="w">      </span><span class="nt">&lt;title&gt;</span>About<span class="w"> </span>your<span class="w"> </span>Data<span class="nt">&lt;/title&gt;</span>
-<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="w">      </span><span class="nt">&lt;sub-menu&gt;</span>
-<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="w">        </span><span class="nt">&lt;title&gt;</span>Getting<span class="w"> </span>started<span class="nt">&lt;/title&gt;</span>
-<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="w">        </span><span class="nt">&lt;href&gt;</span>/info/about-your-data/getting-started<span class="nt">&lt;/href&gt;</span>
-<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a><span class="w">      </span><span class="nt">&lt;/sub-menu&gt;</span>
-<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a><span class="w">      </span><span class="nt">&lt;sub-menu&gt;</span>
-<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a><span class="w">        </span><span class="nt">&lt;title&gt;</span>Publish<span class="w"> </span>and<span class="w"> </span>Cite<span class="nt">&lt;/title&gt;</span>
-<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a><span class="w">        </span><span class="nt">&lt;href&gt;</span>/info/about-your-data/publish-cite<span class="nt">&lt;/href&gt;</span>
-<a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a><span class="w">      </span><span class="nt">&lt;/sub-menu&gt;</span>
-<a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a><span class="w">    </span><span class="nt">&lt;/primary-menu&gt;</span>
-<a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a>
-<a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a><span class="w">    </span><span class="nt">&lt;primary-menu&gt;</span>
-<a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a><span class="w">      </span><span class="nt">&lt;title&gt;</span>Collaborations<span class="nt">&lt;/title&gt;</span>
-<a id="__codelineno-14-18" name="__codelineno-14-18" href="#__codelineno-14-18"></a><span class="w">      </span><span class="nt">&lt;sub-menu&gt;</span>
-<a id="__codelineno-14-19" name="__codelineno-14-19" href="#__codelineno-14-19"></a><span class="w">        </span><span class="nt">&lt;title&gt;</span>Collaborations<span class="w"> </span>overview<span class="nt">&lt;/title&gt;</span>
-<a id="__codelineno-14-20" name="__codelineno-14-20" href="#__codelineno-14-20"></a><span class="w">        </span><span class="nt">&lt;href&gt;</span>https://example.org/collaborations/<span class="nt">&lt;/href&gt;</span>
-<a id="__codelineno-14-21" name="__codelineno-14-21" href="#__codelineno-14-21"></a><span class="w">      </span><span class="nt">&lt;/sub-menu&gt;</span>
-<a id="__codelineno-14-22" name="__codelineno-14-22" href="#__codelineno-14-22"></a><span class="w">      </span><span class="nt">&lt;sub-menu&gt;</span>
-<a id="__codelineno-14-23" name="__codelineno-14-23" href="#__codelineno-14-23"></a><span class="w">        </span><span class="nt">&lt;title&gt;</span>Digital<span class="w"> </span>Capacity<span class="w"> </span>for<span class="w"> </span>NES<span class="nt">&lt;/title&gt;</span>
-<a id="__codelineno-14-24" name="__codelineno-14-24" href="#__codelineno-14-24"></a><span class="w">        </span><span class="nt">&lt;href&gt;</span>https://example.org/digital-capacity/<span class="nt">&lt;/href&gt;</span>
-<a id="__codelineno-14-25" name="__codelineno-14-25" href="#__codelineno-14-25"></a><span class="w">        </span><span class="nt">&lt;sub-sub-menu&gt;</span>
-<a id="__codelineno-14-26" name="__codelineno-14-26" href="#__codelineno-14-26"></a><span class="w">          </span><span class="nt">&lt;title&gt;</span>Call<span class="w"> </span>1:<span class="w"> </span>Instructors<span class="nt">&lt;/title&gt;</span>
-<a id="__codelineno-14-27" name="__codelineno-14-27" href="#__codelineno-14-27"></a><span class="w">          </span><span class="nt">&lt;href&gt;</span>https://example.org/digital-capacity/call-1/<span class="nt">&lt;/href&gt;</span>
-<a id="__codelineno-14-28" name="__codelineno-14-28" href="#__codelineno-14-28"></a><span class="w">        </span><span class="nt">&lt;/sub-sub-menu&gt;</span>
-<a id="__codelineno-14-29" name="__codelineno-14-29" href="#__codelineno-14-29"></a><span class="w">        </span><span class="nt">&lt;sub-sub-menu&gt;</span>
-<a id="__codelineno-14-30" name="__codelineno-14-30" href="#__codelineno-14-30"></a><span class="w">          </span><span class="nt">&lt;title&gt;</span>Call<span class="w"> </span>2:<span class="w"> </span>Learners<span class="nt">&lt;/title&gt;</span>
-<a id="__codelineno-14-31" name="__codelineno-14-31" href="#__codelineno-14-31"></a><span class="w">          </span><span class="nt">&lt;href&gt;</span>https://example.org/digital-capacity/call-2/<span class="nt">&lt;/href&gt;</span>
-<a id="__codelineno-14-32" name="__codelineno-14-32" href="#__codelineno-14-32"></a><span class="w">        </span><span class="nt">&lt;/sub-sub-menu&gt;</span>
-<a id="__codelineno-14-33" name="__codelineno-14-33" href="#__codelineno-14-33"></a><span class="w">      </span><span class="nt">&lt;/sub-menu&gt;</span>
-<a id="__codelineno-14-34" name="__codelineno-14-34" href="#__codelineno-14-34"></a><span class="w">    </span><span class="nt">&lt;/primary-menu&gt;</span>
-<a id="__codelineno-14-35" name="__codelineno-14-35" href="#__codelineno-14-35"></a>
-<a id="__codelineno-14-36" name="__codelineno-14-36" href="#__codelineno-14-36"></a><span class="w">  </span><span class="nt">&lt;/menu&gt;</span>
-<a id="__codelineno-14-37" name="__codelineno-14-37" href="#__codelineno-14-37"></a><span class="nt">&lt;/djehuty&gt;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="nt">&lt;djehuty&gt;</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="w">  </span><span class="nt">&lt;menu&gt;</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="w">    </span><span class="nt">&lt;primary-menu&gt;</span>
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="w">      </span><span class="nt">&lt;title&gt;</span>About<span class="w"> </span>your<span class="w"> </span>Data<span class="nt">&lt;/title&gt;</span>
+<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="w">      </span><span class="nt">&lt;sub-menu&gt;</span>
+<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="w">        </span><span class="nt">&lt;title&gt;</span>Getting<span class="w"> </span>started<span class="nt">&lt;/title&gt;</span>
+<a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a><span class="w">        </span><span class="nt">&lt;href&gt;</span>/info/about-your-data/getting-started<span class="nt">&lt;/href&gt;</span>
+<a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a><span class="w">      </span><span class="nt">&lt;/sub-menu&gt;</span>
+<a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a><span class="w">      </span><span class="nt">&lt;sub-menu&gt;</span>
+<a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a><span class="w">        </span><span class="nt">&lt;title&gt;</span>Publish<span class="w"> </span>and<span class="w"> </span>Cite<span class="nt">&lt;/title&gt;</span>
+<a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a><span class="w">        </span><span class="nt">&lt;href&gt;</span>/info/about-your-data/publish-cite<span class="nt">&lt;/href&gt;</span>
+<a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a><span class="w">      </span><span class="nt">&lt;/sub-menu&gt;</span>
+<a id="__codelineno-17-14" name="__codelineno-17-14" href="#__codelineno-17-14"></a><span class="w">    </span><span class="nt">&lt;/primary-menu&gt;</span>
+<a id="__codelineno-17-15" name="__codelineno-17-15" href="#__codelineno-17-15"></a>
+<a id="__codelineno-17-16" name="__codelineno-17-16" href="#__codelineno-17-16"></a><span class="w">    </span><span class="nt">&lt;primary-menu&gt;</span>
+<a id="__codelineno-17-17" name="__codelineno-17-17" href="#__codelineno-17-17"></a><span class="w">      </span><span class="nt">&lt;title&gt;</span>Collaborations<span class="nt">&lt;/title&gt;</span>
+<a id="__codelineno-17-18" name="__codelineno-17-18" href="#__codelineno-17-18"></a><span class="w">      </span><span class="nt">&lt;sub-menu&gt;</span>
+<a id="__codelineno-17-19" name="__codelineno-17-19" href="#__codelineno-17-19"></a><span class="w">        </span><span class="nt">&lt;title&gt;</span>Collaborations<span class="w"> </span>overview<span class="nt">&lt;/title&gt;</span>
+<a id="__codelineno-17-20" name="__codelineno-17-20" href="#__codelineno-17-20"></a><span class="w">        </span><span class="nt">&lt;href&gt;</span>https://example.org/collaborations/<span class="nt">&lt;/href&gt;</span>
+<a id="__codelineno-17-21" name="__codelineno-17-21" href="#__codelineno-17-21"></a><span class="w">      </span><span class="nt">&lt;/sub-menu&gt;</span>
+<a id="__codelineno-17-22" name="__codelineno-17-22" href="#__codelineno-17-22"></a><span class="w">      </span><span class="nt">&lt;sub-menu&gt;</span>
+<a id="__codelineno-17-23" name="__codelineno-17-23" href="#__codelineno-17-23"></a><span class="w">        </span><span class="nt">&lt;title&gt;</span>Digital<span class="w"> </span>Capacity<span class="w"> </span>for<span class="w"> </span>NES<span class="nt">&lt;/title&gt;</span>
+<a id="__codelineno-17-24" name="__codelineno-17-24" href="#__codelineno-17-24"></a><span class="w">        </span><span class="nt">&lt;href&gt;</span>https://example.org/digital-capacity/<span class="nt">&lt;/href&gt;</span>
+<a id="__codelineno-17-25" name="__codelineno-17-25" href="#__codelineno-17-25"></a><span class="w">        </span><span class="nt">&lt;sub-sub-menu&gt;</span>
+<a id="__codelineno-17-26" name="__codelineno-17-26" href="#__codelineno-17-26"></a><span class="w">          </span><span class="nt">&lt;title&gt;</span>Call<span class="w"> </span>1:<span class="w"> </span>Instructors<span class="nt">&lt;/title&gt;</span>
+<a id="__codelineno-17-27" name="__codelineno-17-27" href="#__codelineno-17-27"></a><span class="w">          </span><span class="nt">&lt;href&gt;</span>https://example.org/digital-capacity/call-1/<span class="nt">&lt;/href&gt;</span>
+<a id="__codelineno-17-28" name="__codelineno-17-28" href="#__codelineno-17-28"></a><span class="w">        </span><span class="nt">&lt;/sub-sub-menu&gt;</span>
+<a id="__codelineno-17-29" name="__codelineno-17-29" href="#__codelineno-17-29"></a><span class="w">        </span><span class="nt">&lt;sub-sub-menu&gt;</span>
+<a id="__codelineno-17-30" name="__codelineno-17-30" href="#__codelineno-17-30"></a><span class="w">          </span><span class="nt">&lt;title&gt;</span>Call<span class="w"> </span>2:<span class="w"> </span>Learners<span class="nt">&lt;/title&gt;</span>
+<a id="__codelineno-17-31" name="__codelineno-17-31" href="#__codelineno-17-31"></a><span class="w">          </span><span class="nt">&lt;href&gt;</span>https://example.org/digital-capacity/call-2/<span class="nt">&lt;/href&gt;</span>
+<a id="__codelineno-17-32" name="__codelineno-17-32" href="#__codelineno-17-32"></a><span class="w">        </span><span class="nt">&lt;/sub-sub-menu&gt;</span>
+<a id="__codelineno-17-33" name="__codelineno-17-33" href="#__codelineno-17-33"></a><span class="w">      </span><span class="nt">&lt;/sub-menu&gt;</span>
+<a id="__codelineno-17-34" name="__codelineno-17-34" href="#__codelineno-17-34"></a><span class="w">    </span><span class="nt">&lt;/primary-menu&gt;</span>
+<a id="__codelineno-17-35" name="__codelineno-17-35" href="#__codelineno-17-35"></a>
+<a id="__codelineno-17-36" name="__codelineno-17-36" href="#__codelineno-17-36"></a><span class="w">  </span><span class="nt">&lt;/menu&gt;</span>
+<a id="__codelineno-17-37" name="__codelineno-17-37" href="#__codelineno-17-37"></a><span class="nt">&lt;/djehuty&gt;</span>
 </code></pre></div>
 <p>Keep the menu definition in a dedicated config file and load it from the main
 configuration file using <code>include</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="nt">&lt;djehuty&gt;</span>
-<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="w">  </span><span class="nt">&lt;include&gt;</span>/etc/djehuty/djehuty-menu.xml<span class="nt">&lt;/include&gt;</span>
-<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="nt">&lt;/djehuty&gt;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="nt">&lt;djehuty&gt;</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="w">  </span><span class="nt">&lt;include&gt;</span>/etc/djehuty/djehuty-menu.xml<span class="nt">&lt;/include&gt;</span>
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="nt">&lt;/djehuty&gt;</span>
 </code></pre></div>
 <h2 id="configuring-privileged-users">Configuring privileged users</h2>
 <p>By default an authenticated user may deposit data. But users can have additional
@@ -2410,18 +2570,18 @@ privileges can be configured in the <code>privileges</code> section:</p>
 <p>To enable a privilege for an account, set the value of the desired privilege to
 <code>1</code>. Privileges are disabled by default, except for
 <code>may-receive-email-notifications</code> which defaults to <code>1</code>.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="nt">&lt;privileges&gt;</span>
-<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">  </span><span class="nt">&lt;account</span><span class="w"> </span><span class="na">email=</span><span class="s">&quot;you@example.com&quot;</span><span class="w"> </span><span class="na">orcid=</span><span class="s">&quot;0000-0000-0000-0001&quot;</span><span class="nt">&gt;</span>
-<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="w">    </span><span class="nt">&lt;may-administer&gt;</span>1<span class="nt">&lt;/may-administer&gt;</span>
-<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="w">    </span><span class="nt">&lt;may-run-sparql-queries&gt;</span>1<span class="nt">&lt;/may-run-sparql-queries&gt;</span>
-<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="w">    </span><span class="nt">&lt;may-impersonate&gt;</span>1<span class="nt">&lt;/may-impersonate&gt;</span>
-<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="w">    </span><span class="nt">&lt;may-review&gt;</span>0<span class="nt">&lt;/may-review&gt;</span>
-<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="w">    </span><span class="nt">&lt;may-review-quotas&gt;</span>0<span class="nt">&lt;/may-review-quotas&gt;</span>
-<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="w">    </span><span class="nt">&lt;may-review-integrity&gt;</span>0<span class="nt">&lt;/may-review-integrity&gt;</span>
-<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a><span class="w">    </span><span class="nt">&lt;may-process-feedback&gt;</span>0<span class="nt">&lt;/may-process-feedback&gt;</span>
-<a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a><span class="w">    </span><span class="nt">&lt;may-receive-email-notifications&gt;</span>1<span class="nt">&lt;/may-receive-email-notifications&gt;</span>
-<a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a><span class="w">  </span><span class="nt">&lt;/account&gt;</span>
-<a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a><span class="nt">&lt;/privileges&gt;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="nt">&lt;privileges&gt;</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="w">  </span><span class="nt">&lt;account</span><span class="w"> </span><span class="na">email=</span><span class="s">&quot;you@example.com&quot;</span><span class="w"> </span><span class="na">orcid=</span><span class="s">&quot;0000-0000-0000-0001&quot;</span><span class="nt">&gt;</span>
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="w">    </span><span class="nt">&lt;may-administer&gt;</span>1<span class="nt">&lt;/may-administer&gt;</span>
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="w">    </span><span class="nt">&lt;may-run-sparql-queries&gt;</span>1<span class="nt">&lt;/may-run-sparql-queries&gt;</span>
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="w">    </span><span class="nt">&lt;may-impersonate&gt;</span>1<span class="nt">&lt;/may-impersonate&gt;</span>
+<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a><span class="w">    </span><span class="nt">&lt;may-review&gt;</span>0<span class="nt">&lt;/may-review&gt;</span>
+<a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a><span class="w">    </span><span class="nt">&lt;may-review-quotas&gt;</span>0<span class="nt">&lt;/may-review-quotas&gt;</span>
+<a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a><span class="w">    </span><span class="nt">&lt;may-review-integrity&gt;</span>0<span class="nt">&lt;/may-review-integrity&gt;</span>
+<a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a><span class="w">    </span><span class="nt">&lt;may-process-feedback&gt;</span>0<span class="nt">&lt;/may-process-feedback&gt;</span>
+<a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a><span class="w">    </span><span class="nt">&lt;may-receive-email-notifications&gt;</span>1<span class="nt">&lt;/may-receive-email-notifications&gt;</span>
+<a id="__codelineno-19-11" name="__codelineno-19-11" href="#__codelineno-19-11"></a><span class="w">  </span><span class="nt">&lt;/account&gt;</span>
+<a id="__codelineno-19-12" name="__codelineno-19-12" href="#__codelineno-19-12"></a><span class="nt">&lt;/privileges&gt;</span>
 </code></pre></div>
 <h1 id="running-djehuty">Running <code>djehuty</code></h1>
 <p>Before running <code>djehuty</code>, consider the <a href="#configuring-djehuty">Configuring <code>djehuty</code></a>
@@ -2430,9 +2590,9 @@ where data will be stored and a way to adapt <code>djehuty</code> to your organi
 <h2 id="running-djehuty_1">Running <code>djehuty</code></h2>
 <p>Invoking <code>djehuty web</code> starts the web interface of <code>djehuty</code>. On what port it
 makes itself available can be configured in its configuration file.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>djehuty web --config-file=your-djehuty-config.json
-<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a># or, with the deprecated XML format:
-<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>djehuty web --config-file=your-djehuty-config.xml
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>djehuty web --config-file=your-djehuty-config.json
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a># or, with the deprecated XML format:
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>djehuty web --config-file=your-djehuty-config.xml
 </code></pre></div>
 <h2 id="running-djehuty-behind-an-nginx-reverse-proxy">Running <code>djehuty</code> behind an <code>nginx</code> reverse-proxy</h2>
 <p>While <code>djehuty</code> itself does not support SSL/TLS, it is designed to work together
@@ -2440,23 +2600,23 @@ with a reverse-proxy HTTP server like <code>nginx</code>. When <code>djehuty</co
 bind on a pre-configured address and port, which in turn can be <code>proxy_pass</code>ed
 to using <code>nginx</code>.</p>
 <p>The following snippet shows how to configure <code>nginx</code>.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="k">server</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="w">    </span><span class="kn">listen</span><span class="w">              </span><span class="mi">443</span><span class="w"> </span><span class="s">ssl</span><span class="p">;</span>
-<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="w">    </span><span class="kn">listen</span><span class="w">              </span><span class="s">[::]:443</span><span class="w"> </span><span class="s">ssl</span><span class="p">;</span>
-<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="w">    </span><span class="kn">server_name</span><span class="w">         </span><span class="s">example.domain</span><span class="p">;</span>
-<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>
-<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a><span class="w">    </span><span class="kn">ssl_certificate</span><span class="w">     </span><span class="s">/etc/letsencrypt/live/example.domain/fullchain.pem</span><span class="p">;</span>
-<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="w">    </span><span class="kn">ssl_certificate_key</span><span class="w"> </span><span class="s">/etc/letsencrypt/live/example.domain/privkey.pem</span><span class="p">;</span>
-<a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a>
-<a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a><span class="w">    </span><span class="kn">location</span><span class="w"> </span><span class="s">/</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a><span class="w">       </span><span class="c1"># Set &#39;use-x-forwarded-for&#39; in the djehuty configuration.</span>
-<a id="__codelineno-18-11" name="__codelineno-18-11" href="#__codelineno-18-11"></a><span class="w">       </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">X-Forwarded-For</span><span class="w"> </span><span class="nv">$proxy_add_x_forwarded_for</span><span class="p">;</span>
-<a id="__codelineno-18-12" name="__codelineno-18-12" href="#__codelineno-18-12"></a><span class="w">       </span><span class="c1"># The values for address and port depend on what is configured in the</span>
-<a id="__codelineno-18-13" name="__codelineno-18-13" href="#__codelineno-18-13"></a><span class="w">       </span><span class="c1"># djehuty configuration file.</span>
-<a id="__codelineno-18-14" name="__codelineno-18-14" href="#__codelineno-18-14"></a><span class="w">       </span><span class="kn">proxy_pass</span><span class="w"> </span><span class="s">http://127.0.0.1:8080</span><span class="p">;</span>
-<a id="__codelineno-18-15" name="__codelineno-18-15" href="#__codelineno-18-15"></a><span class="w">       </span><span class="kn">root</span><span class="w"> </span><span class="s">/usr/share/nginx/html</span><span class="p">;</span>
-<a id="__codelineno-18-16" name="__codelineno-18-16" href="#__codelineno-18-16"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-18-17" name="__codelineno-18-17" href="#__codelineno-18-17"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="k">server</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="w">    </span><span class="kn">listen</span><span class="w">              </span><span class="mi">443</span><span class="w"> </span><span class="s">ssl</span><span class="p">;</span>
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="w">    </span><span class="kn">listen</span><span class="w">              </span><span class="s">[::]:443</span><span class="w"> </span><span class="s">ssl</span><span class="p">;</span>
+<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="w">    </span><span class="kn">server_name</span><span class="w">         </span><span class="s">example.domain</span><span class="p">;</span>
+<a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>
+<a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a><span class="w">    </span><span class="kn">ssl_certificate</span><span class="w">     </span><span class="s">/etc/letsencrypt/live/example.domain/fullchain.pem</span><span class="p">;</span>
+<a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a><span class="w">    </span><span class="kn">ssl_certificate_key</span><span class="w"> </span><span class="s">/etc/letsencrypt/live/example.domain/privkey.pem</span><span class="p">;</span>
+<a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a>
+<a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a><span class="w">    </span><span class="kn">location</span><span class="w"> </span><span class="s">/</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-21-10" name="__codelineno-21-10" href="#__codelineno-21-10"></a><span class="w">       </span><span class="c1"># Set &#39;use-x-forwarded-for&#39; in the djehuty configuration.</span>
+<a id="__codelineno-21-11" name="__codelineno-21-11" href="#__codelineno-21-11"></a><span class="w">       </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">X-Forwarded-For</span><span class="w"> </span><span class="nv">$proxy_add_x_forwarded_for</span><span class="p">;</span>
+<a id="__codelineno-21-12" name="__codelineno-21-12" href="#__codelineno-21-12"></a><span class="w">       </span><span class="c1"># The values for address and port depend on what is configured in the</span>
+<a id="__codelineno-21-13" name="__codelineno-21-13" href="#__codelineno-21-13"></a><span class="w">       </span><span class="c1"># djehuty configuration file.</span>
+<a id="__codelineno-21-14" name="__codelineno-21-14" href="#__codelineno-21-14"></a><span class="w">       </span><span class="kn">proxy_pass</span><span class="w"> </span><span class="s">http://127.0.0.1:8080</span><span class="p">;</span>
+<a id="__codelineno-21-15" name="__codelineno-21-15" href="#__codelineno-21-15"></a><span class="w">       </span><span class="kn">root</span><span class="w"> </span><span class="s">/usr/share/nginx/html</span><span class="p">;</span>
+<a id="__codelineno-21-16" name="__codelineno-21-16" href="#__codelineno-21-16"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-21-17" name="__codelineno-21-17" href="#__codelineno-21-17"></a><span class="p">}</span>
 </code></pre></div>
 <p>To ensure <code>djehuty</code> receives the actual client IP address so it can log this
 information, one can set the <code>use-x-forwarded-for</code> option described in
