@@ -13,6 +13,7 @@ var initial_thumbnail_file_uuid = "";
 var initial_thumbnail_file_uuid = "{{article.thumb_origin}}";
 {%- endif %}
 const minimum_keywords_count = {{minimum_keywords_count}};
+const storage_maintenance = {{ storage_maintenance | default(false) | tojson }};
 {%- if article.is_shared_with_me %}
     const is_shared_with_me = true;
     const permissions = {{permissions|tojson}};
@@ -53,6 +54,8 @@ jQuery(document).ready(function (){
     jQuery(".upload-container").after('<div style="padding: .5em; margin-bottom: 1em; text-align: left" class="notice-box">File uploads are temporarily unavailable while storage is under maintenance.</div>');
     jQuery(".upload-container").hide();
     jQuery("#api-upload").hide();
+    jQuery("#git-publish-field").after('<div style="padding: .5em; margin-bottom: 1em; text-align: left" class="notice-box">Publishing source code through Git is temporarily unavailable while storage is under maintenance.</div>');
+    jQuery("#git-publish-field").hide();
 {%- endif %}
     });
 });
@@ -494,6 +497,7 @@ table#files tbody tr td:nth-child(3) { width: 15px; text-align: right; }
   <input type="text" name="external_url" id="external_url" value="{{article["url"]}}" />
 </div>
 <div id="software_upload_field" class="record-type-field">
+  <div id="git-publish-field">
   <h4 class="corporate-identity-h4">Publish source code through Git</h4>
   <p>To publish from a Git repository, push a branch to the <code>{{site_shorttag}}</code> remote.</p>
   <p>First, add the <code>{{site_shorttag}}</code> remote:</p>
@@ -518,7 +522,8 @@ git push {{site_shorttag}} --tags</pre>
   <div id="git-files-wrapper" class="options-wrapper">
     <ul id="git-files"></ul>
   </div>
-  
+  </div>
+
   {%- set matched_group =
     (groups
     | rejectattr("name", "equalto", "Other institutions")

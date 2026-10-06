@@ -755,6 +755,7 @@ function render_funding_for_dataset (dataset_uuid) {
 
 function render_git_branches_for_dataset (dataset_uuid, event) {
     stop_event_propagation (event);
+    if (storage_maintenance) { return; }
     jQuery.ajax({
         url:         `/v3/datasets/${dataset_uuid}.git/branches`,
         type:        "GET",
@@ -800,6 +801,7 @@ function set_default_git_branch (dataset_uuid, event) {
 
 function render_git_files_for_dataset (dataset_uuid, event) {
     stop_event_propagation (event);
+    if (storage_maintenance) { return; }
     jQuery.ajax({
         url:         `/v3/datasets/${dataset_uuid}.git/files`,
         data:        { "limit": 10000, "order": "id", "order_direction": "asc" },
