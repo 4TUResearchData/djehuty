@@ -450,7 +450,7 @@ wheels = [
 
 [[package]]
 name = "djehuty"
-version = "26.7.2"
+version = "26.8"
 source = { editable = "." }
 dependencies = [
     { name = "a2wsgi" },
