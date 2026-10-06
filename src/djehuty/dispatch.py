@@ -52,9 +52,19 @@ def build_wsgi_app(legacy_app, db, default="new", overrides=None):
 
         new_app = ASGIMiddleware(create_app(db, email=getattr(legacy_app, "email", None)))
     except ImportError as error:
+        if config.storage_maintenance:
+            raise RuntimeError(
+                "storage-maintenance requires the new HTTP stack, which is unavailable; "
+                "refusing to serve legacy-only with the storage seal off."
+            ) from error
         _log.warning("New HTTP stack unavailable (%s); serving legacy only.", error)
         return legacy_app
     except Exception as error:
+        if config.storage_maintenance:
+            raise RuntimeError(
+                "storage-maintenance requires the new HTTP stack, which failed to build; "
+                "refusing to serve legacy-only with the storage seal off."
+            ) from error
         _log.error(
             "New HTTP stack failed to build (%s); serving legacy only.", error, exc_info=True
         )

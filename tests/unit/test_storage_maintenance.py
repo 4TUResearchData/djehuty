@@ -2,7 +2,8 @@
 
 import pytest
 
-from djehuty.dispatch import WebServiceDispatcher
+import djehuty.application as application
+from djehuty.dispatch import WebServiceDispatcher, build_wsgi_app
 from djehuty.web.config import config
 
 
@@ -69,3 +70,23 @@ def test_nothing_sealed_when_flag_off():
     app = WebServiceDispatcher(_legacy, _new, default="new")
     # /file is not a registered route group, so it falls through to legacy.
     assert _call(app, "/file/abc/def")[1] == [b"LEGACY"]
+
+
+def test_build_refuses_legacy_fallback_during_maintenance(monkeypatch):
+    def _boom(*args, **kwargs):
+        raise RuntimeError("new stack down")
+
+    monkeypatch.setattr(application, "create_app", _boom)
+    config.storage_maintenance = True
+    # The seal lives in the dispatcher; refuse to boot rather than serve
+    # legacy-only with the seal off.
+    with pytest.raises(RuntimeError):
+        build_wsgi_app(_legacy, db=None)
+
+
+def test_build_falls_back_to_legacy_when_flag_off(monkeypatch):
+    def _boom(*args, **kwargs):
+        raise RuntimeError("new stack down")
+
+    monkeypatch.setattr(application, "create_app", _boom)
+    assert build_wsgi_app(_legacy, db=None) is _legacy
