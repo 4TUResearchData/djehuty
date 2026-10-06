@@ -5,6 +5,41 @@ appear first; this file is the source of truth for release notes.
 
 Commit links point to <https://github.com/4TUResearchData/djehuty>.
 
+## [v26.8]
+
+<!-- TODO before taking the release PR out of draft after 387 and 388 merge:
+     1. Replace every TBD link below with the real squashed commit (#387, #388).
+     2. Bring main into this branch so the release sits on top of the PRs 387 and 388.
+     3. Delete this comment.
+-->
+
+This release consists of 7 commits made by 3 authors.
+
+It adds an optional shared Valkey cache backend and an optional
+storage-maintenance mode, adds a COLLECT button to the physical samples page,
+lets depositors clear the 'Derived From' metadata field again, and extends Ruff
+enforcement to the XML formatter.
+
+### New features
+
+- Add a COLLECT button to the physical samples page. ([554eefc](https://github.com/4TUResearchData/djehuty/commit/554eefccc13792dd4b1fa2be9fcb22676d643187))
+- Add an optional shared Valkey cache backend, so several instances can share one cache instead of each keeping its own on disk. ([TBD](https://github.com/4TUResearchData/djehuty/commit/TBD))
+- Add an optional storage-maintenance mode, which answers file requests with `503` while browsing and editing metadata stay available. ([TBD](https://github.com/4TUResearchData/djehuty/commit/TBD))
+
+### Bugfixes
+
+- Allow the 'Derived From' metadata field to be cleared. ([435521b](https://github.com/4TUResearchData/djehuty/commit/435521bc47e9f3bf2594fbfa26cff72855e5a104))
+- Avoid an error when publishing a dataset that has a Git repository. ([TBD](https://github.com/4TUResearchData/djehuty/commit/TBD))
+
+### Incremental improvements
+
+- Update boto3, FastAPI and Ruff. ([82a5071](https://github.com/4TUResearchData/djehuty/commit/82a50714bb6cbdb53c7f3021482851f775cb4694))
+- Update boto3. ([2f4555f](https://github.com/4TUResearchData/djehuty/commit/2f4555f82aac7fe2c9957b6d3999a4f2049d1600))
+
+### Technical debt
+
+- Lint and format the XML formatter with Ruff, and add it to the enforced scope. ([5b75957](https://github.com/4TUResearchData/djehuty/commit/5b75957acb457e31c6f9fef5acb0d12b97b97338))
+
 ## [v26.7.2]
 
 This patch release makes maintenance mode work without any external resource,
