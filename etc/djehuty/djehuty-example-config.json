@@ -74,6 +74,9 @@
       "clear-on-start": "1",
       "#text": "./data/cache"
     },
+    "cache-backend": {
+      "type": "file"
+    },
     "live-reload": "1",
     "debug-mode": "1",
     "production": "0",

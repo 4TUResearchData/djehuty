@@ -1,8 +1,8 @@
-"""
-This module provides a general cache mechanism to avoid duplicated queries
-to the database server. Any object can be cached, as long as the object is
-serializable by means of 'json.dumps' and deseralizeable by means of
-'json.loads'.
+"""Caching layer to avoid duplicated queries to the database server.
+
+Callers reach the cache through the CacheBackend surface on the shared 'db'
+object, so the on-disk FileCacheBackend (the default) and the shared
+ValkeyCacheBackend are interchangeable. Cached objects must be JSON-serialisable.
 """
 
 import glob
@@ -12,12 +12,8 @@ import logging
 import os
 
 
-class CacheLayer:
-    """This class provides the caching layer."""
-
-    def __init__(self, storage_path):
-        self.storage = storage_path
-        self.log = logging.getLogger(__name__)
+class CacheBackend:
+    """Interface shared by all cache backends."""
 
     def make_key(self, input_string):
         """Procedure to turn 'input_string' into a short, unique identifier."""
@@ -27,6 +23,34 @@ class CacheLayer:
         md5 = hashlib.new("md5", usedforsecurity=False)
         md5.update(input_string.encode("utf-8"))
         return md5.hexdigest()
+
+    def cache_is_ready(self):
+        """Procedure to set up and test the ability to cache."""
+        raise NotImplementedError
+
+    def cached_value(self, prefix, key, is_raw=False):
+        """Returns the cached value or None."""
+        raise NotImplementedError
+
+    def cache_value(self, prefix, key, value, query=None, is_raw=False):
+        """Procedure to store 'value' as a cache."""
+        raise NotImplementedError
+
+    def invalidate_by_prefix(self, prefix):
+        """Procedure to remove all cache items belonging to 'prefix'."""
+        raise NotImplementedError
+
+    def invalidate_all(self):
+        """Procedure to remove all cache items."""
+        raise NotImplementedError
+
+
+class FileCacheBackend(CacheBackend):
+    """This class provides an on-disk caching layer."""
+
+    def __init__(self, storage_path):
+        self.storage = storage_path
+        self.log = logging.getLogger(__name__)
 
     def cache_is_ready(self):
         """Procedure to set up and test the ability to cache."""
@@ -112,3 +136,16 @@ class CacheLayer:
                 pass
 
         return True
+
+
+# Backwards-compatible alias for the historical default backend.
+CacheLayer = FileCacheBackend
+
+
+def build_cache_backend(config, file_backend):
+    """Return the configured cache backend ('file' default, or Valkey)."""
+    if getattr(config, "cache_backend_type", "file") == "valkey":
+        from djehuty.web.cache_valkey import ValkeyCacheBackend
+
+        return ValkeyCacheBackend(config)
+    return file_backend

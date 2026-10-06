@@ -28,6 +28,8 @@ class RuntimeConfiguration:  # pylint: disable=too-few-public-methods
         self.s3_cache_storage = None
         self.storage_locations = []
         self.storage = None
+        # Non-cache working files (SAML/handle config); defaults to the cache dir.
+        self.work_dir = None
         self.secondary_storage = None
         self.secondary_storage_quirks = False
         self.endpoint = "http://127.0.0.1:8890/sparql"
@@ -64,6 +66,16 @@ class RuntimeConfiguration:  # pylint: disable=too-few-public-methods
         # "web_service_groups" pins individual groups, e.g. {"admin": "legacy"}.
         self.web_service = "new"
         self.web_service_groups = {}
+        # Cache backend: "file" (default, on-disk) or "valkey" (shared).
+        self.cache_backend_type = "file"
+        self.cache_backend_host = None
+        self.cache_backend_port = 6379
+        self.cache_backend_db = 0
+        self.cache_backend_tls = False
+        self.cache_backend_password = None
+        self.cache_deployment = "default"
+        self.cache_ttl = None
+        self.cache_coarse_invalidation = False
         self.sandbox_message_css = ""
         self.sandbox_message = False
         self.notice_message = False

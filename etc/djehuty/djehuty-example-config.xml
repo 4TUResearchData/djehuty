@@ -86,6 +86,23 @@
   <storage-root>./data</storage-root>
   <minimum-keywords-count>1</minimum-keywords-count>
   <cache-root clear-on-start="1">./data/cache</cache-root>
+  <!-- Optional: a shared Valkey cache for multi-instance deployments. Absent, the
+       on-disk file cache (above) is used. The Valkey password should be set in the
+       JSON configuration, which resolves ${env:...}/${file:...} references (XML
+       does not).
+  <cache-backend>
+    <type>valkey</type>
+    <host>valkey</host>
+    <port>6379</port>
+    <db>0</db>
+    <tls>0</tls>
+    <deployment>production</deployment>
+    <ttl>3600</ttl>
+  </cache-backend>
+  -->
+  <!-- Optional: dedicated working directory for non-cache artifacts (SAML/handle
+       config). Defaults to the cache directory.
+  <work-dir>./data/work</work-dir> -->
   <live-reload>1</live-reload>
   <!-- <log-file>/var/log/djehuty.log</log-file> -->
   <debug-mode>1</debug-mode>
