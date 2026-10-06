@@ -1,0 +1,13 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT ?collection (COUNT(DISTINCT ?dataset) AS ?datasets)
+
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?collection rdf:type                         djht:Collection ;
+               djht:datasets/rdf:rest*/rdf:first ?dataset .
+    {{ filters | safe }}
+  }
+}
+GROUP BY ?collection
+{% endblock %}

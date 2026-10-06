@@ -10,11 +10,13 @@ from djehuty.api.v3.physical_samples import (
     private_links,
     publishing,
     related_resources,
+    search,
     tags,
 )
 
 router = APIRouter()
 for _m in (
+    search,
     listing,
     publishing,
     creators,
