@@ -1099,6 +1099,16 @@ def read_configuration_file(server, config_file, logger, config_files):
             xml_root, "maintenance-mode", config.maintenance_mode, logger
         )
 
+        config.storage_maintenance = read_boolean_value(
+            xml_root, "storage-maintenance", config.storage_maintenance, logger
+        )
+        config.storage_maintenance_retry_after = read_integer_value(
+            xml_root,
+            "storage-maintenance-retry-after",
+            config.storage_maintenance_retry_after,
+            minimum=0,
+        )
+
         config.disable_2fa = read_boolean_value(xml_root, "disable-2fa", config.disable_2fa, logger)
 
         config.allow_crawlers = read_boolean_value(

@@ -87,7 +87,7 @@ const dataset_uuid = "{{item.container_uuid}}";
         </ul>
     </div>
 {%- endif%}
-{%- if opendap %}
+{%- if opendap and not storage_maintenance %}
     <div id="opendap">
         <div class="label">OPeNDAP data service</div>
         <ul>
@@ -100,7 +100,7 @@ const dataset_uuid = "{{item.container_uuid}}";
         </ul>
     </div>
 {%- endif%}
-{%- if git_repository_url %}
+{%- if git_repository_url and not storage_maintenance %}
     <div id="git-repository">
       <p>To access the source code, use the following command:</p>
       <pre>git clone {{git_repository_url}}{%- if item.git_repository_name %} "{{item.git_repository_name}}"{%- endif %}</pre>
@@ -110,6 +110,9 @@ const dataset_uuid = "{{item.container_uuid}}";
 {%- if files %}
     <div id="files">
         <h3 class="label">Files ({{files|length}})</h3>
+    {%- if storage_maintenance %}
+        <div class="notice-box"><p>The files for this dataset are temporarily unavailable while storage is under maintenance. Please check back later.</p></div>
+    {%- else %}
         <ul>
     {%- for file in files %}
             <li>
@@ -129,6 +132,7 @@ const dataset_uuid = "{{item.container_uuid}}";
     {%- endif %}
         </ul>
         <div id="download-all-files-message"></div>
+    {%- endif %}
     </div>
 {%- endif %}
 {%- endif %}

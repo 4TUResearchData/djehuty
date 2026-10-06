@@ -32,6 +32,8 @@ file. A JSON example is available at `etc/djehuty/djehuty-example-config.json`.
 | `sandbox-message` | Display a message on the top of every page. |
 | `notice-message` | Display a message on the main page. |
 | `maintenance-mode` | When set to 1, all HTTP requests result in the display of a maintenance message. Use this option while backing up the database, or when performing major updates. |
+| `storage-maintenance` | When set to 1, seals only the storage subsystem while the metadata layer stays live: file upload/download, zip, thumbnails, avatars, IIIF, git and the file-integrity tooling answer `503`, and publishing is blocked, but users can still browse, create and edit drafts, and submit for review. Use this while the storage back-end is unavailable or being worked on. Defaults to 0. |
+| `storage-maintenance-retry-after` | The `Retry-After` value (seconds) sent with the `503` responses while `storage-maintenance` is on. Defaults to 3600. |
 
 ## Configuring the Database
 

@@ -620,6 +620,7 @@ class WebServer:
             "large_footer":        config.large_footer,
             "small_footer":        config.small_footer,
             "maintenance_mode":    config.maintenance_mode,
+            "storage_maintenance": config.storage_maintenance,
             "path":                request.path,
             "sandbox_message":     config.sandbox_message,
             "site_description":    config.site_description,

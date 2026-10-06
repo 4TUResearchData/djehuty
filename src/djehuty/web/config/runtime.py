@@ -61,6 +61,10 @@ class RuntimeConfiguration:  # pylint: disable=too-few-public-methods
         self.in_preproduction = False
         self.using_uwsgi = False
         self.maintenance_mode = False
+        # Seal the storage subsystem (uploads, downloads, thumbnails, IIIF, git,
+        # publish) with 503 while metadata stays live.
+        self.storage_maintenance = False
+        self.storage_maintenance_retry_after = 3600
         # New HTTP stack. "web_service" is the global
         # default ("new"|"legacy") for registered route groups;
         # "web_service_groups" pins individual groups, e.g. {"admin": "legacy"}.

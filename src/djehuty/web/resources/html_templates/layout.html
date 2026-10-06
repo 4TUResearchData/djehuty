@@ -9,7 +9,7 @@
     <title>{% if page_title %}{{page_title|safe}}{% else %}{{site_name | default("Djehuty", True)}}{% endif %}</title>
     <link rel='shortcut icon' type='image/x-icon' href='/static/images/favicon.ico'>
     <link rel="stylesheet" type="text/css" href="/theme/colors.css?cache={{startup_timestamp}}">
-    <link rel="stylesheet" type="text/css" href="/static/css/main.css?cache=1780577091">
+    <link rel="stylesheet" type="text/css" href="/static/css/main.css?cache=1791500000">
     <link rel="stylesheet" type="text/css" href="/theme/fonts.css?cache={{startup_timestamp}}">
     {%- for stylesheet in custom_stylesheets | default([], true) %}
     <link rel="stylesheet" type="text/css" href="{{stylesheet}}?cache={{startup_timestamp}}">
@@ -21,6 +21,11 @@
       {%- if sandbox_message %}
       <div id="sandbox-message" class="pre-header sandbox-message-css">
         <p>{{sandbox_message | safe}}</p>
+      </div>
+      {%- endif %}
+      {%- if storage_maintenance %}
+      <div id="storage-maintenance-message" class="pre-header">
+        <p>File uploads and downloads are temporarily unavailable while storage is under maintenance. Browsing datasets and metadata is unaffected.</p>
       </div>
       {%- endif %}
       {%- if impersonating_account %}

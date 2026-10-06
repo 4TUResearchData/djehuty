@@ -3,11 +3,18 @@
 Never imports djehuty.web.wsgi; the legacy app is passed in.
 """
 
+import json
 import logging
 
 from djehuty.route_groups import target_for_path
+from djehuty.storage_seal import is_sealed_storage_path
+from djehuty.web.config import config
 
 _log = logging.getLogger(__name__)
+
+_STORAGE_SEALED_BODY = json.dumps(
+    {"message": "Storage is temporarily unavailable for maintenance.", "code": "StorageMaintenance"}
+).encode("utf-8")
 
 
 class WebServiceDispatcher:
@@ -19,6 +26,17 @@ class WebServiceDispatcher:
 
     def __call__(self, environ, start_response):
         path = environ.get("PATH_INFO", "")
+        if config.storage_maintenance and is_sealed_storage_path(path):
+            # Seal every byte-backed route (both stacks) before it is served.
+            start_response(
+                "503 Service Unavailable",
+                [
+                    ("Content-Type", "application/json"),
+                    ("Content-Length", str(len(_STORAGE_SEALED_BODY))),
+                    ("Retry-After", str(config.storage_maintenance_retry_after)),
+                ],
+            )
+            return [_STORAGE_SEALED_BODY]
         if target_for_path(path, self.default, self.overrides) == "new":
             return self.new(environ, start_response)
         return self.legacy(environ, start_response)
@@ -34,9 +52,19 @@ def build_wsgi_app(legacy_app, db, default="new", overrides=None):
 
         new_app = ASGIMiddleware(create_app(db, email=getattr(legacy_app, "email", None)))
     except ImportError as error:
+        if config.storage_maintenance:
+            raise RuntimeError(
+                "storage-maintenance requires the new HTTP stack, which is unavailable; "
+                "refusing to serve legacy-only with the storage seal off."
+            ) from error
         _log.warning("New HTTP stack unavailable (%s); serving legacy only.", error)
         return legacy_app
     except Exception as error:
+        if config.storage_maintenance:
+            raise RuntimeError(
+                "storage-maintenance requires the new HTTP stack, which failed to build; "
+                "refusing to serve legacy-only with the storage seal off."
+            ) from error
         _log.error(
             "New HTTP stack failed to build (%s); serving legacy only.", error, exc_info=True
         )

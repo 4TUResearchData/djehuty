@@ -5,7 +5,7 @@
 <h2>{{category.title}}</h2>
 {% for item in category.articles: %}
 <div class="tile-item">
-  <a href="/datasets/{{item.container_uuid}}">{% if item.thumb | length: %}
+  <a href="/datasets/{{item.container_uuid}}">{% if item.thumb | length and not storage_maintenance: %}
   <img class="tile-preview" src="{{item.thumb}}" aria-hidden="true" alt="thumbnail for {{item.container_uuid}}" />
   {% else: %}
   <img class="tile-preview" src="/static/images/dataset-thumb.svg" aria-hidden="true" alt="thumbnail for {{item.container_uuid}}" />

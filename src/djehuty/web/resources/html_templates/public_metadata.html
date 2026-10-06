@@ -143,7 +143,7 @@
     <div id="interoperability">
         <h3 class="label">Interoperability</h3>
         <ul>
-        {%- if show_iiif_link %}
+        {%- if show_iiif_link and not storage_maintenance %}
         <li><a href="/iiif/v3/{{item.container_uuid}}/{{item.version | default('draft')}}/manifest" class="corporate-identity public-button" target="_blank" rel="noopener noreferrer" title="IIIF Manifest">IIIF Manifest</a>
         {%- endif %}
         <li><a href="/v3/datasets/{{item.container_uuid}}/{% if item.version %}versions/{{item.version}}/{% endif %}ro-crate-metadata.json" class="corporate-identity public-button" target="_blank" rel="noopener noreferrer" title="RO-Crate Metadata">RO-Crate Metadata</a>

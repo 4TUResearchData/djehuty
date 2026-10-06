@@ -106,6 +106,7 @@ include = [
     "src/djehuty/route_groups.py",
     "src/djehuty/application.py",
     "src/djehuty/dispatch.py",
+    "src/djehuty/storage_seal.py",
     "src/djehuty/api/**/*.py",
     "src/djehuty/services/**/*.py",
     "tests/**/*.py",
