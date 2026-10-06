@@ -475,7 +475,7 @@ class SparqlInterface:
             "is_under_review": is_under_review,
             "private_link_id_string": private_link_id_string,
             "search_for_raw": rdf.escape_string_value (search_for_raw),
-            ## Only join the tags list when a filter actually references ?tag.
+            # Only join the tags list when a filter actually references ?tag.
             "uses_tag":       "?tag" in filters,
             "filters":        filters,
             "return_count":   return_count
