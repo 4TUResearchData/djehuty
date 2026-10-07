@@ -34,6 +34,7 @@
 .fa-copy:hover { cursor: pointer; }
 </style>
 <script nonce="{{nonce}}">
+  window.datasetReviewEnabled = {{ 'true' if enable_dataset_review else 'false' }};
   const reviewers = [
       {%- for reviewer in reviewers: %}
       { "uuid": "{{reviewer.uuid}}",
@@ -44,7 +45,7 @@
       {%- endfor %}
   ]
 </script>
-<script src="/static/js/review-overview.js?cache=1744290797"></script>
+<script src="/static/js/review-overview.js?cache=20261007"></script>
 {% endblock %}
 {% block submenu %}
 <ul>

@@ -148,6 +148,10 @@ function render_overview_table () {
             else {
                 if (is_physical_sample) {
                     title_html = `<a href="/review/goto-physical-sample/${review.container_uuid}">${review.dataset_title}</a>`;
+                } else if (window.datasetReviewEnabled) {
+                    // Field-level review on: open the read-only reviewer page
+                    // instead of impersonating the author.
+                    title_html = `<a href="/review/dataset/${review.container_uuid}">${review.dataset_title}</a>`;
                 } else {
                     title_html = `<a href="/review/goto-dataset/${review.dataset_uuid}">${review.dataset_title}</a>`;
                 }

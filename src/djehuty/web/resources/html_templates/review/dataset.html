@@ -1,0 +1,59 @@
+{% extends "layout.html" %}
+{% block headers %}
+<style nonce="{{nonce}}">
+#review-dataset-root { max-width: 60em; }
+.review-field { border: solid 1pt #ddd; border-radius: .4em; padding: .8em; margin: .6em 0; }
+.review-field h3 { margin: 0 0 .3em 0; font-size: 1em; }
+.review-field .value { white-space: pre-wrap; background: #f7f7f7; padding: .4em; border-radius: .3em; }
+.review-field .value.empty { color: #999; font-style: italic; }
+.review-entity-item { border-top: solid 1pt #eee; padding: .5em 0; margin-top: .5em; }
+.review-entity-item:first-of-type { border-top: none; }
+.review-entity-item .entity-label { font-weight: bold; }
+.review-details { display: grid; grid-template-columns: max-content 1fr; gap: .1em .8em; margin: .3em 0; font-size: .9em; }
+.review-details dt { color: #666; }
+.review-details dd { margin: 0; word-break: break-word; }
+.review-comment { border-left: 3pt solid #f49120; padding: .4em .6em; margin: .5em 0; background: #fffaf2; border-radius: .3em; }
+.review-comment.resolved { border-left-color: #8a8; background: #f3f8f3; }
+.review-comment .body { white-space: pre-wrap; }
+.review-comment .edited { font-size: .8em; color: #888; }
+.review-event { margin: .3em 0; padding-left: .6em; border-left: 2pt solid #ddd; }
+.review-event .who { font-weight: bold; }
+.review-actions { margin: 1.5em 0; }
+/* Bigger, clickable buttons everywhere on the page and in the modal. */
+#review-dataset-root button, .review-modal button {
+  font-size: 1em; padding: .6em 1.1em; margin: .3em .4em .3em 0;
+  border-radius: .35em; cursor: pointer; border: solid 1pt #bbb; background: #f3f3f3;
+}
+#review-dataset-root button:hover, .review-modal button:hover { background: #e7e7e7; }
+.review-actions button { font-size: 1.1em; padding: .7em 1.4em; }
+.review-notes textarea { width: 100%; min-height: 4em; }
+.review-snapshot { font-size: .85em; color: #666; }
+.review-add { margin-top: .4em; }
+/* Modal */
+.review-modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.4); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+.review-modal { background: #fff; border-radius: .5em; padding: 1.2em; width: min(90vw, 40em); box-shadow: 0 .4em 1.2em rgba(0,0,0,.3); }
+.review-modal h3 { margin-top: 0; }
+.review-modal textarea { width: 100%; min-height: 8em; font: inherit; padding: .5em; box-sizing: border-box; }
+.review-modal .review-modal-actions { margin-top: .8em; text-align: right; }
+.review-modal .review-modal-actions button { margin-left: .5em; }
+</style>
+<script nonce="{{nonce}}">
+  window.reviewContext = {
+    datasetUuid: "{{container_uuid}}",
+    authorUuid: "{{author_uuid}}",
+    fields: {{ review_fields | tojson }},
+    entities: {{ review_entities | tojson }}
+  };
+</script>
+<script src="/static/js/review-reviewer.js?cache=20261010"></script>
+{% endblock %}
+{% block submenu %}
+<ul>
+  <li><a href="/review/overview">&#8592; Go back</a>
+  <li class="active corporate-identity-submenu-active">Review
+</ul>
+{% endblock %}
+{% block body %}
+<h1>Review: {{ dataset_title | default("dataset", true) }}</h1>
+<div id="review-dataset-root" data-dataset-uuid="{{container_uuid}}">Loading review…</div>
+{% endblock %}
