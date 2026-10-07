@@ -1450,6 +1450,10 @@ Migrate to JSON (see <code>etc/djehuty/djehuty-example-config.json</code>).</p>
 <td>Users can upload a profile image in <code>djehuty</code>. This option should point to a filesystem directory where these profile images can be stored.</td>
 </tr>
 <tr>
+<td><code>thumbnails-root</code></td>
+<td>The directory where generated dataset thumbnails are stored. Defaults to a <code>thumbnails</code> sub-directory of <code>storage-root</code>.</td>
+</tr>
+<tr>
 <td><code>disable-2fa</code></td>
 <td>Accounts with privileges receive a code by e-mail as a second factor when logging in. Setting this option to 1 disables the second factor authentication.</td>
 </tr>
@@ -1467,7 +1471,7 @@ Migrate to JSON (see <code>etc/djehuty/djehuty-example-config.json</code>).</p>
 </tr>
 <tr>
 <td><code>storage-maintenance</code></td>
-<td>When set to 1, seals only the storage subsystem while the metadata layer stays live: file upload/download, zip, thumbnails, avatars, IIIF, git and the file-integrity tooling answer <code>503</code>, and publishing is blocked, but users can still browse, create and edit drafts, and submit for review. Use this while the storage back-end is unavailable or being worked on. Defaults to 0.</td>
+<td>When set to 1, seals only the storage subsystem while the metadata layer stays live: file upload/download, zip, thumbnails, avatars, IIIF, git and the file-integrity tooling answer <code>503</code>, and publishing is blocked, but users can still browse, create and edit drafts, and submit for review. In this mode the storage-subsystem directory checks are skipped at start-up, so <code>djehuty</code> boots even when the storage volume is unmounted or read-only. For this to work, keep <code>work-dir</code> (and the on-disk <code>cache-root</code>) on a volume independent of the storage back-end being maintained. Use this while the storage back-end is unavailable or being worked on. Defaults to 0.</td>
 </tr>
 <tr>
 <td><code>storage-maintenance-retry-after</code></td>
@@ -1673,6 +1677,10 @@ storage and later move the uploaded files to a slower but less costly storage.</
 <tr>
 <td><code>storage-root</code></td>
 <td>The primary filesystem path where files, cache, and profile images are stored. Sub-directories are created automatically.</td>
+</tr>
+<tr>
+<td><code>secondary-storage-root</code></td>
+<td>An additional filesystem path consulted when a file cannot be found under <code>storage-root</code>. Supports a <code>quirks</code> attribute (set to <code>1</code>) for back-ends that need the legacy path layout.</td>
 </tr>
 <tr>
 <td><code>location</code></td>
