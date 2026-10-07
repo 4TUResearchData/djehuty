@@ -28,11 +28,12 @@ file. A JSON example is available at `etc/djehuty/djehuty-example-config.json`.
 | `cache-root` | `djehuty` can cache query responses to lower the load on the database server. Specify the directory where to store cache files. This element takes an attribute `clear-on-start`, and when set to 1, it will remove all cache files on start-up of `djehuty`. |
 | `work-dir` | A directory for non-cache working files (SAML and Handle configuration). Defaults to the `cache-root` directory, so existing deployments are unaffected. Set it explicitly when the cache is a shared backend (Valkey) that has no filesystem of its own. |
 | `profile-images-root` | Users can upload a profile image in `djehuty`. This option should point to a filesystem directory where these profile images can be stored. |
+| `thumbnails-root` | The directory where generated dataset thumbnails are stored. Defaults to a `thumbnails` sub-directory of `storage-root`. |
 | `disable-2fa` | Accounts with privileges receive a code by e-mail as a second factor when logging in. Setting this option to 1 disables the second factor authentication. |
 | `sandbox-message` | Display a message on the top of every page. |
 | `notice-message` | Display a message on the main page. |
 | `maintenance-mode` | When set to 1, all HTTP requests result in the display of a maintenance message. Use this option while backing up the database, or when performing major updates. |
-| `storage-maintenance` | When set to 1, seals only the storage subsystem while the metadata layer stays live: file upload/download, zip, thumbnails, avatars, IIIF, git and the file-integrity tooling answer `503`, and publishing is blocked, but users can still browse, create and edit drafts, and submit for review. Use this while the storage back-end is unavailable or being worked on. Defaults to 0. |
+| `storage-maintenance` | When set to 1, seals only the storage subsystem while the metadata layer stays live: file upload/download, zip, thumbnails, avatars, IIIF, git and the file-integrity tooling answer `503`, and publishing is blocked, but users can still browse, create and edit drafts, and submit for review. In this mode the storage-subsystem directory checks are skipped at start-up, so `djehuty` boots even when the storage volume is unmounted or read-only. For this to work, keep `work-dir` (and the on-disk `cache-root`) on a volume independent of the storage back-end being maintained. Use this while the storage back-end is unavailable or being worked on. Defaults to 0. |
 | `storage-maintenance-retry-after` | The `Retry-After` value (seconds) sent with the `503` responses while `storage-maintenance` is on. Defaults to 3600. |
 
 ## Configuring the Database
@@ -201,6 +202,7 @@ storage and later move the uploaded files to a slower but less costly storage.
 | Option | Description |
 |--------|-------------|
 | `storage-root` | The primary filesystem path where files, cache, and profile images are stored. Sub-directories are created automatically. |
+| `secondary-storage-root` | An additional filesystem path consulted when a file cannot be found under `storage-root`. Supports a `quirks` attribute (set to `1`) for back-ends that need the legacy path layout. |
 | `location` | A filesystem path to where files are stored. This is a repeatable property. |
 | `s3-bucket` | An S3 bucket configuration. See [Configuring S3 buckets](#configuring-s3-buckets). This is a repeatable property. |
 

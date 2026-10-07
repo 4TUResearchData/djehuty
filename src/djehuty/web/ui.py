@@ -1579,6 +1579,44 @@ def run_maintenance_server(server, logger, run_internal_server, config_files, in
     return None
 
 
+def prepare_storage_directories(logger, inside_reload):
+    """Check and create the storage-subsystem directories, unless storage
+    maintenance is on.
+
+    These paths default under 'storage-root' and live on the storage back-end,
+    which may be unmounted or read-only while 'storage-maintenance' is on. In
+    that mode the subsystem is sealed, so the directories are neither checked
+    nor created and the storage volume is left untouched. The database, cache
+    and working directory are not part of the storage subsystem and are set up
+    separately."""
+    if config.storage_maintenance:
+        return
+
+    if config.in_production and not os.path.isdir(config.storage):
+        logger.error("The storage directory '%s' does not exist.", config.storage)
+        raise FileNotFoundError
+
+    if config.profile_images_storage is not None and not inside_reload:
+        try:
+            os.makedirs(config.profile_images_storage, mode=0o700, exist_ok=True)
+        except PermissionError:
+            logger.error("Cannot create %s directory.", config.profile_images_storage)
+            config.profile_images_storage = os.path.join(config.storage, "profile-images")
+            logger.error("Falling back to %s.", config.profile_images_storage)
+
+    if config.thumbnail_storage is not None and not inside_reload:
+        try:
+            os.makedirs(config.thumbnail_storage, mode=0o700, exist_ok=True)
+        except PermissionError:
+            logger.error("Cannot create %s directory.", config.thumbnail_storage)
+
+    if config.iiif_cache_storage is not None and not inside_reload:
+        try:
+            os.makedirs(config.iiif_cache_storage, mode=0o700, exist_ok=True)
+        except PermissionError:
+            logger.error("Cannot create %s directory.", config.iiif_cache_storage)
+
+
 def main(
     config_file=None,
     run_internal_server=True,
@@ -1671,38 +1709,16 @@ def main(
                 ("Set <production> to 1 in your configuration file for hardened security settings.")
             )
 
-        if config.in_production and not os.path.isdir(config.storage):
-            logger.error("The storage directory '%s' does not exist.", config.storage)
-            raise FileNotFoundError
-
         if config.work_dir is not None and not inside_reload:
             try:
                 os.makedirs(config.work_dir, mode=0o700, exist_ok=True)
             except PermissionError:
                 logger.error("Cannot create %s directory.", config.work_dir)
 
-        if config.profile_images_storage is not None and not inside_reload:
-            try:
-                os.makedirs(config.profile_images_storage, mode=0o700, exist_ok=True)
-            except PermissionError:
-                logger.error("Cannot create %s directory.", config.profile_images_storage)
-                config.profile_images_storage = os.path.join(config.storage, "profile-images")
-                logger.error("Falling back to %s.", config.profile_images_storage)
-
-        if config.thumbnail_storage is not None and not inside_reload:
-            try:
-                os.makedirs(config.thumbnail_storage, mode=0o700, exist_ok=True)
-            except PermissionError:
-                logger.error("Cannot create %s directory.", config.thumbnail_storage)
+        prepare_storage_directories(logger, inside_reload)
 
         if not server.add_static_root("/thumbnails", config.thumbnail_storage):
             logger.error("Failed to setup route for thumbnails.")
-
-        if config.iiif_cache_storage is not None and not inside_reload:
-            try:
-                os.makedirs(config.iiif_cache_storage, mode=0o700, exist_ok=True)
-            except PermissionError:
-                logger.error("Cannot create %s directory.", config.iiif_cache_storage)
 
         server.db.setup_sparql_endpoint()
 
@@ -1770,7 +1786,8 @@ def main(
                 logger.info("Handle prefix:           %s", config.handle_prefix)
 
             if config.enable_iiif:
-                os.makedirs(config.iiif_cache_storage, mode=0o700, exist_ok=True)
+                if not config.storage_maintenance:
+                    os.makedirs(config.iiif_cache_storage, mode=0o700, exist_ok=True)
                 if not PYVIPS_DEPENDENCY_LOADED:
                     logger.error("Dependency 'pyvips' is required for IIIF.")
                     if PYVIPS_ERROR_MESSAGE is not None:
@@ -1787,7 +1804,8 @@ def main(
                     raise DependencyNotAvailable
 
             if config.s3_buckets:
-                os.makedirs(config.s3_cache_storage, mode=0o700, exist_ok=True)
+                if not config.storage_maintenance:
+                    os.makedirs(config.s3_cache_storage, mode=0o700, exist_ok=True)
                 if not BOTO3_DEPENDENCY_LOADED:
                     logger.error("Dependency 'boto3' is required for S3 buckets.")
                     raise DependencyNotAvailable

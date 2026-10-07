@@ -1,9 +1,14 @@
-"""Unit tests for the storage-maintenance seal in the dispatcher."""
+"""Unit tests for storage maintenance: the dispatcher seal and the boot-time
+skip of the storage-subsystem directory setup."""
+
+import logging
+import os
 
 import pytest
 
 import djehuty.application as application
 from djehuty.dispatch import WebServiceDispatcher, build_wsgi_app
+from djehuty.web import ui
 from djehuty.web.config import config
 
 
@@ -90,3 +95,63 @@ def test_build_falls_back_to_legacy_when_flag_off(monkeypatch):
 
     monkeypatch.setattr(application, "create_app", _boom)
     assert build_wsgi_app(_legacy, db=None) is _legacy
+
+
+@pytest.fixture
+def storage_config():
+    """Save and restore the storage-related config touched at boot."""
+    keys = (
+        "in_production",
+        "storage",
+        "profile_images_storage",
+        "thumbnail_storage",
+        "iiif_cache_storage",
+    )
+    saved = {key: getattr(config, key) for key in keys}
+    yield
+    for key, value in saved.items():
+        setattr(config, key, value)
+
+
+def test_boot_skips_storage_dirs_during_maintenance(monkeypatch, storage_config):
+    config.storage_maintenance = True
+    config.in_production = True
+    config.storage = "/opt/s3/primary-storage"
+    config.profile_images_storage = "/opt/s3/primary-storage/profile-images"
+    config.thumbnail_storage = "/opt/s3/primary-storage/thumbnails"
+    config.iiif_cache_storage = "/opt/s3/primary-storage/iiif"
+
+    def _boom(*args, **kwargs):
+        raise AssertionError("storage filesystem touched during maintenance")
+
+    monkeypatch.setattr(ui.os, "makedirs", _boom)
+    monkeypatch.setattr(ui.os.path, "isdir", _boom)
+
+    # Returns cleanly without checking or creating anything on the sealed volume.
+    ui.prepare_storage_directories(logging.getLogger("test"), inside_reload=False)
+
+
+def test_boot_creates_storage_dirs_when_not_maintenance(tmp_path, storage_config):
+    config.storage_maintenance = False
+    config.in_production = False
+    config.profile_images_storage = str(tmp_path / "profile-images")
+    config.thumbnail_storage = str(tmp_path / "thumbnails")
+    config.iiif_cache_storage = str(tmp_path / "iiif")
+
+    ui.prepare_storage_directories(logging.getLogger("test"), inside_reload=False)
+
+    assert os.path.isdir(config.profile_images_storage)
+    assert os.path.isdir(config.thumbnail_storage)
+    assert os.path.isdir(config.iiif_cache_storage)
+
+
+def test_boot_still_requires_storage_dir_in_production(storage_config):
+    config.storage_maintenance = False
+    config.in_production = True
+    config.storage = "/nonexistent/djehuty-storage-check"
+    config.profile_images_storage = None
+    config.thumbnail_storage = None
+    config.iiif_cache_storage = None
+
+    with pytest.raises(FileNotFoundError):
+        ui.prepare_storage_directories(logging.getLogger("test"), inside_reload=False)
