@@ -1139,6 +1139,10 @@ def read_configuration_file(server, config_file, logger, config_files):
 
         config.enable_iiif = read_boolean_value(xml_root, "enable-iiif", config.enable_iiif, logger)
 
+        config.enable_dataset_review = read_boolean_value(
+            xml_root, "enable-dataset-review", config.enable_dataset_review, logger
+        )
+
         config.enable_codecheck = read_boolean_value(
             xml_root, "enable-codecheck", config.enable_codecheck, logger
         )

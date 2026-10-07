@@ -52,6 +52,7 @@ djehuty = "djehuty.ui:main"
 "djehuty.backup" = ["resources/**"]
 "djehuty.schema" = ["migrations/**"]
 "djehuty.services.sql" = ["script.py.mako"]
+"djehuty.api.services.review" = ["migrations/**"]
 
 [dependency-groups]
 docs = [

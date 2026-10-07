@@ -50,7 +50,8 @@ def build_wsgi_app(legacy_app, db, default="new", overrides=None):
 
         from djehuty.application import create_app
 
-        new_app = ASGIMiddleware(create_app(db, email=getattr(legacy_app, "email", None)))
+        fastapi_app = create_app(db, email=getattr(legacy_app, "email", None))
+        new_app = ASGIMiddleware(fastapi_app)
     except ImportError as error:
         if config.storage_maintenance:
             raise RuntimeError(
@@ -69,6 +70,12 @@ def build_wsgi_app(legacy_app, db, default="new", overrides=None):
             "New HTTP stack failed to build (%s); serving legacy only.", error, exc_info=True
         )
         return legacy_app
+
+    # Field-level review: fail fast if enabled without a SQL DSN, and bring its
+    # schema up to head once. A RuntimeError here intentionally aborts boot.
+    from djehuty.api.services.review.setup import setup_dataset_review
+
+    setup_dataset_review(fastapi_app, default, overrides)
 
     _log.info(
         "Web service: FastAPI dispatcher active (default=%s, overrides=%s).",
