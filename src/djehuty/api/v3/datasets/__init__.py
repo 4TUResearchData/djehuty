@@ -10,9 +10,10 @@ from djehuty.api.v3.datasets import (
     listing,
     publishing,
     references,
+    review,
     tags,
 )
 
 router = APIRouter()
-for _m in (listing, publishing, references, tags, files, authors, collaborators, badges):
+for _m in (listing, publishing, references, tags, files, authors, collaborators, badges, review):
     router.include_router(_m.router)

@@ -101,6 +101,7 @@ class ReviewService:
         target_type,
         body,
         target_key=None,
+        target_label=None,
         field_value_snapshot=None,
     ):
         """Add a pending comment (a single editable body) to the draft round."""
@@ -112,6 +113,7 @@ class ReviewService:
                     dataset_uuid=dataset_uuid,
                     target_type=target_type,
                     target_key=target_key,
+                    target_label=target_label,
                     field_value_snapshot=field_value_snapshot,
                     body=body,
                     created_by_account_uuid=reviewer_account_uuid,
@@ -155,6 +157,32 @@ class ReviewService:
             )
             return result.inserted_primary_key[0]
 
+    def edit_event(self, event_id, account_uuid, body):
+        """Edit one's own reply. Returns True if a reply was updated."""
+        with self.sql.begin() as conn:
+            result = conn.execute(
+                update(review_comment_event)
+                .where(
+                    review_comment_event.c.id == event_id,
+                    review_comment_event.c.account_uuid == account_uuid,
+                    review_comment_event.c.kind == "reply",
+                )
+                .values(body=body)
+            )
+            return result.rowcount > 0
+
+    def delete_event(self, event_id, account_uuid):
+        """Delete one's own reply. Returns True if a reply was deleted."""
+        with self.sql.begin() as conn:
+            result = conn.execute(
+                delete(review_comment_event).where(
+                    review_comment_event.c.id == event_id,
+                    review_comment_event.c.account_uuid == account_uuid,
+                    review_comment_event.c.kind == "reply",
+                )
+            )
+            return result.rowcount > 0
+
     def set_addressed(self, comment_id, account_uuid, addressed):
         """Author toggle: mark a comment addressed (or not) + log the signal."""
         with self.sql.begin() as conn:
@@ -178,12 +206,16 @@ class ReviewService:
 
     # -- read model -----------------------------------------------------------
 
-    def conversation(self, dataset_uuid, *, include_pending, include_internal):
+    def conversation(
+        self, dataset_uuid, *, include_pending, include_internal, include_resolved=True
+    ):
         """Return the review conversation for a dataset, filtered by role.
 
         Reviewer pool: everything. Author: only comments in *submitted* rounds,
-        submitted general notes, and never internal notes
-        (``include_pending=False, include_internal=False``).
+        submitted general notes, never internal notes, and never comments the
+        reviewer has resolved (``include_pending=False, include_internal=False,
+        include_resolved=False``) -- a resolved comment is closed, so the author
+        has nothing left to act on.
         """
         with self.sql.connect() as conn:
             round_query = select(review_round).where(review_round.c.dataset_uuid == dataset_uuid)
@@ -199,6 +231,7 @@ class ReviewService:
                 _row_to_dict(c)
                 for c in conn.execute(comment_query).all()
                 if c._mapping["round_id"] in visible_round_ids
+                and (include_resolved or not c._mapping["reviewer_resolved"])
             ]
 
             events_by_comment = {}

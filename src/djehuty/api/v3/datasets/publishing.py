@@ -341,48 +341,17 @@ def _warm_git_statistics_caches(db, dataset):
         logger.error("Failed to warm git statistics for '%s': %s", git_uuid, error)
 
 
-@router.post(
-    "/datasets/{dataset_id}/publish",
-    summary="Publish a dataset",
-    description=(
-        "Publish a draft dataset. Requires reviewer permissions on the "
-        "impersonator cookie session or, when absent, the calling session. "
-        "In production this reserves and registers the DOIs with DataCite "
-        "before publishing."
-    ),
-    responses={201: _ok("Dataset published", _LOCATION_EXAMPLE), 403: {"model": ErrorResponse}},
-)
-def publish_dataset(
-    dataset_id: DatasetId,
-    account=Depends(require_auth),
-    db=Depends(get_db),
-    impersonator_token: str | None = Depends(get_impersonator_token),
-    token: str | None = Depends(get_token),
-):
+def _perform_publish(db, account, dataset, reviewer_account, dataset_id):
+    """Assign the reviewer, register DOIs (production), publish, and notify.
+
+    The post-authorization core shared by the ``POST /publish`` route and the
+    field-level review submit flow, so both perform byte-identical side effects.
+    ``account`` is the dataset owner (published as); ``reviewer_account`` is the
+    acting reviewer (assigned).
+    """
     from djehuty.services import datacite
     from djehuty.services import email as email_module
     from djehuty.utils.convenience import value_or, value_or_none
-
-    reviewer_token = impersonator_token
-    may_review_all = db.may_review(reviewer_token)
-    may_review_institution = db.may_review_institution(reviewer_token)
-    if not may_review_all and not may_review_institution:
-        # When using the API, the impersonator cookie isn't set, so fall
-        # back to the regular token.
-        may_review_all = db.may_review(token)
-        may_review_institution = db.may_review_institution(token)
-        if not may_review_all and not may_review_institution:
-            raise ForbiddenError("Reviewer permissions required.")
-
-    try:
-        dataset = _resolve_dataset(db, dataset_id, account["uuid"])
-    except NotFoundError as error:
-        raise ForbiddenError("Dataset not found.") from error
-
-    reviewer_account = db.account_by_session_token(reviewer_token)
-    if may_review_institution:
-        if value_or(dataset, "group_id", "A") != value_or(reviewer_account, "group_id", "not-A"):
-            raise ForbiddenError("Reviewer group mismatch.")
 
     if not db.update_review(
         dataset["review_uri"],
@@ -454,43 +423,9 @@ def publish_dataset(
     return Response(status_code=500)
 
 
-@router.post(
-    "/datasets/{dataset_id}/decline",
-    summary="Decline a dataset (reviewer)",
-    description="Decline a dataset that was submitted for review. Requires reviewer privileges.",
-    responses={
-        201: _ok(
-            "Dataset declined",
-            {"location": "https://data.4tu.nl/review/overview"},
-        ),
-        403: {"model": ErrorResponse},
-    },
-)
-def decline_dataset(
-    dataset_id: DatasetId,
-    account=Depends(require_auth),
-    db=Depends(get_db),
-    impersonator_token: str | None = Depends(get_impersonator_token),
-):
+def _perform_decline(db, account, dataset):
+    """Decline the dataset and notify. Shared by ``POST /decline`` and submit."""
     from djehuty.services import email as email_module
-    from djehuty.utils.convenience import value_or
-
-    # Legacy accepts reviewer privileges from the impersonator cookie only.
-    reviewer_token = impersonator_token
-    may_review_all = db.may_review(reviewer_token)
-    may_review_institution = db.may_review_institution(reviewer_token)
-    if not may_review_all and not may_review_institution:
-        raise ForbiddenError("Reviewer permissions required.")
-
-    try:
-        dataset = _resolve_dataset(db, dataset_id, account["uuid"])
-    except NotFoundError as error:
-        raise ForbiddenError("Dataset not found.") from error
-
-    reviewer_account = db.account_by_session_token(reviewer_token)
-    if may_review_institution:
-        if value_or(dataset, "group_id", "A") != value_or(reviewer_account, "group_id", "not-A"):
-            raise ForbiddenError("Reviewer group mismatch.")
 
     container_uuid = dataset["container_uuid"]
     if db.decline_dataset(container_uuid, account["uuid"]):
@@ -522,3 +457,87 @@ def decline_dataset(
         )
 
     return Response(status_code=500)
+
+
+@router.post(
+    "/datasets/{dataset_id}/publish",
+    summary="Publish a dataset",
+    description=(
+        "Publish a draft dataset. Requires reviewer permissions on the "
+        "impersonator cookie session or, when absent, the calling session. "
+        "In production this reserves and registers the DOIs with DataCite "
+        "before publishing."
+    ),
+    responses={201: _ok("Dataset published", _LOCATION_EXAMPLE), 403: {"model": ErrorResponse}},
+)
+def publish_dataset(
+    dataset_id: DatasetId,
+    account=Depends(require_auth),
+    db=Depends(get_db),
+    impersonator_token: str | None = Depends(get_impersonator_token),
+    token: str | None = Depends(get_token),
+):
+    from djehuty.utils.convenience import value_or
+
+    reviewer_token = impersonator_token
+    may_review_all = db.may_review(reviewer_token)
+    may_review_institution = db.may_review_institution(reviewer_token)
+    if not may_review_all and not may_review_institution:
+        # When using the API, the impersonator cookie isn't set, so fall
+        # back to the regular token.
+        may_review_all = db.may_review(token)
+        may_review_institution = db.may_review_institution(token)
+        if not may_review_all and not may_review_institution:
+            raise ForbiddenError("Reviewer permissions required.")
+
+    try:
+        dataset = _resolve_dataset(db, dataset_id, account["uuid"])
+    except NotFoundError as error:
+        raise ForbiddenError("Dataset not found.") from error
+
+    reviewer_account = db.account_by_session_token(reviewer_token)
+    if may_review_institution:
+        if value_or(dataset, "group_id", "A") != value_or(reviewer_account, "group_id", "not-A"):
+            raise ForbiddenError("Reviewer group mismatch.")
+
+    return _perform_publish(db, account, dataset, reviewer_account, dataset_id)
+
+
+@router.post(
+    "/datasets/{dataset_id}/decline",
+    summary="Decline a dataset (reviewer)",
+    description="Decline a dataset that was submitted for review. Requires reviewer privileges.",
+    responses={
+        201: _ok(
+            "Dataset declined",
+            {"location": "https://data.4tu.nl/review/overview"},
+        ),
+        403: {"model": ErrorResponse},
+    },
+)
+def decline_dataset(
+    dataset_id: DatasetId,
+    account=Depends(require_auth),
+    db=Depends(get_db),
+    impersonator_token: str | None = Depends(get_impersonator_token),
+):
+    from djehuty.utils.convenience import value_or
+
+    # Legacy accepts reviewer privileges from the impersonator cookie only.
+    reviewer_token = impersonator_token
+    may_review_all = db.may_review(reviewer_token)
+    may_review_institution = db.may_review_institution(reviewer_token)
+    if not may_review_all and not may_review_institution:
+        raise ForbiddenError("Reviewer permissions required.")
+
+    try:
+        dataset = _resolve_dataset(db, dataset_id, account["uuid"])
+    except NotFoundError as error:
+        raise ForbiddenError("Dataset not found.") from error
+
+    reviewer_account = db.account_by_session_token(reviewer_token)
+    if may_review_institution:
+        if value_or(dataset, "group_id", "A") != value_or(reviewer_account, "group_id", "not-A"):
+            raise ForbiddenError("Reviewer group mismatch.")
+
+    return _perform_decline(db, account, dataset)
