@@ -14,6 +14,8 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from djehuty.api.exceptions import register_exception_handlers
 from djehuty.api.v2.router import router as v2_router
 from djehuty.api.v3.router import router as v3_router
+from djehuty.views.rendering import register_views_exception_handlers
+from djehuty.views.review import router as review_router
 from djehuty.web.config import config
 
 # The API versions served here, oldest first. This single list drives the docs
@@ -204,5 +206,7 @@ def create_app(db, email=None, base_url=None) -> FastAPI:
     register_exception_handlers(app)
     app.include_router(v2_router)
     app.include_router(v3_router)
+    app.include_router(review_router)
+    register_views_exception_handlers(app)
     _install_openapi_override(app)
     return app

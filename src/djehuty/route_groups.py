@@ -31,6 +31,7 @@ ROUTE_GROUPS: tuple = (
     ),
     RouteGroup("api-v2", prefixes=("/v2/",)),
     RouteGroup("api-v3", prefixes=("/v3/",)),
+    RouteGroup("review", prefixes=("/review/",)),
 )
 
 
