@@ -318,6 +318,18 @@ def read_cache_backend_configuration(xml_root, logger):
         raise SystemExit
 
 
+def read_sql_configuration(xml_root, logger):
+    """Read the optional 'sql' block (absent = no relational store).
+
+    Only the DSN is read here; '${env:}'/'${file:}' indirection is resolved by
+    the JSON config parser before this runs (XML configs take the value as-is).
+    """
+    database_url = config_value(xml_root, "sql/url")
+    if database_url:
+        config.sql_database_url = database_url
+        logger.info("Relational store (SQL) configured.")
+
+
 def read_quotas_configuration(xml_root):
     """Read quota information from XML_ROOT."""
 
@@ -1319,6 +1331,7 @@ def read_configuration_file(server, config_file, logger, config_files):
         read_colors_configuration(xml_root)
         read_fonts_configuration(xml_root, logger)
         read_upload_dataset_configuration(xml_root, logger)
+        read_sql_configuration(xml_root, logger)
 
         for include_element in xml_root.iter("include"):
             include = include_element.text

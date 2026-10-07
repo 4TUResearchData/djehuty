@@ -81,6 +81,9 @@ class RuntimeConfiguration:  # pylint: disable=too-few-public-methods
         self.cache_deployment = "default"
         self.cache_ttl = None
         self.cache_coarse_invalidation = False
+        # Shared relational store (PostgreSQL). Absent DSN = no SQL store; the
+        # app behaves exactly as without it. Set via the "sql" config block.
+        self.sql_database_url = None
         self.sandbox_message_css = ""
         self.sandbox_message = False
         self.notice_message = False

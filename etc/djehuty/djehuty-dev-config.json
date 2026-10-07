@@ -62,6 +62,9 @@
       "db": 0,
       "deployment": "dev"
     },
+    "sql": {
+      "url": "${env:DJEHUTY_SQL_URL}"
+    },
     "live-reload": "1",
     "debug-mode": "1",
     "production": "0",

@@ -26,6 +26,11 @@ def get_email(request: Request):
     return getattr(request.app.state, "email", None)
 
 
+def get_sql(request: Request):
+    """Return the shared relational store (SqlDatabase), or None when unconfigured."""
+    return getattr(request.app.state, "sql", None)
+
+
 def get_token(request: Request) -> str | None:
     """Session token from the cookie or the Authorization header.
 

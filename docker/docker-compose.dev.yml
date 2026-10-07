@@ -38,6 +38,23 @@ services:
       retries: 30
       start_period: 5s
 
+  postgres:
+    image: postgres:17
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: "djehuty"
+      POSTGRES_PASSWORD: "djehuty"
+      POSTGRES_DB: "djehuty"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U djehuty -d djehuty"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 10s
+
   djehuty:
     build:
       context: ..
@@ -51,6 +68,7 @@ services:
     # so both dev and the e2e suite run against the shared Valkey by default.
     environment:
       DJEHUTY_CONFIG: ${DJEHUTY_CONFIG:-/config/djehuty/djehuty-dev-config.json}
+      DJEHUTY_SQL_URL: ${DJEHUTY_SQL_URL:-postgresql+psycopg://djehuty:djehuty@postgres:5432/djehuty}
     volumes:
       - ../src:/app/src
       - ../etc:/config:ro
@@ -59,6 +77,8 @@ services:
       virtuoso:
         condition: service_healthy
       valkey:
+        condition: service_healthy
+      postgres:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:8080/ > /dev/null"]
@@ -70,3 +90,4 @@ services:
 volumes:
   virtuoso-data:
   djehuty-data:
+  postgres-data:

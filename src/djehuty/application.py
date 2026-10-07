@@ -14,6 +14,7 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from djehuty.api.exceptions import register_exception_handlers
 from djehuty.api.v2.router import router as v2_router
 from djehuty.api.v3.router import router as v3_router
+from djehuty.services.sql import SqlDatabase
 from djehuty.views.rendering import register_views_exception_handlers
 from djehuty.views.review import router as review_router
 from djehuty.web.config import config
@@ -183,6 +184,10 @@ def create_app(db, email=None, base_url=None) -> FastAPI:
     )
     app.state.db = db
     app.state.email = email
+    # Shared relational store (PostgreSQL). None when no DSN is configured, so
+    # the app behaves exactly as today. Engine creation is lazy/connection-free,
+    # safe in tests, the OpenAPI exporter, and the reloader parent.
+    app.state.sql = SqlDatabase(config.sql_database_url) if config.sql_database_url else None
 
     # Combined docs at /api/docs with a version selector (latest first, plus
     # "all"); bookmarkable per-version docs at /api/docs/<version>.

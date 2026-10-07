@@ -104,6 +104,15 @@
     <ttl>3600</ttl>
   </cache-backend>
   -->
+  <!-- Optional: a shared PostgreSQL relational store used by features that keep
+       relational data (e.g. field-level review). Absent, those features are off
+       and the app behaves as today. The DSN should be set in the JSON
+       configuration, which resolves ${env:...}/${file:...} references (XML does
+       not).
+  <sql>
+    <url>postgresql+psycopg://djehuty:djehuty@localhost:5432/djehuty</url>
+  </sql>
+  -->
   <!-- Optional: dedicated working directory for non-cache artifacts (SAML/handle
        config). Defaults to the cache directory.
   <work-dir>./data/work</work-dir> -->

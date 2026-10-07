@@ -81,6 +81,9 @@
     "cache-backend": {
       "type": "file"
     },
+    "sql": {
+      "url": ""
+    },
     "live-reload": "1",
     "debug-mode": "1",
     "production": "0",
