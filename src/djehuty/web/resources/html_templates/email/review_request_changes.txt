@@ -1,0 +1,11 @@
+Changes requested
+=================
+
+A reviewer has requested changes to your dataset "{{title}}".
+
+Please open your dataset to read the reviewer's comments and respond inline [1].
+
+This is an automated message. For further correspondence, either use the feedback form [2] or contact us by e-mail at {{support_email}}
+
+[1] {{base_url}}/my/datasets/{{container_uuid}}/edit
+[2] {{base_url}}/feedback

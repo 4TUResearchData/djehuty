@@ -65,6 +65,12 @@
     "sql": {
       "url": "${env:DJEHUTY_SQL_URL}"
     },
+    "email": {
+      "server": "mailpit",
+      "port": "1025",
+      "from": "no-reply@djehuty.local",
+      "starttls": "0"
+    },
     "live-reload": "1",
     "debug-mode": "1",
     "production": "0",

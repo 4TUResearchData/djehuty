@@ -1,0 +1,11 @@
+Comments addressed
+==================
+
+The author has addressed your review comments on "{{title}}" and sent the
+dataset back for another look.
+
+Open the review page to continue [1].
+
+This is an automated message.
+
+[1] {{base_url}}/review/dataset/{{container_uuid}}

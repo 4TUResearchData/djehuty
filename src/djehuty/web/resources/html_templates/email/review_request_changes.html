@@ -1,0 +1,11 @@
+{% extends "email/layout.html" %}
+{% block body %}
+<h1>Changes requested</h1>
+
+<p>A reviewer has requested changes to your dataset <strong>{{title}}</strong>.</p>
+
+<p>Please open your dataset to read the reviewer's comments and respond inline:
+<a href="{{base_url}}/my/datasets/{{container_uuid}}/edit">{{base_url}}/my/datasets/{{container_uuid}}/edit</a></p>
+
+<p>This is an automated message. For further correspondence, either use the <a href="{{base_url}}/feedback">feedback form</a> or contact us by e-mail at <a href="mailto:{{support_email}}">{{support_email}}</a></p>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends "email/layout.html" %}
+{% block body %}
+<h1>Comments addressed</h1>
+
+<p>The author has addressed your review comments on <strong>{{title}}</strong> and sent the dataset back for another look.</p>
+
+<p>Open the review page to continue:
+<a href="{{base_url}}/review/dataset/{{container_uuid}}">{{base_url}}/review/dataset/{{container_uuid}}</a></p>
+
+<p>This is an automated message.</p>
+{% endblock %}
