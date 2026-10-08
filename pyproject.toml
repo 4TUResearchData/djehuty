@@ -115,6 +115,7 @@ include = [
     "src/djehuty/web/s3.py",
     "src/djehuty/web/zipfly.py",
     "src/djehuty/web/xml_formatter.py",
+    "src/djehuty/web/formatter.py",
 ]
 
 [tool.ruff.lint]
