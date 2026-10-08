@@ -1,0 +1,254 @@
+/* Author-side review overlay on the dataset edit page.
+ *
+ * Loaded as a real stylesheet (style-src 'self') because the app's CSP forbids
+ * inline styles. Structure, spacing and the semantic amber/green live here;
+ * the instance brand colour comes from the themed corporate-identity-* classes
+ * the markup also carries (top rail, header icon, progress badge, buttons), so
+ * the block matches 4TU, Nikhef, or any instance without hardcoding a colour.
+ *
+ * Rules are scoped under #review-overlay-root so they outrank main.css; the
+ * modal mounts on <body>, so its rules key off .ro-modal* instead.
+ */
+
+#review-overlay-root { display: block; }
+
+#review-overlay-root .ro-panel {
+  border-right: 1px solid #e6e6e6;
+  border-bottom: 1px solid #e6e6e6;
+  border-left: 1px solid #e6e6e6;
+  /* top rail supplied by the themed .corporate-identity-header class */
+  border-radius: 10px;
+  margin: 1.2em 0 2em;
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, .09);
+  overflow: hidden;
+}
+
+#review-overlay-root .ro-head {
+  padding: 1em 1.3em;
+  background: #faf7f2;
+  border-bottom: 1px solid #efe8dc;
+}
+#review-overlay-root .ro-head-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1em;
+  flex-wrap: wrap;
+}
+#review-overlay-root .ro-title {
+  display: flex;
+  align-items: center;
+  gap: .55em;
+  font-size: 1.3em;
+  font-weight: 700;
+  color: #3a3a3a;
+}
+#review-overlay-root .ro-title .ro-ico { font-size: 1.1em; }
+#review-overlay-root .ro-subtitle {
+  color: #6f6a62;
+  font-size: .95em;
+  margin-top: .45em;
+  line-height: 1.4;
+}
+
+/* progress badge: bg from .corporate-identity-background unless "done" */
+#review-overlay-root .ro-progress {
+  display: inline-flex;
+  align-items: center;
+  gap: .4em;
+  border-radius: 1em;
+  padding: .3em .85em;
+  font-size: .85em;
+  font-weight: 700;
+  white-space: nowrap;
+  color: #fff;
+}
+#review-overlay-root .ro-progress.ro-done { background: #e3f4e8; color: #2f7a44; }
+
+#review-overlay-root .ro-body { padding: 1.1em 1.3em; }
+
+#review-overlay-root .ro-note {
+  background: #f6f6f6;
+  border: 1px solid #ececec;
+  border-radius: 8px;
+  padding: .8em 1em;
+  margin-bottom: 1.1em;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+#review-overlay-root .ro-note-label {
+  font-size: .72em;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: #999;
+  margin-bottom: .3em;
+  font-weight: 600;
+}
+
+#review-overlay-root .ro-card {
+  border: 1px solid #ececec;
+  border-left: 4px solid #e0a24c;
+  border-radius: 8px;
+  padding: 1em 1.1em;
+  margin: 0 0 1em;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .05);
+}
+#review-overlay-root .ro-card.ro-card-done {
+  border-color: #e3efe6;
+  border-left-color: #2f9e5b;
+  background: #fafefb;
+}
+#review-overlay-root .ro-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .6em;
+  margin-bottom: .55em;
+  flex-wrap: wrap;
+}
+#review-overlay-root .ro-card-head.ro-toggle { cursor: pointer; }
+#review-overlay-root .ro-head-right { display: flex; align-items: center; gap: .5em; }
+#review-overlay-root .ro-chevron { color: #9a9a9a; font-size: .85em; transition: transform .15s ease; }
+
+/* Collapsed (addressed) card: show only the header row. */
+#review-overlay-root .ro-card.ro-collapsed { padding-top: .7em; padding-bottom: .7em; }
+#review-overlay-root .ro-card.ro-collapsed .ro-card-head { margin-bottom: 0; }
+#review-overlay-root .ro-card.ro-collapsed .ro-details { display: none; }
+#review-overlay-root .ro-card.ro-collapsed .ro-chevron { transform: rotate(-90deg); }
+
+@media (prefers-reduced-motion: reduce) {
+  #review-overlay-root .ro-chevron { transition: none; }
+}
+#review-overlay-root .ro-chip {
+  display: inline-block;
+  background: #f0f0f0;
+  border-radius: 1em;
+  padding: .25em .8em;
+  font-size: .82em;
+  font-weight: 700;
+  color: #444;
+}
+#review-overlay-root .ro-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: .35em;
+  border-radius: 1em;
+  padding: .22em .75em;
+  font-size: .76em;
+  font-weight: 700;
+  white-space: nowrap;
+}
+#review-overlay-root .ro-pill-todo { background: #fdecd2; color: #9a5b00; }
+#review-overlay-root .ro-pill-done { background: #e3f4e8; color: #2f7a44; }
+
+#review-overlay-root .ro-snapshot { font-size: .85em; color: #8a8a8a; margin-bottom: .45em; }
+#review-overlay-root .ro-text {
+  font-size: 1.02em;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  margin-bottom: .5em;
+  color: #2d2d2d;
+}
+#review-overlay-root .ro-edited { font-size: .78em; color: #aaa; margin-bottom: .4em; }
+
+#review-overlay-root .ro-event {
+  margin: .45em 0;
+  padding: .5em .75em;
+  background: #f7f7f7;
+  border-radius: 6px;
+  font-size: .95em;
+  line-height: 1.45;
+}
+#review-overlay-root .ro-who { font-weight: 700; color: #555; }
+
+#review-overlay-root .ro-actions {
+  margin-top: .8em;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .6em;
+  align-items: center;
+}
+
+#review-overlay-root .ro-foot {
+  padding: 1em 1.3em 1.2em;
+  border-top: 1px solid #efe8dc;
+  background: #fcfbf9;
+  text-align: center;
+}
+
+/* Buttons: plain classes (not #id-scoped) so they also style the modal, which
+   mounts on <body>. A class still outranks main.css's bare `button` rules. */
+.ro-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .45em;
+  font-size: .95em;
+  padding: .55em 1.1em;
+  border: 1px solid #cfcfcf;
+  border-radius: .5em;
+  background: #f4f4f4;
+  color: #333;
+  cursor: pointer;
+  font-weight: 600;
+}
+.ro-btn:hover { background: #e9e9e9; }
+.ro-sbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: .35em;
+  font-size: .82em;
+  padding: .35em .75em;
+  border: 1px solid #dcdcdc;
+  border-radius: .45em;
+  background: #fafafa;
+  color: #666;
+  cursor: pointer;
+}
+.ro-sbtn:hover { background: #f0f0f0; }
+/* sizing only; brand bg/colour come from .corporate-identity-standard-button */
+.ro-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: .5em;
+  font-size: 12pt;
+  padding: .6em 1.2em;
+  border-radius: .5em;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.ro-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+}
+.ro-modal {
+  background: #fff;
+  border-radius: 10px;
+  padding: 1.4em;
+  width: min(92vw, 42em);
+  box-shadow: 0 .6em 1.6em rgba(0, 0, 0, .35);
+}
+.ro-modal h3 { margin: 0 0 .7em; font-size: 1.2em; }
+.ro-modal textarea {
+  width: 100%;
+  min-height: 8em;
+  font: inherit;
+  font-size: 1em;
+  padding: .6em;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+.ro-modal-actions {
+  margin-top: 1em;
+  display: flex;
+  gap: .6em;
+  justify-content: flex-end;
+}

@@ -5,6 +5,8 @@
 <script src="/static/js/utils.js?cache=1744290797"></script>
 <script src="/static/js/edit-dataset.js?cache=1747131610"></script>
 <script src="/static/js/dropzone.min.js"></script>
+<link rel="stylesheet" type="text/css" href="/static/css/review-overlay.css?cache=20261019">
+<script src="/static/js/review-overlay.js?cache=20261019"></script>
 <script nonce="{{nonce}}">
 Dropzone.autoDiscover = false;
 {%- if not article.thumb_origin %}
@@ -248,6 +250,7 @@ table#files tbody tr td:nth-child(3) { width: 15px; text-align: right; }
 {%- else %}
 <h1>Edit dataset</h1>
 {%- endif %}
+<div id="review-overlay-root" data-dataset-uuid="{{container_uuid}}" data-account-uuid="{{account['uuid']}}"></div>
 <noscript>
   <p class="no-script">Sorry, this page requires JavaScript to work correctly.</p>
 </noscript>
