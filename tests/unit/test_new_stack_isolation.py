@@ -18,7 +18,7 @@ import pytest
 LEGACY_WSGI_MODULE = "djehuty.web.wsgi"
 
 # Whole packages that must stay independent of the legacy WSGI app.
-NEW_STACK_PACKAGES = ("djehuty.api", "djehuty.services")
+NEW_STACK_PACKAGES = ("djehuty.api", "djehuty.services", "djehuty.views")
 # Standalone modules in the new stack.
 NEW_STACK_MODULES = (
     "djehuty.route_groups",

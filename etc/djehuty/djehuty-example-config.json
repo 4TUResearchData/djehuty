@@ -8,7 +8,8 @@
       "default": "new",
       "groups": {
         "api-v2": "new",
-        "api-v3": "new"
+        "api-v3": "new",
+        "review": "new"
       }
     },
     "site-name": "Djehuty example instance",

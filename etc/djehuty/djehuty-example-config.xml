@@ -13,6 +13,7 @@
     <groups>
       <api-v2>new</api-v2>
       <api-v3>new</api-v3>
+      <review>new</review>
     </groups>
   </web-service>
   <site-name>Djehuty example instance</site-name>
