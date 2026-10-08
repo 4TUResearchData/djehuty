@@ -81,6 +81,7 @@
     "enable-query-audit-log": "0",
     "show-latest-datasets": "1",
     "disable-2fa": "1",
+    "enable-dataset-review": "1",
     "use-x-forwarded-for": "0",
     "rdf-store": {
       "sparql-uri": "http://virtuoso:8890/sparql",
@@ -94,7 +95,7 @@
       "account": [
         {
           "first_name": "Dev",
-          "last_name": "User",
+          "last_name": "Admin",
           "email": "dev@djehuty.com",
           "orcid": "0000-0000-0000-0001",
           "may-administer": "1",
@@ -103,6 +104,18 @@
           "may-review": "1",
           "may-review-quotas": "1",
           "may-process-feedback": "1"
+        },
+        {
+          "first_name": "Dev",
+          "last_name": "User",
+          "email": "user@djehuty.com",
+          "orcid": "0000-0000-0000-0002",
+          "may-administer": "0",
+          "may-run-sparql-queries": "0",
+          "may-impersonate": "0",
+          "may-review": "0",
+          "may-review-quotas": "0",
+          "may-process-feedback": "0"
         }
       ]
     },
