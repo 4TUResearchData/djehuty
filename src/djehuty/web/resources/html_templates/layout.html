@@ -25,7 +25,9 @@
       {%- endif %}
       {%- if storage_maintenance %}
       <div id="storage-maintenance-message" class="pre-header">
-        <p>File uploads and downloads are temporarily unavailable while storage is under maintenance. Browsing datasets and metadata is unaffected.</p>
+        <p>File uploads and downloads are temporarily unavailable while storage is under maintenance.
+        {%- if storage_maintenance_expected_end %} Full service is expected to be restored around <strong>{{ storage_maintenance_expected_end }}</strong>.{%- endif %}
+        Browsing datasets and metadata is unaffected.</p>
       </div>
       {%- endif %}
       {%- if impersonating_account %}

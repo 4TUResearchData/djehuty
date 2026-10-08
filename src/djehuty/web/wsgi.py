@@ -621,6 +621,7 @@ class WebServer:
             "small_footer":        config.small_footer,
             "maintenance_mode":    config.maintenance_mode,
             "storage_maintenance": config.storage_maintenance,
+            "storage_maintenance_expected_end": config.storage_maintenance_expected_end,
             "path":                request.path,
             "sandbox_message":     config.sandbox_message,
             "site_description":    config.site_description,

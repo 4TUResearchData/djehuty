@@ -3,6 +3,7 @@
     "maintenance-mode": "0",
     "storage-maintenance": "0",
     "storage-maintenance-retry-after": "3600",
+    "storage-maintenance-expected-end": "",
     "web-service": {
       "default": "new",
       "groups": {
