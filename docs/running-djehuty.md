@@ -35,6 +35,7 @@ file. A JSON example is available at `etc/djehuty/djehuty-example-config.json`.
 | `maintenance-mode` | When set to 1, all HTTP requests result in the display of a maintenance message. Use this option while backing up the database, or when performing major updates. |
 | `storage-maintenance` | When set to 1, seals only the storage subsystem while the metadata layer stays live: file upload/download, zip, thumbnails, avatars, IIIF, git and the file-integrity tooling answer `503`, and publishing is blocked, but users can still browse, create and edit drafts, and submit for review. In this mode the storage-subsystem directory checks are skipped at start-up, so `djehuty` boots even when the storage volume is unmounted or read-only. For this to work, keep `work-dir` (and the on-disk `cache-root`) on a volume independent of the storage back-end being maintained. Use this while the storage back-end is unavailable or being worked on. Defaults to 0. |
 | `storage-maintenance-retry-after` | The `Retry-After` value (seconds) sent with the `503` responses while `storage-maintenance` is on. Defaults to 3600. |
+| `storage-maintenance-expected-end` | Optional date (`YYYY-MM-DD`) when `storage-maintenance` is expected to end. When set, the maintenance banner says that full service is expected to be restored around that date. An invalid date is logged and ignored. Defaults to empty (no date shown). |
 
 ## Configuring the Database
 
