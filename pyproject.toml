@@ -101,6 +101,7 @@ include = [
     "src/djehuty/web/config/**/*.py",
     "src/djehuty/web/locks.py",
     "src/djehuty/web/email_handler.py",
+    "src/djehuty/views/*.py",
     "src/djehuty/ui.py",
     "src/djehuty/__init__.py",
     "src/djehuty/route_groups.py",
