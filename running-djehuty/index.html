@@ -1477,6 +1477,10 @@ Migrate to JSON (see <code>etc/djehuty/djehuty-example-config.json</code>).</p>
 <td><code>storage-maintenance-retry-after</code></td>
 <td>The <code>Retry-After</code> value (seconds) sent with the <code>503</code> responses while <code>storage-maintenance</code> is on. Defaults to 3600.</td>
 </tr>
+<tr>
+<td><code>storage-maintenance-expected-end</code></td>
+<td>Optional date (<code>YYYY-MM-DD</code>) when <code>storage-maintenance</code> is expected to end. When set, the maintenance banner says that full service is expected to be restored around that date. An invalid date is logged and ignored. Defaults to empty (no date shown).</td>
+</tr>
 </tbody>
 </table>
 <h2 id="configuring-the-database">Configuring the Database</h2>
