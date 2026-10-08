@@ -1,6 +1,8 @@
 {
   "djehuty": {
     "maintenance-mode": "0",
+    "storage-maintenance": "0",
+    "storage-maintenance-expected-end": "",
     "web-service": {
       "default": "new",
       "groups": {
