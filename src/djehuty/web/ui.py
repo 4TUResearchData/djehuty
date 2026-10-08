@@ -1108,6 +1108,14 @@ def read_configuration_file(server, config_file, logger, config_files):
             config.storage_maintenance_retry_after,
             minimum=0,
         )
+        expected_end = config_value(xml_root, "storage-maintenance-expected-end")
+        if expected_end:
+            try:
+                config.storage_maintenance_expected_end = datetime.strptime(
+                    expected_end, "%Y-%m-%d"
+                ).strftime("%-d %B %Y")
+            except ValueError:
+                logger.error("Erroneous 'storage-maintenance-expected-end' - ignoring it.")
 
         config.disable_2fa = read_boolean_value(xml_root, "disable-2fa", config.disable_2fa, logger)
 

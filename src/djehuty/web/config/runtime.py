@@ -65,6 +65,7 @@ class RuntimeConfiguration:  # pylint: disable=too-few-public-methods
         # publish) with 503 while metadata stays live.
         self.storage_maintenance = False
         self.storage_maintenance_retry_after = 3600
+        self.storage_maintenance_expected_end = None
         # New HTTP stack. "web_service" is the global
         # default ("new"|"legacy") for registered route groups;
         # "web_service_groups" pins individual groups, e.g. {"admin": "legacy"}.
