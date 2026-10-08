@@ -94,7 +94,7 @@ class DatasetEditorPage(BasePage):
             file_path: Path to the file to upload.
             expected_count: Expected total file count after this upload.
         """
-        # The dropzone form must be visible (requires "File deposit" record type)
+        # The dropzone form must be visible (requires "Dataset deposit" record type)
         self.page.locator("form#dropzone-field").wait_for(state="visible")
         with self.page.expect_file_chooser() as fc_info:
             self.page.locator("form#dropzone-field").click()
