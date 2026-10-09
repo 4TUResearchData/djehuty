@@ -294,6 +294,28 @@ class TestDeleteCollection:
 class TestCollectionDatasets:
     """Test adding and removing datasets from a collection."""
 
+    def test_collection_dataset_search_uses_v3_endpoint(self, authenticated_page: Page):
+        """The collection picker searches the v3 datasets endpoint scoped to title."""
+        create_draft_collection(authenticated_page)
+        editor = CollectionEditorPage(authenticated_page)
+        editor.wait_for_ready()
+        query = "wind turbine"
+        expected_search_body = {
+            "search_for": query,
+            "search_operator": "AND",
+            "search_scope": ["title"],
+            "is_latest": True,
+        }
+
+        with authenticated_page.expect_request(
+            lambda r: r.method == "POST" and r.url.endswith("/v3/datasets/search")
+        ) as request_info:
+            authenticated_page.locator("#article-search").fill(query)
+
+        assert request_info.value.post_data_json == expected_search_body
+
+        editor.delete()
+
     def test_add_dataset_to_collection_via_api(
         self, authenticated_page: Page, published_dataset: str, screenshot
     ):
