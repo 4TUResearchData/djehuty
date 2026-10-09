@@ -393,7 +393,7 @@ def delete_article(
 ):
     try:
         dataset = _resolve_private_dataset(db, dataset_id, account["uuid"], "metadata_edit")
-        if db.delete_dataset_draft(
+        if db.soft_delete_dataset_draft(
             dataset["container_uuid"], dataset["uuid"], account["uuid"], dataset["account_uuid"]
         ):
             return Response(status_code=204)
