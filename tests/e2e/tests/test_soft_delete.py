@@ -14,11 +14,9 @@ Run with:
 import uuid
 
 import pytest
-from playwright.sync_api import Page, expect
-
-from config import BASE_URL
 from helpers.dataset import create_draft_dataset, get_container_uuid_from_url
 from pages.dataset_editor_page import DatasetEditorPage
+from playwright.sync_api import Page, expect
 
 
 def _named_draft(page: Page) -> tuple[str, str, str]:
@@ -39,7 +37,7 @@ class TestSoftDelete:
 
         authenticated_page.goto(url)
         authenticated_page.wait_for_load_state("domcontentloaded")
-        DatasetEditorPage(authenticated_page).delete()
+        DatasetEditorPage(authenticated_page).delete(purge=False)
 
         authenticated_page.goto("/my/datasets")
         authenticated_page.wait_for_load_state("domcontentloaded")
@@ -56,7 +54,7 @@ class TestSoftDelete:
 
         authenticated_page.goto(url)
         authenticated_page.wait_for_load_state("domcontentloaded")
-        DatasetEditorPage(authenticated_page).delete()
+        DatasetEditorPage(authenticated_page).delete(purge=False)
 
         # Restore via the endpoint the Deleted-list button targets.
         authenticated_page.goto(f"/my/datasets/{container}/restore")
@@ -74,7 +72,7 @@ class TestSoftDelete:
 
         authenticated_page.goto(url)
         authenticated_page.wait_for_load_state("domcontentloaded")
-        DatasetEditorPage(authenticated_page).delete()
+        DatasetEditorPage(authenticated_page).delete(purge=False)
 
         # Submitting without ticking the box keeps the record.
         authenticated_page.goto(f"/my/datasets/{container}/delete-permanently")

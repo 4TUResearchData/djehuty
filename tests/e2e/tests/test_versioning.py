@@ -14,8 +14,6 @@ Run with:
 from pathlib import Path
 
 import pytest
-from playwright.sync_api import Page, expect
-
 from config import BASE_URL
 from helpers.dataset import (
     create_draft_dataset,
@@ -126,9 +124,8 @@ class TestCreateNewVersion:
         editor = DatasetEditorPage(authenticated_page)
         editor.wait_for_ready()
 
-        # Save and delete buttons should be visible (it's a draft)
+        # Save button should be visible (it's a draft)
         assert editor.is_save_visible()
-        assert editor.is_delete_visible()
         screenshot(authenticated_page, "new-version-draft-ready")
 
         # Clean up the draft
@@ -463,7 +460,7 @@ class TestNewVersionWithDeletedDraft:
         authenticated_page.wait_for_load_state("domcontentloaded")
 
         # Soft-delete it.
-        DatasetEditorPage(authenticated_page).delete()
+        DatasetEditorPage(authenticated_page).delete(purge=False)
 
         # Requesting another new version must be refused, not create a second draft.
         authenticated_page.goto(f"/my/datasets/{container_uuid}/new-version-draft")

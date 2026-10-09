@@ -126,13 +126,17 @@ def test_file(tmp_path: Path) -> str:
 def draft_dataset(authenticated_page: Page):
     """Create a draft dataset via the UI and yield (page, container_uuid).
 
-    Teardown deletes via /v2/account/articles/<uuid>. Errors are ignored so
-    individual tests can also delete the dataset themselves.
+    Teardown soft-deletes via /v2/account/articles/<uuid>, then purges via
+    /my/datasets/<uuid>/delete-permanently. Errors are ignored so individual
+    tests can also delete the dataset themselves.
     """
     url = create_draft_dataset(authenticated_page)
     container_uuid = get_container_uuid_from_url(url)
     yield authenticated_page, container_uuid
     authenticated_page.request.delete(f"/v2/account/articles/{container_uuid}")
+    authenticated_page.request.post(
+        f"/my/datasets/{container_uuid}/delete-permanently", form={"confirm": "yes"}
+    )
 
 
 @pytest.fixture()

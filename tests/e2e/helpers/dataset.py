@@ -4,6 +4,7 @@ Dataset helper utilities for E2E tests.
 
 import re
 
+from pages.dataset_editor_page import DatasetEditorPage
 from playwright.sync_api import Page
 
 
@@ -30,17 +31,9 @@ def get_container_uuid_from_url(url: str) -> str:
 
 
 def delete_dataset(page: Page, dataset_url: str):
-    """Delete a dataset identified by its editor URL.
-
-    Uses the JavaScript confirm dialog and the DELETE API endpoint.
-    """
+    """Soft-delete a dataset identified by its editor URL."""
     page.goto(dataset_url)
-    page.wait_for_load_state("domcontentloaded")
-    page.locator(".article-content-loader").wait_for(state="hidden")
-    page.locator(".article-content").wait_for(state="visible")
-    page.once("dialog", lambda dialog: dialog.accept())
-    page.locator("#delete").click()
-    page.wait_for_url("**/my/datasets", wait_until="domcontentloaded")
+    DatasetEditorPage(page).delete()
 
 
 def get_dataset_uuid_from_editor(page: Page) -> str:

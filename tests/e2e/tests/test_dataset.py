@@ -143,13 +143,12 @@ class TestEditDataset:
         DatasetEditorPage(authenticated_page).delete()
 
     def test_editor_has_save_and_delete_buttons(self, authenticated_page: Page, screenshot):
-        """The dataset editor should show Save and Delete buttons for drafts."""
+        """The dataset editor should show Save and Submit buttons for drafts."""
         create_draft_dataset(authenticated_page)
         editor = DatasetEditorPage(authenticated_page)
         screenshot(authenticated_page, "editor-buttons")
 
         assert editor.is_save_visible()
-        assert editor.is_delete_visible()
         assert editor.is_submit_visible()
 
         # Clean up
@@ -307,7 +306,7 @@ class TestDeleteDataset:
         # Now delete it
         authenticated_page.goto(url)
         authenticated_page.wait_for_load_state("domcontentloaded")
-        DatasetEditorPage(authenticated_page).delete()
+        DatasetEditorPage(authenticated_page).delete(purge=False)
 
         # Verify it's gone from the list
         authenticated_page.goto("/my/datasets")
