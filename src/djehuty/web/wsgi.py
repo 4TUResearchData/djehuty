@@ -4802,9 +4802,6 @@ class WebServer:
             if isinstance (admin_account, dict):
                 admin_account_uuid = admin_account.get("uuid")
 
-            # The licence is part of the registered DOI record (rightsList), so
-            # the previous value and the version number are needed: one to undo
-            # the change, the other to re-send the right version's record.
             # 'admin_update_license' only matches djht:latest_published_version,
             # so the lookup uses is_latest too.
             records = self.db.datasets (dataset_uuid=dataset_uuid,
@@ -4815,6 +4812,7 @@ class WebServer:
                 return self.error_404 (request)
             previous_license_url = value_or_none (records[0], "license_url")
             version              = value_or_none (records[0], "version")
+            container_doi        = value_or_none (records[0], "container_doi")
 
             success = self.db.admin_update_license (
                 container_uuid,
@@ -4825,13 +4823,26 @@ class WebServer:
             if not success:
                 return self.error_500 ()
 
+            doi_targets = [(version, None)]
+            if container_doi:
+                doi_targets.insert (0, (None, container_doi))
+
             if config.in_production and not config.in_preproduction:
-                if not self.__update_item_doi (container_uuid,
-                                               item_type="dataset",
-                                               version=version,
-                                               from_draft=False):
-                    self.log.error ("Updating the DOI record failed; reverting the "
-                                    "licence change for %s.", dataset_uuid)
+                failed_doi = None
+                for doi_version, doi_override in doi_targets:
+                    if not self.__update_item_doi (container_uuid,
+                                                   item_type="dataset",
+                                                   version=doi_version,
+                                                   from_draft=False,
+                                                   doi=doi_override):
+                        failed_doi = doi_override or f"version {doi_version}"
+                        break
+
+                if failed_doi is not None:
+                    self.log.error ("Updating DOI record %s failed; reverting the "
+                                    "licence change for %s. A record updated before "
+                                    "the failure is re-sent when the administrator "
+                                    "retries.", failed_doi, dataset_uuid)
                     # 'previous_license_url' is None for a dataset that had no
                     # licence; passing it through clears the licence again rather
                     # than leaving the two out of step.
@@ -4843,7 +4854,10 @@ class WebServer:
                             owner_account_uuid=owner_account_uuid):
                         return self.error_500 (
                             f"Reverting the licence for {dataset_uuid} ALSO failed; "
-                            "the licence and the DOI record are now out of step.")
+                            "the licence and the DOI records are now out of step.")
+                    self.log.audit (f"Undid the licence change for {dataset_uuid} "
+                                    f"because DOI record {failed_doi} could not be "
+                                    "updated.")
                     response = self.response (json.dumps({
                         "message": ("The DOI record could not be updated, so nothing "
                                     "was changed. Please try again later."),
@@ -8134,13 +8148,26 @@ class WebServer:
 
         return self.error_500()
 
-    def __update_item_doi (self, item_id, version=None, item_type="dataset", from_draft=True):
-        """Procedure to modify metadata of an existing doi."""
+    def __update_item_doi (self, item_id, version=None, item_type="dataset",
+                           from_draft=True, doi=None):
+        """Procedure to modify metadata of an existing doi.
+
+        DOI overrides the identifier taken from the exported metadata.  It is
+        needed to reach the container DOI of a published item, because the
+        export resolves to a version record and that record carries the
+        version DOI.
+
+        Returns True on success and False on failure."""
 
         parameters = self.__metadata_export_parameters (item_id, version, item_type=item_type, from_draft=from_draft)
+        if parameters is None:
+            self.log.error ("Cannot collect the DataCite metadata of %s version %s.",
+                            item_id, version)
+            return False
         xml = str(xml_formatter.datacite (parameters, indent=False), encoding='utf-8')
         xml = '<?xml version="1.0" encoding="UTF-8"?>' + xml.split('?>', 1)[1] #Datacite is very choosy about this
-        doi = parameters["doi"]
+        if doi is None:
+            doi = parameters["doi"]
         encoded_bytes = base64.b64encode(xml.encode("utf-8"))
         headers = {
             "Accept": "application/vnd.api+json",
@@ -8172,8 +8199,8 @@ class WebServer:
 
             self.log.error ("DataCite responded with %s (%s)",
                             response.status_code, response.text)
-        except requests.exceptions.ConnectionError:
-            self.log.error ("Failed to update a DOI due to a connection error.")
+        except requests.exceptions.RequestException as error:
+            self.log.error ("Failed to update DOI %s: %s", doi, error)
 
         return False
 
