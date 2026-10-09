@@ -79,7 +79,8 @@
       "state-graph": "djehuty://local"
     },
     "authentication": {
-      "automatic-login-email": "dev@djehuty.com"
+      "automatic-login-email": "dev@djehuty.com",
+      "secondary-automatic-login-email": "non-reviewer@djehuty.com"
     },
     "privileges": {
       "account": [
@@ -94,6 +95,12 @@
           "may-review": "1",
           "may-review-quotas": "1",
           "may-process-feedback": "1"
+        },
+        {
+          "first_name": "No",
+          "last_name": "Reviewer",
+          "email": "non-reviewer@djehuty.com",
+          "orcid": "0000-0000-0000-0002"
         }
       ]
     },
