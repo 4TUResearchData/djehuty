@@ -4805,9 +4805,11 @@ class WebServer:
             # The licence is part of the registered DOI record (rightsList), so
             # the previous value and the version number are needed: one to undo
             # the change, the other to re-send the right version's record.
+            # 'admin_update_license' only matches djht:latest_published_version,
+            # so the lookup uses is_latest too.
             records = self.db.datasets (dataset_uuid=dataset_uuid,
                                         container_uuid=container_uuid,
-                                        is_published=True,
+                                        is_published=True, is_latest=True,
                                         use_cache=False, limit=1)
             if not records:
                 return self.error_404 (request)
@@ -4830,21 +4832,18 @@ class WebServer:
                                                from_draft=False):
                     self.log.error ("Updating the DOI record failed; reverting the "
                                     "licence change for %s.", dataset_uuid)
-                    if previous_license_url is None:
-                        self.log.error ("No previous licence recorded for %s; the "
-                                        "licence and the DOI record are now out of "
-                                        "step.", dataset_uuid)
-                        return self.error_500 ()
+                    # 'previous_license_url' is None for a dataset that had no
+                    # licence; passing it through clears the licence again rather
+                    # than leaving the two out of step.
                     if not self.db.admin_update_license (
                             container_uuid,
                             dataset_uuid,
                             previous_license_url,
                             admin_account_uuid,
                             owner_account_uuid=owner_account_uuid):
-                        self.log.error ("Reverting the licence for %s ALSO failed; the "
-                                        "licence and the DOI record are now out of "
-                                        "step.", dataset_uuid)
-                        return self.error_500 ()
+                        return self.error_500 (
+                            f"Reverting the licence for {dataset_uuid} ALSO failed; "
+                            "the licence and the DOI record are now out of step.")
                     response = self.response (json.dumps({
                         "message": ("The DOI record could not be updated, so nothing "
                                     "was changed. Please try again later."),
