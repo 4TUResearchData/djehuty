@@ -13,7 +13,7 @@ SELECT DISTINCT ?account_uuid ?citation ?confidential_reason ?container_uuid
                 ?institution_id ?is_active ?is_confidential ?is_embargoed ?is_restricted
                 ?is_metadata_record ?license_id ?license_name ?license_url ?license_spdx
                 ?metadata_reason ?modified_date ?published_date ?container_doi
-                ?resource_doi ?resource_title ?size ?status ?thumb ?declined_date
+                ?resource_doi ?resource_title ?size ?status ?thumb ?declined_date ?deleted_date ?is_deleted
                 ?timeline_posted ?has_draft (STR(?publisher_ut) AS ?publisher)
                 ?timeline_publisher_publication ?timeline_first_online
                 ?timeline_revision ?timeline_submission ?title ?url
@@ -123,6 +123,7 @@ WHERE {
     OPTIONAL { ?dataset djht:modified_date         ?modified_date . }
     OPTIONAL { ?dataset djht:published_date        ?published_date . }
     OPTIONAL { ?dataset djht:declined_date         ?declined_date . }
+    OPTIONAL { ?dataset djht:deleted_date          ?deleted_date . }
     OPTIONAL { ?dataset djht:resource_doi          ?resource_doi . }
     OPTIONAL { ?dataset djht:resource_title        ?resource_title . }
     OPTIONAL { ?dataset djht:size                  ?size . }
@@ -190,6 +191,9 @@ WHERE {
     OPTIONAL { ?dataset djht:is_under_review       ?is_under_review_tmp . }
     BIND(COALESCE(?is_under_review_tmp, "false"^^xsd:boolean) AS ?is_under_review)
 
+    OPTIONAL { ?dataset djht:is_deleted            ?is_deleted_tmp . }
+    BIND(COALESCE(?is_deleted_tmp, "false"^^xsd:boolean) AS ?is_deleted)
+
     BIND(STRAFTER(STR(?container_uri), "container:") AS ?container_uuid)
     BIND(STRAFTER(STR(?dataset), "dataset:")         AS ?uuid)
     BIND(STRAFTER(STR(?account), "account:")         AS ?account_uuid)
@@ -221,6 +225,13 @@ WHERE {
 FILTER (?is_under_review = "true"^^xsd:boolean)
 {%- else %}
 FILTER (?is_under_review = "false"^^xsd:boolean)
+{%- endif %}
+{%- endif %}
+{%- if is_deleted is not none: %}
+{%- if is_deleted: %}
+FILTER (?is_deleted = "true"^^xsd:boolean)
+{%- else %}
+FILTER (?is_deleted = "false"^^xsd:boolean)
 {%- endif %}
 {%- endif %}
 {%- if collection_uri is not none %}

@@ -38,21 +38,24 @@ class DatasetEditorPage(BasePage):
         self.page.locator("#save").click()
         self.page.locator("#message.success").wait_for(state="visible")
 
-    def delete(self):
-        # Wait for the content loader to disappear — this means activate()
-        # has finished its AJAX call and bound click handlers.
-        self.page.locator(".article-content-loader").wait_for(state="hidden")
-        self.page.locator(".article-content").wait_for(state="visible")
-        self.page.once("dialog", lambda dialog: dialog.accept())
-        self.page.locator("#delete").click()
-        # The JS does: window.location.pathname = "/my/datasets" after AJAX DELETE
-        self.page.wait_for_url("**/my/datasets", wait_until="domcontentloaded")
+    def delete(self, purge: bool = True):
+        """Delete the draft via the dashboard trash icon.
+
+        Soft-deletes it, then purges it unless ``purge`` is False (to keep it in the
+        Deleted list).
+        """
+        container_uuid = self.container_uuid
+        self.page.goto("/my/datasets")
+        with self.page.expect_navigation(url="**/my/datasets", wait_until="domcontentloaded"):
+            self.page.locator(f'a[href="/my/datasets/{container_uuid}/delete"]').click()
+        if purge:
+            response = self.page.request.post(
+                f"/my/datasets/{container_uuid}/delete-permanently", form={"confirm": "yes"}
+            )
+            assert response.ok
 
     def is_save_visible(self) -> bool:
         return self.page.locator("#save").is_visible()
-
-    def is_delete_visible(self) -> bool:
-        return self.page.locator("#delete").is_visible()
 
     def is_submit_visible(self) -> bool:
         return self.page.locator("#submit").is_visible()
