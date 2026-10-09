@@ -5,13 +5,13 @@ DELETE {
     ?dataset djht:license ?current_license .
   }
 }
+{%- if new_license_url is not none %}
 INSERT {
   GRAPH <{{state_graph}}> {
-    {%- if new_license_url is not none %}
     ?dataset djht:license <{{new_license_url}}> .
-    {%- endif %}
   }
 }
+{%- endif %}
 WHERE {
   GRAPH <{{state_graph}}> {
     ?container rdf:type                      djht:DatasetContainer ;
