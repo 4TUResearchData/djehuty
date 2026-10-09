@@ -63,7 +63,7 @@ def add_collection_tags(
             new_tags.append(
                 validator.string_value(new_tags_input, index, 0, 512, True),
             )
-    except validator.ValidationException as error:
+    except validator.ValidationError as error:
         raise InvalidInputError(error.message, error.code) from error
 
     existing = db.tags(

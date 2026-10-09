@@ -114,7 +114,7 @@ def create_article_file(
                 "location": f"{config.base_url}/v2/account/articles/{dataset_id}/files/{file_id}"
             },
         )
-    except validator.ValidationException as error:
+    except validator.ValidationError as error:
         raise InvalidInputError(error.message, error.code) from error
 
 
@@ -129,7 +129,7 @@ def delete_all_article_files(
 
     try:
         remove_all = validator.boolean_value(body, "remove_all", when_none=False)
-    except validator.ValidationException as error:
+    except validator.ValidationError as error:
         raise InvalidInputError(error.message, error.code) from error
     if remove_all is False:
         raise InvalidInputError("Expected a 'remove_all' field.", "400")

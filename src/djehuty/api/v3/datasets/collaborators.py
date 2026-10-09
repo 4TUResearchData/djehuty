@@ -118,12 +118,12 @@ def add_collaborator(
         data = body["data"]
         collaborator_account_uuid = validator.string_value(body, "account")
         if not validator.is_valid_uuid(collaborator_account_uuid):
-            raise validator.InvalidValueType(
+            raise validator.InvalidValueTypeError(
                 field_name="account",
                 message="Expected a valid UUID for 'account'",
                 code="WrongValueType",
             )
-    except validator.ValidationException as error:
+    except validator.ValidationError as error:
         raise InvalidInputError(error.message, error.code) from error
 
     if db.account_by_uuid(collaborator_account_uuid) is None:

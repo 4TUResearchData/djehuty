@@ -42,7 +42,7 @@ def _datasets_parameters(args, item_type):
     }
 
     if item_type not in {"downloads", "views", "shares", "cites"}:
-        raise validator.InvalidValue(
+        raise validator.InvalidValueError(
             field_name="item_type",
             message=(
                 "The last URL parameter must be one of 'downloads', 'views', 'shares' or 'cites'."
@@ -77,7 +77,7 @@ def datasets_top(item_type: str, request: Request, db=Depends(get_db)):
     args = request.query_params
     try:
         record = _datasets_parameters(args, item_type)
-    except validator.ValidationException as error:
+    except validator.ValidationError as error:
         raise InvalidInputError(error.message, error.code) from error
 
     offset, limit = validator.paging_to_offset_and_limit(
@@ -118,7 +118,7 @@ def datasets_timeline(item_type: str, request: Request, db=Depends(get_db)):
 
     try:
         record = _datasets_parameters(request.query_params, item_type)
-    except validator.ValidationException as error:
+    except validator.ValidationError as error:
         raise InvalidInputError(error.message, error.code) from error
 
     records = db.dataset_statistics_timeline(

@@ -77,5 +77,5 @@ def list_groups(
             order_direction=validator.order_direction(args, "order_direction"),
         )
         return JSONResponse(content=[formatter.format_group_record(r) for r in records])
-    except validator.ValidationException as error:
+    except validator.ValidationError as error:
         raise InvalidInputError(error.message, error.code) from error

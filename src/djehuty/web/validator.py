@@ -17,7 +17,7 @@ def raise_or_return_error(error_list, error):
     error_list.append({"field_name": error.field_name, "message": error.message})
 
 
-class ValidationException(Exception):
+class ValidationError(Exception):
     """Base class for validation errors."""
 
     def __init__(self, field_name, message, code):
@@ -27,7 +27,7 @@ class ValidationException(Exception):
         super().__init__(message)
 
 
-class InvalidIntegerValue(ValidationException):
+class InvalidIntegerValueError(ValidationError):
     """Exception thrown when the 'limit' parameter holds no valid value."""
 
     def __init__(self, field_name, message, code):
@@ -37,7 +37,7 @@ class InvalidIntegerValue(ValidationException):
         super().__init__(field_name, message, code)
 
 
-class InvalidOrderDirection(ValidationException):
+class InvalidOrderDirectionError(ValidationError):
     """Exception thrown when the 'order_direction' parameter holds no valid value."""
 
     def __init__(self, field_name, message, code):
@@ -47,7 +47,7 @@ class InvalidOrderDirection(ValidationException):
         super().__init__(field_name, message, code)
 
 
-class MissingRequiredField(ValidationException):
+class MissingRequiredFieldError(ValidationError):
     """Exception thrown when a required parameter holds no value."""
 
     def __init__(self, field_name, message, code):
@@ -57,7 +57,7 @@ class MissingRequiredField(ValidationException):
         super().__init__(field_name, message, code)
 
 
-class ValueTooLong(ValidationException):
+class ValueTooLongError(ValidationError):
     """Exception thrown when a string parameter is too long."""
 
     def __init__(self, field_name, message, code):
@@ -67,7 +67,7 @@ class ValueTooLong(ValidationException):
         super().__init__(field_name, message, code)
 
 
-class ValueTooShort(ValidationException):
+class ValueTooShortError(ValidationError):
     """Exception thrown when a string parameter is too short."""
 
     def __init__(self, field_name, message, code):
@@ -77,7 +77,7 @@ class ValueTooShort(ValidationException):
         super().__init__(field_name, message, code)
 
 
-class InvalidValueType(ValidationException):
+class InvalidValueTypeError(ValidationError):
     """Exception thrown when the wrong type of a value was given."""
 
     def __init__(self, field_name, message, code):
@@ -87,7 +87,7 @@ class InvalidValueType(ValidationException):
         super().__init__(field_name, message, code)
 
 
-class InvalidValue(ValidationException):
+class InvalidValueError(ValidationError):
     """Exception thrown when the wrong value was given."""
 
     def __init__(self, field_name, message, code):
@@ -97,7 +97,7 @@ class InvalidValue(ValidationException):
         super().__init__(field_name, message, code)
 
 
-class InvalidOptionsValue(ValidationException):
+class InvalidOptionsValueError(ValidationError):
     """Exception thrown when the wrong type of a value was given."""
 
     def __init__(self, field_name, message, code):
@@ -107,7 +107,7 @@ class InvalidOptionsValue(ValidationException):
         super().__init__(field_name, message, code)
 
 
-class InvalidPagingOptions(ValidationException):
+class InvalidPagingOptionsError(ValidationError):
     """Exception thrown when paging is mixed with limit/offset."""
 
     def __init__(self, field_name, message, code):
@@ -124,7 +124,7 @@ def order_direction(record, field_name, required=False, error_list=None):
     if value is None and required:
         return raise_or_return_error(
             error_list,
-            MissingRequiredField(
+            MissingRequiredFieldError(
                 field_name=field_name,
                 message="Missing required value for 'order_direction'.",
                 code="MissingRequiredField",
@@ -134,7 +134,7 @@ def order_direction(record, field_name, required=False, error_list=None):
     if value is not None and (not (value.lower() == "desc" or value.lower() == "asc")):
         return raise_or_return_error(
             error_list,
-            InvalidOrderDirection(
+            InvalidOrderDirectionError(
                 field_name=field_name,
                 message="The value for 'order_direction' must be either 'desc' or 'asc'.",
                 code="InvalidOrderDirectionValue",
@@ -159,7 +159,7 @@ def integer_value(
         if required:
             return raise_or_return_error(
                 error_list,
-                MissingRequiredField(
+                MissingRequiredFieldError(
                     field_name=field_name,
                     message=f"Missing required value for '{field_name}'.",
                     code="MissingRequiredField",
@@ -173,7 +173,7 @@ def integer_value(
         if maximum_value is not None and value > maximum_value:
             return raise_or_return_error(
                 error_list,
-                InvalidIntegerValue(
+                InvalidIntegerValueError(
                     field_name=field_name,
                     message=f"The maximum value for '{field_name}' is {maximum_value}.",
                     code=f"{prefix}ValueTooHigh",
@@ -183,7 +183,7 @@ def integer_value(
         if minimum_value is not None and value < minimum_value:
             return raise_or_return_error(
                 error_list,
-                InvalidIntegerValue(
+                InvalidIntegerValueError(
                     field_name=field_name,
                     message=f"The minimum value for '{field_name}' is {minimum_value}.",
                     code=f"{prefix}ValueTooLow",
@@ -193,7 +193,7 @@ def integer_value(
     except (ValueError, TypeError):
         return raise_or_return_error(
             error_list,
-            InvalidIntegerValue(
+            InvalidIntegerValueError(
                 field_name=field_name,
                 message=f"Unexpected value '{value}' is not an integer.",
                 code=f"Invalid{prefix}Value",
@@ -216,7 +216,7 @@ def paging_to_offset_and_limit(record, error_list=None):
     if (page is not None or page_size is not None) and (offset is not None or limit is not None):
         return None, raise_or_return_error(
             error_list,
-            InvalidPagingOptions(
+            InvalidPagingOptionsError(
                 field_name="page_size",
                 message=("Either use page/page-size or offset/limit. Mixing is not supported."),
                 code="InvalidPagingOptions",
@@ -262,7 +262,7 @@ def search_filters(value, error_list=None):
                 if elem not in valid_scopes:
                     return raise_or_return_error(
                         error_list,
-                        InvalidValue(
+                        InvalidValueError(
                             field_name="search_filters",
                             message="Invalid value in 'scope'.",
                             code="InvalidValue",
@@ -280,7 +280,7 @@ def search_filters(value, error_list=None):
             if v not in ["AND", "OR", "EXACT"]:
                 return raise_or_return_error(
                     error_list,
-                    InvalidValueType(
+                    InvalidValueTypeError(
                         field_name="search_filters",
                         message="Invalid value in 'operator'.",
                         code="WrongValueType",
@@ -290,7 +290,7 @@ def search_filters(value, error_list=None):
         else:
             return raise_or_return_error(
                 error_list,
-                InvalidValue(
+                InvalidValueError(
                     field_name="search_filters",
                     message=f"Invalid key '{k}' in 'search_filters'.",
                     code="InvalidValue",
@@ -332,7 +332,7 @@ def string_value(
         if required:
             return raise_or_return_error(
                 error_list,
-                MissingRequiredField(
+                MissingRequiredFieldError(
                     field_name=field_name,
                     message=f"Missing required value for '{field_name}'.",
                     code="MissingRequiredField",
@@ -343,7 +343,7 @@ def string_value(
     if not isinstance(value, str):
         return raise_or_return_error(
             error_list,
-            InvalidValueType(
+            InvalidValueTypeError(
                 field_name=field_name,
                 message=f"Expected a string for '{field_name}'.",
                 code="WrongValueType",
@@ -353,7 +353,7 @@ def string_value(
     if maximum_length is not None and index_exists(value, maximum_length):
         return raise_or_return_error(
             error_list,
-            ValueTooLong(
+            ValueTooLongError(
                 field_name=field_name,
                 message=f"The value for '{field_name}' is longer than {maximum_length}.",
                 code="ValueTooLong",
@@ -367,7 +367,7 @@ def string_value(
     if not index_exists(value, minimum_length - 1):
         return raise_or_return_error(
             error_list,
-            ValueTooShort(
+            ValueTooShortError(
                 field_name=field_name,
                 message=f"The value for '{field_name}' is shorter than {minimum_length}.",
                 code="ValueTooShort",
@@ -377,7 +377,7 @@ def string_value(
     if error_on_disallowed_html and conv.contains_disallowed_html(value):
         return raise_or_return_error(
             error_list,
-            InvalidValue(
+            InvalidValueError(
                 field_name=field_name,
                 message=f"The value for '{field_name}' contains a disallowed pattern.",
                 code="DisallowedPattern",
@@ -401,7 +401,7 @@ def url_value(record, field_name, required=False, error_list=None):
 
     return raise_or_return_error(
         error_list,
-        InvalidValueType(
+        InvalidValueTypeError(
             field_name=field_name,
             message=f"Expected a URL for '{field_name}'.",
             code="WrongValueFormat",
@@ -423,7 +423,7 @@ def coordinate_value(record, field_name, axis, required=False, error_list=None):
     if conv.decimal_coord(value, axis) is None:
         return raise_or_return_error(
             error_list,
-            InvalidValueType(
+            InvalidValueTypeError(
                 field_name=field_name,
                 message=f"Expected a valid coordinate for '{field_name}'.",
                 code="WrongValueFormat",
@@ -443,7 +443,7 @@ def email_value(record, field_name, required=False, error_list=None):
 
     return raise_or_return_error(
         error_list,
-        InvalidValueType(
+        InvalidValueTypeError(
             field_name=field_name,
             message=f"Expected a valid e-mail address for '{field_name}'.",
             code="WrongValueFormat",
@@ -462,7 +462,7 @@ def date_value(record, field_name, required=False, error_list=None):
         if required:
             return raise_or_return_error(
                 error_list,
-                MissingRequiredField(
+                MissingRequiredFieldError(
                     field_name=field_name,
                     message=f"Missing required value for '{field_name}'.",
                     code="MissingRequiredField",
@@ -473,7 +473,7 @@ def date_value(record, field_name, required=False, error_list=None):
     if not isinstance(value, str):
         return raise_or_return_error(
             error_list,
-            InvalidValueType(
+            InvalidValueTypeError(
                 field_name=field_name,
                 message=f"Expected '{field_name}' in the form YYYY-MM-DD.",
                 code="WrongValueType",
@@ -485,7 +485,7 @@ def date_value(record, field_name, required=False, error_list=None):
         if value[10]:
             return raise_or_return_error(
                 error_list,
-                InvalidValueType(
+                InvalidValueTypeError(
                     field_name=field_name,
                     message=f"Expected '{field_name}' in the form YYYY-MM-DD.",
                     code="ValueTooLong",
@@ -499,7 +499,7 @@ def date_value(record, field_name, required=False, error_list=None):
     if re.match(pattern, value) is None:
         return raise_or_return_error(
             error_list,
-            InvalidValueType(
+            InvalidValueTypeError(
                 field_name=field_name,
                 message=f"Expected '{field_name}' in the form YYYY-MM-DD.",
                 code="WrongValueFormat",
@@ -544,7 +544,7 @@ def partial_date_range_value(record, field_name, required=False, error_list=None
         if required:
             raise_or_return_error(
                 error_list,
-                MissingRequiredField(
+                MissingRequiredFieldError(
                     field_name=field_name,
                     message=f"Missing required value for '{field_name}'.",
                     code="MissingRequiredField",
@@ -555,7 +555,7 @@ def partial_date_range_value(record, field_name, required=False, error_list=None
     if not isinstance(value, str):
         raise_or_return_error(
             error_list,
-            InvalidValueType(
+            InvalidValueTypeError(
                 field_name=field_name,
                 message=f"Expected '{field_name}' to be a date or a range of two dates.",
                 code="WrongValueType",
@@ -567,7 +567,7 @@ def partial_date_range_value(record, field_name, required=False, error_list=None
     if len(parts) > 2:
         raise_or_return_error(
             error_list,
-            InvalidValueType(
+            InvalidValueTypeError(
                 field_name=field_name,
                 message=(
                     f"Expected '{field_name}' to hold at most two dates separated by a slash."
@@ -581,7 +581,7 @@ def partial_date_range_value(record, field_name, required=False, error_list=None
         if not __is_partial_date(part):
             raise_or_return_error(
                 error_list,
-                InvalidValueType(
+                InvalidValueTypeError(
                     field_name=field_name,
                     message=(f"Expected '{field_name}' in the form YYYY, YYYY-MM or YYYY-MM-DD."),
                     code="WrongValueFormat",
@@ -600,7 +600,7 @@ def partial_date_range_value(record, field_name, required=False, error_list=None
     if start.count("-") != end.count("-"):
         raise_or_return_error(
             error_list,
-            InvalidValueType(
+            InvalidValueTypeError(
                 field_name=field_name,
                 message=(f"Expected both dates of '{field_name}' in the same form."),
                 code="WrongValueFormat",
@@ -612,7 +612,7 @@ def partial_date_range_value(record, field_name, required=False, error_list=None
     if start > end:
         raise_or_return_error(
             error_list,
-            InvalidValueType(
+            InvalidValueTypeError(
                 field_name=field_name,
                 message=f"The end of '{field_name}' precedes its start.",
                 code="WrongValueFormat",
@@ -634,7 +634,7 @@ def boolean_value(record, field_name, required=False, when_none=None, error_list
         if required:
             return raise_or_return_error(
                 error_list,
-                MissingRequiredField(
+                MissingRequiredFieldError(
                     field_name=field_name,
                     message=f"Missing required value for '{field_name}'.",
                     code="MissingRequiredField",
@@ -654,7 +654,7 @@ def boolean_value(record, field_name, required=False, when_none=None, error_list
     if not isinstance(value, bool):
         return raise_or_return_error(
             error_list,
-            InvalidValueType(
+            InvalidValueTypeError(
                 field_name=field_name,
                 message=f"Expected a boolean value for '{field_name}'.",
                 code="WrongValueType",
@@ -675,7 +675,7 @@ def options_value(record, field_name, options, required=False, error_list=None):
         if required:
             return raise_or_return_error(
                 error_list,
-                MissingRequiredField(
+                MissingRequiredFieldError(
                     field_name=field_name,
                     message=f"Missing required value for '{field_name}'.",
                     code="MissingRequiredField",
@@ -686,7 +686,7 @@ def options_value(record, field_name, options, required=False, error_list=None):
     if value not in options:
         return raise_or_return_error(
             error_list,
-            InvalidOptionsValue(
+            InvalidOptionsValueError(
                 field_name=field_name,
                 message=f"Invalid value for '{field_name}'. It must be one of {options}",
                 code="InvalidValue",
@@ -709,7 +709,7 @@ def __typed_value(
         if required:
             return raise_or_return_error(
                 error_list,
-                MissingRequiredField(
+                MissingRequiredFieldError(
                     field_name=field_name,
                     message=f"Missing required value for '{field_name}'.",
                     code="MissingRequiredField",
@@ -720,7 +720,7 @@ def __typed_value(
     if not isinstance(value, expected_type):
         return raise_or_return_error(
             error_list,
-            InvalidValueType(
+            InvalidValueTypeError(
                 field_name=field_name,
                 message=f"Expected {type_name} for '{field_name}'.",
                 code="WrongValueType",

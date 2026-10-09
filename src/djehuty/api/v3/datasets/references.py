@@ -61,7 +61,7 @@ def add_references(
     try:
         for record in records:
             new_urls.append(validator.string_value(record, "url", 0, 1024, True))
-    except validator.ValidationException as error:
+    except validator.ValidationError as error:
         raise InvalidInputError(error.message, error.code) from error
 
     existing = db.references(item_uri=dataset["uri"], account_uuid=account["uuid"])

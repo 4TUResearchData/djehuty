@@ -46,7 +46,7 @@ def explore_properties(
 
     # AS-IS (#111): legacy unquotes the `uri` parameter unconditionally; when it
     # is absent the value is None and unquote(None) raises TypeError, which the
-    # handler's `except ValidationException` does not catch -> uncaught -> 500.
+    # handler's `except ValidationError` does not catch -> uncaught -> 500.
     properties = db.properties_for_type(unquote(uri))
     return JSONResponse(content=[p["predicate"] for p in properties])
 
@@ -71,7 +71,7 @@ def explore_property_value_types(
 
     # AS-IS (#111): legacy unquotes `type`/`property` unconditionally; when they
     # are absent the values are None and unquote(None) raises TypeError, which
-    # the handler's `except ValidationException` does not catch -> 500.
+    # the handler's `except ValidationError` does not catch -> 500.
     types = db.types_for_property(unquote(type), unquote(property))
     return JSONResponse(content=[t["type"] for t in types])
 

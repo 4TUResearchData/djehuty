@@ -186,7 +186,7 @@ def add_creators(
             return Response(status_code=204)
 
         raise InvalidInputError("Expected a list.", "UnexpectedContent")
-    except validator.ValidationException as error:
+    except validator.ValidationError as error:
         raise InvalidInputError(error.message, error.code) from error
 
 

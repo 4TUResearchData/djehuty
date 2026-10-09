@@ -34,7 +34,7 @@ def search_authors(
     # (wsgi.py api_private_authors_search), so the error code and message match.
     try:
         search_for = validator.string_value(body, "search", 0, 255, True)
-    except validator.ValidationException as error:
+    except validator.ValidationError as error:
         raise InvalidInputError(error.message, error.code) from error
 
     records = db.authors(search_for=search_for, limit=10)

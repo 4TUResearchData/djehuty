@@ -106,5 +106,5 @@ def update_author_details(
             return Response(status_code=500)
 
         return Response(status_code=204)
-    except validator.ValidationException as error:
+    except validator.ValidationError as error:
         raise InvalidInputError(error.message, error.code) from error

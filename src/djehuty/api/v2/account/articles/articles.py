@@ -172,7 +172,7 @@ def create_article(
                 "warnings": [],
             }
         )
-    except validator.ValidationException as error:
+    except validator.ValidationError as error:
         raise InvalidInputError(error.message, error.code) from error
 
 
@@ -369,7 +369,7 @@ def update_article(
             raise NotFoundError()
 
         return Response(status_code=205)
-    except validator.ValidationException as error:
+    except validator.ValidationError as error:
         raise InvalidInputError(error.message, error.code) from error
 
 

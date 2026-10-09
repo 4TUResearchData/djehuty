@@ -63,7 +63,7 @@ def list_ro_crates(
 
     # AS-IS (#111): two legacy bugs reproduced here.
     #  1. paging_to_offset_and_limit() calls integer_value() WITHOUT forwarding
-    #     error_list, so an invalid `limit` RAISES InvalidIntegerValue instead
+    #     error_list, so an invalid `limit` RAISES InvalidIntegerValueError instead
     #     of returning a 400; the legacy handler doesn't wrap the paging call in
     #     a try, so it propagates -> HTTP 500. (Hence `limit` is taken as a raw
     #     string here, not coerced/validated by FastAPI.)
