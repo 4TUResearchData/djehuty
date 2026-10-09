@@ -4802,6 +4802,18 @@ class WebServer:
             if isinstance (admin_account, dict):
                 admin_account_uuid = admin_account.get("uuid")
 
+            # The licence is part of the registered DOI record (rightsList), so
+            # the previous value and the version number are needed: one to undo
+            # the change, the other to re-send the right version's record.
+            records = self.db.datasets (dataset_uuid=dataset_uuid,
+                                        container_uuid=container_uuid,
+                                        is_published=True,
+                                        use_cache=False, limit=1)
+            if not records:
+                return self.error_404 (request)
+            previous_license_url = value_or_none (records[0], "license_url")
+            version              = value_or_none (records[0], "version")
+
             success = self.db.admin_update_license (
                 container_uuid,
                 dataset_uuid,
@@ -4810,6 +4822,34 @@ class WebServer:
                 owner_account_uuid=owner_account_uuid)
             if not success:
                 return self.error_500 ()
+
+            if config.in_production and not config.in_preproduction:
+                if not self.__update_item_doi (container_uuid,
+                                               item_type="dataset",
+                                               version=version,
+                                               from_draft=False):
+                    self.log.error ("Updating the DOI record failed; reverting the "
+                                    "licence change for %s.", dataset_uuid)
+                    if previous_license_url is None:
+                        self.log.error ("No previous licence recorded for %s; the "
+                                        "licence and the DOI record are now out of "
+                                        "step.", dataset_uuid)
+                        return self.error_500 ()
+                    if not self.db.admin_update_license (
+                            container_uuid,
+                            dataset_uuid,
+                            previous_license_url,
+                            admin_account_uuid,
+                            owner_account_uuid=owner_account_uuid):
+                        self.log.error ("Reverting the licence for %s ALSO failed; the "
+                                        "licence and the DOI record are now out of "
+                                        "step.", dataset_uuid)
+                        return self.error_500 ()
+                    return self.error_400 (
+                        request,
+                        "The DOI record could not be updated, so nothing was changed.",
+                        "DoiUpdateFailed")
+
             return self.respond_204 ()
         except validator.ValidationException as error:
             return self.error_400 (request, error.message, error.code)
