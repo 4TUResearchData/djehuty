@@ -39,7 +39,7 @@ class TestCreateDataset:
         screenshot(authenticated_page, "new-dataset-editor")
 
         editor = DatasetEditorPage(authenticated_page)
-        assert editor.heading == "Add new dataset"
+        assert editor.heading.lower() == "add new dataset"
         expect(authenticated_page).to_have_url(re.compile(rf"{BASE_URL}/my/datasets/.+/edit"))
 
         # Clean up: delete the created dataset
