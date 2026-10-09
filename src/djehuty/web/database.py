@@ -2707,7 +2707,8 @@ class SparqlInterface:
     def admin_update_license (self, container_uuid, dataset_uuid, new_license_url,
                               admin_account_uuid, owner_account_uuid=None):
         """Admin procedure to replace djht:license on the latest published
-        version of a container.
+        version of a container.  A NEW_LICENSE_URL of None clears the licence,
+        which is what restoring a dataset that had none requires.
 
         Runs as a single SPARQL mutation through __run_logged_query so the
         change is captured by the query audit log when enable_query_audit_log
