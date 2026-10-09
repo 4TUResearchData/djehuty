@@ -4845,10 +4845,13 @@ class WebServer:
                                         "licence and the DOI record are now out of "
                                         "step.", dataset_uuid)
                         return self.error_500 ()
-                    return self.error_400 (
-                        request,
-                        "The DOI record could not be updated, so nothing was changed.",
-                        "DoiUpdateFailed")
+                    response = self.response (json.dumps({
+                        "message": ("The DOI record could not be updated, so nothing "
+                                    "was changed. Please try again later."),
+                        "code":    "DoiUpdateFailed"
+                    }))
+                    response.status_code = 502
+                    return response
 
             return self.respond_204 ()
         except validator.ValidationException as error:
