@@ -297,7 +297,7 @@ def search_filters(value, error_list=None):
                 ),
             )
 
-    for k, v in value.items():
+    for v in value.values():
         return v
 
 
