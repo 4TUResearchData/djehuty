@@ -134,7 +134,9 @@ WHERE {
     OPTIONAL { ?dataset djht:url_private_html      ?url_private_html . }
     OPTIONAL { ?dataset djht:url_public_api        ?url_public_api . }
     OPTIONAL { ?dataset djht:url_public_html       ?url_public_html . }
+    {%- if uses_tag %}
     OPTIONAL { ?dataset djht:tags/rdf:rest*/rdf:first ?tag . }
+    {%- endif %}
     {#- Custom fields. #}
     OPTIONAL { ?dataset djht:publisher             ?publisher_ut . }
     OPTIONAL { ?dataset djht:language              ?language_ut . }
