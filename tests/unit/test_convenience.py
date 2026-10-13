@@ -2,7 +2,7 @@
 
 import pytest
 
-from djehuty.utils.convenience import css_string, strip_parenthesized_suffix
+from djehuty.utils.convenience import css_string, encode_html, strip_parenthesized_suffix
 
 
 class TestStripParenthesizedSuffix:
@@ -28,6 +28,19 @@ class TestStripParenthesizedSuffix:
     @pytest.mark.parametrize("value", [None, 42])
     def test_non_string_values_pass_through(self, value):
         assert strip_parenthesized_suffix(value) is value
+
+
+class TestEncodeHtml:
+    """Stored string values keep safe punctuation literal, encode markup."""
+
+    def test_apostrophe_is_kept_literal(self):
+        assert encode_html("someone's thing") == "someone's thing"
+
+    def test_ampersand_and_double_quotes_pass_through(self):
+        assert encode_html('Data & code "quoted"') == 'Data & code "quoted"'
+
+    def test_angle_brackets_are_encoded(self):
+        assert encode_html("a < b > c") == "a &lt; b &gt; c"
 
 
 class TestCssString:
