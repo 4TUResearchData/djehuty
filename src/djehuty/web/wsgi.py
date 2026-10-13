@@ -2046,7 +2046,11 @@ class WebServer:
         ## Automatic log in for development purposes only.
         ## --------------------------------------------------------------------
         if config.automatic_login_email is not None and not config.in_production:
-            account = self.db.account_by_email (config.automatic_login_email)
+            login_email = config.automatic_login_email
+            if (config.secondary_automatic_login_email is not None
+                    and self.get_parameter (request, "account") == "secondary"):
+                login_email = config.secondary_automatic_login_email
+            account = self.db.account_by_email (login_email)
             if account is None:
                 return self.error_403 (request)
             account_uuid = account["uuid"]

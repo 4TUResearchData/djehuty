@@ -62,6 +62,20 @@ def authenticated_page(page: Page):
 
 
 @pytest.fixture()
+def non_reviewer_page(page: Page):
+    """Return a page logged in as an account with no reviewer rights.
+
+    Uses ``<secondary-automatic-login-email>``, a separate seeded account with
+    no privileges, so tests can exercise "a non-reviewer tries to review"
+    paths that the single, reviewer-privileged ``authenticated_page`` account
+    can never hit.
+    """
+    page.goto("/login?account=secondary")
+    page.wait_for_url("**/my/dashboard**")
+    return page
+
+
+@pytest.fixture()
 def admin_page(authenticated_page: Page):
     """Return an authenticated page and verify admin access.
 

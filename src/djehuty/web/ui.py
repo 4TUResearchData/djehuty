@@ -969,6 +969,9 @@ def read_automatic_login_configuration(xml_root):
     ):
         config.identity_provider = "automatic-login"
         config.automatic_login_email = automatic_login_email
+        config.secondary_automatic_login_email = config_value(
+            xml_root, "authentication/secondary-automatic-login-email"
+        )
 
 
 def read_orcid_configuration(xml_root):
