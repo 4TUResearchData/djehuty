@@ -5,6 +5,33 @@ appear first; this file is the source of truth for release notes.
 
 Commit links point to <https://github.com/4TUResearchData/djehuty>.
 
+## [v26.8.1]
+
+This patch release consists of 12 commits made by 3 authors.
+
+It corrects the homepage subject-tile links, keeps apostrophes readable in text,
+refines the storage-maintenance mode, speeds up dataset search, relabels the
+dataset deposit type, and refreshes dependencies.
+
+
+### Bugfixes
+
+- Rename the metadata deposit type label from 'File deposit' to 'Dataset deposit'. ([9c4907e](https://github.com/4TUResearchData/djehuty/commit/9c4907ea6ed4ed297b0e55012daa307910800405))
+- Point the homepage subject tiles at the right category. ([cead808](https://github.com/4TUResearchData/djehuty/commit/cead80871090441073c8bff3acc247caf1b1e379))
+- Keep apostrophes literal in text instead of showing their HTML entity. ([526cffb](https://github.com/4TUResearchData/djehuty/commit/526cffb6df92728308e96bce2e3b37c2e98ee502))
+- Skip the filesystem checks while storage-maintenance mode is active. ([a9c578c](https://github.com/4TUResearchData/djehuty/commit/a9c578c84e94506fa66332c417186b154953a28c))
+
+### Incremental improvements
+
+- Show the expected end date in the storage-maintenance banner. ([96b624a](https://github.com/4TUResearchData/djehuty/commit/96b624a6d7fe786f762c9bd43c2d4d80940c19bd))
+- Only join the tags list when a dataset search filter needs it, avoiding unnecessary work on every dataset query. ([723f5f3](https://github.com/4TUResearchData/djehuty/commit/723f5f39764b5d82441fffa2209b6836e2f3aafb))
+- Update the Python dependencies. ([1ff0fcf](https://github.com/4TUResearchData/djehuty/commit/1ff0fcffd0e12ebdf477f1a61c20ae345e032f3e), [4a4a759](https://github.com/4TUResearchData/djehuty/commit/4a4a7593a7de3a4c5e86b34df33564d82cb4ac4e))
+### Technical debt
+
+- Serve the /review/ pages from the new HTTP stack. ([cc1b491](https://github.com/4TUResearchData/djehuty/commit/cc1b4911ca5e5f913566d0d340683f8462360082))
+- Lint and format the web formatter with Ruff, and add it to the enforced scope. ([74683fc](https://github.com/4TUResearchData/djehuty/commit/74683fc876ef1bb1e5edf729e39efade024c847a))
+
+
 ## [v26.8]
 
 This release consists of 7 commits made by 3 authors.
