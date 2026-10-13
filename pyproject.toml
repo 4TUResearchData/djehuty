@@ -8,7 +8,7 @@ build-backend   = "setuptools.build_meta"
 [project]
 name            = "djehuty"
 version         = "26.8.1"
-authors         = [{ name="Roel Janssen", email="r.r.e.janssen@tudelft.nl" }]
+authors = [{ name = "TU Delft and Contributors", email = "researchdata@4tu.nl" }]
 description     = "The 4TU.ResearchData and Nikhef data repository system"
 readme          = "README.md"
 requires-python = ">=3.10"
