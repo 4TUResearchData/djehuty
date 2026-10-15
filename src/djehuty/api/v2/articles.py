@@ -231,6 +231,7 @@ def search_articles(
         handle=body.handle,
         groups=groups,
         institution=body.institution,
+        is_latest=body.is_latest,
         item_type=body.item_type,
         modified_since=body.modified_since,
         published_since=body.published_since,

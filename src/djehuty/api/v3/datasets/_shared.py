@@ -1,10 +1,12 @@
 """Shared helpers for the v3 datasets sub-resources."""
 
+import re
 from typing import Annotated
 
 from fastapi import Path
 
 from djehuty.api.exceptions import NotFoundError
+from djehuty.utils.convenience import html_to_plaintext
 
 DatasetId = Annotated[
     str,
@@ -62,3 +64,25 @@ def _resolve_dataset(db, dataset_id, account_uuid, is_under_review=None):
             )[0]
     except (IndexError, AttributeError) as error:
         raise NotFoundError() from error
+
+
+def _build_search_query(search_for, search_operator, search_scope):
+    """Build a structured query and plain-text values for v3 dataset search."""
+    if search_for is None:
+        return None, None
+
+    search_for = search_for.strip()
+    if not search_for:
+        return None, None
+
+    search_for_raw = html_to_plaintext(search_for)
+    search_tokens = re.findall(r'[^" ]+|"[^"]+"|\([^)]+\)', search_for)
+    search_tokens = [token.strip('"') for token in search_tokens]
+
+    search_query = {
+        "operator": search_operator,
+        "search_for": search_tokens,
+        "scope": search_scope,
+    }
+
+    return search_query, search_for_raw

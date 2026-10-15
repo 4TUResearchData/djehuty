@@ -4,11 +4,11 @@ from fastapi import APIRouter, Body, Depends, Query
 from fastapi.responses import JSONResponse
 
 from djehuty.api.dependencies import get_db
-from djehuty.api.models.articles import ArticleSearchRequest, ArticleSummary
+from djehuty.api.models.articles import ArticleSummary, DatasetSearchRequest
 from djehuty.api.models.common import ErrorResponse, OrderDirection, OrderField
 from djehuty.api.services.article_service import ArticleService
 from djehuty.api.v3._shared import _ok
-from djehuty.utils.convenience import parse_search_terms
+from djehuty.api.v3.datasets._shared import _build_search_query
 
 router = APIRouter(tags=["V3 / Datasets"])
 
@@ -140,7 +140,7 @@ def list_datasets(
     },
 )
 def search_datasets(
-    body: ArticleSearchRequest = Body(
+    body: DatasetSearchRequest = Body(
         ...,
         openapi_examples={
             "keyword": {
@@ -151,6 +151,8 @@ def search_datasets(
                 "summary": "Search with filters",
                 "value": {
                     "search_for": "ocean",
+                    "search_operator": "AND",
+                    "search_scope": ["title", "description"],
                     "group_id": 28586,
                     "categories": "13555",
                     "limit": 10,
@@ -171,6 +173,12 @@ def search_datasets(
         limit = body.limit if body.limit is not None else 10
         offset = body.offset if body.offset is not None else 0
 
+    search_query, search_for_raw = _build_search_query(
+        body.search_for,
+        search_operator=body.search_operator or "OR",
+        search_scope=body.search_scope,
+    )
+
     records, total_count = service.search_articles(
         limit=limit,
         offset=offset,
@@ -181,11 +189,13 @@ def search_datasets(
         handle=body.handle,
         groups=groups,
         institution=body.institution,
+        is_latest=body.is_latest,
         item_type=body.item_type,
         modified_since=body.modified_since,
         published_since=body.published_since,
         resource_doi=body.resource_doi,
-        search_for=parse_search_terms(body.search_for),
+        search_for=search_query,
+        search_for_raw=search_for_raw,
     )
 
     response = JSONResponse(content=records)

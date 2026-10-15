@@ -10,6 +10,7 @@ covered by the e2e API contract suite (tests/e2e/tests/api/v3).
 
 from fastapi.testclient import TestClient
 
+from djehuty.api.v3.datasets._shared import _build_search_query
 from djehuty.application import create_app
 from djehuty.route_groups import group_for_path, target_for_path
 
@@ -66,6 +67,27 @@ def test_v3_is_documented_in_the_openapi_spec():
     spec = TestClient(create_app(_FakeDB())).get("/api/openapi.json").json()
     v3_paths = [p for p in spec["paths"] if p.startswith("/v3")]
     assert len(v3_paths) > 40
+
+
+def test_dataset_search_request_models_are_version_specific():
+    spec = TestClient(create_app(_FakeDB())).get("/api/openapi.json").json()
+    schemas = spec["components"]["schemas"]
+
+    v2_schema = spec["paths"]["/v2/articles/search"]["post"]["requestBody"]["content"][
+        "application/json"
+    ]["schema"]
+    v3_schema = spec["paths"]["/v3/datasets/search"]["post"]["requestBody"]["content"][
+        "application/json"
+    ]["schema"]
+
+    assert v2_schema["$ref"].endswith("/ArticleSearchRequest")
+    assert v3_schema["$ref"].endswith("/DatasetSearchRequest")
+    assert "search_operator" not in schemas["ArticleSearchRequest"]["properties"]
+    assert "search_scope" not in schemas["ArticleSearchRequest"]["properties"]
+    assert "search_operator" in schemas["DatasetSearchRequest"]["properties"]
+    assert "search_scope" in schemas["DatasetSearchRequest"]["properties"]
+    search_for_schema = schemas["DatasetSearchRequest"]["properties"]["search_for"]
+    assert {option["type"] for option in search_for_schema["anyOf"]} == {"string", "null"}
 
 
 # --- Collaborators: the port used to crash on non-existent db kwargs ---------
@@ -363,20 +385,21 @@ def test_codemeta_passes_git_url_to_the_formatter(monkeypatch):
 class _SearchDB(_FakeDB):
     """Records the search_for shape db.datasets is called with."""
 
+    def __init__(self, records=None):
+        super().__init__()
+        self.records = records or []
+
     def datasets(self, *args, **kwargs):
         self.calls.append(("datasets", args, kwargs))
-        return []
+        if kwargs.get("return_count"):
+            return [{"datasets": len(self.records)}]
+        return [record.copy() for record in self.records]
 
 
 def test_datasets_search_passes_structured_search_for():
     # Regression: the legacy /search page calls POST /v3/datasets/search, and
-    # db.datasets expects search_for as the structured per-field token list that
-    # parse_search_terms builds. Passing the raw string made the full-text
-    # filter a no-op, so every search returned all datasets (a gibberish query
-    # matched seed data). Assert the port hands db.datasets the structured form,
-    # identical to what the legacy handler builds.
-    from djehuty.utils.convenience import parse_search_terms
-
+    # db.datasets expects search_for as the structured v3 query. Passing the raw
+    # string makes the full-text filter a no-op.
     db = _SearchDB()
     client = TestClient(create_app(db))
     term = 'wind "sea level"'
@@ -384,8 +407,71 @@ def test_datasets_search_passes_structured_search_for():
     assert resp.status_code == 200
     _, _, kwargs = _last_call(db, "datasets")
     search_for = kwargs.get("search_for")
-    assert isinstance(search_for, list), f"search_for must be structured, got {type(search_for)}"
-    assert search_for == parse_search_terms(term)
+    assert search_for == {
+        "operator": "OR",
+        "search_for": ["wind", "sea level"],
+        "scope": None,
+    }
+    assert kwargs.get("search_for_raw") == term
+
+
+def test_dataset_autocomplete_filters_row_and_count_queries_the_same_way():
+    db = _SearchDB(
+        [
+            {
+                "uri": "dataset:version",
+                "container_uuid": _DATASET_UUID,
+                "title": "Wind turbine measurements",
+            }
+        ]
+    )
+    client = TestClient(create_app(db))
+    body = {
+        "search_for": "wind turbine",
+        "search_operator": "AND",
+        "search_scope": ["title"],
+        "is_latest": True,
+    }
+
+    response = client.post("/v3/datasets/search", json=body)
+
+    assert response.status_code == 200
+    dataset_calls = [call for call in db.calls if call[0] == "datasets"]
+    assert len(dataset_calls) == 2
+    for _, _, kwargs in dataset_calls:
+        assert kwargs.get("search_for") == {
+            "operator": "AND",
+            "search_for": ["wind", "turbine"],
+            "scope": ["title"],
+        }
+        assert kwargs.get("search_for_raw") == "wind turbine"
+        assert kwargs.get("is_latest") is True
+
+
+def test_build_search_query_supports_strings_and_quoted_phrases():
+    assert _build_search_query('  wind "sea level"  ', "AND", ["title"]) == (
+        {
+            "operator": "AND",
+            "search_for": ["wind", "sea level"],
+            "scope": ["title"],
+        },
+        'wind "sea level"',
+    )
+
+
+def test_build_search_query_ignores_empty_searches():
+    for search_for in (None, "", "   "):
+        assert _build_search_query(search_for, "AND", ["title"]) == (None, None)
+
+
+def test_datasets_search_rejects_list_search_input():
+    db = _SearchDB()
+    client = TestClient(create_app(db))
+
+    response = client.post("/v3/datasets/search", json={"search_for": ["wind", "turbine"]})
+
+    assert 400 <= response.status_code < 500
+    assert not any(call[0] == "datasets" for call in db.calls)
 
 
 def test_datasets_search_none_term_stays_none():
@@ -397,6 +483,8 @@ def test_datasets_search_none_term_stays_none():
     assert resp.status_code == 200
     _, _, kwargs = _last_call(db, "datasets")
     assert kwargs.get("search_for") is None
+    assert kwargs.get("search_for_raw") is None
+    assert kwargs.get("is_latest") is None
 
 
 # --- Tags: the full list must be read before the wholesale write-back --------
