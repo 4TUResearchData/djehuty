@@ -15,6 +15,14 @@ When contributing, remember to follow our [Code of Conduct](https://github.com/4
 
 All contributions - whether it’s code, bug reports, or ideas are appreciated and recognized. Contributors may be credited in release notes or project acknowledgments. Thank you for helping make the project better!
 
+## Join the community
+
+Contributors are encouraged to take part in the
+[djehuty community](https://djehuty.4tu.nl/community/), where users and
+contributors connect, share ideas and discuss recent developments and upcoming work. Join the monthly
+[Community Hours](https://djehuty.4tu.nl/community/community-hour/); the
+community website has the meeting information.
+
 ## Contribution workflows
 
 ### Report bugs or request features
@@ -241,4 +249,4 @@ Releases are handled by maintainers and automated by GitHub Actions. See [RELEAS
 
 ---
 
-💡 By contributing to this project, you help us build a positive and supportive community. Thank you!
+💡 By contributing to this project, you help us build a positive and supportive [community](https://djehuty.4tu.nl/community/). Thank you!
