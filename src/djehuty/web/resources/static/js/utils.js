@@ -2,7 +2,15 @@ function render_in_form (text) { return [text].join(""); }
 
 function or_null (value) { return (value == "" || value == "<p><br></p>") ? null : value; }
 function or_empty (value) { return (value === undefined || value == null || value == "") ? "" : value;}
+let message_timeout = null;
+
 function show_message (type, message) {
+
+    if (message_timeout !== null) {
+        clearTimeout(message_timeout);
+        message_timeout = null;
+    }
+
     // Reset the box before showing a new message.  Adding the type without
     // removing the previous one left both classes on the element, and .failure
     // is declared after .success, so a success message stayed red.  Appending
@@ -13,7 +21,8 @@ function show_message (type, message) {
         .addClass(type)
         .append(message)
         .fadeIn(250);
-    setTimeout(function() {
+    message_timeout = setTimeout(function() {
+        message_timeout = null;
         jQuery("#message").fadeOut(500, function() {
             jQuery("#message").removeClass(type).addClass("transparent").html("<p>&nbsp;</p>").show();
         });
