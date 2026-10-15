@@ -72,7 +72,7 @@ def list_image_files(
                 for f in files
             ]
         )
-    except validator.ValidationException as error:
+    except validator.ValidationError as error:
         raise InvalidInputError(error.message, error.code) from error
 
 
@@ -147,7 +147,7 @@ async def upload_file(
             supplied_md5 = validator.string_value(
                 args, "md5", minimum_length=32, maximum_length=32, required=True
             )
-        except validator.ValidationException as error:
+        except validator.ValidationError as error:
             raise InvalidInputError(error.message, error.code) from error
         if supplied_md5 == _EMPTY_FILE_MD5:
             raise InvalidInputError("Empty file is not allowed.", "EmptyFile")
@@ -345,7 +345,7 @@ def update_thumbnail(
 
     try:
         file_uuid = validator.string_value(body, "uuid", 0, 36, False)
-    except validator.ValidationException as error:
+    except validator.ValidationError as error:
         raise InvalidInputError(error.message, error.code) from error
 
     # Empty UUID means "clear the thumbnail".

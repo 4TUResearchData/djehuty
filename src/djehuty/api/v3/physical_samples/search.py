@@ -14,7 +14,7 @@ router = APIRouter(tags=["V3 / Physical samples"])
 def search_physical_samples(body: dict, db=Depends(get_db)):
     try:
         search_for = validator.string_value(body, "search_for", 1, 1024, required=True)
-    except validator.ValidationException as error:
+    except validator.ValidationError as error:
         raise InvalidInputError(error.message, error.code) from error
 
     samples = db.physical_samples(

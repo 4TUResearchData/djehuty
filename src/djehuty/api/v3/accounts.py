@@ -61,7 +61,7 @@ async def search_accounts(
         # AS-IS (#111): legacy reads `exclude` via array_value(required=False),
         # which returns None when the field is absent, then evaluates
         # `account["uuid"] in exclude` -> `... in None` -> TypeError. That is
-        # not caught by legacy's `except (ValidationException, KeyError)`, so
+        # not caught by legacy's `except (ValidationError, KeyError)`, so
         # it propagates -> HTTP 500 whenever the search matches at least one
         # account. Reproduce faithfully: no guard on `exclude`.
         exclude = validator.array_value(body, "exclude", required=False)
@@ -71,5 +71,5 @@ async def search_accounts(
             if record["uuid"] in exclude:
                 accounts.pop(index)
         return JSONResponse(content=[formatter.format_account_record(r) for r in accounts])
-    except (validator.ValidationException, KeyError) as error:
+    except (validator.ValidationError, KeyError) as error:
         raise InvalidInputError(error.message, error.code) from error

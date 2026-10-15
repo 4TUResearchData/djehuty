@@ -96,7 +96,7 @@ def create_collection(
                 "warnings": [],
             }
         )
-    except validator.ValidationException as error:
+    except validator.ValidationError as error:
         raise InvalidInputError(error.message, error.code) from error
 
 
@@ -219,7 +219,7 @@ def update_private_collection(
             organizations=validator.string_value(body, "organizations", 0, 2048, False),
             categories=validator.array_value(body, "categories", False),
         )
-    except validator.ValidationException as error:
+    except validator.ValidationError as error:
         raise InvalidInputError(error.message, error.code) from error
 
     if result is None:

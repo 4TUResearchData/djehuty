@@ -1342,7 +1342,7 @@ class WebServer:
 
         try:
             validator.string_value (record, "search_for", maximum_length=1024, strip_html=False)
-        except validator.InvalidValueType:
+        except validator.InvalidValueTypeError:
             validator.array_value  (record, "search_for" )
 
         record["categories"] = split_string (record["categories"], delimiter=",")
@@ -1540,7 +1540,7 @@ class WebServer:
                 return response.json()
 
             self.log.error ("ORCID response was %d", response.status_code)
-        except validator.ValidationException:
+        except validator.ValidationError:
             self.log.error ("ORCID parameter validation error")
 
         return None
@@ -2866,7 +2866,7 @@ class WebServer:
 
                 return self.error_500 ()
 
-            except validator.ValidationException as error:
+            except validator.ValidationError as error:
                 return self.error_400 (request, error.message, error.code)
 
         return self.error_405 (["GET", "PUT"])
@@ -2998,13 +2998,13 @@ class WebServer:
                 collaborator_account_uuid = validator.string_value (parameters, "account")
 
                 if not validator.is_valid_uuid (collaborator_account_uuid):
-                    raise validator.InvalidValueType(
+                    raise validator.InvalidValueTypeError(
                         field_name = "account",
                         message = "Expected a valid UUID for 'account'",
                         code = "WrongValueType"
                     )
 
-            except validator.ValidationException as error:
+            except validator.ValidationError as error:
                 return self.error_400(request, error.message, error.code)
 
             account = self.db.account_by_uuid (collaborator_account_uuid)
@@ -3109,7 +3109,7 @@ class WebServer:
                 if account["uuid"] in exclude:
                     accounts.pop(index)
             return self.default_list_response (accounts, formatter.format_account_record)
-        except (validator.ValidationException, KeyError) as error:
+        except (validator.ValidationError, KeyError) as error:
             return self.error_400(request, error.message, error.code)
 
     def ui_dataset_new_private_link (self, request, dataset_uuid):
@@ -3170,7 +3170,7 @@ class WebServer:
                                              anonymize=anonymize, item_type="dataset")
                 self.locks.unlock (locks.LockTypes.PRIVATE_LINKS)
                 return redirect (f"/my/datasets/{dataset_uuid}/private_links", code=302)
-            except validator.ValidationException as error:
+            except validator.ValidationError as error:
                 return self.error_400 (request, error.message, error.code)
 
         return self.error_405 (["GET", "HEAD", "POST"])
@@ -3583,7 +3583,7 @@ class WebServer:
                 return self.respond_204 ()
             except IndexError:
                 return self.error_403 (request)
-            except validator.ValidationException as error:
+            except validator.ValidationError as error:
                 return self.error_400 (request, error.message, error.code)
 
         return self.error_405 (["GET", "PUT"])
@@ -4041,7 +4041,7 @@ class WebServer:
 
             review_uri = self.db.insert_review (sample["uri"])
 
-        except validator.ValidationException as error:
+        except validator.ValidationError as error:
             return self.error_400 (request, error.message, error.code)
         except (IndexError, KeyError):
             return self.error_500 ()
@@ -4676,7 +4676,7 @@ class WebServer:
                     "license_name":       dataset.get("license_name"),
                 })
             return self.response (json.dumps(output))
-        except validator.ValidationException as error:
+        except validator.ValidationError as error:
             return self.error_400 (request, error.message, error.code)
 
     def ui_admin_embargo (self, request):
@@ -4721,7 +4721,7 @@ class WebServer:
 
                 self.db.admin_update_embargo (dataset_uuid, embargo_until_date)
                 return self.respond_204 ()
-            except validator.ValidationException as error:
+            except validator.ValidationError as error:
                 return self.error_400 (request, error.message, error.code)
 
         return self.error_405 (["PUT"])
@@ -4811,7 +4811,7 @@ class WebServer:
             if not success:
                 return self.error_500 ()
             return self.respond_204 ()
-        except validator.ValidationException as error:
+        except validator.ValidationError as error:
             return self.error_400 (request, error.message, error.code)
 
     def ui_admin_retract (self, request):
@@ -4905,7 +4905,7 @@ class WebServer:
             if not success:
                 return self.error_500 ()
             return self.respond_204 ()
-        except validator.ValidationException as error:
+        except validator.ValidationError as error:
             return self.error_400 (request, error.message, error.code)
 
     def ui_admin_remove_files (self, request):
@@ -4972,7 +4972,7 @@ class WebServer:
                     "is_latest":    version.get("version") == latest_version,
                 })
             return self.response (json.dumps(output))
-        except validator.ValidationException as error:
+        except validator.ValidationError as error:
             return self.error_400 (request, error.message, error.code)
 
     def api_admin_remove_files_files (self, request):
@@ -5033,7 +5033,7 @@ class WebServer:
                     "also_in_versions": sorted (shared.get (file_uuid, [])),
                 })
             return self.response (json.dumps(output))
-        except validator.ValidationException as error:
+        except validator.ValidationError as error:
             return self.error_400 (request, error.message, error.code)
 
     def api_admin_remove_files_execute (self, request):
@@ -5146,7 +5146,7 @@ class WebServer:
                 response.status_code = 500
                 return response
             return self.respond_204 ()
-        except validator.ValidationException as error:
+        except validator.ValidationError as error:
             return self.error_400 (request, error.message, error.code)
 
     def ui_admin_sparql (self, request):
@@ -5336,7 +5336,7 @@ class WebServer:
                 validator.string_value (record, "email", 5, 255, False)
                 validator.options_value (record, "type", ["bug", "missing", "other"], True)
                 validator.string_value (record, "description", 10, 4096, True, strip_html=False)
-            except validator.ValidationException as error:
+            except validator.ValidationError as error:
                 email = self.__email_from_request (request)
                 return self.__render_template (request, "feedback.html",
                                                email = email,
@@ -5417,7 +5417,7 @@ class WebServer:
                 "page_size": page_size,
             })
             validator.integer_value ({ "id": category_id }, "id", required=True)
-        except validator.ValidationException:
+        except validator.ValidationError:
             return self.error_404 (request)
 
         category      = self.db.category_by_id (category_id)
@@ -5709,7 +5709,7 @@ class WebServer:
                 reason          = reason)
 
             return self.respond_204 ()
-        except (validator.ValidationException, KeyError):
+        except (validator.ValidationError, KeyError):
             pass
         except IndexError:
             return self.error_400 (request, "Dataset does not exist", 400)
@@ -6457,7 +6457,7 @@ class WebServer:
             email               = validator.string_value (request.args, "email", 0, 4096)
             id_lte              = validator.integer_value (request.args, "id_lte", 0, pow(2, 63))
             id_gte              = validator.integer_value (request.args, "id_gte", 0, pow(2, 63))
-        except validator.ValidationException as error:
+        except validator.ValidationError as error:
             return self.error_400 (request, error.message, error.code)
 
         accounts = self.db.accounts (limit=limit,   offset=offset,
@@ -6497,7 +6497,7 @@ class WebServer:
             return self.default_list_response (records, formatter.format_dataset_record,
                                                base_url = config.base_url)
 
-        except validator.ValidationException as error:
+        except validator.ValidationError as error:
             return self.error_400 (request, error.message, error.code)
 
     def api_datasets_search (self, request):
@@ -6535,7 +6535,7 @@ class WebServer:
                 output.headers["Number-Of-Records"] = total_count["datasets"]
                 output.headers["Number-Of-Returned-Records"] = number_of_records
             return output
-        except validator.ValidationException as error:
+        except validator.ValidationError as error:
             return self.error_400 (request, error.message, error.code)
 
     def api_licenses (self, request):
@@ -6754,7 +6754,7 @@ class WebServer:
                 return self.default_list_response (records, formatter.format_dataset_record,
                                                    base_url = config.base_url)
 
-            except validator.ValidationException as error:
+            except validator.ValidationError as error:
                 return self.error_400 (request, error.message, error.code)
 
         if request.method == 'POST':
@@ -6831,7 +6831,7 @@ class WebServer:
                     "location": f"{config.base_url}/v2/account/articles/{container_uuid}",
                     "warnings": []
                 }))
-            except validator.ValidationException as error:
+            except validator.ValidationError as error:
                 return self.error_400 (request, error.message, error.code)
 
         return self.error_500 ()
@@ -7011,7 +7011,7 @@ class WebServer:
 
                 return self.respond_205()
 
-            except validator.ValidationException as error:
+            except validator.ValidationError as error:
                 return self.error_400 (request, error.message, error.code)
             except (IndexError, KeyError):
                 pass
@@ -7063,7 +7063,7 @@ class WebServer:
                 return self.default_list_response (authors, formatter.format_author_record)
             except (IndexError, KeyError, TypeError) as error:
                 self.log.error ("Unable to retrieve authors: %s", error)
-            except validator.ValidationException as error:
+            except validator.ValidationError as error:
                 return self.error_400 (request, error.message, error.code)
 
             return self.error_500 ()
@@ -7117,7 +7117,7 @@ class WebServer:
                 return self.error_400 (request, "Expected an 'authors' field.", "NoAuthorsField")
             except IndexError:
                 return self.error_500 ()
-            except validator.ValidationException as error:
+            except validator.ValidationError as error:
                 return self.error_400 (request, error.message, error.code)
 
         return self.error_500 ()
@@ -7255,7 +7255,7 @@ class WebServer:
                 return self.error_400 (request, "Expected a 'funders' field.", "NoFundersField")
             except IndexError:
                 return self.error_500 ()
-            except validator.ValidationException as error:
+            except validator.ValidationError as error:
                 return self.error_400 (request, error.message, error.code)
 
         return self.error_500 ()
@@ -7445,7 +7445,7 @@ class WebServer:
                 for index, _ in enumerate(categories):
                     try:
                         categories[index] = validator.string_value (categories, index, 0, 36)
-                    except validator.ValidationException:
+                    except validator.ValidationError:
                         category_id = validator.integer_value (categories, index)
                         category = self.db.category_by_id (category_id=category_id)
                         if category is not None:
@@ -7472,7 +7472,7 @@ class WebServer:
                 return self.error_500 ()
             except KeyError:
                 return self.error_400 (request, "Expected an array for 'categories'.", "NoCategoriesField")
-            except validator.ValidationException as error:
+            except validator.ValidationError as error:
                 return self.error_400 (request, error.message, error.code)
 
         return self.error_500 ()
@@ -7604,7 +7604,7 @@ class WebServer:
                 return self.default_list_response (files, formatter.format_file_for_dataset_record,
                                                    base_url = config.base_url)
 
-            except validator.ValidationException as error:
+            except validator.ValidationError as error:
                 return self.error_400 (request, error.message, error.code)
             except (IndexError, KeyError):
                 pass
@@ -7644,7 +7644,7 @@ class WebServer:
                 self.log.error ("Failed to delete all files from dataset %s.",
                                 dataset_id)
 
-            except validator.ValidationException as error:
+            except validator.ValidationError as error:
                 return self.error_400 (request, error.message, error.code)
             except (IndexError, KeyError):
                 pass
@@ -7698,7 +7698,7 @@ class WebServer:
                     "location": f"{config.base_url}/v2/account/articles/{dataset_id}/files/{file_id}"
                 })
 
-            except validator.ValidationException as error:
+            except validator.ValidationError as error:
                 return self.error_400 (request, error.message, error.code)
             except (IndexError, KeyError):
                 pass
@@ -7850,7 +7850,7 @@ class WebServer:
                     "location": f"{config.base_url}/private_datasets/{id_string}"
                 }))
 
-            except validator.ValidationException as error:
+            except validator.ValidationError as error:
                 return self.error_400 (request, error.message, error.code)
 
         return self.error_500 ()
@@ -7906,7 +7906,7 @@ class WebServer:
                     "location": f"{config.base_url}/private_datasets/{link_id}"
                 }))
 
-            except validator.ValidationException as error:
+            except validator.ValidationError as error:
                 return self.error_400 (request, error.message, error.code)
 
         if request.method == 'DELETE':
@@ -8286,7 +8286,7 @@ class WebServer:
             return self.default_list_response (records, formatter.format_dataset_record,
                                                base_url = config.base_url)
 
-        except validator.ValidationException as error:
+        except validator.ValidationError as error:
             return self.error_400 (request, error.message, error.code)
 
     ## ------------------------------------------------------------------------
@@ -8463,7 +8463,7 @@ class WebServer:
                     "location": f"{config.base_url}/v2/account/collections/{collection_id}",
                     "warnings": []
                 }))
-            except validator.ValidationException as error:
+            except validator.ValidationError as error:
                 return self.error_400 (request, error.message, error.code)
 
         return self.error_500 ()
@@ -8531,7 +8531,7 @@ class WebServer:
 
             except (IndexError, KeyError):
                 pass
-            except validator.ValidationException as error:
+            except validator.ValidationError as error:
                 return self.error_400 (request, error.message, error.code)
 
             return self.error_500 ()
@@ -8634,7 +8634,7 @@ class WebServer:
                                                    base_url = config.base_url)
             except (IndexError, KeyError):
                 pass
-            except validator.ValidationException as error:
+            except validator.ValidationError as error:
                 return self.error_400 (request, error.message, error.code)
 
             return self.error_500 ()
@@ -8703,7 +8703,7 @@ class WebServer:
                 return self.error_500 ()
             except KeyError:
                 return self.error_400 (request, "Expected an array for 'articles'.", "NoArticlesField")
-            except validator.ValidationException as error:
+            except validator.ValidationError as error:
                 return self.error_400 (request, error.message, error.code)
 
             return self.error_500()
@@ -8750,7 +8750,7 @@ class WebServer:
                 records, formatter.format_collection_physical_sample_record,
                 base_url=config.base_url
             )
-        except validator.ValidationException as error:
+        except validator.ValidationError as error:
             return self.error_400(request, error.message, error.code)
 
     def api_v3_collection_physical_samples(self, request, collection_id):
@@ -8793,7 +8793,7 @@ class WebServer:
             )
         except (IndexError, KeyError):
             return self.error_500()
-        except validator.ValidationException as error:
+        except validator.ValidationError as error:
             return self.error_400(request, error.message, error.code)
 
     def __append_collection_physical_samples(self, request, collection_id, account_uuid):
@@ -8855,7 +8855,7 @@ class WebServer:
                 return self.respond_205()
         except (IndexError, TypeError):
             return self.error_500()
-        except validator.ValidationException as error:
+        except validator.ValidationError as error:
             return self.error_400(request, error.message, error.code)
 
         return self.error_500()
@@ -8920,7 +8920,7 @@ class WebServer:
                                                base_url = config.base_url)
         except (IndexError, KeyError):
             pass
-        except validator.ValidationException as error:
+        except validator.ValidationError as error:
             return self.error_400 (request, error.message, error.code)
 
         return self.error_500 ()
@@ -8941,7 +8941,7 @@ class WebServer:
 
             return self.default_list_response (records, formatter.format_author_details_record)
 
-        except validator.ValidationException as error:
+        except validator.ValidationError as error:
             return self.error_400 (request, error.message, error.code)
 
     def api_private_author_details (self, request, author_id):
@@ -8984,7 +8984,7 @@ class WebServer:
 
             return self.default_list_response (records, formatter.format_funding_record)
 
-        except validator.ValidationException as error:
+        except validator.ValidationError as error:
             return self.error_400 (request, error.message, error.code)
 
     ## ------------------------------------------------------------------------
@@ -9135,7 +9135,7 @@ class WebServer:
 
                 return self.respond_204 ()
 
-            except validator.ValidationException as error:
+            except validator.ValidationError as error:
                 return self.error_400 (request, error.message, error.code)
 
         return self.error_405 (["GET", "PUT"])
@@ -9216,7 +9216,7 @@ class WebServer:
                     has_files = has_files,
                     base_url = config.base_url))
             return self.response (json.dumps(output))
-        except validator.ValidationException as error:
+        except validator.ValidationError as error:
             return self.error_400 (request, error.message, error.code)
 
     def api_v3_ro_crates (self, request):
@@ -9347,7 +9347,7 @@ class WebServer:
             return self.default_list_response (records, formatter.format_dataset_record,
                                                base_url = config.base_url)
 
-        except validator.ValidationException as error:
+        except validator.ValidationError as error:
             return self.error_400 (request, error.message, error.code)
 
     def __api_v3_datasets_parameters (self, request, item_type):
@@ -9362,7 +9362,7 @@ class WebServer:
         }
 
         if item_type not in {"downloads", "views", "shares", "cites"}:
-            raise validator.InvalidValue(
+            raise validator.InvalidValueError(
                 field_name = "item_type",
                 message = ("The last URL parameter must be one of "
                            "'downloads', 'views', 'shares' or 'cites'."),
@@ -9389,7 +9389,7 @@ class WebServer:
         record = {}
         try:
             record = self.__api_v3_datasets_parameters (request, item_type)
-        except validator.ValidationException as error:
+        except validator.ValidationError as error:
             return self.error_400 (request, error.message, error.code)
 
         offset, limit = self.__paging_offset_and_limit (request)
@@ -9421,7 +9421,7 @@ class WebServer:
         try:
             record = self.__api_v3_datasets_parameters (request, item_type)
 
-        except validator.ValidationException as error:
+        except validator.ValidationError as error:
             return self.error_400 (request, error.message, error.code)
 
         records = self.db.dataset_statistics_timeline (
@@ -9536,7 +9536,7 @@ class WebServer:
         try:
             record = request.get_json()
             branch_name = validator.string_value (record, "branch", 0, 255, True)
-        except validator.ValidationException as error:
+        except validator.ValidationError as error:
             return self.error_400 (request, error.message, error.code)
 
         git_repository = self.__git_repository_by_dataset_id (account_uuid, dataset_id, "edit")
@@ -10069,7 +10069,7 @@ class WebServer:
                 self.locks.unlock (locks.LockTypes.SUBMIT_DATASET)
                 return self.respond_204 ()
 
-        except validator.ValidationException as error:
+        except validator.ValidationError as error:
             self.locks.unlock (locks.LockTypes.SUBMIT_DATASET)
             return self.error_400 (request, error.message, error.code)
         except (IndexError, KeyError):
@@ -10260,7 +10260,7 @@ class WebServer:
                                              minimum_length=32,
                                              maximum_length=32,
                                              required=True)
-            except validator.ValidationException as error:
+            except validator.ValidationError as error:
                 return self.error_400 (request, error.message, error.code)
 
             # If the supplied_md5 is d41d8cd98f00b204e9800998ecf8427e,
@@ -10518,7 +10518,7 @@ class WebServer:
             return self.default_list_response (files, formatter.format_file_for_dataset_record,
                                                 base_url = config.base_url)
 
-        except validator.ValidationException as error:
+        except validator.ValidationError as error:
             return self.error_400 (request, error.message, error.code)
         except KeyError:
             pass
@@ -10550,7 +10550,7 @@ class WebServer:
 
             if not validator.is_valid_uuid (file_uuid):
                 return self.error_403 (request)
-        except validator.ValidationException as error:
+        except validator.ValidationError as error:
             return self.error_400 (request, error.message, error.code)
 
         metadata = self.__file_by_id_or_uri (file_uuid, account_uuid = account_uuid)
@@ -10652,7 +10652,7 @@ class WebServer:
         except KeyError as error:
             self.log.error ("KeyError: %s", error)
             return self.error_400 (request, "Expected a 'references' field.", "NoReferencesField")
-        except validator.ValidationException as error:
+        except validator.ValidationError as error:
             return self.error_400 (request, error.message, error.code)
 
     def api_v3_dataset_references (self, request, dataset_id):
@@ -10760,7 +10760,7 @@ class WebServer:
         except KeyError as error:
             self.log.error ("KeyError: %s", error)
             return self.error_400 (request, "Expected a 'tags' field.", "NoTagsField")
-        except validator.ValidationException as error:
+        except validator.ValidationError as error:
             return self.error_400 (request, error.message, error.code)
 
     def api_v3_collection_tags (self, request, collection_id):
@@ -10846,7 +10846,7 @@ class WebServer:
                     "location": f"{config.base_url}/private_physical_sample/{id_string}"
                 }))
 
-            except validator.ValidationException as error:
+            except validator.ValidationError as error:
                 return self.error_400(request, error.message, error.code)
 
         return self.error_405 (["GET", "POST"])
@@ -10894,7 +10894,7 @@ class WebServer:
                     "location": f"{config.base_url}/private_physical_sample/{link_id}"
                 }))
 
-            except validator.ValidationException as error:
+            except validator.ValidationError as error:
                 return self.error_400(request, error.message, error.code)
 
         if request.method == 'DELETE':
@@ -10930,7 +10930,7 @@ class WebServer:
 
             return self.default_list_response (records, formatter.format_group_record)
 
-        except validator.ValidationException as error:
+        except validator.ValidationError as error:
             return self.error_400 (request, error.message, error.code)
 
     def api_v3_admin_files_integrity_statistics (self, request):
@@ -11416,7 +11416,7 @@ class WebServer:
                     categories            = categories):
                 return self.respond_204 ()
 
-        except validator.ValidationException as error:
+        except validator.ValidationError as error:
             return self.error_400 (request, error.message, error.code)
 
         return self.error_500 ()
@@ -11464,7 +11464,7 @@ class WebServer:
                 reason    = reason)
 
             return self.respond_204 ()
-        except (validator.ValidationException, KeyError):
+        except (validator.ValidationError, KeyError):
             pass
 
         return self.error_500 ()
@@ -11482,7 +11482,7 @@ class WebServer:
             tags = self.db.previously_used_tags (search)
             tags = list(map (lambda item: item["tag"], tags))
             return self.response (json.dumps (tags))
-        except (validator.ValidationException, KeyError):
+        except (validator.ValidationError, KeyError):
             pass
 
         return self.error_500 ()
@@ -11517,7 +11517,7 @@ class WebServer:
 
             return self.response (json.dumps(properties))
 
-        except validator.ValidationException as error:
+        except validator.ValidationError as error:
             return self.error_400 (request, error.message, error.code)
 
     def api_v3_explore_property_types (self, request):
@@ -11542,7 +11542,7 @@ class WebServer:
 
             return self.response (json.dumps(types))
 
-        except validator.ValidationException as error:
+        except validator.ValidationError as error:
             return self.error_400 (request, error.message, error.code)
 
     def api_v3_explore_clear_cache (self, request):

@@ -124,7 +124,7 @@ def create_private_link(
         return JSONResponse(
             content={"location": f"{config.base_url}/private_physical_sample/{id_string}"}
         )
-    except validator.ValidationException as error:
+    except validator.ValidationError as error:
         raise InvalidInputError(error.message, error.code) from error
 
 
@@ -199,7 +199,7 @@ def update_private_link(
         return JSONResponse(
             content={"location": f"{config.base_url}/private_physical_sample/{link_id}"}
         )
-    except validator.ValidationException as error:
+    except validator.ValidationError as error:
         raise InvalidInputError(error.message, error.code) from error
 
 

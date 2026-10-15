@@ -60,7 +60,7 @@ def upsert_article_authors(
 
     try:
         new_authors, errors = author_list_from_request_input(body, db, account["uuid"])
-    except validator.ValidationException as error:
+    except validator.ValidationError as error:
         raise InvalidInputError(error.message, error.code) from error
 
     if errors:

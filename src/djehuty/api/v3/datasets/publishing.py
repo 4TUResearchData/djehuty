@@ -313,7 +313,7 @@ def _submit_for_review(db, body, dataset, account_uuid):
 
         return Response(status_code=204)
 
-    except validator.ValidationException as error:
+    except validator.ValidationError as error:
         raise InvalidInputError(error.message, error.code) from error
 
 
