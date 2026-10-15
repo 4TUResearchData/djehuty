@@ -5,6 +5,9 @@ DELETE {
     ?dataset djht:license ?current_license .
   }
 }
+{#- A NEW_LICENSE_URL of None clears the licence rather than setting one.
+ #- The revert path needs that when a DOI update fails on a dataset that
+ #- had no licence to begin with. #}
 {%- if new_license_url is not none %}
 INSERT {
   GRAPH <{{state_graph}}> {

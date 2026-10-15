@@ -4741,6 +4741,92 @@ class WebServer:
             "admin/update_published_dataset/license.html",
             licenses=licenses)
 
+    def __doi_target_name (self, target):
+        """Returns a readable name for one (version, doi_override) DOI target."""
+        doi_version, doi_override = target
+        return doi_override or f"version {doi_version}"
+
+    def __send_license_doi_records (self, container_uuid, version, container_doi):
+        """Re-register the DOI records that state a dataset's licence.
+
+        A published dataset has two: the container DOI, which resolves to the
+        newest version and is the one the approval mail recommends citing, and
+        the version DOI.  Both carry the licence in their rightsList, so both
+        are re-sent, the way publishing does.  The container DOI needs an
+        explicit identifier, because the metadata export resolves to the version
+        record whichever version it is asked for.
+
+        Returns (SENT, FIRST_FAILED): the targets DataCite accepted, and the
+        first one it did not, or None when every record was accepted."""
+
+        targets = [(version, None)]
+        if container_doi:
+            targets.insert (0, (None, container_doi))
+
+        sent = []
+        for target in targets:
+            doi_version, doi_override = target
+            if not self.__update_item_doi (container_uuid,
+                                           item_type="dataset",
+                                           version=doi_version,
+                                           from_draft=False,
+                                           doi=doi_override):
+                return sent, target
+            sent.append (target)
+
+        return sent, None
+
+    def __undo_license_change (self, container_uuid, dataset_uuid,
+                               previous_license_url, admin_account_uuid,
+                               owner_account_uuid, sent, first_failed):
+        """Put a licence back after a DOI record could not be updated.
+
+        Reverting the database alone would leave the records DataCite already
+        accepted stating the new licence, so those are re-sent once the previous
+        licence is back in place and their metadata is rebuilt from it.
+
+        Returns the Response to answer the request with."""
+
+        failed_name = self.__doi_target_name (first_failed)
+        self.log.error ("Updating DOI record %s failed; reverting the licence "
+                        "change for %s.", failed_name, dataset_uuid)
+
+        # 'previous_license_url' is None for a dataset that had no licence;
+        # passing it through clears the licence again rather than leaving the
+        # database and the DOI records out of step.
+        if not self.db.admin_update_license (
+                container_uuid,
+                dataset_uuid,
+                previous_license_url,
+                admin_account_uuid,
+                owner_account_uuid=owner_account_uuid):
+            return self.error_500 (
+                f"Reverting the licence for {dataset_uuid} ALSO failed; "
+                "the licence and the DOI records are now out of step.")
+
+        for target in sent:
+            doi_version, doi_override = target
+            if not self.__update_item_doi (container_uuid,
+                                           item_type="dataset",
+                                           version=doi_version,
+                                           from_draft=False,
+                                           doi=doi_override):
+                return self.error_500 (
+                    f"The licence for {dataset_uuid} was reverted, but DOI record "
+                    f"{self.__doi_target_name (target)} still states the new "
+                    "licence; they are now out of step.")
+
+        self.log.audit (f"Undid the licence change for {dataset_uuid} because DOI "
+                        f"record {failed_name} could not be updated.")
+
+        response = self.response (json.dumps({
+            "message": ("The DOI record could not be updated, so nothing was "
+                        "changed. Please try again later."),
+            "code":    "DoiUpdateFailed"
+        }))
+        response.status_code = 502
+        return response
+
     def api_admin_license_update (self, request):
         """Implements /admin/update-published-dataset/license/update."""
 
@@ -4823,48 +4909,13 @@ class WebServer:
             if not success:
                 return self.error_500 ()
 
-            doi_targets = [(version, None)]
-            if container_doi:
-                doi_targets.insert (0, (None, container_doi))
-
             if config.in_production and not config.in_preproduction:
-                failed_doi = None
-                for doi_version, doi_override in doi_targets:
-                    if not self.__update_item_doi (container_uuid,
-                                                   item_type="dataset",
-                                                   version=doi_version,
-                                                   from_draft=False,
-                                                   doi=doi_override):
-                        failed_doi = doi_override or f"version {doi_version}"
-                        break
-
-                if failed_doi is not None:
-                    self.log.error ("Updating DOI record %s failed; reverting the "
-                                    "licence change for %s. A record updated before "
-                                    "the failure is re-sent when the administrator "
-                                    "retries.", failed_doi, dataset_uuid)
-                    # 'previous_license_url' is None for a dataset that had no
-                    # licence; passing it through clears the licence again rather
-                    # than leaving the two out of step.
-                    if not self.db.admin_update_license (
-                            container_uuid,
-                            dataset_uuid,
-                            previous_license_url,
-                            admin_account_uuid,
-                            owner_account_uuid=owner_account_uuid):
-                        return self.error_500 (
-                            f"Reverting the licence for {dataset_uuid} ALSO failed; "
-                            "the licence and the DOI records are now out of step.")
-                    self.log.audit (f"Undid the licence change for {dataset_uuid} "
-                                    f"because DOI record {failed_doi} could not be "
-                                    "updated.")
-                    response = self.response (json.dumps({
-                        "message": ("The DOI record could not be updated, so nothing "
-                                    "was changed. Please try again later."),
-                        "code":    "DoiUpdateFailed"
-                    }))
-                    response.status_code = 502
-                    return response
+                sent, first_failed = self.__send_license_doi_records (
+                    container_uuid, version, container_doi)
+                if first_failed is not None:
+                    return self.__undo_license_change (
+                        container_uuid, dataset_uuid, previous_license_url,
+                        admin_account_uuid, owner_account_uuid, sent, first_failed)
 
             return self.respond_204 ()
         except validator.ValidationException as error:
@@ -8164,10 +8215,12 @@ class WebServer:
             self.log.error ("Cannot collect the DataCite metadata of %s version %s.",
                             item_id, version)
             return False
-        xml = str(xml_formatter.datacite (parameters, indent=False), encoding='utf-8')
-        xml = '<?xml version="1.0" encoding="UTF-8"?>' + xml.split('?>', 1)[1] #Datacite is very choosy about this
         if doi is None:
             doi = parameters["doi"]
+        else:
+            parameters["doi"] = doi
+        xml = str(xml_formatter.datacite (parameters, indent=False), encoding='utf-8')
+        xml = '<?xml version="1.0" encoding="UTF-8"?>' + xml.split('?>', 1)[1]
         encoded_bytes = base64.b64encode(xml.encode("utf-8"))
         headers = {
             "Accept": "application/vnd.api+json",
