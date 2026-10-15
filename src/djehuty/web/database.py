@@ -3037,7 +3037,6 @@ class SparqlInterface:
         self.insert_item_list (graph, uri, tags, "tags")
         self.insert_item_list (graph, uri, funding_list, "funding_list")
         self.insert_item_list (graph, uri, private_links, "private_links")
-        self.insert_item_list (graph, uri, datasets, "datasets")
 
         ## DATASETS
         ## --------------------------------------------------------------------
