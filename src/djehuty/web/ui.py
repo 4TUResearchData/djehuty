@@ -3,6 +3,7 @@
 import importlib.metadata
 import json
 import logging
+import logging.handlers
 import os
 import shutil
 import socket
@@ -754,7 +755,8 @@ def configure_file_logging(log_file, inside_reload, logger):
         if not inside_reload:
             logger.warning("Cannot write to '%s'.", log_file)
     else:
-        file_handler = logging.FileHandler(log_file, "a")
+        file_handler = logging.handlers.WatchedFileHandler(log_file, "a")
+
         if not inside_reload:
             logger.info("Writing further messages to '%s'.", log_file)
 
