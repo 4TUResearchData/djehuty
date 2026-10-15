@@ -25,7 +25,7 @@ SELECT DISTINCT ?account_uuid ?citation ?confidential_reason ?container_uuid
                 ?is_under_review (?review AS ?review_uri) ?review_submit_date
                 ?totals_created_at ?total_downloads ?total_views ?total_shares
                 ?total_cites ?git_uuid ?agreed_to_deposit_agreement ?agreed_to_publish
-                ?private_link_is_expired ?is_shared_with_me ?anonymize
+                ?private_link_is_expired ?is_shared_with_me ?is_supervisor ?anonymize
                 ?git_repository_name ?git_code_hosting_url ?group_name
                 ?codecheck_certificate_doi
                 ?requested_codecheck
@@ -170,6 +170,7 @@ WHERE {
       ?collaborator       rdf:type            djht:Collaborator .
       ?collaborator       djht:item           ?dataset .
       ?collaborator       djht:account        ?collaborator_account .
+      OPTIONAL { ?collaborator djht:is_supervisor ?collaborator_is_supervisor . }
     }
     OPTIONAL {
       ?dataset            rdf:type                   djht:Dataset .
@@ -218,8 +219,13 @@ WHERE {
     BIND(xsd:boolean((?collaborator_account = <account:{{account_uuid}}> ||
                       ?member_account = <account:{{account_uuid}}>) &&
                      ?account != <account:{{account_uuid}}>) AS ?is_shared_with_me)
+    BIND(COALESCE((?collaborator_account = <account:{{account_uuid}}> &&
+                   ?collaborator_is_supervisor = "true"^^xsd:boolean) ||
+                  ?member_account = <account:{{account_uuid}}>,
+                  "false"^^xsd:boolean) AS ?is_supervisor)
     {%- else %}
     BIND("false"^^xsd:boolean AS ?is_shared_with_me)
+    BIND("false"^^xsd:boolean AS ?is_supervisor)
     {%- endif %}
   }
 {%- if is_under_review is not none: %}
