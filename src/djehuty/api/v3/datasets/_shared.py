@@ -68,23 +68,16 @@ def _resolve_dataset(db, dataset_id, account_uuid, is_under_review=None):
 
 def _build_search_query(search_for, search_operator, search_scope):
     """Build a structured query and plain-text values for v3 dataset search."""
-    if isinstance(search_for, str):
-        search_for = search_for.strip()
+    if search_for is None:
+        return None, None
 
+    search_for = search_for.strip()
     if not search_for:
         return None, None
 
-    if isinstance(search_for, str):
-        search_for_raw = html_to_plaintext(search_for)
-        search_tokens = re.findall(r'[^" ]+|"[^"]+"|\([^)]+\)', search_for)
-        search_tokens = [token.strip('"') for token in search_tokens]
-    else:
-        search_tokens = [token.strip() for token in search_for]
-        search_tokens = [token for token in search_tokens if token]
-        if not search_tokens:
-            return None, None
-
-        search_for_raw = html_to_plaintext(" ".join(search_tokens))
+    search_for_raw = html_to_plaintext(search_for)
+    search_tokens = re.findall(r'[^" ]+|"[^"]+"|\([^)]+\)', search_for)
+    search_tokens = [token.strip('"') for token in search_tokens]
 
     search_query = {
         "operator": search_operator,
