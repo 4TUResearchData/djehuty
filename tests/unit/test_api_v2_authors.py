@@ -1,7 +1,7 @@
 """Unit tests for /v2/account/authors/search input validation.
 
 Pins parity with legacy (wsgi.py api_private_authors_search): a missing
-``search`` field is rejected with ``MissingRequiredFieldError`` and legacy's message,
+``search`` field is rejected with ``MissingRequiredField`` and legacy's message,
 rather than a custom code.
 """
 

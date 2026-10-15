@@ -1,7 +1,7 @@
 """Unit tests for /v2/account/articles/{id}/categories input validation.
 
 Pins parity with legacy: a missing ``categories`` key is rejected with
-``NoCategoriesField`` and a null value with ``MissingRequiredFieldError``, rather
+``NoCategoriesField`` and a null value with ``MissingRequiredField``, rather
 than silently succeeding.
 """
 
