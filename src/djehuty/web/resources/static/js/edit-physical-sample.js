@@ -858,6 +858,7 @@ function preview_physical_sample (container_uuid, event) {
 
 function activate (container_uuid, callback=jQuery.noop) {
     install_sticky_header();
+    install_touchable_help_icons();
 
     new Quill('#abstract', { theme: '4tu' });
     new Quill('#methods', { theme: '4tu' });
