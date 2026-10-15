@@ -132,10 +132,10 @@ class ArticleSearchRequest(BaseModel):
 class DatasetSearchRequest(ArticleSearchRequest):
     """Request body for ``POST /v3/datasets/search``."""
 
-    search_for: str | list[str] | None = Field(
+    search_for: str | None = Field(
         None,
         max_length=1024,
-        description="Text or list of terms to search for.",
+        description="Text to search for.",
         examples=["wind turbine measurements"],
     )
     search_operator: Literal["AND", "OR", "EXACT"] | None = Field(

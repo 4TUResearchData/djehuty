@@ -86,6 +86,8 @@ def test_dataset_search_request_models_are_version_specific():
     assert "search_scope" not in schemas["ArticleSearchRequest"]["properties"]
     assert "search_operator" in schemas["DatasetSearchRequest"]["properties"]
     assert "search_scope" in schemas["DatasetSearchRequest"]["properties"]
+    search_for_schema = schemas["DatasetSearchRequest"]["properties"]["search_for"]
+    assert {option["type"] for option in search_for_schema["anyOf"]} == {"string", "null"}
 
 
 # --- Collaborators: the port used to crash on non-existent db kwargs ---------
@@ -446,7 +448,7 @@ def test_dataset_autocomplete_filters_row_and_count_queries_the_same_way():
         assert kwargs.get("is_latest") is True
 
 
-def test_build_search_query_supports_strings_and_lists():
+def test_build_search_query_supports_strings_and_quoted_phrases():
     assert _build_search_query('  wind "sea level"  ', "AND", ["title"]) == (
         {
             "operator": "AND",
@@ -455,19 +457,21 @@ def test_build_search_query_supports_strings_and_lists():
         },
         'wind "sea level"',
     )
-    assert _build_search_query([" wind ", "", "  ", "turbine"], "AND", ["title"]) == (
-        {
-            "operator": "AND",
-            "search_for": ["wind", "turbine"],
-            "scope": ["title"],
-        },
-        "wind turbine",
-    )
 
 
 def test_build_search_query_ignores_empty_searches():
-    for search_for in (None, "", "   ", [], ["", "  "]):
+    for search_for in (None, "", "   "):
         assert _build_search_query(search_for, "AND", ["title"]) == (None, None)
+
+
+def test_datasets_search_rejects_list_search_input():
+    db = _SearchDB()
+    client = TestClient(create_app(db))
+
+    response = client.post("/v3/datasets/search", json={"search_for": ["wind", "turbine"]})
+
+    assert 400 <= response.status_code < 500
+    assert not any(call[0] == "datasets" for call in db.calls)
 
 
 def test_datasets_search_none_term_stays_none():
