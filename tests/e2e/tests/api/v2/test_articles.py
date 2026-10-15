@@ -82,6 +82,9 @@ class TestV2PrivateArticlesCrud:
         # Clean up
         dataset_uuid = data["location"].rstrip("/").split("/")[-1]
         authenticated_page.request.delete(f"/v2/account/articles/{dataset_uuid}")
+        authenticated_page.request.post(
+            f"/my/datasets/{dataset_uuid}/delete-permanently", form={"confirm": "yes"}
+        )
 
     def test_create_article_without_title(self, authenticated_page: Page, save_response):
         """POST /v2/account/articles without title → 400."""
@@ -148,6 +151,28 @@ class TestV2PrivateArticlesCrud:
         save_response(get_response, "api-delete-article-verify-gone")
         assert get_response.status == 200
         assert get_response.json() == [] or get_response.body() == b"[]"
+
+    def test_delete_article_is_soft(self, authenticated_page: Page, save_response):
+        """DELETE /v2/account/articles/<uuid> only flags the draft; restoring brings it back."""
+        title = f"Soft Delete Check {uuid.uuid4().hex[:8]}"
+        response = authenticated_page.request.post("/v2/account/articles", data={"title": title})
+        dataset_uuid = response.json()["location"].rstrip("/").split("/")[-1]
+
+        delete_response = authenticated_page.request.delete(f"/v2/account/articles/{dataset_uuid}")
+        assert delete_response.status == 204
+
+        authenticated_page.goto(f"/my/datasets/{dataset_uuid}/restore")
+        authenticated_page.wait_for_url("**/my/datasets", wait_until="domcontentloaded")
+
+        get_response = authenticated_page.request.get(f"/v2/account/articles/{dataset_uuid}")
+        save_response(get_response, "api-delete-article-restored")
+        assert get_response.status == 200
+        assert get_response.json()["title"] == title
+
+        authenticated_page.request.delete(f"/v2/account/articles/{dataset_uuid}")
+        authenticated_page.request.post(
+            f"/my/datasets/{dataset_uuid}/delete-permanently", form={"confirm": "yes"}
+        )
 
     def test_list_private_articles(self, draft_dataset, save_response):
         """GET /v2/account/articles lists the user's articles."""

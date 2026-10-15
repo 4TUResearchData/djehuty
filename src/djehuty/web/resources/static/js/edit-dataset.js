@@ -1,22 +1,3 @@
-function delete_dataset (dataset_uuid, event) {
-    stop_event_propagation (event);
-    if (confirm("Deleting this draft dataset is unrecoverable. "+
-                "Do you want to continue?"))
-    {
-        jQuery.ajax({
-            type:        "DELETE",
-            url:         `/v2/account/articles/${dataset_uuid}`
-        }).done(function () { window.location.pathname = "/my/datasets"; })
-          .fail(function (jqXHR, textStatus, errorThrown) {
-              if (jqXHR.status == 403) {
-                  show_message ("failure", "<p>No permission to remove dataset.</p>");
-              } else {
-                  show_message ("failure", "<p>Failed to remove dataset.</p>");
-              }
-          });
-    }
-}
-
 function decline_dataset (dataset_uuid, event) {
     stop_event_propagation (event);
 
@@ -1422,7 +1403,6 @@ function activate (dataset_uuid, permissions=null, callback=jQuery.noop) {
         toggle_record_type ();
         toggle_access_level ();
 
-        jQuery("#delete").on("click", function (event) { delete_dataset (dataset_uuid, event); });
         jQuery("#save").on("click", function (event)   { save_dataset (dataset_uuid, event); });
         jQuery("#save_bottom").on("click", function (event)   { save_dataset (dataset_uuid, event); });
         jQuery("#submit").on("click", function (event) { submit_dataset (dataset_uuid, event); });
