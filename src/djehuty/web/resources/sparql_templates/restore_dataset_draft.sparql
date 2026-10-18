@@ -8,10 +8,22 @@ DELETE {
 }
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?dataset   rdf:type              djht:Dataset ;
-               djht:is_deleted       ?is_deleted .
+    ?container rdf:type              djht:DatasetContainer ;
+               djht:draft            ?dataset ;
+               djht:account          ?account .
+    ?dataset   djht:is_deleted       ?is_deleted .
     OPTIONAL { ?dataset djht:deleted_date ?deleted_date . }
+    OPTIONAL {
+      ?dataset    djht:association_criteria  ?association_criteria .
+      ?group_uri  rdf:type                   djht:InstitutionGroup .
+      ?group_uri  djht:association_criteria  ?association_criteria .
+      ?group_uri  djht:members/rdf:rest*/rdf:first ?member_uri .
+      ?member_uri djht:is_supervisor         "true"^^xsd:boolean .
+      ?member_uri djht:account               ?member_account .
+    }
   }
   FILTER (?dataset = <dataset:{{dataset_uuid}}>)
+  FILTER (?container = <{{container_uri}}>)
+  FILTER (?account = <account:{{account_uuid}}> || ?member_account = <account:{{account_uuid}}>)
 }
 {% endblock %}

@@ -2271,6 +2271,8 @@ class SparqlInterface:
         collaborators = self.collaborators (dataset_uuid, include_inferred=False)
         current_time  = datetime.strftime (datetime.now(), datetime_format)
         query   = self.__query_from_template ("soft_delete_dataset_draft", {
+            "account_uuid":        account_uuid,
+            "container_uri":       rdf.uuid_to_uri (container_uuid, "container"),
             "dataset_uuid":        dataset_uuid,
             "deleted_date":        current_time
         })
@@ -2286,6 +2288,8 @@ class SparqlInterface:
         # See soft_delete_dataset_draft: inferred members are not needed here.
         collaborators = self.collaborators (dataset_uuid, include_inferred=False)
         query   = self.__query_from_template ("restore_dataset_draft", {
+            "account_uuid":        account_uuid,
+            "container_uri":       rdf.uuid_to_uri (container_uuid, "container"),
             "dataset_uuid":        dataset_uuid
         })
 
