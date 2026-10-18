@@ -10,6 +10,8 @@
 #table-review { display: none; }
 #table-deleted { display: none; }
 #table-deleted a.delete-permanently { color: #cc0000; }
+#table-deleted form.restore { display: inline; }
+#table-deleted form.restore button { background: none; border: none; padding: 0; color: inherit; font-size: inherit; cursor: pointer; }
 #add-new-dataset { margin: auto; }
 </style>
 <script nonce="{{nonce}}">
@@ -168,7 +170,7 @@ jQuery(document).ready(function () {
       <td>{{article.defined_type_name | default("undefined", False)}}</td>
       <td>{{article.storage_used}}</td>
       <td>{{article.deleted_date | truncate(10,False,'')}}</td>
-      <td>{% if not article.is_shared_with_me or (article.is_shared_with_me and article.is_supervisor) %}<a href="/my/datasets/{{article.container_uuid}}/restore" class="fas fa-sync" title="Restore this draft"></a>&nbsp;<a href="/my/datasets/{{article.container_uuid}}/delete-permanently" class="fas fa-trash-can delete-permanently" title="Delete permanently (cannot be undone)"></a>{% endif %}</td>
+      <td>{% if not article.is_shared_with_me or (article.is_shared_with_me and article.is_supervisor) %}<form method="POST" action="/my/datasets/{{article.container_uuid}}/restore" class="restore"><button type="submit" class="fas fa-sync" title="Restore this draft"></button></form>&nbsp;<a href="/my/datasets/{{article.container_uuid}}/delete-permanently" class="fas fa-trash-can delete-permanently" title="Delete permanently (cannot be undone)"></a>{% endif %}</td>
     </tr>
   {% endfor %}</tbody>
 </table>

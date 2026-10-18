@@ -2596,6 +2596,11 @@ class WebServer:
                 return self.error_403 (request, (f"account:{account_uuid} attempted "
                                                  f"to delete dataset:{dataset_id}."))
 
+            _, error_response = self.__needs_collaborative_permissions (
+                account_uuid, request, "dataset", dataset, "metadata_remove")
+            if error_response is not None:
+                return error_response
+
             container_uuid = dataset["container_uuid"]
             if self.db.soft_delete_dataset_draft (container_uuid, dataset["uuid"], account_uuid, dataset["account_uuid"]):
                 return redirect ("/my/datasets", code=303)
@@ -2608,6 +2613,9 @@ class WebServer:
 
     def ui_restore_dataset (self, request, dataset_id):
         """Implements /my/datasets/<id>/restore."""
+        if request.method != "POST":
+            return self.error_405 ("POST")
+
         if not self.accepts_html (request):
             return self.error_406 ("text/html")
 
@@ -2624,6 +2632,11 @@ class WebServer:
             if dataset is None:
                 return self.error_403 (request, (f"account:{account_uuid} attempted "
                                                  f"to restore dataset:{dataset_id}."))
+
+            _, error_response = self.__needs_collaborative_permissions (
+                account_uuid, request, "dataset", dataset, "metadata_remove")
+            if error_response is not None:
+                return error_response
 
             # Existence confirmed above; a falsy result is a failed update.
             container_uuid = dataset["container_uuid"]
@@ -2654,6 +2667,11 @@ class WebServer:
             if dataset is None:
                 return self.error_403 (request, (f"account:{account_uuid} attempted "
                                                  f"to permanently delete dataset:{dataset_id}."))
+
+            _, error_response = self.__needs_collaborative_permissions (
+                account_uuid, request, "dataset", dataset, "metadata_remove")
+            if error_response is not None:
+                return error_response
 
             if request.method != "POST":
                 return self.__render_template (
@@ -7108,6 +7126,15 @@ class WebServer:
                 dataset     = self.__dataset_by_id_or_uri (dataset_id,
                                                            account_uuid=account_uuid,
                                                            is_published=False)
+
+                if dataset is None:
+                    return self.error_403 (request, (f"account:{account_uuid} attempted "
+                                                     f"to delete dataset:{dataset_id}."))
+
+                _, error_response = self.__needs_collaborative_permissions (
+                    account_uuid, request, "dataset", dataset, "metadata_remove")
+                if error_response is not None:
+                    return error_response
 
                 container_uuid = dataset["container_uuid"]
                 if self.db.soft_delete_dataset_draft (container_uuid, dataset["uuid"], account_uuid, dataset["account_uuid"]):

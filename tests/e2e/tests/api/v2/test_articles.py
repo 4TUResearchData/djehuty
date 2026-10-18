@@ -161,8 +161,8 @@ class TestV2PrivateArticlesCrud:
         delete_response = authenticated_page.request.delete(f"/v2/account/articles/{dataset_uuid}")
         assert delete_response.status == 204
 
-        authenticated_page.goto(f"/my/datasets/{dataset_uuid}/restore")
-        authenticated_page.wait_for_url("**/my/datasets", wait_until="domcontentloaded")
+        restore_response = authenticated_page.request.post(f"/my/datasets/{dataset_uuid}/restore")
+        assert restore_response.ok
 
         get_response = authenticated_page.request.get(f"/v2/account/articles/{dataset_uuid}")
         save_response(get_response, "api-delete-article-restored")

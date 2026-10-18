@@ -57,8 +57,10 @@ class TestSoftDelete:
         DatasetEditorPage(authenticated_page).delete(purge=False)
 
         # Restore via the endpoint the Deleted-list button targets.
-        authenticated_page.goto(f"/my/datasets/{container}/restore")
-        authenticated_page.wait_for_url("**/my/datasets", wait_until="domcontentloaded")
+        restore_button = authenticated_page.locator(
+            f'form[action="/my/datasets/{container}/restore"] button')
+        with authenticated_page.expect_navigation(url="**/my/datasets", wait_until="domcontentloaded"):
+            restore_button.click()
         screenshot(authenticated_page, "after-restore")
 
         expect(authenticated_page.locator("#table-unpublished")).to_contain_text(title)
@@ -98,6 +100,11 @@ class TestSoftDelete:
 class TestSoftDeleteAccessControl:
     def test_restore_unknown_dataset_is_forbidden(self, authenticated_page: Page):
         """Restoring a dataset the account does not own returns 403."""
+        response = authenticated_page.request.post(f"/my/datasets/{uuid.uuid4()}/restore")
+        assert response.status == 403
+
+    def test_restore_rejects_get(self, authenticated_page: Page):
+        """Restoring changes data, so GET is refused with 405."""
         response = authenticated_page.goto(f"/my/datasets/{uuid.uuid4()}/restore")
         assert response is not None
-        assert response.status == 403
+        assert response.status == 405
