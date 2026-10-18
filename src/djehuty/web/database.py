@@ -2256,6 +2256,7 @@ class SparqlInterface:
         self.cache.invalidate_by_prefix (f"{account_uuid}_storage")
         self.cache.invalidate_by_prefix (f"{dataset_uuid}_dataset_storage")
         self.cache.invalidate_by_prefix (f"datasets_{owner_account_uuid}")
+        self.cache.invalidate_by_prefix (f"datasets_{account_uuid}")
 
         for collaborator in collaborators:
             self.cache.invalidate_by_prefix (f"datasets_{collaborator['account_uuid']}")
