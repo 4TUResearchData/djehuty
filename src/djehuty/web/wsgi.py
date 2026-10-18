@@ -2403,6 +2403,7 @@ class WebServer:
         draft_datasets     = self.__datasets_with_storage_usage (draft_datasets)
         review_datasets    = self.__datasets_with_storage_usage (review_datasets)
         published_datasets = self.__datasets_with_storage_usage (published_datasets)
+        deleted_datasets   = self.__datasets_with_storage_usage (deleted_datasets)
 
         return self.__render_template (request, "depositor/my-data.html",
                                        draft_datasets     = draft_datasets,

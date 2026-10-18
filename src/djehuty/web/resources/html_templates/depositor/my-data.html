@@ -39,8 +39,9 @@ jQuery(document).ready(function () {
 
     if (jQuery("#table-deleted").length) {
         jQuery("#table-deleted").DataTable({
-            columnDefs: [{ orderable: false, targets: 3 }],
-            order: [[2, 'desc']]
+            columnDefs: [{ type: 'file-size', targets: 2 },
+                         { orderable: false,  targets: 4 }],
+            order: [[3, 'desc']]
         });
         jQuery("#table-deleted").show();
         jQuery("#table-deleted-loader").remove();
@@ -156,6 +157,7 @@ jQuery(document).ready(function () {
     <tr>
       <th>Dataset</th>
       <th>Type</th>
+      <th>Size</th>
       <th>Deleted&nbsp;at</th>
       <th>Actions</th>
     </tr>
@@ -164,6 +166,7 @@ jQuery(document).ready(function () {
     <tr>
       <td>{{article.title}}</td>
       <td>{{article.defined_type_name | default("undefined", False)}}</td>
+      <td>{{article.storage_used}}</td>
       <td>{{article.deleted_date | truncate(10,False,'')}}</td>
       <td>{% if not article.is_shared_with_me or (article.is_shared_with_me and article.is_supervisor) %}<a href="/my/datasets/{{article.container_uuid}}/restore" class="fas fa-sync" title="Restore this draft"></a>&nbsp;<a href="/my/datasets/{{article.container_uuid}}/delete-permanently" class="fas fa-trash-can delete-permanently" title="Delete permanently (cannot be undone)"></a>{% endif %}</td>
     </tr>
