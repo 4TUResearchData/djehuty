@@ -58,8 +58,11 @@ class TestSoftDelete:
 
         # Restore via the endpoint the Deleted-list button targets.
         restore_button = authenticated_page.locator(
-            f'form[action="/my/datasets/{container}/restore"] button')
-        with authenticated_page.expect_navigation(url="**/my/datasets", wait_until="domcontentloaded"):
+            f'form[action="/my/datasets/{container}/restore"] button'
+        )
+        with authenticated_page.expect_navigation(
+            url="**/my/datasets", wait_until="domcontentloaded"
+        ):
             restore_button.click()
         screenshot(authenticated_page, "after-restore")
 
