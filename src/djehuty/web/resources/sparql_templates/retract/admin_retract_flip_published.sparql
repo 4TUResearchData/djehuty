@@ -16,10 +16,10 @@ INSERT {
 }
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?container rdf:type                      djht:DatasetContainer ;
-               djht:latest_published_version ?dataset .
+    ?container rdf:type       djht:DatasetContainer .
+    ?dataset   djht:container ?container .
+    VALUES ?dataset { {{ dataset_uris | safe }} }
     FILTER (?container = <{{container_uri}}>)
-    FILTER (?dataset   = <{{dataset_uri}}>)
   }
 }
 {% endblock %}

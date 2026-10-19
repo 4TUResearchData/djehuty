@@ -2790,10 +2790,10 @@ class SparqlInterface:
             admin_account_uuid, container_uuid, dataset_uuid, new_license_url)
         return True
 
-    def admin_retract_dataset (self, container_uuid, dataset_uuid,
-                               admin_account_uuid, owner_account_uuid=None):
-        """Admin procedure to retract a published dataset and revert the
-        container's published version to a draft.
+    def admin_retract_dataset (self, container_uuid, admin_account_uuid,
+                               owner_account_uuid=None):
+        """Admin procedure to retract all published versions of a dataset and
+        revert the latest version to a draft.
 
         Runs each step from the retract playbook as its own SPARQL mutation
         so every step lands in the audit log (when enable_query_audit_log is
@@ -2802,27 +2802,39 @@ class SparqlInterface:
         Returns True on success, False on any failure (one of the mutations
         returned a falsy result)."""
 
-        self.log.info (
-            "Admin retract start: admin=%s container=%s dataset=%s",
-            admin_account_uuid, container_uuid, dataset_uuid)
+        self.log.info(
+            "Admin retract start: admin=%s container=%s",
+            admin_account_uuid, container_uuid)
 
         container_uri = rdf.uuid_to_uri (container_uuid, "container")
-        dataset_uri   = rdf.uuid_to_uri (dataset_uuid, "dataset")
 
-        # Only single-version datasets can be retracted.
         versions = self.dataset_versions (container_uri=container_uri)
-        if versions is not None and len (versions) > 1:
-            self.log.error (
-                "Admin retract refused: container %s has %s published "
-                "versions; only single-version datasets can be retracted.",
-                container_uuid, len (versions))
+        # A dataset that's already retracted, or un-published will have no versions associated to it
+        if not versions:
+            self.log.error(
+                "Admin retract refused: container %s has no published versions.",
+                container_uuid)
             return False
 
-        # STEP 3 — flip is_active / is_public / is_latest 1 -> 0 on the
+        latest       = max(versions, key=lambda version: version["version"])
+        dataset_uuid = latest["uuid"]
+        dataset_uri  = latest["dataset_uri"]
+
+        existing_draft = self.datasets(container_uuid=container_uuid, is_published=False,
+                                       use_cache=False, limit=1)
+        if existing_draft:
+            self.log.error(
+                "Admin retract refused: container %s already has a draft.",
+                container_uuid)
+            return False
+
+        dataset_uris = " ".join(f"<{version['dataset_uri']}>" for version in versions)
+
+        # STEP 3 — flip is_active / is_public / is_latest 1 -> 0 on every
         # published version.
         step3 = self.__query_from_template ("retract/admin_retract_flip_published", {
             "container_uri": container_uri,
-            "dataset_uri":   dataset_uri,
+            "dataset_uris":  dataset_uris,
         })
         if not self.__run_logged_query (step3):
             self.log.error ("Admin retract failed at STEP 3 (flip published).")
@@ -2838,9 +2850,9 @@ class SparqlInterface:
             self.log.error ("Admin retract failed at STEP 4 (move + promote).")
             return False
 
-        # STEP 5 — find any Review attached to this dataset and delete it.
+        # STEP 5 — find any Review attached to any version and delete it.
         find_review_query = self.__query_from_template (
-            "retract/admin_retract_find_review", { "dataset_uri": dataset_uri })
+            "retract/admin_retract_find_review", {"dataset_uris": dataset_uris})
         if config.enable_query_audit_log:
             self.__log_query (find_review_query, "Query Audit Log")
         reviews = self.__run_query (find_review_query)
@@ -2866,12 +2878,13 @@ class SparqlInterface:
             self.log.error ("Admin retract failed at STEP 6 (flip draft active).")
             return False
 
-        # STEP 7 — strip published_date, posted_date, is_under_review,
-        # first_online_date.
+        # STEP 7 — strip published_date and posted_date from every version,
+        # plus is_under_review on the draft and first_online_date.
         step7 = self.__query_from_template (
             "retract/admin_retract_strip_publish_metadata", {
                 "container_uri": container_uri,
-                "dataset_uri":   dataset_uri,
+                "draft_uri":     dataset_uri,
+                "dataset_uris":  dataset_uris,
             })
         if not self.__run_logged_query (step7):
             self.log.error ("Admin retract failed at STEP 7 (strip metadata).")

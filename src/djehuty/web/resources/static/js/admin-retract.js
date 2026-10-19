@@ -12,8 +12,8 @@ jQuery(document).ready(function () {
 
     function populate_step_2 (d) {
         jQuery("#retract-detail-title").text(d.title || "-");
-        jQuery("#retract-detail-doi").text(d.doi || "-");
-        jQuery("#retract-detail-version").text(d.version || "-");
+        jQuery("#retract-detail-doi").text(d.container_doi || "-");
+        jQuery("#retract-detail-version").text(d.version_count || "-");
         jQuery("#retract-detail-published").text(d.published_date || "-");
         jQuery("#retract-detail-container-uuid").text(d.container_uuid || "-");
         jQuery("#retract-detail-dataset-uuid").text(d.uuid || "-");
@@ -21,9 +21,9 @@ jQuery(document).ready(function () {
 
     function populate_step_3 (d) {
         jQuery("#retract-confirm-title").text(d.title || "-");
-        jQuery("#retract-confirm-doi").text(d.doi || "-");
-        jQuery("#retract-confirm-version").text(d.version || "-");
-        jQuery("#retract-expected-doi-hint").text(d.doi || "");
+        jQuery("#retract-confirm-doi").text(d.container_doi || "-");
+        jQuery("#retract-confirm-version").text(d.version_count || "-");
+        jQuery("#retract-expected-doi-hint").text(d.container_doi || "");
         jQuery("#retract-doi-confirm-input").val("");
         jQuery("#retract-confirm-button").addClass("disabled");
     }
@@ -52,8 +52,8 @@ jQuery(document).ready(function () {
                 var row = jQuery("<tr>")
                     .data("dataset", d)
                     .append(jQuery("<td>").text(d.title || "-"))
-                    .append(jQuery("<td>").text(d.doi || "-"))
-                    .append(jQuery("<td>").text(d.version || "-"))
+                    .append(jQuery("<td>").text(d.container_doi || "-"))
+                    .append(jQuery("<td>").text(d.version_count || "-"))
                     .append(jQuery("<td>").text(d.published_date || "-"));
                 jQuery("#retract-results-body").append(row);
             }
@@ -70,23 +70,8 @@ jQuery(document).ready(function () {
         }
     });
 
-    function has_single_version (d) {
-        // Only single-version datasets can be retracted (backend enforces it).
-        if (d && typeof d.version_count === "number") {
-            return d.version_count <= 1;
-        }
-        return true;
-    }
-
     jQuery("#retract-results-body").on("click", "tr", function () {
-        var dataset = jQuery(this).data("dataset");
-        if (!has_single_version (dataset)) {
-            show_message ("failure",
-                "<p>This dataset has more than one published version and " +
-                "cannot be retracted via this tool.</p>");
-            return;
-        }
-        selected_dataset = dataset;
+        selected_dataset = jQuery(this).data("dataset");
         jQuery("#retract-results-body tr").removeClass("selected-row");
         jQuery(this).addClass("selected-row");
         populate_step_2 (selected_dataset);
@@ -113,7 +98,7 @@ jQuery(document).ready(function () {
     jQuery("#retract-doi-confirm-input").on("input", function () {
         if (!selected_dataset) { return; }
         var typed    = jQuery(this).val().trim();
-        var expected = (selected_dataset.doi || "").trim();
+        var expected = (selected_dataset.container_doi || "").trim();
         if (typed && typed === expected) {
             jQuery("#retract-confirm-button").removeClass("disabled");
         } else {
@@ -137,7 +122,7 @@ jQuery(document).ready(function () {
                 dataset_uuid:       selected_dataset.uuid,
                 owner_account_uuid: selected_dataset.account_uuid,
                 confirm_doi:        typed,
-                expected_doi:       selected_dataset.doi
+                expected_doi:       selected_dataset.container_doi
             })
         }).done(function () {
             show_message ("success",

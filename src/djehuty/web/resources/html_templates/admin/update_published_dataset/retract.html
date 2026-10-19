@@ -67,9 +67,8 @@
 <div id="retract-step-1" class="retract-step">
   <h2>Step 1 &mdash; Select dataset</h2>
   <p>Search for a published dataset by title, then pick it from the results.</p>
-  <p class="retract-note"><strong>Note:</strong> only datasets with a single
-  published version can be retracted with this tool. Datasets with more than
-  one version must be handled separately.</p>
+  <p class="retract-note"><strong>Note:</strong> retracting a dataset retracts
+  all of its published versions.</p>
   <div id="retract-search">
     <input type="text" id="retract-search-input" placeholder="Search by title">
     <a id="retract-search-button" href="#" class="button corporate-identity-standard-button">Search</a>
@@ -79,7 +78,7 @@
     <h3>Search results</h3>
     <p>Click a row to select the dataset.</p>
     <table class="corporate-identity-table">
-      <thead><tr><th>Title</th><th>DOI</th><th>Version</th><th>Published</th></tr></thead>
+      <thead><tr><th>Title</th><th>DOI</th><th>Versions</th><th>Published</th></tr></thead>
       <tbody id="retract-results-body"></tbody>
     </table>
   </div>
@@ -92,8 +91,8 @@
   <table>
     <tr><td>Title</td><td id="retract-detail-title"></td></tr>
     <tr><td>DOI</td><td id="retract-detail-doi"></td></tr>
-    <tr><td>Version</td><td id="retract-detail-version"></td></tr>
-    <tr><td>Published</td><td id="retract-detail-published"></td></tr>
+    <tr><td>Versions</td><td id="retract-detail-version"></td></tr>
+    <tr><td>Latest published</td><td id="retract-detail-published"></td></tr>
     <tr><td>Container UUID</td><td id="retract-detail-container-uuid"></td></tr>
     <tr><td>Dataset UUID</td><td id="retract-detail-dataset-uuid"></td></tr>
   </table>
@@ -111,11 +110,11 @@
   <div class="retract-warning">
     <p><strong>You are about to retract a published dataset.</strong> This will:</p>
     <ul>
-      <li>Mark the published version as inactive, non-public, and not latest (its public page will show <em>"CONTENT WAS REMOVED"</em>).</li>
-      <li>Move the published version into the container's retracted versions list.</li>
-      <li>Promote the published dataset back to a draft the owner can edit.</li>
-      <li>Delete the dataset's Review record (if any).</li>
-      <li>Strip <em>posted_date</em>, <em>published_date</em>, <em>is_under_review</em>, and <em>first_online_date</em>.</li>
+      <li>Mark <strong>all published versions</strong> as inactive, non-public, and not latest (their public pages will show <em>"CONTENT WAS REMOVED"</em>).</li>
+      <li>Move all published versions into the container's retracted versions list.</li>
+      <li>Promote the latest version back to a draft the owner can edit.</li>
+      <li>Delete the Review records of all versions (if any).</li>
+      <li>Strip <em>posted_date</em> and <em>published_date</em> from all versions, and <em>is_under_review</em> and <em>first_online_date</em>.</li>
     </ul>
     <p>This operation is destructive. Please review carefully.</p>
   </div>
@@ -123,7 +122,7 @@
   <table>
     <tr><td>Title</td><td id="retract-confirm-title"></td></tr>
     <tr><td>DOI</td><td id="retract-confirm-doi"></td></tr>
-    <tr><td>Version</td><td id="retract-confirm-version"></td></tr>
+    <tr><td>Versions</td><td id="retract-confirm-version"></td></tr>
   </table>
 
   <p><strong>State change:</strong></p>
@@ -135,7 +134,7 @@
 
   <p>
     <label for="retract-doi-confirm-input">
-      To confirm, type the dataset DOI:
+      To confirm, type the dataset (container) DOI:
       <strong id="retract-expected-doi-hint"></strong>
     </label><br>
     <input type="text" id="retract-doi-confirm-input" placeholder="Type DOI to enable Confirm">

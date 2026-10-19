@@ -4768,6 +4768,7 @@ class WebServer:
                     "account_uuid":        dataset.get("account_uuid"),
                     "title":              dataset.get("title"),
                     "doi":                dataset.get("doi"),
+                    "container_doi":      dataset.get("container_doi"),
                     "version":            dataset.get("version"),
                     "published_date":     dataset.get("published_date"),
                     "version_count":      version_count,
@@ -4986,16 +4987,6 @@ class WebServer:
                     "Confirmation DOI does not match the dataset DOI.",
                     "ConfirmationMismatch")
 
-            # Only single-version datasets can be retracted.
-            container_uri = uuid_to_uri (container_uuid, "container")
-            versions = self.db.dataset_versions (container_uri=container_uri)
-            if versions is not None and len (versions) > 1:
-                return self.error_400 (
-                    request,
-                    "This dataset has more than one published version and "
-                    "cannot be retracted via this tool.",
-                    "MultipleVersions")
-
             admin_account = self.db.account_by_session_token (token)
             admin_account_uuid = None
             if isinstance (admin_account, dict):
@@ -5003,7 +4994,6 @@ class WebServer:
 
             success = self.db.admin_retract_dataset (
                 container_uuid,
-                dataset_uuid,
                 admin_account_uuid,
                 owner_account_uuid=owner_account_uuid)
             if not success:
