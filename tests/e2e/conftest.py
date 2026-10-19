@@ -15,8 +15,11 @@ import pytest
 from config import BASE_URL, TIMEOUT
 from helpers.api_response import ApiResponseHelper
 from helpers.screenshot import ScreenshotHelper
-from playwright.sync_api import BrowserContext, Page
+from playwright.sync_api import BrowserContext, Page, expect
 from slugify import slugify
+
+# expect() defaults to 5s regardless of context.set_default_timeout (actions only).
+expect.set_options(timeout=TIMEOUT)
 
 # ---------------------------------------------------------------------------
 # Browser context
