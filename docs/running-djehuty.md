@@ -185,6 +185,34 @@ When a query cannot be executed, the command stops, allowing to fix or remove
 the query to-be-replayed. Invoking `--apply-transactions` a second time will
 continue replaying where the previous run stopped.
 
+### Recovering across rotated log files
+
+`--extract-transactions-from-log` reads only the single file named by `log-file`.
+It does not follow rotated files and cannot read compressed ones, so once the log
+is rotated (see [Rotating the log file](deployment.md#rotating-the-log-file)) only
+the transactions still in the live file are reachable directly. Two things follow
+from this:
+
+- **Keep audit logs at least as long as your backups.** Reconstruction restores a
+  backup of the RDF store and replays the transactions recorded since that backup
+  was taken, so you only need audit history back to the oldest backup you would
+  restore from. Size the `logrotate` retention accordingly — the example rule keeps
+  every file (`rotate 99999`), which always satisfies this; if you lower `rotate` or
+  add `maxage`, keep it at or above your backup retention.
+- **Reassemble before extracting across a rotation.** Decompress the rotated audit
+  logs and concatenate them oldest-first, ending with the live log, then point
+  `log-file` at the combined file and extract from the backup's timestamp:
+
+  ```bash
+  for f in $(ls -1 /opt/djehuty/logs/djehuty-web.log-* | sort); do
+      case "$f" in *.gz) zcat "$f" ;; *) cat "$f" ;; esac
+  done > /tmp/audit-combined.log
+  cat /opt/djehuty/logs/djehuty-web.log >> /tmp/audit-combined.log
+  # with log-file pointing at /tmp/audit-combined.log:
+  djehuty web -c config.json --extract-transactions-from-log="YYYY-MM-DD HH:MM:SS"
+  djehuty web -c config.json --apply-transactions
+  ```
+
 ## Configuring storage
 
 Storage locations can be configured with the `storage` node. When configuring

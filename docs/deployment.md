@@ -273,6 +273,12 @@ and group to the account running the service:
 }
 ```
 
+If you also enable `enable-query-audit-log`, this file doubles as the transaction
+journal used to reconstruct the RDF store, and recovery reads only the live file.
+Keep enough rotated history to reach your last backup, and see
+[Recovering across rotated log files](running-djehuty.md#recovering-across-rotated-log-files)
+for replaying across rotated or compressed files.
+
 ### Upgrading
 
 Back up the RDF store, read [CHANGELOG.md](https://github.com/4TUResearchData/djehuty/blob/main/CHANGELOG.md), then upgrade the package and restart:
