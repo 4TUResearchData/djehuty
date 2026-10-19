@@ -3,20 +3,22 @@
 DELETE {
   GRAPH <{{state_graph}}> {
     ?draft     djht:is_under_review   "0"^^xsd:boolean .
-    ?draft     djht:published_date    ?published_date .
-    ?draft     djht:posted_date       ?posted_date .
+    ?dataset   djht:published_date    ?published_date .
+    ?dataset   djht:posted_date       ?posted_date .
     ?container djht:first_online_date ?first_online_date .
   }
 }
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?container rdf:type djht:DatasetContainer ;
-               djht:draft ?draft .
-    OPTIONAL { ?draft     djht:published_date    ?published_date . }
-    OPTIONAL { ?draft     djht:posted_date       ?posted_date . }
+    ?container rdf:type       djht:DatasetContainer ;
+               djht:draft     ?draft .
+    ?dataset   djht:container ?container .
+    VALUES ?dataset { {{ dataset_uris | safe }} }
+    OPTIONAL { ?dataset   djht:published_date    ?published_date . }
+    OPTIONAL { ?dataset   djht:posted_date       ?posted_date . }
     OPTIONAL { ?container djht:first_online_date ?first_online_date . }
     FILTER (?container = <{{container_uri}}>)
-    FILTER (?draft     = <{{dataset_uri}}>)
+    FILTER (?draft     = <{{draft_uri}}>)
   }
 }
 {% endblock %}
