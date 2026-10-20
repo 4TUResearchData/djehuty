@@ -139,7 +139,7 @@ class DatasetSearchRequest(ArticleSearchRequest):
         examples=["wind turbine measurements"],
     )
     search_operator: Literal["AND", "OR", "EXACT"] | None = Field(
-        "OR",
+        None,
         description="Operator used to combine search terms.",
     )
     search_scope: list[Literal["title", "description", "tag", "author"]] | None = Field(
