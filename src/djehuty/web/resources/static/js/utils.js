@@ -2,6 +2,18 @@ function render_in_form (text) { return [text].join(""); }
 
 function or_null (value) { return (value == "" || value == "<p><br></p>") ? null : value; }
 function or_empty (value) { return (value === undefined || value == null || value == "") ? "" : value;}
+
+function tomorrow_as_iso_date () {
+    let tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    let year  = tomorrow.getFullYear();
+    let month = tomorrow.getMonth() + 1;
+    let day   = tomorrow.getDate();
+    if (month < 10) { month = `0${month}`; }
+    if (day < 10) { day = `0${day}`; }
+    return `${year}-${month}-${day}`;
+}
+
 let message_timeout = null;
 
 function show_message (type, message) {
