@@ -74,7 +74,7 @@ class ArticleService:
         handle=None,
         groups=None,
         institution=None,
-        is_latest=False,
+        is_latest=None,
         item_type=None,
         modified_since=None,
         published_since=None,
