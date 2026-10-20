@@ -201,7 +201,8 @@ from this:
   add `maxage`, keep it at or above your backup retention.
 - **Reassemble before extracting across a rotation.** Decompress the rotated audit
   logs and concatenate them oldest-first, ending with the live log, then point
-  `log-file` at the combined file and extract from the backup's timestamp:
+  `log-file` at the combined file and extract from the backup's timestamp. The glob
+  below assumes the `dateext` in the example `logrotate` rule:
 
   ```bash
   for f in $(ls -1 /opt/djehuty/logs/djehuty-web.log-* | sort); do
