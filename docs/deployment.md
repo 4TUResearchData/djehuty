@@ -246,6 +246,39 @@ Run the unit as a dedicated unprivileged user that owns `storage-root`.
 
 Put `nginx` in front for TLS. There is a working server block in [Running `djehuty` behind an `nginx` reverse-proxy](running-djehuty.md#running-djehuty-behind-an-nginx-reverse-proxy).
 
+### Rotating the log file
+
+When `log-file` is set, `djehuty` writes to that single file and does not rotate it
+itself. It does, however, reopen the file when it detects that the file it was writing
+to has been moved away, so pair it with [`logrotate`](https://github.com/logrotate/logrotate):
+after `logrotate` renames the file, `djehuty` writes to the freshly created one on its
+next log message. No `copytruncate` is needed, and this works unchanged across multiple
+worker processes.
+
+Drop a file under `/etc/logrotate.d/`, matching the path to your `log-file` and the user
+and group to the account running the service:
+
+```
+/opt/djehuty/logs/djehuty-web.log {
+    su djehuty djehuty
+    create 0640 djehuty djehuty
+    daily
+    rotate 99999
+    dateext
+    missingok
+    notifempty
+    compress
+    delaycompress
+    sharedscripts
+}
+```
+
+If you also enable `enable-query-audit-log`, this file doubles as the transaction
+journal used to reconstruct the RDF store, and recovery reads only the live file.
+Keep enough rotated history to reach your last backup, and see
+[Recovering across rotated log files](running-djehuty.md#recovering-across-rotated-log-files)
+for replaying across rotated or compressed files.
+
 ### Upgrading
 
 Back up the RDF store, read [CHANGELOG.md](https://github.com/4TUResearchData/djehuty/blob/main/CHANGELOG.md), then upgrade the package and restart:
