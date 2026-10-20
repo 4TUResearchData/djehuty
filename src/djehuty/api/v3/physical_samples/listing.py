@@ -165,7 +165,7 @@ def _details_put(db, account, token, container_uuid, body):
     # AS-IS: a bare IndexError inside the update block maps to 403, not 500.
     except IndexError as error:
         raise ForbiddenError() from error
-    except validator.ValidationException as error:
+    except validator.ValidationError as error:
         raise InvalidInputError(error.message, error.code) from error
 
 

@@ -24,13 +24,13 @@ class TestValidatorFunctionality(unittest.TestCase):
             "five": "",
         }
 
-        with self.assertRaises(validator.ValueTooLong):
+        with self.assertRaises(validator.ValueTooLongError):
             validator.string_value(record, "one", minimum_length=0, maximum_length=3)
 
-        with self.assertRaises(validator.ValueTooShort):
+        with self.assertRaises(validator.ValueTooShortError):
             validator.string_value(record, "one", minimum_length=32)
 
-        with self.assertRaises(validator.MissingRequiredField):
+        with self.assertRaises(validator.MissingRequiredFieldError):
             validator.string_value(record, "four", required=True)
 
         output = validator.string_value(record, "one")
@@ -56,22 +56,22 @@ class TestValidatorFunctionality(unittest.TestCase):
             "number-4": "not-a-number",
             "number-5": None,
         }
-        with self.assertRaises(validator.InvalidIntegerValue):
+        with self.assertRaises(validator.InvalidIntegerValueError):
             validator.integer_value(
                 record, "number-1", minimum_value=0, maximum_value=16, required=False
             )
 
-        with self.assertRaises(validator.InvalidIntegerValue):
+        with self.assertRaises(validator.InvalidIntegerValueError):
             validator.integer_value(
                 record, "number-2", minimum_value=17, maximum_value=250, required=False
             )
 
-        with self.assertRaises(validator.InvalidIntegerValue):
+        with self.assertRaises(validator.InvalidIntegerValueError):
             validator.integer_value(
                 record, "number-4", minimum_value=16, maximum_value=250, required=False
             )
 
-        with self.assertRaises(validator.MissingRequiredField):
+        with self.assertRaises(validator.MissingRequiredFieldError):
             validator.integer_value(record, "number-5", required=True)
 
         output = validator.integer_value(record, "number-1")
@@ -102,10 +102,10 @@ class TestValidatorFunctionality(unittest.TestCase):
             "date-5": "1234567890",
         }
 
-        with self.assertRaises(validator.MissingRequiredField):
+        with self.assertRaises(validator.MissingRequiredFieldError):
             validator.date_value(record, "date-6", required=True)
 
-        with self.assertRaises(validator.InvalidValueType):
+        with self.assertRaises(validator.InvalidValueTypeError):
             validator.date_value(record, "date-2")
 
         errors = []
@@ -129,10 +129,10 @@ class TestValidatorFunctionality(unittest.TestCase):
         self.assertFalse(validator.boolean_value(record, "two"))
         self.assertFalse(validator.boolean_value(record, "four"))
 
-        with self.assertRaises(validator.MissingRequiredField):
+        with self.assertRaises(validator.MissingRequiredFieldError):
             validator.boolean_value(record, "six", required=True)
 
-        with self.assertRaises(validator.InvalidValueType):
+        with self.assertRaises(validator.InvalidValueTypeError):
             validator.boolean_value(record, "five")
 
     def test_list_validator(self):
@@ -140,13 +140,13 @@ class TestValidatorFunctionality(unittest.TestCase):
 
         record = {"one": [1, 2, 3, 4], "two": {"1": 2, "3": 4}}
 
-        with self.assertRaises(validator.MissingRequiredField):
+        with self.assertRaises(validator.MissingRequiredFieldError):
             validator.array_value(record, "three", required=True)
 
-        with self.assertRaises(validator.InvalidValueType):
+        with self.assertRaises(validator.InvalidValueTypeError):
             validator.array_value(record, "two")
 
-        with self.assertRaises(validator.MissingRequiredField):
+        with self.assertRaises(validator.MissingRequiredFieldError):
             validator.array_value(record, "four", required=True)
 
         self.assertEqual(None, validator.array_value(record, "three"))
@@ -159,10 +159,10 @@ class TestValidatorFunctionality(unittest.TestCase):
 
         record = {"one": "software", "two": None, "three": "something-else"}
         options = ["software", "dataset"]
-        with self.assertRaises(validator.MissingRequiredField):
+        with self.assertRaises(validator.MissingRequiredFieldError):
             validator.options_value(record, "two", options, required=True)
 
-        with self.assertRaises(validator.InvalidOptionsValue):
+        with self.assertRaises(validator.InvalidOptionsValueError):
             validator.options_value(record, "three", options)
 
         output = validator.options_value(record, "one", options, required=True)
@@ -179,17 +179,17 @@ class TestValidatorFunctionality(unittest.TestCase):
         self.assertEqual(limit, 15)
 
         record = {"page": 1, "offset": 15}
-        with self.assertRaises(validator.InvalidPagingOptions):
+        with self.assertRaises(validator.InvalidPagingOptionsError):
             offset, limit = validator.paging_to_offset_and_limit(record)
 
         record = {"order": "title", "order_direction": "desc", "id": None}
         output = validator.order_direction(record, "order_direction")
         self.assertEqual(output, "desc")
 
-        with self.assertRaises(validator.InvalidOrderDirection):
+        with self.assertRaises(validator.InvalidOrderDirectionError):
             validator.order_direction(record, "order")
 
-        with self.assertRaises(validator.MissingRequiredField):
+        with self.assertRaises(validator.MissingRequiredFieldError):
             validator.order_direction(record, "id", required=True)
 
     def test_uuid(self):
@@ -207,8 +207,8 @@ class TestValidatorFunctionality(unittest.TestCase):
         record = {"1": url, "2": 123, "3": "javascript:onclick('alert()')"}
         self.assertEqual(url, validator.url_value(record, "1"))
 
-        with self.assertRaises(validator.InvalidValueType):
+        with self.assertRaises(validator.InvalidValueTypeError):
             validator.url_value(record, "2")
 
-        with self.assertRaises(validator.InvalidValueType):
+        with self.assertRaises(validator.InvalidValueTypeError):
             validator.url_value(record, "3")

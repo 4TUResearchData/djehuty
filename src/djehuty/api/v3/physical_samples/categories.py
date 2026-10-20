@@ -90,7 +90,7 @@ def _set_categories(db, account_uuid, container_uuid, body, overwrite):
         for index, _ in enumerate(categories):
             try:
                 categories[index] = validator.string_value(categories, index, 0, 36)
-            except validator.ValidationException:
+            except validator.ValidationError:
                 category_id = validator.integer_value(categories, index)
                 category = db.category_by_id(category_id=category_id)
                 if category is not None:
@@ -109,7 +109,7 @@ def _set_categories(db, account_uuid, container_uuid, body, overwrite):
         return Response(status_code=500)
     except IndexError:
         return Response(status_code=500)
-    except validator.ValidationException as error:
+    except validator.ValidationError as error:
         raise InvalidInputError(error.message, error.code) from error
 
 

@@ -83,7 +83,7 @@ def upsert_collection_physical_samples(
             return Response(status_code=205)
     except KeyError:
         raise InvalidInputError("Expected an array for 'samples'.", "NoSamplesField") from None
-    except validator.ValidationException as error:
+    except validator.ValidationError as error:
         raise InvalidInputError(error.message, error.code) from error
     except (IndexError, TypeError):
         pass

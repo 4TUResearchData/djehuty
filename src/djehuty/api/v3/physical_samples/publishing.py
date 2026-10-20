@@ -254,7 +254,7 @@ def submit_for_review(
             return Response(status_code=500)
 
         review_uri = db.insert_review(sample["uri"])
-    except validator.ValidationException as error:
+    except validator.ValidationError as error:
         raise InvalidInputError(error.message, error.code) from error
     finally:
         _process_locks.unlock(LockTypes.SUBMIT_PHYSICAL_SAMPLE)

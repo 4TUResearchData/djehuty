@@ -93,7 +93,7 @@ def update_profile(
         ):
             return Response(status_code=204)
         raise InvalidInputError("Failed to update account.", "UpdateFailed")
-    except validator.ValidationException as error:
+    except validator.ValidationError as error:
         raise InvalidInputError(error.message, error.code) from error
 
 
@@ -157,7 +157,7 @@ def submit_quota_request(
         )
 
         return Response(status_code=204)
-    except validator.ValidationException as error:
+    except validator.ValidationError as error:
         raise InvalidInputError(error.message, error.code) from error
 
 
