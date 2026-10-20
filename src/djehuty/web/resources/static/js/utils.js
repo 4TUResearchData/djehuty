@@ -11,10 +11,6 @@ function show_message (type, message) {
         message_timeout = null;
     }
 
-    // Reset the box before showing a new message.  Adding the type without
-    // removing the previous one left both classes on the element, and .failure
-    // is declared after .success, so a success message stayed red.  Appending
-    // without emptying kept the previous text alongside the new one.
     jQuery("#message")
         .removeClass("transparent success failure")
         .empty()
