@@ -529,6 +529,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#rotating-the-log-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rotating the log file
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#upgrading_1" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1062,6 +1073,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#rotating-the-log-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rotating the log file
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#upgrading_1" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1325,10 +1347,37 @@ starting point and change two things:</p>
 </ul>
 <p>Run the unit as a dedicated unprivileged user that owns <code>storage-root</code>.</p>
 <p>Put <code>nginx</code> in front for TLS. There is a working server block in <a href="../running-djehuty/#running-djehuty-behind-an-nginx-reverse-proxy">Running <code>djehuty</code> behind an <code>nginx</code> reverse-proxy</a>.</p>
+<h3 id="rotating-the-log-file">Rotating the log file</h3>
+<p>When <code>log-file</code> is set, <code>djehuty</code> writes to that single file and does not rotate it
+itself. It does, however, reopen the file when it detects that the file it was writing
+to has been moved away, so pair it with <a href="https://github.com/logrotate/logrotate"><code>logrotate</code></a>:
+after <code>logrotate</code> renames the file, <code>djehuty</code> writes to the freshly created one on its
+next log message. No <code>copytruncate</code> is needed, and this works unchanged across multiple
+worker processes.</p>
+<p>Drop a file under <code>/etc/logrotate.d/</code>, matching the path to your <code>log-file</code> and the user
+and group to the account running the service:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>/opt/djehuty/logs/djehuty-web.log {
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>    su djehuty djehuty
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>    create 0640 djehuty djehuty
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>    daily
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>    rotate 99999
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>    dateext
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>    missingok
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>    notifempty
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>    compress
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>    delaycompress
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>    sharedscripts
+<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a>}
+</code></pre></div>
+<p>If you also enable <code>enable-query-audit-log</code>, this file doubles as the transaction
+journal used to reconstruct the RDF store, and recovery reads only the live file.
+Keep enough rotated history to reach your last backup, and see
+<a href="../running-djehuty/#recovering-across-rotated-log-files">Recovering across rotated log files</a>
+for replaying across rotated or compressed files.</p>
 <h3 id="upgrading_1">Upgrading</h3>
 <p>Back up the RDF store, read <a href="https://github.com/4TUResearchData/djehuty/blob/main/CHANGELOG.md">CHANGELOG.md</a>, then upgrade the package and restart:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>pip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span>djehuty
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>systemctl<span class="w"> </span>restart<span class="w"> </span>djehuty
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>pip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span>djehuty
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>systemctl<span class="w"> </span>restart<span class="w"> </span>djehuty
 </code></pre></div>
 <h2 id="next-steps">Next steps</h2>
 <ul>
