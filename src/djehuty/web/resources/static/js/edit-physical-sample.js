@@ -823,19 +823,13 @@ function render_categories_for_physical_sample (container_uuid) {
 
 function preview_physical_sample (container_uuid, event) {
     stop_event_propagation (event);
-    let tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    let year  = tomorrow.getFullYear();
-    let month = tomorrow.getMonth() + 1; // getMonth is zero-indexed.
-    let day   = tomorrow.getDate();
-    if (month < 10) { month = `0${month}`; }
-    if (day < 10) { day = `0${day}`; }
+    let expires_date = tomorrow_as_iso_date();
 
 
         jQuery.ajax({
             accept:      "application/json",
             contentType: "application/json",
-            data:        JSON.stringify({ "expires_date": `${year}-${month}-${day}` }),
+            data:        JSON.stringify({ "expires_date": expires_date }),
             type:        "POST",
             url:         `/v3/physical-samples/${container_uuid}/private_links`
         }).done(function (data) {
