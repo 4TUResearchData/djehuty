@@ -74,11 +74,13 @@ class ArticleService:
         handle=None,
         groups=None,
         institution=None,
+        is_latest=None,
         item_type=None,
         modified_since=None,
         published_since=None,
         resource_doi=None,
         search_for=None,
+        search_for_raw=None,
         **kwargs,
     ) -> tuple[list[dict], int | None]:
         """Search articles, returning results and total count.
@@ -98,12 +100,13 @@ class ArticleService:
             handle=handle,
             groups=groups,
             institution=institution,
+            is_latest=is_latest,
             item_type=item_type,
             modified_since=modified_since,
             published_since=published_since,
             resource_doi=resource_doi,
             search_for=search_for,
-            is_latest=False,
+            search_for_raw=search_for_raw,
         )
 
         for dataset in records:
@@ -130,12 +133,13 @@ class ArticleService:
                 handle=handle,
                 groups=groups,
                 institution=institution,
+                is_latest=is_latest,
                 item_type=item_type,
                 modified_since=modified_since,
                 published_since=published_since,
                 resource_doi=resource_doi,
                 search_for=search_for,
-                is_latest=False,
+                search_for_raw=search_for_raw,
                 return_count=True,
             )
             total_count = value_or(count_result, 0, {"datasets": 0}).get("datasets", 0)

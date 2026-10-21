@@ -1,5 +1,7 @@
 """Models for article (dataset) endpoints."""
 
+from typing import Literal
+
 from pydantic import BaseModel, Field
 
 from djehuty.api.models.common import OrderDirection, OrderField, Timeline
@@ -78,6 +80,10 @@ class ArticleSearchRequest(BaseModel):
         ),
         examples=["wind turbine measurements"],
     )
+    is_latest: bool | None = Field(
+        None,
+        description="Return only the latest published version of each article or dataset.",
+    )
     institution: int | None = Field(None, description="Filter by institution ID")
     group: int | None = Field(None, description="Filter by group ID", alias="group_id")
     published_since: str | None = Field(
@@ -121,3 +127,22 @@ class ArticleSearchRequest(BaseModel):
             ]
         },
     }
+
+
+class DatasetSearchRequest(ArticleSearchRequest):
+    """Request body for ``POST /v3/datasets/search``."""
+
+    search_for: str | None = Field(
+        None,
+        max_length=1024,
+        description="Text to search for.",
+        examples=["wind turbine measurements"],
+    )
+    search_operator: Literal["AND", "OR", "EXACT"] | None = Field(
+        None,
+        description="Operator used to combine search terms.",
+    )
+    search_scope: list[Literal["title", "description", "tag", "author"]] | None = Field(
+        None,
+        description="Metadata fields in which to search.",
+    )
