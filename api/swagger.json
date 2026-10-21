@@ -3042,21 +3042,21 @@
         ],
         "parameters": [
           {
-            "name": "dataset_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Dataset Id"
-            }
-          },
-          {
             "name": "author_id",
             "in": "path",
             "required": true,
             "schema": {
               "type": "string",
               "title": "Author Id"
+            }
+          },
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
             }
           }
         ],
@@ -3283,21 +3283,21 @@
         ],
         "parameters": [
           {
-            "name": "dataset_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Dataset Id"
-            }
-          },
-          {
             "name": "category_id",
             "in": "path",
             "required": true,
             "schema": {
               "type": "string",
               "title": "Category Id"
+            }
+          },
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
             }
           }
         ],
@@ -3535,21 +3535,21 @@
         ],
         "parameters": [
           {
-            "name": "dataset_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Dataset Id"
-            }
-          },
-          {
             "name": "file_id",
             "in": "path",
             "required": true,
             "schema": {
               "type": "string",
               "title": "File Id"
+            }
+          },
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
             }
           }
         ],
@@ -3604,21 +3604,21 @@
         ],
         "parameters": [
           {
-            "name": "dataset_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Dataset Id"
-            }
-          },
-          {
             "name": "file_id",
             "in": "path",
             "required": true,
             "schema": {
               "type": "string",
               "title": "File Id"
+            }
+          },
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
             }
           }
         ],
@@ -3912,21 +3912,21 @@
         ],
         "parameters": [
           {
-            "name": "dataset_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Dataset Id"
-            }
-          },
-          {
             "name": "link_id",
             "in": "path",
             "required": true,
             "schema": {
               "type": "string",
               "title": "Link Id"
+            }
+          },
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
             }
           }
         ],
@@ -3972,21 +3972,21 @@
         ],
         "parameters": [
           {
-            "name": "dataset_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Dataset Id"
-            }
-          },
-          {
             "name": "link_id",
             "in": "path",
             "required": true,
             "schema": {
               "type": "string",
               "title": "Link Id"
+            }
+          },
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
             }
           }
         ],
@@ -4044,21 +4044,21 @@
         ],
         "parameters": [
           {
-            "name": "dataset_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Dataset Id"
-            }
-          },
-          {
             "name": "link_id",
             "in": "path",
             "required": true,
             "schema": {
               "type": "string",
               "title": "Link Id"
+            }
+          },
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
             }
           }
         ],
@@ -4294,21 +4294,21 @@
         ],
         "parameters": [
           {
-            "name": "dataset_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Dataset Id"
-            }
-          },
-          {
             "name": "funding_id",
             "in": "path",
             "required": true,
             "schema": {
               "type": "string",
               "title": "Funding Id"
+            }
+          },
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
             }
           }
         ],
@@ -13282,7 +13282,7 @@
           "V3 / SSI"
         ],
         "summary": "Receive dataset from SSI",
-        "operationId": "receive_from_ssi_v3_receive_from_ssi_put",
+        "operationId": "receive_from_ssi_v3_receive_from_ssi_delete",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -13302,7 +13302,7 @@
           "V3 / SSI"
         ],
         "summary": "Receive dataset from SSI",
-        "operationId": "receive_from_ssi_v3_receive_from_ssi_put",
+        "operationId": "receive_from_ssi_v3_receive_from_ssi_delete",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -13322,7 +13322,7 @@
           "V3 / SSI"
         ],
         "summary": "Receive dataset from SSI",
-        "operationId": "receive_from_ssi_v3_receive_from_ssi_put",
+        "operationId": "receive_from_ssi_v3_receive_from_ssi_delete",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -13342,7 +13342,7 @@
           "V3 / SSI"
         ],
         "summary": "Receive dataset from SSI",
-        "operationId": "receive_from_ssi_v3_receive_from_ssi_put",
+        "operationId": "receive_from_ssi_v3_receive_from_ssi_delete",
         "responses": {
           "200": {
             "description": "Successful Response",

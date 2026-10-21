@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://djehuty.4tu.nl/community/about.html</loc>
-    <lastmod>2026-10-21T14:21:54.083Z</lastmod>
-  </url>
-  <url>
-    <loc>https://djehuty.4tu.nl/community/calendar/index.html</loc>
-    <lastmod>2026-10-21T14:21:54.084Z</lastmod>
+    <loc>https://djehuty.4tu.nl/community/index.html</loc>
+    <lastmod>2026-10-21T14:34:37.598Z</lastmod>
   </url>
   <url>
     <loc>https://djehuty.4tu.nl/community/contribute.html</loc>
-    <lastmod>2026-10-21T14:21:54.084Z</lastmod>
-  </url>
-  <url>
-    <loc>https://djehuty.4tu.nl/community/index.html</loc>
-    <lastmod>2026-10-21T14:21:54.084Z</lastmod>
+    <lastmod>2026-10-21T14:34:37.598Z</lastmod>
   </url>
   <url>
     <loc>https://djehuty.4tu.nl/community/community-hour/index.html</loc>
-    <lastmod>2026-10-21T14:21:54.084Z</lastmod>
+    <lastmod>2026-10-21T14:34:37.598Z</lastmod>
+  </url>
+  <url>
+    <loc>https://djehuty.4tu.nl/community/about.html</loc>
+    <lastmod>2026-10-21T14:34:37.598Z</lastmod>
+  </url>
+  <url>
+    <loc>https://djehuty.4tu.nl/community/calendar/index.html</loc>
+    <lastmod>2026-10-21T14:34:37.598Z</lastmod>
   </url>
 </urlset>

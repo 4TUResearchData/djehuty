@@ -633,6 +633,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#security" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Security
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#documentation" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -844,7 +855,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#security" class="md-nav__link">
+  <a href="#security_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Security
@@ -1516,7 +1527,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#security_1" class="md-nav__link">
+  <a href="#security_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Security
@@ -1577,7 +1588,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#security_2" class="md-nav__link">
+  <a href="#security_3" class="md-nav__link">
     <span class="md-ellipsis">
       
         Security
@@ -1649,7 +1660,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#security_3" class="md-nav__link">
+  <a href="#security_4" class="md-nav__link">
     <span class="md-ellipsis">
       
         Security
@@ -1710,7 +1721,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#security_4" class="md-nav__link">
+  <a href="#security_5" class="md-nav__link">
     <span class="md-ellipsis">
       
         Security
@@ -1894,6 +1905,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#security" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Security
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#documentation" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2105,7 +2127,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#security" class="md-nav__link">
+  <a href="#security_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Security
@@ -2777,7 +2799,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#security_1" class="md-nav__link">
+  <a href="#security_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Security
@@ -2838,7 +2860,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#security_2" class="md-nav__link">
+  <a href="#security_3" class="md-nav__link">
     <span class="md-ellipsis">
       
         Security
@@ -2910,7 +2932,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#security_3" class="md-nav__link">
+  <a href="#security_4" class="md-nav__link">
     <span class="md-ellipsis">
       
         Security
@@ -2971,7 +2993,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#security_4" class="md-nav__link">
+  <a href="#security_5" class="md-nav__link">
     <span class="md-ellipsis">
       
         Security
@@ -3133,12 +3155,18 @@
 appear first; this file is the source of truth for release notes.</p>
 <p>Commit links point to <a href="https://github.com/4TUResearchData/djehuty">https://github.com/4TUResearchData/djehuty</a>.</p>
 <h2 id="v2682">[v26.8.2]</h2>
-<p>This patch release consists of 13 commits made by 5 authors.</p>
-<p>It aligns the v3 article search API with the legacy behaviour, fixes several UI
+<p>This patch release consists of 14 commits made by 5 authors.</p>
+<p>It resolves a security advisory on collaborative article-metadata authorization,
+aligns the v3 article search API with the legacy behaviour, fixes several UI
 issues around Preview expiry dates, notifications and the mobile viewport, writes
 a collection's dataset list only once, refreshes dependencies, extends Ruff
 enforcement to the web validator, stabilises the end-to-end tests, and documents
 the djehuty Community.</p>
+<h3 id="security">Security</h3>
+<p>See the published advisories for details, impact and remediation.</p>
+<ul>
+<li>Missing authorization on collaborative article metadata operations across 13 <code>/v2/account/articles</code> routes. (<a href="https://github.com/4TUResearchData/djehuty/security/advisories/GHSA-3gh2-4q87-wcjx">GHSA-3gh2-4q87-wcjx</a>)</li>
+</ul>
 <h3 id="documentation">Documentation</h3>
 <ul>
 <li>Add information about the djehuty Community to the README and CONTRIBUTING. (<a href="https://github.com/4TUResearchData/djehuty/commit/95bd03666106d527e9ca3ea1f539e2b81b36a613">95bd036</a>)</li>
@@ -3224,7 +3252,7 @@ and refreshes the Docker base image.</p>
 <p>This patch release resolves five coordinated-disclosure security advisories in
 the shared djehuty codebase, alongside documentation, a bugfix and dependency
 updates.</p>
-<h3 id="security">Security</h3>
+<h3 id="security_1">Security</h3>
 <p>See the published advisories for details, impact and remediation.</p>
 <ul>
 <li>Privilege escalation to administrator via unverified e-mail change in <code>PUT /v3/profile</code>. (<a href="https://github.com/4TUResearchData/djehuty/security/advisories/GHSA-jj2h-4p8q-v53g">GHSA-jj2h-4p8q-v53g</a>)</li>
@@ -3504,7 +3532,7 @@ and easier to evolve for both users and developers.</p>
 <ul>
 <li>Introduce an "Interoperability" section with links to the RO-Crate metadata API and the IIIF manifest. (<a href="https://github.com/4TUResearchData/djehuty/commit/2a49687d0fab911f52b461f806dd7eadcc15df30">2a49687</a>)</li>
 </ul>
-<h3 id="security_1">Security</h3>
+<h3 id="security_2">Security</h3>
 <ul>
 <li>Properly escape session cookie value. (<a href="https://github.com/4TUResearchData/djehuty/commit/da1cbf2b15155ce4541ab7ca81f3102067fb749f">da1cbf2</a>)</li>
 <li>Avoid possibility of HTML injection in the search page. (<a href="https://github.com/4TUResearchData/djehuty/commit/4f479f6869a2b7eeaf7cd78832419014eddf06f8">4f479f6</a>)</li>
@@ -3530,7 +3558,7 @@ and easier to evolve for both users and developers.</p>
 <li>Implement tiles property for IIIF Image API. (<a href="https://github.com/4TUResearchData/djehuty/commit/e9453e1ec43514a2fc1a7a6256ee17203f38a82a">e9453e1</a>)</li>
 <li>Implement <code>static-resources-cache</code> option. (<a href="https://github.com/4TUResearchData/djehuty/commit/1529d961aa833fb388809ebb02c6e2d0455411d4">1529d96</a>)</li>
 </ul>
-<h3 id="security_2">Security</h3>
+<h3 id="security_3">Security</h3>
 <ul>
 <li>Harden the <code>Content-Security-Policy</code> as an extra layer of defence against cross-site scripting. (<a href="https://github.com/4TUResearchData/djehuty/commit/3c2c5329089a41d2f4637fed9c0c1de19c5669ef">3c2c532</a>, <a href="https://github.com/4TUResearchData/djehuty/commit/ce428d824c0f7e30a85054970f62fa0734011d26">ce428d8</a>, <a href="https://github.com/4TUResearchData/djehuty/commit/4a1abf60e94e07ff6db748c447dc1ed1508a33a5">4a1abf6</a>, <a href="https://github.com/4TUResearchData/djehuty/commit/da39ace8eec25d3a4646b288c2d9156022fd7063">da39ace</a>, <a href="https://github.com/4TUResearchData/djehuty/commit/1bcc4f92dbda97bd38328c2f00c843996d3c9418">1bcc4f9</a>, <a href="https://github.com/4TUResearchData/djehuty/commit/13c06ef7bd5465adeda52e8fff9fe8d0620547c1">13c06ef</a>, <a href="https://github.com/4TUResearchData/djehuty/commit/b5434f969275314f4180f28fcf88de1bf1b79c3b">b5434f9</a>, <a href="https://github.com/4TUResearchData/djehuty/commit/7a157070a9ffcf62e5d0426dbc21ee405248a274">7a15707</a>, <a href="https://github.com/4TUResearchData/djehuty/commit/9d84583c80ec001f461bf113bfc52c5045bb3c39">9d84583</a>)</li>
 </ul>
@@ -3560,7 +3588,7 @@ and easier to evolve for both users and developers.</p>
 <li>Revise the versions drop-down menu on landing pages. (<a href="https://github.com/4TUResearchData/djehuty/commit/e5b89ce23eec6e1284a22db4802d05e459f29454">e5b89ce</a>)</li>
 <li>Fix tile scaling on the main page for different zoom levels. (<a href="https://github.com/4TUResearchData/djehuty/commit/7a30bfa47ef1c3977180dcc4b0ec31f7ff06e89a">7a30bfa</a>)</li>
 </ul>
-<h3 id="security_3">Security</h3>
+<h3 id="security_4">Security</h3>
 <ul>
 <li>Addressed a Cross-Site-Scripting vulnerability in the search functionality. (<a href="https://github.com/4TUResearchData/djehuty/commit/40b12a5597407a3d67eec5a5cb570d0725197d92">40b12a5</a>)</li>
 <li>Only display e-mail address of authors to the creators of such records. (<a href="https://github.com/4TUResearchData/djehuty/commit/05a56fa18367da28e2366a90e92a43af4639dc5f">05a56fa</a>)</li>
@@ -3591,7 +3619,7 @@ and easier to evolve for both users and developers.</p>
 <li>Implement support for S3 buckets via <code>boto3</code>. (<a href="https://github.com/4TUResearchData/djehuty/commit/1077e2503c1e9e338849c5dee250a1e6483137b4">1077e25</a>, <a href="https://github.com/4TUResearchData/djehuty/commit/67fe48dbc538d2f00bf687504451e60611021287">67fe48d</a>, <a href="https://github.com/4TUResearchData/djehuty/commit/2e5394b417518efbff5accbbe06f65cf7ba896cb">2e5394b</a>, <a href="https://github.com/4TUResearchData/djehuty/commit/09e20e40551404e0957f1fd2f742ffa156442294">09e20e4</a>, <a href="https://github.com/4TUResearchData/djehuty/commit/30209a7544a35d2da700e8f02d86f30bcb651082">30209a7</a>, <a href="https://github.com/4TUResearchData/djehuty/commit/7e6d147fce19329126c91f2a056070d54e1b093f">7e6d147</a>)</li>
 <li>Implement ability to extract/replay log entries. (<a href="https://github.com/4TUResearchData/djehuty/commit/a5a2c090389776346944b47554c129f4e686f97e">a5a2c09</a>)</li>
 </ul>
-<h3 id="security_4">Security</h3>
+<h3 id="security_5">Security</h3>
 <ul>
 <li>Addressed a Cross-Site-Scripting vulnerability. (<a href="https://github.com/4TUResearchData/djehuty/commit/38e89a0c8ef351bdb524ff8bcb30b44b3ba8d04f">38e89a0</a>)</li>
 </ul>
