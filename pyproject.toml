@@ -133,5 +133,11 @@ select = [
 [tool.ruff.lint.flake8-bugbear]
 # FastAPI's dependency-injection idiom: Depends/Query/Body in defaults are
 # resolved per-request by the framework, never shared mutable state.
-extend-immutable-calls = ["fastapi.Depends", "fastapi.Query", "fastapi.Body"]
+# require_article_permission is a Depends-wrapped factory, same idiom.
+extend-immutable-calls = [
+    "fastapi.Depends",
+    "fastapi.Query",
+    "fastapi.Body",
+    "djehuty.api.v2.account.articles._shared.require_article_permission",
+]
 

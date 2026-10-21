@@ -5,7 +5,7 @@ from fastapi.responses import JSONResponse
 
 from djehuty.api.dependencies import get_db, require_auth
 from djehuty.api.exceptions import InvalidInputError, NotFoundError
-from djehuty.api.v2.account.articles._shared import _ok, _resolve_private_dataset
+from djehuty.api.v2.account.articles._shared import _ok, require_article_permission
 from djehuty.web import formatter
 
 router = APIRouter(prefix="/account", tags=["V2 / Account / Articles / Funding"])
@@ -88,8 +88,11 @@ def _funding_list_from_request_input(parameters, db, created_by=None):
     summary="List funding",
     responses={200: _ok("List of funding", [_FUNDING_EXAMPLE])},
 )
-def list_article_funding(dataset_id: str, account=Depends(require_auth), db=Depends(get_db)):
-    dataset = _resolve_private_dataset(db, dataset_id, account["uuid"])
+def list_article_funding(
+    dataset=Depends(require_article_permission("metadata_read")),
+    account=Depends(require_auth),
+    db=Depends(get_db),
+):
     fundings = db.fundings(
         item_uri=dataset["uri"],
         item_type="dataset",
@@ -108,9 +111,9 @@ def list_article_funding(dataset_id: str, account=Depends(require_auth), db=Depe
     summary="Replace funding records",
 )
 def upsert_article_funding(
-    dataset_id: str,
     body: dict,
     request: Request,
+    dataset=Depends(require_article_permission("metadata_edit")),
     account=Depends(require_auth),
     db=Depends(get_db),
 ):
@@ -118,7 +121,6 @@ def upsert_article_funding(
 
     from djehuty.utils.rdf import uuid_to_uri
 
-    dataset = _resolve_private_dataset(db, dataset_id, account["uuid"])
     new_fundings, errors = _funding_list_from_request_input(body, db, account["uuid"])
     if errors:
         raise InvalidInputError(errors, "BadFundingInput")
@@ -150,11 +152,13 @@ def upsert_article_funding(
     summary="Remove funding",
 )
 def delete_article_funding(
-    dataset_id: str, funding_id: str, account=Depends(require_auth), db=Depends(get_db)
+    funding_id: str,
+    dataset=Depends(require_article_permission("metadata_edit")),
+    account=Depends(require_auth),
+    db=Depends(get_db),
 ):
     from djehuty.utils.rdf import uris_from_records
 
-    dataset = _resolve_private_dataset(db, dataset_id, account["uuid"])
     fundings = db.fundings(
         item_uri=dataset["uri"],
         item_type="dataset",

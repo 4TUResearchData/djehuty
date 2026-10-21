@@ -14,6 +14,7 @@ from djehuty.api.dependencies import (
 )
 from djehuty.api.exceptions import ForbiddenError
 from djehuty.api.models.common import ErrorResponse
+from djehuty.api.permissions import enforce_collaborative_permissions
 from djehuty.api.services.article_service import ArticleService
 from djehuty.api.v2.account.articles._shared import _ok
 from djehuty.services import datacite, notifications
@@ -35,6 +36,7 @@ def reserve_doi(dataset_id: str, account=Depends(require_auth), db=Depends(get_d
     )
     if dataset is None:
         raise ForbiddenError()
+    enforce_collaborative_permissions(db, account["uuid"], dataset, "dataset", "metadata_edit")
 
     reserved_doi = datacite.reserve_and_save_doi(db, account["uuid"], dataset)
     if reserved_doi:

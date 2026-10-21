@@ -1,27 +1,36 @@
 """Collaborative-permission enforcement for private API endpoints.
 
-The decision logic lives in the framework-neutral
-``djehuty.services.permissions``; this module turns a denial into an HTTP 403
-(``ForbiddenError``). Faithful port of the legacy
-``ApiServer.__needs_collaborative_permissions``: a no-op for the owner, and a
-403 for a collaborator who lacks the permission an action requires.
-
-(The git endpoints deliberately do *not* use this wrapper: legacy hides a git
-permission denial as 404, so the git service calls
-``djehuty.services.permissions.is_permitted`` directly and returns ``None``.)
+Wraps the framework-neutral ``djehuty.services.permissions`` decision logic,
+turning a denial into an HTTP 403 (``ForbiddenError``).
 """
 
 from djehuty.api.exceptions import ForbiddenError
 from djehuty.services.permissions import is_permitted
+from djehuty.utils.convenience import value_or
+
+#: Sentinel permission that only the owner satisfies; no collaborator flag grants it.
+OWNER_ONLY = "owner_only"
 
 
 def enforce_collaborative_permissions(db, account_uuid, item, item_type, permissions):
     """Raise :class:`ForbiddenError` unless the account holds the permission(s).
 
-    No-op for the owner (the item is not shared with them), as in legacy.
+    No-op for the owner. :data:`OWNER_ONLY` denies every collaborator.
     """
+    if permissions == OWNER_ONLY:
+        enforce_owner(account_uuid, item, item_type)
+        return
     if not is_permitted(db, account_uuid, item, item_type, permissions):
         raise ForbiddenError(
             f"account:{account_uuid} attempted an action requiring "
             f"{permissions!r} on this {item_type}."
+        )
+
+
+def enforce_owner(account_uuid, item, item_type):
+    """Raise :class:`ForbiddenError` for any collaborator; no-op for the owner."""
+    if value_or(item, "is_shared_with_me", False):
+        raise ForbiddenError(
+            f"collaborator account:{account_uuid} attempted an owner-only "
+            f"action on this {item_type}."
         )

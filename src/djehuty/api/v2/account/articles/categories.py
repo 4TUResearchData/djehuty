@@ -5,7 +5,10 @@ from fastapi.responses import JSONResponse
 
 from djehuty.api.dependencies import get_db, require_auth
 from djehuty.api.exceptions import ForbiddenError, InvalidInputError
-from djehuty.api.v2.account.articles._shared import _resolve_private_dataset
+from djehuty.api.v2.account.articles._shared import (
+    _resolve_private_dataset,
+    require_article_permission,
+)
 from djehuty.web import formatter
 
 router = APIRouter(prefix="/account", tags=["V2 / Account / Articles / Categories"])
@@ -15,8 +18,11 @@ router = APIRouter(prefix="/account", tags=["V2 / Account / Articles / Categorie
     "/articles/{dataset_id}/categories",
     summary="List article categories",
 )
-def list_article_categories(dataset_id: str, account=Depends(require_auth), db=Depends(get_db)):
-    dataset = _resolve_private_dataset(db, dataset_id, account["uuid"])
+def list_article_categories(
+    dataset=Depends(require_article_permission("metadata_read")),
+    account=Depends(require_auth),
+    db=Depends(get_db),
+):
     categories = db.categories(
         item_uri=dataset["uri"], account_uuid=account["uuid"], is_published=False, limit=None
     )
@@ -36,12 +42,14 @@ def upsert_article_categories(
 ):
     from djehuty.utils.rdf import uris_from_records
 
+    # Resolves explicitly (not via the dependency) to validate the body before
+    # authorizing: pins legacy 400-before-403/404 (test_api_v2_article_categories).
     if "categories" not in body:
         raise InvalidInputError("Expected an array for 'categories'.", "NoCategoriesField")
     if body["categories"] is None:
         raise InvalidInputError("Missing 'categories' parameter.", "MissingRequiredField")
 
-    dataset = _resolve_private_dataset(db, dataset_id, account["uuid"])
+    dataset = _resolve_private_dataset(db, dataset_id, account["uuid"], "metadata_edit")
     input_categories = body["categories"]
 
     new_cat_records = []
@@ -72,13 +80,15 @@ def upsert_article_categories(
     summary="Remove a category",
 )
 def delete_article_category(
-    dataset_id: str, category_id: str, account=Depends(require_auth), db=Depends(get_db)
+    category_id: str,
+    dataset=Depends(require_article_permission("metadata_edit")),
+    account=Depends(require_auth),
+    db=Depends(get_db),
 ):
     from rdflib import URIRef
 
     from djehuty.utils.rdf import uuid_to_uri
 
-    dataset = _resolve_private_dataset(db, dataset_id, account["uuid"])
     try:
         cat = (
             db.category_by_id(category_id=int(category_id))

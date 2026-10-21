@@ -5,7 +5,8 @@ from fastapi.responses import JSONResponse
 
 from djehuty.api.dependencies import get_db, require_auth
 from djehuty.api.exceptions import NotFoundError
-from djehuty.api.v2.account.articles._shared import _ok, _resolve_private_dataset
+from djehuty.api.permissions import OWNER_ONLY
+from djehuty.api.v2.account.articles._shared import _ok, require_article_permission
 from djehuty.web import formatter
 from djehuty.web.config import config
 
@@ -24,8 +25,11 @@ _PRIVATE_LINK_EXAMPLE = {
     summary="List private links",
     responses={200: _ok("List of private links", [_PRIVATE_LINK_EXAMPLE])},
 )
-def list_private_links(dataset_id: str, account=Depends(require_auth), db=Depends(get_db)):
-    dataset = _resolve_private_dataset(db, dataset_id, account["uuid"])
+def list_private_links(
+    dataset=Depends(require_article_permission(OWNER_ONLY)),
+    account=Depends(require_auth),
+    db=Depends(get_db),
+):
     links = db.private_links(item_uri=dataset["uri"], account_uuid=account["uuid"])
     return JSONResponse(content=[formatter.format_private_links_record(link) for link in links])
 
@@ -41,7 +45,6 @@ def list_private_links(dataset_id: str, account=Depends(require_auth), db=Depend
     },
 )
 def create_private_link(
-    dataset_id: str,
     body: dict = Body(
         default={},
         openapi_examples={
@@ -51,14 +54,13 @@ def create_private_link(
             },
         },
     ),
+    dataset=Depends(require_article_permission(OWNER_ONLY)),
     account=Depends(require_auth),
     db=Depends(get_db),
 ):
     import secrets
 
     from djehuty.web import validator
-
-    dataset = _resolve_private_dataset(db, dataset_id, account["uuid"])
 
     expires_date = validator.date_value(body, "expires_date", False) if body else None
     if expires_date:
@@ -85,9 +87,11 @@ def create_private_link(
     summary="Get private link",
 )
 def get_private_link(
-    dataset_id: str, link_id: str, account=Depends(require_auth), db=Depends(get_db)
+    link_id: str,
+    dataset=Depends(require_article_permission(OWNER_ONLY)),
+    account=Depends(require_auth),
+    db=Depends(get_db),
 ):
-    dataset = _resolve_private_dataset(db, dataset_id, account["uuid"])
     links = db.private_links(
         item_uri=dataset["uri"], id_string=link_id, account_uuid=account["uuid"]
     )
@@ -101,11 +105,14 @@ def get_private_link(
     summary="Update private link",
 )
 def update_private_link(
-    dataset_id: str, link_id: str, body: dict, account=Depends(require_auth), db=Depends(get_db)
+    link_id: str,
+    body: dict,
+    dataset=Depends(require_article_permission(OWNER_ONLY)),
+    account=Depends(require_auth),
+    db=Depends(get_db),
 ):
     from djehuty.web import validator
 
-    dataset = _resolve_private_dataset(db, dataset_id, account["uuid"])
     expires_date = validator.string_value(body, "expires_date", 0, 255, False) if body else None
     is_active = validator.boolean_value(body, "is_active", False) if body else None
     db.update_private_link(
@@ -119,8 +126,10 @@ def update_private_link(
     summary="Delete a private link",
 )
 def delete_private_link(
-    dataset_id: str, link_id: str, account=Depends(require_auth), db=Depends(get_db)
+    link_id: str,
+    dataset=Depends(require_article_permission(OWNER_ONLY)),
+    account=Depends(require_auth),
+    db=Depends(get_db),
 ):
-    dataset = _resolve_private_dataset(db, dataset_id, account["uuid"])
     db.delete_private_links(dataset["container_uuid"], account["uuid"], link_id)
     return Response(status_code=204)

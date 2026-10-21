@@ -156,6 +156,10 @@ class ArticleService:
         if dataset is None:
             return None
 
+        return self.format_article_details(dataset)
+
+    def format_article_details(self, dataset) -> dict:
+        """Format an already-resolved dataset into its detail record."""
         dataset["base_url"] = config.base_url
         dataset_uri = dataset["uri"]
 

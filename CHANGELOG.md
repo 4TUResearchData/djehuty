@@ -7,13 +7,20 @@ Commit links point to <https://github.com/4TUResearchData/djehuty>.
 
 ## [v26.8.2]
 
-This patch release consists of 13 commits made by 5 authors.
+This patch release consists of 14 commits made by 5 authors.
 
-It aligns the v3 article search API with the legacy behaviour, fixes several UI
+It resolves a security advisory on collaborative article-metadata authorization,
+aligns the v3 article search API with the legacy behaviour, fixes several UI
 issues around Preview expiry dates, notifications and the mobile viewport, writes
 a collection's dataset list only once, refreshes dependencies, extends Ruff
 enforcement to the web validator, stabilises the end-to-end tests, and documents
 the djehuty Community.
+
+### Security
+
+See the published advisories for details, impact and remediation.
+
+- Missing authorization on collaborative article metadata operations across 13 `/v2/account/articles` routes. ([GHSA-3gh2-4q87-wcjx](https://github.com/4TUResearchData/djehuty/security/advisories/GHSA-3gh2-4q87-wcjx))
 
 ### Documentation
 

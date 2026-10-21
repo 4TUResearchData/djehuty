@@ -12,6 +12,7 @@ from djehuty.api.dependencies import (
 )
 from djehuty.api.exceptions import ForbiddenError, InvalidInputError, NotFoundError
 from djehuty.api.models.common import ErrorResponse
+from djehuty.api.permissions import enforce_collaborative_permissions
 from djehuty.api.services.article_service import ArticleService
 from djehuty.api.services.request_lists import (
     author_list_from_request_input,
@@ -19,7 +20,11 @@ from djehuty.api.services.request_lists import (
     reference_list_from_request_input,
     tag_list_from_request_input,
 )
-from djehuty.api.v2.account.articles._shared import _ok, _resolve_private_dataset
+from djehuty.api.v2.account.articles._shared import (
+    _ok,
+    _resolve_private_dataset,
+    require_article_permission,
+)
 from djehuty.api.v2.account.articles.funding import _funding_list_from_request_input
 from djehuty.web import formatter
 from djehuty.web.config import config
@@ -214,15 +219,15 @@ def search_private_articles(
 def get_private_article(
     dataset_id: str,
     account=Depends(require_auth),
+    db=Depends(get_db),
     service: ArticleService = Depends(_get_service),
 ):
-    result = service.get_article_details(
-        dataset_id, account_uuid=account["uuid"], is_published=False
-    )
-    if result is None:
+    dataset = service._resolve_dataset(dataset_id, account_uuid=account["uuid"], is_published=False)
+    if dataset is None:
         # Legacy returns 200 with empty array when dataset not found
         return JSONResponse(content=[])
-    return JSONResponse(content=result)
+    enforce_collaborative_permissions(db, account["uuid"], dataset, "dataset", "metadata_read")
+    return JSONResponse(content=service.format_article_details(dataset))
 
 
 @router.put(
@@ -235,8 +240,8 @@ def get_private_article(
     },
 )
 def update_article(
-    dataset_id: str,
     body: dict,
+    dataset=Depends(require_article_permission("metadata_edit")),
     account=Depends(require_auth),
     db=Depends(get_db),
     impersonator_token: str | None = Depends(get_impersonator_token),
@@ -245,7 +250,6 @@ def update_article(
     from djehuty.web import validator
 
     account_uuid = account["uuid"]
-    dataset = _resolve_private_dataset(db, dataset_id, account_uuid)
 
     try:
         license_id = validator.integer_value(body, "license_id", 0, pow(2, 63))
@@ -388,7 +392,7 @@ def delete_article(
     db=Depends(get_db),
 ):
     try:
-        dataset = _resolve_private_dataset(db, dataset_id, account["uuid"])
+        dataset = _resolve_private_dataset(db, dataset_id, account["uuid"], "metadata_edit")
         if db.delete_dataset_draft(
             dataset["container_uuid"], dataset["uuid"], account["uuid"], dataset["account_uuid"]
         ):
