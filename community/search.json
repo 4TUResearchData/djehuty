@@ -1,24 +1,38 @@
 [
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "djehuty Community",
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
     "section": "",
-    "text": "GitHub\n  \n\n      \n\n\nA space for users, contributors, and stakeholders to connect, share ideas, discuss upcoming work, and help shape the future of djehuty. Whether you’re exploring the platform, contributing code, or providing feedback, you’re welcome to join the conversation.\nGet involved: Join our Community Hours, participate in discussions, or explore ways to contribute."
+    "text": "The djehuty community brings together users, contributors, developers, research data professionals, and everyone interested in the future of the djehuty platform.\nOur goal is to create an open space for collaboration, knowledge sharing, and discussion around djehuty’s development and use. Through community meetings, discussions, proposals, and shared experiences, we work together to improve the platform and support the research data community."
   },
   {
-    "objectID": "index.html#welcome-to-djehuty-community",
-    "href": "index.html#welcome-to-djehuty-community",
-    "title": "djehuty Community",
-    "section": "",
-    "text": "A space for users, contributors, and stakeholders to connect, share ideas, discuss upcoming work, and help shape the future of djehuty. Whether you’re exploring the platform, contributing code, or providing feedback, you’re welcome to join the conversation.\nGet involved: Join our Community Hours, participate in discussions, or explore ways to contribute."
+    "objectID": "about.html#how-we-work-together",
+    "href": "about.html#how-we-work-together",
+    "title": "About",
+    "section": "How we work together",
+    "text": "How we work together\n\nMeet. Once a month we hold an open online Community Hour to discuss recent developments, upcoming work, and your topics. Dates are in the calendar.\nDiscuss. Ideas, questions and proposals live in the GitHub discussions.\nContribute. Whether you report an issue, improve documentation, or write code, there is a place for you. See ways to contribute."
   },
   {
-    "objectID": "index.html#next-community-hour",
-    "href": "index.html#next-community-hour",
-    "title": "djehuty Community",
-    "section": " Next Community Hour",
-    "text": "Next Community Hour\n\n\n\n\n  Inaugural djehuty Community Hour\n  Welcome our team, see our latest developments and join the discussion. Presentation topic: Modernising djehuty: where we are, where we're headed.\n  \n            \n                Date: Oct 28, 2026\n            \n            \n                Time: 15:00 CET\n            \n            \n            \n                Place: online\n            \n            \n            \n            \n            \n                Meeting Link: https://meet.google.com/zbt-mvxe-feq\n            \n            \n  \n  \n        Add to calendar\n  \n\n\n\nNo matching items"
+    "objectID": "about.html#code-of-conduct",
+    "href": "about.html#code-of-conduct",
+    "title": "About",
+    "section": "Code of Conduct",
+    "text": "Code of Conduct\nIn our communication we adhere to the Code of Conduct."
+  },
+  {
+    "objectID": "about.html#community-resources",
+    "href": "about.html#community-resources",
+    "title": "About",
+    "section": "Community resources",
+    "text": "Community resources\n\ndjehuty GitHub repository\nDocumentation\nDiscussions\nIssue tracker\nRelease roadmap\nCommunity repository\nCommunity Hour meeting notes"
+  },
+  {
+    "objectID": "calendar/index.html",
+    "href": "calendar/index.html",
+    "title": "Calendar",
+    "section": "",
+    "text": "Want every Community Hour in your own calendar automatically? Subscribe to the meeting feed instead of adding each event one by one.\n\n\n\n\n\n\n   \n    \n    \n      Order By\n      Default\n      \n        Title\n      \n      \n        Description\n      \n      \n        Date - Oldest\n      \n      \n        Date - Newest\n      \n      \n        time\n      \n    \n  \n    \n      \n      \n    \n\n\n\n\n\n\nTitle\n\n\n\nDescription\n\n\n\nDate\n\n\n\ntime\n\n\n\n\n\n\n\n\nInaugural djehuty Community Hour\n\n\nWelcome our team, see our latest developments and join the discussion. Presentation topic: Modernising djehuty: where we are, where we’re headed.\n\n\nOct 28, 2026\n\n\n15:00 CET\n\n\n\n\n\n\ndjehuty Community Hour\n\n\nLatest developments and open discussion.\n\n\nNov 25, 2026\n\n\n15:00 CET\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "contribute.html",
@@ -77,6 +91,27 @@
     "text": "Our ground rules\nIn all our communication we follow the djehuty Code of Conduct."
   },
   {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "djehuty Community",
+    "section": "",
+    "text": "GitHub\n  \n\n      \n\n\nA space for users, contributors, and stakeholders to connect, share ideas, discuss upcoming work, and help shape the future of djehuty. Whether you’re exploring the platform, contributing code, or providing feedback, you’re welcome to join the conversation.\nGet involved: Join our Community Hours, participate in discussions, or explore ways to contribute."
+  },
+  {
+    "objectID": "index.html#welcome-to-djehuty-community",
+    "href": "index.html#welcome-to-djehuty-community",
+    "title": "djehuty Community",
+    "section": "",
+    "text": "A space for users, contributors, and stakeholders to connect, share ideas, discuss upcoming work, and help shape the future of djehuty. Whether you’re exploring the platform, contributing code, or providing feedback, you’re welcome to join the conversation.\nGet involved: Join our Community Hours, participate in discussions, or explore ways to contribute."
+  },
+  {
+    "objectID": "index.html#next-community-hour",
+    "href": "index.html#next-community-hour",
+    "title": "djehuty Community",
+    "section": " Next Community Hour",
+    "text": "Next Community Hour\n\n\n\n\n  Inaugural djehuty Community Hour\n  Welcome our team, see our latest developments and join the discussion. Presentation topic: Modernising djehuty: where we are, where we're headed.\n  \n            \n                Date: Oct 28, 2026\n            \n            \n                Time: 15:00 CET\n            \n            \n            \n                Place: online\n            \n            \n            \n            \n            \n                Meeting Link: https://meet.google.com/zbt-mvxe-feq\n            \n            \n  \n  \n        Add to calendar\n  \n\n\n\nNo matching items"
+  },
+  {
     "objectID": "community-hour/index.html",
     "href": "community-hour/index.html",
     "title": "Community Hour",
@@ -117,40 +152,5 @@
     "title": "Community Hour",
     "section": "Meeting notes",
     "text": "Meeting notes\nWe publish notes after each Community Hour, including the topics discussed, decisions taken and follow-up actions. Notes from all past meetings are listed below.\n\n\n\n\nDate\nMeeting\nSummary\n\n\n\n\n\nNo matching items"
-  },
-  {
-    "objectID": "about.html",
-    "href": "about.html",
-    "title": "About",
-    "section": "",
-    "text": "The djehuty community brings together users, contributors, developers, research data professionals, and everyone interested in the future of the djehuty platform.\nOur goal is to create an open space for collaboration, knowledge sharing, and discussion around djehuty’s development and use. Through community meetings, discussions, proposals, and shared experiences, we work together to improve the platform and support the research data community."
-  },
-  {
-    "objectID": "about.html#how-we-work-together",
-    "href": "about.html#how-we-work-together",
-    "title": "About",
-    "section": "How we work together",
-    "text": "How we work together\n\nMeet. Once a month we hold an open online Community Hour to discuss recent developments, upcoming work, and your topics. Dates are in the calendar.\nDiscuss. Ideas, questions and proposals live in the GitHub discussions.\nContribute. Whether you report an issue, improve documentation, or write code, there is a place for you. See ways to contribute."
-  },
-  {
-    "objectID": "about.html#code-of-conduct",
-    "href": "about.html#code-of-conduct",
-    "title": "About",
-    "section": "Code of Conduct",
-    "text": "Code of Conduct\nIn our communication we adhere to the Code of Conduct."
-  },
-  {
-    "objectID": "about.html#community-resources",
-    "href": "about.html#community-resources",
-    "title": "About",
-    "section": "Community resources",
-    "text": "Community resources\n\ndjehuty GitHub repository\nDocumentation\nDiscussions\nIssue tracker\nRelease roadmap\nCommunity repository\nCommunity Hour meeting notes"
-  },
-  {
-    "objectID": "calendar/index.html",
-    "href": "calendar/index.html",
-    "title": "Calendar",
-    "section": "",
-    "text": "Want every Community Hour in your own calendar automatically? Subscribe to the meeting feed instead of adding each event one by one.\n\n\n\n\n\n\n   \n    \n    \n      Order By\n      Default\n      \n        Title\n      \n      \n        Description\n      \n      \n        Date - Oldest\n      \n      \n        Date - Newest\n      \n      \n        time\n      \n    \n  \n    \n      \n      \n    \n\n\n\n\n\n\nTitle\n\n\n\nDescription\n\n\n\nDate\n\n\n\ntime\n\n\n\n\n\n\n\n\nInaugural djehuty Community Hour\n\n\nWelcome our team, see our latest developments and join the discussion. Presentation topic: Modernising djehuty: where we are, where we’re headed.\n\n\nOct 28, 2026\n\n\n15:00 CET\n\n\n\n\n\n\ndjehuty Community Hour\n\n\nLatest developments and open discussion.\n\n\nNov 25, 2026\n\n\n15:00 CET\n\n\n\n\n\n\nNo matching items"
   }
 ]

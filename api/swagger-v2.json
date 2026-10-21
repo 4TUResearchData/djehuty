@@ -6056,6 +6056,18 @@
               "wind turbine measurements"
             ]
           },
+          "is_latest": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Latest",
+            "description": "Return only the latest published version of each article or dataset."
+          },
           "institution": {
             "anyOf": [
               {
@@ -7108,6 +7120,297 @@
             "published_date": "2025-04-01T10:00:00",
             "title": "Wind energy research data collection",
             "uuid": "f1e2d3c4-b5a6-7890-fedc-ba0987654321"
+          }
+        ]
+      },
+      "DatasetSearchRequest": {
+        "properties": {
+          "search_for": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1024
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Search For",
+            "description": "Text to search for.",
+            "examples": [
+              "wind turbine measurements"
+            ]
+          },
+          "is_latest": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Latest",
+            "description": "Return only the latest published version of each article or dataset."
+          },
+          "institution": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Institution",
+            "description": "Filter by institution ID"
+          },
+          "group_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Group Id",
+            "description": "Filter by group ID"
+          },
+          "published_since": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 32
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Published Since",
+            "description": "ISO 8601 date. Return only articles published after this date.",
+            "examples": [
+              "2025-01-01"
+            ]
+          },
+          "modified_since": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 32
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Modified Since",
+            "description": "ISO 8601 date. Return only articles modified after this date."
+          },
+          "item_type": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Item Type",
+            "description": "Filter by content type ID"
+          },
+          "categories": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 512
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Categories",
+            "description": "Comma-separated list of category IDs to filter by",
+            "examples": [
+              "13,42"
+            ]
+          },
+          "doi": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Doi",
+            "description": "Filter by exact DOI"
+          },
+          "handle": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Handle",
+            "description": "Filter by handle"
+          },
+          "resource_doi": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resource Doi"
+          },
+          "order": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "published_date",
+                  "modified_date",
+                  "created_date",
+                  "title",
+                  "defined_type",
+                  "group_id",
+                  "size"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Order",
+            "description": "Field to sort results by"
+          },
+          "order_direction": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "asc",
+                  "desc"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Order Direction",
+            "description": "Sort direction"
+          },
+          "page": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page",
+            "description": "Page number (1-based)"
+          },
+          "page_size": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 1000.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page Size",
+            "description": "Results per page"
+          },
+          "limit": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 1000.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Limit",
+            "description": "Maximum results to return"
+          },
+          "offset": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Offset",
+            "description": "Number of results to skip"
+          },
+          "search_operator": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "AND",
+                  "OR",
+                  "EXACT"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Search Operator",
+            "description": "Operator used to combine search terms."
+          },
+          "search_scope": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "title",
+                    "description",
+                    "tag",
+                    "author"
+                  ]
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Search Scope",
+            "description": "Metadata fields in which to search."
+          }
+        },
+        "type": "object",
+        "title": "DatasetSearchRequest",
+        "description": "Request body for ``POST /v3/datasets/search``.",
+        "examples": [
+          {
+            "limit": 10,
+            "order": "published_date",
+            "order_direction": "desc",
+            "search_for": "wind turbine"
           }
         ]
       },
