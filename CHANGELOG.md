@@ -5,6 +5,39 @@ appear first; this file is the source of truth for release notes.
 
 Commit links point to <https://github.com/4TUResearchData/djehuty>.
 
+## [v26.8.2]
+
+This patch release consists of 13 commits made by 5 authors.
+
+It aligns the v3 article search API with the legacy behaviour, fixes several UI
+issues around Preview expiry dates, notifications and the mobile viewport, writes
+a collection's dataset list only once, refreshes dependencies, extends Ruff
+enforcement to the web validator, stabilises the end-to-end tests, and documents
+the djehuty Community.
+
+### Documentation
+
+- Add information about the djehuty Community to the README and CONTRIBUTING. ([95bd036](https://github.com/4TUResearchData/djehuty/commit/95bd03666106d527e9ca3ea1f539e2b81b36a613))
+
+### Bugfixes
+
+- Match the v3 article search API to the legacy behaviour for partial queries. ([d745e2f](https://github.com/4TUResearchData/djehuty/commit/d745e2f29ba3708ec161bd1683c61aa6805a375c))
+- Roll over month and year ends when a Preview sets an expiry date. ([10db53f](https://github.com/4TUResearchData/djehuty/commit/10db53fb19c530553db7e3958ec0cad18161c8ed))
+- Stack notifications and keep the previous colour. ([0a87f26](https://github.com/4TUResearchData/djehuty/commit/0a87f26c2057f85949503179f374989434cb5385))
+- Write a collection's dataset list only once. ([af3d6af](https://github.com/4TUResearchData/djehuty/commit/af3d6af220703d00696ef3a136d99a86bb30ab08))
+- Pin the viewport and banner, and make the help icons touchable. ([fc8b3f0](https://github.com/4TUResearchData/djehuty/commit/fc8b3f08e2aee462596320a242f2684953ff8e05))
+
+### Incremental improvements
+
+- Improve the djehuty logs so they can be rotated with logrotate.d. ([8c15359](https://github.com/4TUResearchData/djehuty/commit/8c1535966b76507bdec0148b4abd2e782fdf2a72))
+- Update the Python dependencies. ([f275d77](https://github.com/4TUResearchData/djehuty/commit/f275d77a223ac52033db66aed16d5c21d53dc9fc), [2050a59](https://github.com/4TUResearchData/djehuty/commit/2050a59840318e7af06ca4d9d0b33708a4acee0b), [d4b3746](https://github.com/4TUResearchData/djehuty/commit/d4b374675e42dce9b14ab9513f304038a498252b))
+
+### Technical debt
+
+- Lint and format the web validator with Ruff, and add it to the enforced scope. ([780a469](https://github.com/4TUResearchData/djehuty/commit/780a469ab7ec78288a18b62c07029b5129304d1f))
+- Fix four flaky or failing end-to-end tests. ([ea83b16](https://github.com/4TUResearchData/djehuty/commit/ea83b16437fb15d464c23590af551264634ec7d3))
+
+
 ## [v26.8.1]
 
 This patch release consists of 12 commits made by 3 authors.
