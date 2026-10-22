@@ -48,6 +48,7 @@ except OSError as pyvips_oserror_message:
 try:
     import qrcode  # pylint: disable=unused-import
     import qrcode.image.svg  # pylint: disable=unused-import
+
     QRCODE_DEPENDENCY_LOADED = True
 except (ImportError, ModuleNotFoundError):
     QRCODE_DEPENDENCY_LOADED = False
@@ -941,14 +942,15 @@ def read_handle_configuration(xml_root):
         config.handle_prefix = config_value(handle, "prefix")
         config.handle_index = config_value(handle, "index")
 
+
 def read_igsn_configuration(xml_root):
     """Procedure to parse and set the IGSN API configuration."""
     igsn = xml_root.find("igsn")
     if igsn:
-        config.igsn_url      = config_value(igsn, "api-url")
-        config.igsn_id       = config_value(igsn, "repository-id")
+        config.igsn_url = config_value(igsn, "api-url")
+        config.igsn_id = config_value(igsn, "repository-id")
         config.igsn_password = config_value(igsn, "password")
-        config.igsn_prefix   = config_value(igsn, "prefix")
+        config.igsn_prefix = config_value(igsn, "prefix")
         enabled = config_value(igsn, "enabled")
         if enabled is not None:
             config.igsn_enabled = enabled.strip().lower() in ("1", "true", "yes", "on")
@@ -960,6 +962,7 @@ def read_igsn_configuration(xml_root):
                 if domain.text is None or domain.text.strip() == "":
                     continue
                 config.igsn_allowed_domains.append(domain.text.strip())
+
 
 def read_automatic_login_configuration(xml_root):
     """Procedure to parse and set automatic login for development setups."""
@@ -1810,7 +1813,7 @@ def main(
 
             if config.igsn_prefix is not None:
                 if not QRCODE_DEPENDENCY_LOADED:
-                    logger.error ("Dependency 'qrcode' is required for IGSN.")
+                    logger.error("Dependency 'qrcode' is required for IGSN.")
                     raise DependencyNotAvailable
 
             if config.s3_buckets:
