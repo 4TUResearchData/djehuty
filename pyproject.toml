@@ -118,6 +118,7 @@ include = [
     "src/djehuty/web/xml_formatter.py",
     "src/djehuty/web/formatter.py",
     "src/djehuty/web/validator.py",
+    "src/djehuty/web/ui.py",
 ]
 
 [tool.ruff.lint]
