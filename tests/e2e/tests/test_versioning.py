@@ -472,8 +472,8 @@ class TestNewVersionWithDeletedDraft:
         # no active draft.
         deleted_table = authenticated_page.locator("#table-deleted")
         expect(deleted_table).to_be_visible()
-        restore_link = f'a[href="/my/datasets/{container_uuid}/restore"]'
-        expect(deleted_table.locator(f"tbody tr:has({restore_link})")).to_have_count(1)
+        restore_form = f'form[action="/my/datasets/{container_uuid}/restore"]'
+        expect(deleted_table.locator(f"tbody tr:has({restore_form})")).to_have_count(1)
         drafts_table = authenticated_page.locator("#table-unpublished")
         if drafts_table.count() > 0:
             edit_link = f'a[href="/my/datasets/{container_uuid}/edit"]'
