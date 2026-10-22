@@ -4,6 +4,7 @@ Regression test for GHSA-3gh2-4q87-wcjx. The contract:
 
 * reads require ``metadata_read``;
 * writes require ``metadata_edit``;
+* deleting a draft requires ``metadata_remove``;
 * private-link routes are owner-only;
 * the owner is never affected.
 """
@@ -26,6 +27,7 @@ NONE = {
 }
 CAN_READ = {**NONE, "metadata_read": True}
 CAN_EDIT = {**CAN_READ, "metadata_edit": True}
+CAN_REMOVE = {**CAN_READ, "metadata_remove": True}
 
 
 class _Cache:
@@ -88,6 +90,10 @@ class _Db:
         self.writes.append("delete_dataset_draft")
         return True
 
+    def soft_delete_dataset_draft(self, *a, **k):
+        self.writes.append("soft_delete_dataset_draft")
+        return True
+
     def insert_private_link(self, *a, **k):
         self.writes.append("insert_private_link")
         return "link:new"
@@ -110,12 +116,13 @@ def _client(shared, perms):
 
 
 # Each row: (label, http_method, path, json_body, required_permission).
-# required_permission is "read" (metadata_read), "edit" (metadata_edit) or
-# "owner" (owner-only; no collaborator flag ever grants it).
+# required_permission is "read" (metadata_read), "edit" (metadata_edit),
+# "remove" (metadata_remove) or "owner" (owner-only; no collaborator flag
+# ever grants it).
 ROUTES = [
     ("get_article", "GET", f"/v2/account/articles/{DATASET}", None, "read"),
     ("update_article", "PUT", f"/v2/account/articles/{DATASET}", {"title": "x" * 3}, "edit"),
-    ("delete_article", "DELETE", f"/v2/account/articles/{DATASET}", None, "edit"),
+    ("delete_article", "DELETE", f"/v2/account/articles/{DATASET}", None, "remove"),
     ("list_authors", "GET", f"/v2/account/articles/{DATASET}/authors", None, "read"),
     ("replace_authors", "PUT", f"/v2/account/articles/{DATASET}/authors", {"authors": []}, "edit"),
     ("add_authors", "POST", f"/v2/account/articles/{DATASET}/authors", {"authors": []}, "edit"),
@@ -237,6 +244,22 @@ def test_metadata_edit_collaborator_can_write():
         client, _ = _client(shared=True, perms=CAN_EDIT)
         response = client.request(method, path, json=body, headers=AUTH)
         assert response.status_code != 403, f"{label}: write denied with metadata_edit"
+
+
+def test_deleting_a_draft_requires_metadata_remove():
+    """metadata_edit is not enough to soft delete a draft; metadata_remove is."""
+    for label, method, path, body, perm in ROUTES:
+        if perm != "remove":
+            continue
+        client, db = _client(shared=True, perms=CAN_EDIT)
+        response = client.request(method, path, json=body, headers=AUTH)
+        assert response.status_code == 403, f"{label}: allowed with only metadata_edit"
+        assert db.writes == [], f"{label}: denied delete persisted {db.writes}"
+
+        client, db = _client(shared=True, perms=CAN_REMOVE)
+        response = client.request(method, path, json=body, headers=AUTH)
+        assert response.status_code != 403, f"{label}: denied with metadata_remove"
+        assert db.writes == ["soft_delete_dataset_draft"], f"{label}: wrote {db.writes}"
 
 
 def test_private_links_are_owner_only():

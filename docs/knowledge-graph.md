@@ -81,6 +81,18 @@ The data model follows a natural expression of published versions as a linked
 list. The figure above further reveals that the *view*, *download*, *share* and
 *citation* counts are stored in a version-unspecific way.
 
+### Soft-deleted drafts
+
+Deleting a draft dataset does not remove its triples. Instead, the draft is
+marked with `djht:is_deleted` set to `true` and a `djht:deleted_date`
+timestamp, while its link to the `djht:DatasetContainer` is kept. A soft-deleted
+draft is hidden from the depositor's *Drafts*, *Under review*, and *Published*
+lists and appears under a separate *Deleted* list, from where it can be restored
+(clearing `djht:is_deleted`) or permanently deleted (removing the triples as
+before). The absence of `djht:is_deleted` is treated as "not deleted", so drafts
+created before this property existed need no migration. File contents on the
+filesystem are not affected by soft delete, restore, or permanent delete.
+
 ## Collections
 
 Collections provide a way to group `djht:Dataset` objects.
