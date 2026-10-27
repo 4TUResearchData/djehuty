@@ -1,10 +1,7 @@
 """Unit tests for the DataCite records behind an administrator's licence change.
 
 Pins the behaviour of /admin/update-published-dataset/license/update: a
-published dataset has a container DOI and a version DOI, both state the licence
-in their rightsList, so both records are re-sent.  When DataCite refuses one,
-the records it already accepted are re-sent after the database is back on the
-previous licence, otherwise the two are left out of step.
+published dataset has a container DOI and a version DOI.
 """
 
 import json
@@ -18,8 +15,6 @@ from djehuty.web import wsgi as wsgi_module
 from djehuty.web.config import config
 from djehuty.web.wsgi import WebServer
 
-# The handler logs at AUDIT and the request path logs at ACCESS.  Only the
-# command-line entry point registers those levels, so the tests add them.
 convenience.add_logging_level("ACCESS", logging.INFO + 5)
 convenience.add_logging_level("AUDIT", logging.INFO + 6)
 
@@ -29,8 +24,6 @@ CONTAINER_DOI = f"10.4121/{CONTAINER_UUID}"
 OLD_LICENSE = "https://creativecommons.org/licenses/by/4.0/"
 NEW_LICENSE = "https://creativecommons.org/publicdomain/zero/1.0/"
 
-# The two DOI targets as ('version', 'doi override') pairs, the way
-# '__send_license_doi_records' passes them to '__update_item_doi'.
 CONTAINER_TARGET = (None, CONTAINER_DOI)
 VERSION_TARGET = (2, None)
 
