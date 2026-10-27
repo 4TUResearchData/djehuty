@@ -96,10 +96,16 @@ commits and pull requests.
 
 ## Community
 
-The [djehuty Community](https://djehuty.4tu.nl/community/) is a place for users
-and contributors to connect, share ideas and help shape the future of djehuty.
+The [djehuty Community](https://djehuty.4tu.nl/community/) is a place for users and contributors 
+to connect, share ideas and help shape the future of djehuty.
 Join the monthly [Community Hours](https://djehuty.4tu.nl/community/community-hour/)
-to meet other users and contributors and discuss recent developments and upcoming work.
+to meet other users and contributors and discuss recent developments and upcoming work,or start a
+[discussion](https://github.com/4TUResearchData/djehuty/discussions) any time.
+
+## Contributors
+
+Everyone who has contributed to djehuty, in any way, is recognized in
+[CONTRIBUTORS.md](./CONTRIBUTORS.md).
 
 ## Security
 
