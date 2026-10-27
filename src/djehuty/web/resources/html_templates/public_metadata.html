@@ -229,7 +229,7 @@
 {%- if item.resource_doi %}
         <div id="peer">
             <h3 class="label">Associated peer-reviewed publication</h3>
-            <a class="corporate-identity" href="https://doi.org/{{item.resource_doi}}" target="_blank" rel="noopener noreferrer" title="opens in new window">{{item.resource_title}}</a>
+            <a class="corporate-identity" href="https://doi.org/{{item.resource_doi}}" target="_blank" rel="noopener noreferrer" title="opens in new window">{{item.resource_title or "https://doi.org/" ~ item.resource_doi}}</a>
         </div>
 {%- endif %}
 {%- if references %}
