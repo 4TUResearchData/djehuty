@@ -170,7 +170,6 @@ WHERE {
       ?collaborator       rdf:type            djht:Collaborator .
       ?collaborator       djht:item           ?dataset .
       ?collaborator       djht:account        ?collaborator_account .
-      OPTIONAL { ?collaborator djht:is_supervisor ?collaborator_is_supervisor . }
     }
     OPTIONAL {
       ?dataset            rdf:type                   djht:Dataset .
@@ -219,9 +218,7 @@ WHERE {
     BIND(xsd:boolean((?collaborator_account = <account:{{account_uuid}}> ||
                       ?member_account = <account:{{account_uuid}}>) &&
                      ?account != <account:{{account_uuid}}>) AS ?is_shared_with_me)
-    BIND(COALESCE((?collaborator_account = <account:{{account_uuid}}> &&
-                   ?collaborator_is_supervisor = "true"^^xsd:boolean) ||
-                  ?member_account = <account:{{account_uuid}}>,
+    BIND(COALESCE(?member_account = <account:{{account_uuid}}>,
                   "false"^^xsd:boolean) AS ?is_supervisor)
     {%- else %}
     BIND("false"^^xsd:boolean AS ?is_shared_with_me)
