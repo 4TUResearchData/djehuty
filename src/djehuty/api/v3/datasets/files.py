@@ -4,9 +4,9 @@ import hashlib
 import logging
 import os
 
-from fastapi import APIRouter, Body, Depends, HTTPException, Request, Response
+from fastapi import APIRouter, Body, Depends, Request, Response
 from fastapi.responses import JSONResponse
-from starlette.datastructures import UploadFile as StarletteUploadFile
+from starlette.requests import ClientDisconnect
 
 from djehuty.api.dependencies import get_db, get_token, require_auth
 from djehuty.api.exceptions import ForbiddenError, InvalidInputError, NotFoundError
@@ -14,6 +14,7 @@ from djehuty.api.models.common import ErrorResponse
 from djehuty.api.permissions import enforce_collaborative_permissions
 from djehuty.api.v3._shared import _ok
 from djehuty.api.v3.datasets._shared import DatasetId, _resolve_dataset
+from djehuty.utils.rdf import uuid_to_uri
 from djehuty.web import formatter
 from djehuty.web.config import config
 from djehuty.web.locks import Locks
@@ -79,16 +80,96 @@ def list_image_files(
 # ---------------------------------------------------------------------------
 # Upload
 #
-# Native FastAPI port of /v3/datasets/<id>/upload. Same observable behaviour
-# as the legacy ``api_v3_dataset_upload_file`` (status codes, response shape,
-# storage path layout, MD5 strict-check semantics), but implemented using
-# Starlette's built-in multipart parser (via ``UploadFile``) instead of the
-# legacy's manual byte-level boundary parsing. Once api-service=new is the
-# only configuration, the legacy 500-line implementation can be deleted.
+# Native FastAPI port of /v3/datasets/<id>/upload. Reproduces the legacy
+# ``api_v3_dataset_upload_file`` success behaviour (status codes, response
+# shape, storage path layout, MD5 strict-check). The single multipart part is
+# streamed from ``request.stream()`` to a ``.part`` scratch file and renamed
+# onto the final name only once fully received; any failure discards it, so
+# the final name always denotes a complete file. Once api-service=new is the
+# only configuration, the legacy implementation can be deleted.
 # ---------------------------------------------------------------------------
 
-_UPLOAD_CHUNK_SIZE = 4096
+_UPLOAD_CHUNK_SIZE = 1024 * 1024
 _EMPTY_FILE_MD5 = "d41d8cd98f00b204e9800998ecf8427e"
+_QUOTA_MESSAGE = (
+    'You\'ve reached your storage quota. <a href="/my/dashboard">Request more storage here</a>.'
+)
+
+
+def _accepts_json(request) -> bool:
+    """Legacy ``accepts_json``: a missing Accept header counts as ``*/*``."""
+    acceptable = request.headers.get("accept")
+    if acceptable is None:
+        return True
+    if not acceptable:
+        return False
+    return "*/*" in acceptable or "application/json" in acceptable
+
+
+def _error_413(request) -> Response:
+    """Port of legacy ``error_413`` (Accept-aware storage-quota response)."""
+    if _accepts_json(request):
+        return JSONResponse(status_code=413, content={"message": _QUOTA_MESSAGE})
+    return Response(content=_QUOTA_MESSAGE, status_code=413, media_type="text/plain")
+
+
+def _discard_upload(db, dataset, account_uuid, file_uuid, path):
+    """Delete a partial upload's bytes and roll back its file record."""
+    try:
+        if db.delete_item_from_list(dataset["uri"], "files", uuid_to_uri(file_uuid, "file")):
+            db.cache.invalidate_by_prefix(f"{account_uuid}_storage")
+            db.cache.invalidate_by_prefix(f"{dataset['uuid']}_dataset_storage")
+    except (KeyError, StopIteration):
+        pass
+    try:
+        os.remove(path)
+    except OSError:
+        pass
+
+
+class _MultipartStreamReader:
+    """Forward-only reader over the ASGI request body.
+
+    Exposes the ``read``/``readline`` surface the single-part multipart parse
+    needs, pulling chunks from ``request.stream()`` on demand.
+    """
+
+    def __init__(self, request):
+        self._iterator = request.stream().__aiter__()
+        self._buffer = bytearray()
+        self._eof = False
+
+    async def _pull(self):
+        if self._eof:
+            return False
+        try:
+            self._buffer.extend(await self._iterator.__anext__())
+        except StopAsyncIteration:
+            self._eof = True
+            return False
+        return True
+
+    async def read(self, size):
+        while len(self._buffer) < size and not self._eof:
+            await self._pull()
+        data = bytes(self._buffer[:size])
+        del self._buffer[:size]
+        return data
+
+    async def readline(self, limit):
+        while True:
+            index = self._buffer.find(b"\n")
+            if index != -1 and index < limit:
+                end = index + 1
+            elif len(self._buffer) >= limit:
+                end = limit
+            elif await self._pull():
+                continue
+            else:
+                end = len(self._buffer)
+            line = bytes(self._buffer[:end])
+            del self._buffer[:end]
+            return line
 
 
 @router.post(
@@ -128,7 +209,6 @@ async def upload_file(
     account_uuid = account["uuid"]
     args = request.query_params
 
-    # Quota check.
     account_record = db.account_by_uuid(account_uuid)
     if account_record is None or "quota" not in account_record:
         raise ForbiddenError(
@@ -138,7 +218,7 @@ async def upload_file(
     storage_used = db.account_storage_used(account_uuid)
     storage_available = account_record["quota"] - storage_used
     if storage_available < 1:
-        raise HTTPException(status_code=413, detail="Quota exhausted.")
+        return _error_413(request)
 
     strict_check = validator.integer_value(args, "strict_check", 0, 1)
     supplied_md5 = None
@@ -167,9 +247,9 @@ async def upload_file(
             if "computed_md5" not in existing:
                 continue
             if existing["computed_md5"] == supplied_md5:
-                raise HTTPException(
+                return JSONResponse(
                     status_code=409,
-                    detail="A file with the same MD5 is already attached.",
+                    content={"message": "The resource is already available."},
                 )
 
     content_type = request.headers.get("content-type", "")
@@ -182,13 +262,25 @@ async def upload_file(
             media_type="text/plain",
         )
 
+    try:
+        boundary = content_type.split("boundary=")[1].split(";")[0]
+    except IndexError as error:
+        logger.error("File upload failed due to missing boundary.")
+        raise InvalidInputError(
+            "Missing boundary for multipart/form-data.", "MissingBoundary"
+        ) from error
+
     content_length = request.headers.get("content-length")
-    if content_length is None:
+    try:
+        bytes_to_read = int(content_length)
+    except (TypeError, ValueError):
+        bytes_to_read = None
+    if bytes_to_read is None:
         logger.error("File upload failed due to missing Content-Length.")
         raise InvalidInputError("Missing Content-Length header.", "MissingContentLength")
 
     # Content-Length includes the multipart overhead (~220 bytes), as legacy.
-    if storage_available < int(content_length):
+    if storage_available < bytes_to_read:
         logger.error(
             "File upload failed because user's quota limit: quota(%d), used(%d), "
             "available(%s), filesize(%s)",
@@ -197,14 +289,42 @@ async def upload_file(
             storage_available,
             content_length,
         )
-        raise HTTPException(status_code=413, detail="Quota exceeded.")
+        return _error_413(request)
 
-    form = await request.form()
-    file = next((value for value in form.values() if isinstance(value, StarletteUploadFile)), None)
-    if file is None:
-        raise InvalidInputError(
-            "Expected a file part in the multipart request.", "MalformedRequest"
-        )
+    reader = _MultipartStreamReader(request)
+    read_ahead_bytes = len(boundary) + 4
+    expected_begin = f"--{boundary}\r\n".encode("utf-8")
+    expected_end = f"\r\n--{boundary}--\r\n".encode("utf-8")
+
+    boundary_scan = await reader.read(read_ahead_bytes)
+    if boundary_scan != expected_begin:
+        logger.error("File upload failed due to unexpected read while parsing.")
+        raise InvalidInputError("Expected stream to start with boundary.", "MalformedRequest")
+
+    line = None
+    header_line_count = 0
+    part_headers = ""
+    while line != b"\r\n" and header_line_count < 10:
+        line = await reader.readline(4096)
+        part_headers += line.decode("utf-8")
+        header_line_count += 1
+
+    if "Content-Disposition: form-data" not in part_headers:
+        logger.error("File upload failed due to missing Content-Disposition.")
+        raise InvalidInputError("Expected Content-Disposition: form-data", "MalformedRequest")
+
+    filename = None
+    try:
+        filename = part_headers.split("filename=")[1].split(";")[0].split("\r\n")[0]
+        if filename[0] == '"' and filename[-1] == '"':
+            filename = filename[1:-1]
+    except IndexError:
+        pass
+
+    headers_len = len(part_headers.encode("utf-8"))
+    computed_file_size = bytes_to_read - read_ahead_bytes - headers_len - len(expected_end)
+    bytes_to_read = bytes_to_read - read_ahead_bytes - headers_len
+    content_to_read = bytes_to_read - len(expected_end)
 
     # Insert file metadata first so the file_uuid is available for the
     # destination filename. ``upload_url`` is stored verbatim for parity with
@@ -213,8 +333,8 @@ async def upload_file(
     _process_locks.lock(LockTypes.FILE_LIST)
     try:
         file_uuid = db.insert_file(
-            name=file.filename,
-            size=file.size or 0,
+            name=filename,
+            size=computed_file_size,
             is_link_only=0,
             upload_url=f"/article/{dataset_id}/upload",
             upload_token=token,
@@ -225,53 +345,68 @@ async def upload_file(
         _process_locks.unlock(LockTypes.FILE_LIST)
 
     output_filename = os.path.join(config.storage, f"{dataset_id}_{file_uuid}")
+    part_filename = f"{output_filename}.part"
     md5_hasher = hashlib.new("md5", usedforsecurity=False)
     file_size = 0
-    is_incomplete: int | None = None
+    interrupted = False
 
+    # Stream to a ``.part`` scratch file; rename it onto the final name only
+    # once the upload is fully received and well-formed. Any failure removes
+    # the scratch file and rolls back the metadata, so the final name always
+    # denotes a complete file and an aborted upload leaves no dirty storage.
     try:
-        # Use os.open + write so we can chmod the same descriptor afterwards,
-        # matching the legacy's permission-tightening behaviour.
-        destination_fd = os.open(output_filename, os.O_WRONLY | os.O_CREAT, 0o600)
+        destination_fd = os.open(part_filename, os.O_WRONLY | os.O_CREAT, 0o600)
         try:
-            while True:
-                chunk = await file.read(_UPLOAD_CHUNK_SIZE)
+            remaining = content_to_read
+            while remaining > _UPLOAD_CHUNK_SIZE:
+                chunk = await reader.read(_UPLOAD_CHUNK_SIZE)
                 if not chunk:
                     break
-                if file_size + len(chunk) > storage_available:
-                    is_incomplete = 1
-                    break
-                written = os.write(destination_fd, chunk)
-                file_size += written
+                remaining -= _UPLOAD_CHUNK_SIZE
+                file_size += os.write(destination_fd, chunk)
                 md5_hasher.update(chunk)
-            if os.name != "nt":
-                os.fchmod(destination_fd, 0o400)
+            if remaining > 0:
+                chunk = await reader.read(remaining)
+                file_size += os.write(destination_fd, chunk)
+                md5_hasher.update(chunk)
+        except ClientDisconnect:
+            interrupted = True
+            logger.error("File upload for %s was interrupted by the client.", output_filename)
         finally:
             os.close(destination_fd)
     except OSError as error:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Writing {output_filename} to disk failed: {error}",
-        ) from error
+        logger.error("Writing %s to disk failed: %s", part_filename, error)
+        _discard_upload(db, dataset, account_uuid, file_uuid, part_filename)
+        return Response(status_code=500)
 
     computed_md5 = md5_hasher.hexdigest()
+    bytes_to_read -= file_size
+    complete = (
+        not interrupted and computed_file_size == file_size and bytes_to_read == len(expected_end)
+    )
+    if complete:
+        complete = await reader.read(bytes_to_read) == expected_end
 
-    # MD5 strict-check enforcement: clean up the partial upload then 400.
     if strict_check and computed_md5 != supplied_md5:
-        try:
-            from djehuty.utils.rdf import uuid_to_uri
-
-            file_uri = uuid_to_uri(file_uuid, "file")
-            if db.delete_item_from_list(dataset["uri"], "files", file_uri):
-                db.cache.invalidate_by_prefix(f"{account_uuid}_storage")
-                db.cache.invalidate_by_prefix(f"{dataset['uuid']}_dataset_storage")
-        except (ImportError, KeyError, StopIteration):
-            pass
-        try:
-            os.remove(output_filename)
-        except OSError:
-            pass
+        _discard_upload(db, dataset, account_uuid, file_uuid, part_filename)
         raise InvalidInputError("MD5 checksum mismatch.", "MD5Mismatch")
+
+    if not complete:
+        logger.error("Discarding incomplete upload for %s.", output_filename)
+        _discard_upload(db, dataset, account_uuid, file_uuid, part_filename)
+        raise InvalidInputError("The uploaded file is incomplete.", "IncompleteUpload")
+
+    try:
+        os.rename(part_filename, output_filename)
+    except OSError as error:
+        logger.error("Publishing %s failed: %s", output_filename, error)
+        _discard_upload(db, dataset, account_uuid, file_uuid, part_filename)
+        return Response(status_code=500)
+    if os.name != "nt":
+        try:
+            os.chmod(output_filename, 0o400)
+        except OSError:
+            logger.error("Could not set %s read-only.", output_filename)
 
     from djehuty.services.handles import register_file_handle
     from djehuty.services.imaging import image_mimetype
@@ -286,11 +421,9 @@ async def upload_file(
 
     # Best-effort handle.net PID registration. Returns False (and the file
     # is marked with handle=None) if not configured.
-    handle = None
-    if not is_incomplete:
-        handle = f"{config.handle_prefix}/{file_uuid}"
-        if not register_file_handle(handle, download_url):
-            handle = None
+    handle = f"{config.handle_prefix}/{file_uuid}"
+    if not register_file_handle(handle, download_url):
+        handle = None
 
     db.update_file(
         account_uuid,
@@ -301,14 +434,10 @@ async def upload_file(
         filesystem_location=output_filename,
         file_size=file_size,
         is_image=is_image,
-        is_incomplete=is_incomplete,
         handle=handle,
     )
 
-    response_data: dict[str, object] = {"location": f"{config.base_url}/v3/file/{file_uuid}"}
-    if is_incomplete:
-        response_data["is_incomplete"] = is_incomplete
-    return JSONResponse(content=response_data)
+    return JSONResponse(content={"location": f"{config.base_url}/v3/file/{file_uuid}"})
 
 
 # ---------------------------------------------------------------------------
