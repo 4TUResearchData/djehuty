@@ -92,6 +92,9 @@ lists and appears under a separate *Deleted* list, from where it can be restored
 before). The absence of `djht:is_deleted` is treated as "not deleted", so drafts
 created before this property existed need no migration. File contents on the
 filesystem are not affected by soft delete, restore, or permanent delete.
+Only the depositor and the supervisors of the dataset's group can soft delete,
+restore or permanently delete a draft (see [Collaborators](#collaborators) and
+[Institutions/groups](#institutionsgroups)).
 
 ## Collections
 
@@ -163,6 +166,11 @@ properties.
 
 *Figure: The RDF pattern for a `djht:InstitutionGroup`.*
 
+A group can have supervisors. Members marked as supervisor who can do
+everything the depositor can on drafts belonging to their group, including
+soft deleting, restoring and permanently deleting them. Other group members get
+no access to drafts they did not create.
+
 ## Files
 
 A `djht:Dataset` keeps a list of `djht:File` records. The file metadata is
@@ -195,3 +203,8 @@ for both metadata (the form fields) and data (the files).
 ![](figures/collaborators.svg)
 
 *Figure: The RDF pattern for a `djht:Collaborator`.*
+
+The **depositor** (the `djht:account` of the `djht:DatasetContainer`) can do
+everything, including deleting the draft. An **invited collaborator** is a `djht:Collaborator` 
+the depositor adds on the dataset's edit page. They can be given metadata read and edit, and data read,
+edit and remove. They cannot be given rights to delete, restore or permanently delete the draft.
