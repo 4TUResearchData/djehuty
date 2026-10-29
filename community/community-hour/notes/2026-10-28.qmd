@@ -1,0 +1,72 @@
+---
+title: "Community Hour: October 2026"
+date: 2026-10-28
+description: "Inaugural djehuty Community Hour: modernising and scaling djehuty, path towards contributing, AI-assisted coding, and a poll on the new logo."
+---
+
+## Details
+
+- **Date and time:** 28 October 2026, 15:00–16:00 (Amsterdam time)
+- **Location:** online
+- **Chair / note taker:** Aleks / Maura
+- **Attendees:** Kairo de Araujo, Maura Burke, Victoria Polaka, Luca Salvino, Nami Sunami, Manuel Garcia, Leila Inigo de la Cruz, Aleksandra Wilczynska, Richard Dennis
+
+## Agenda
+
+1. Welcome and introductions
+2. Modernising djehuty: where we are, where we're headed
+3. Community updates and contributions
+4. New djehuty logo
+5. Q&A
+
+## Notes
+
+### Welcome and introductions
+
+- First `djehuty` Community Hour. Participants were reminded to follow the Code of Conduct and the meeting was recorded.
+- Short round of introductions.
+- Icebreaker (what brought you here): 3 use djehuty day to day, 4 are interested in FAIR data / the repository, 4 are curious about contributing, 2 work on related infrastructure elsewhere, 3 were just here to see what it's about.
+
+### Modernising djehuty: where we are, where we're headed
+
+- The core functionality is in place. The question now is how to grow and how to increase collaboration.
+- The documentation has been improved to make contributing and using `djehuty` easier, and new standards are being adopted: <https://djehuty.4tu.nl/>.
+- A new challenge is the high volume of bot traffic and AI scraping. `djehuty` needs to scale to respond to this. The main goals are scalability and security.
+- `djehuty` in 4TU.ReDa currently handles 4–5 requests per second and download demand is already very high; this is expected to keep increasing.
+- Scalability here means modernising how `djehuty` works. The volume through 4TU.ReDa alone is growing fast enough to put pressure on the system.
+- Security: `djehuty` uses GitHub security advisories, so vulnerabilities, fixes and consequences are communicated transparently.
+- Who uses `djehuty`? 4TU.ReDa and Nikhef, for now. Others may exist, since anyone can deploy it without telling the team.
+- The figshare APIs are a historical element, kept for compatibility from the 4TU.ReDa migration.
+- All contributions are welcome (tests, documentation, etc.). There are many opportunities to work with different technologies and build familiarity.
+
+### Community updates and contributions
+
+- Yuly presented how they came to contribute to `djehuty`.
+  - They used a GPT to find projects to contribute to: first asking about relevant research infrastructure areas, then about projects working on research repositories.
+  - They contacted the shortlisted projects, and only the 4TU.ReDa team responded.
+  - Working on `djehuty` issues was very rewarding: the team was responsive and gave constructive, friendly feedback.
+  - In earlier projects, their pull requests were never merged, or were merged without any comment. Good communication with contributors makes a big difference.
+- Contributing: a "Working on this" comment on an existing issue is enough, no email to info@djehuty.4tu.nl is needed first. Contributors can then be assigned to the issue. Aleks will adapt `CONTRIBUTING.md` accordingly.
+- AI-assisted coding: there are no explicit guidelines yet. It is not blocked, but contributors must be able to confirm the quality of their work, and the team will review contributions and see whether low-quality AI output becomes a problem. In short: be responsible. The existing issue is [#323](https://github.com/4TUResearchData/djehuty/issues/323). The Nextcloud rules on [disclosing AI-assisted contributions](https://github.com/nextcloud/notes?tab=contributing-ov-file#ai-assisted-contributions) were suggested as inspiration.
+- Kairo's personal rule for open source: make your contribution, it's better to say sorry than not to have started at all.
+- Maura is considering a new djehuty instance, depending on the outcome of an EOSC preparatory project for a repository grant application that was rejected (a demo is at <https://grail-demo.trialanderror.org/>). The team clarified that scalability work is about modernising `djehuty`, not about building new instances. Maura noted a new instance could still reveal pressure points or new features needed for different use cases. More news at the next Community Hour.
+
+### New djehuty logo
+
+- Presented by Kikis, including a brief story of djehuty: <https://en.wikipedia.org/wiki/Djehuty_(general)>.
+- Poll results (number of +1 votes): Option A 6, Option B 2, Option C 2.
+
+## Decisions
+
+- A "Working on this" comment on an issue is sufficient to start work on it; no email beforehand is required.
+
+## Action items
+
+| Action | Owner | Due |
+|--------|-------|-----|
+| Update `CONTRIBUTING.md` to remove the email-first requirement for existing issues | Aleks | not set |
+| Report on the possible new djehuty instance | Maura | Next Community Hour |
+
+## Next meeting
+
+25 November 2026. Suggested topic: update on the possible new djehuty instance. Other topics welcome!
