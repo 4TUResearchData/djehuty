@@ -15,13 +15,42 @@ When contributing, remember to follow our [Code of Conduct](https://github.com/4
 
 All contributions - whether it’s code, bug reports, or ideas are appreciated and recognized. Contributors may be credited in release notes or project acknowledgments. Thank you for helping make the project better!
 
+Contributors are listed in [CONTRIBUTORS.md](./CONTRIBUTORS.md), following the
+[All Contributors](https://allcontributors.org/) specification. Every kind of
+contribution counts, not only code.
+
+### How to be added
+
+Comment on an issue or pull request with
+`@all-contributors please add @username for <types>`, or ask a maintainer. If
+your contribution happened outside GitHub, or you don't have an account, write
+to [info@djehuty.4tu.nl](mailto:info@djehuty.4tu.nl) and a maintainer will add
+you.
+
+We currently use these types: `code`, `doc`, `ideas`, `bug`, `security`,
+`question`, `review`, `design` and `talk`. See the
+[emoji key](https://allcontributors.org/en/reference/emoji-key/) for what each one
+means. If none of these seem to fit, feel free to suggest another emoji type.
+
+### How to be removed
+
+If you would rather not be listed, or want an entry or a type removed, write to
+[info@djehuty.4tu.nl](mailto:info@djehuty.4tu.nl) and a maintainer will remove
+it.
+
+
 ## Join the community
 
 Contributors are encouraged to take part in the
 [djehuty community](https://djehuty.4tu.nl/community/), where users and
 contributors connect, share ideas and discuss recent developments and upcoming work. Join the monthly
 [Community Hours](https://djehuty.4tu.nl/community/community-hour/); the
-community website has the meeting information.
+community website has the meeting information. 
+
+Questions and ideas are welcome in
+[Discussions](https://github.com/4TUResearchData/djehuty/discussions), where
+you can start a conversation any time. Bugs and concrete feature requests
+belong in [issues](https://github.com/4TUResearchData/djehuty/issues).
 
 ## Contribution workflows
 
