@@ -28,10 +28,9 @@ to [info@djehuty.4tu.nl](mailto:info@djehuty.4tu.nl) and a maintainer will add
 you.
 
 We currently use these types: `code`, `doc`, `ideas`, `bug`, `security`,
-`question` and `review`. See the
-[emoji key](https://allcontributors.org/docs/en/emoji-key) for what each one
-means. A contribution gets the type that matches what was done, so a pull
-request that only changes documentation is `doc`, not `code`.
+`question`, `review`, `design` and `talk`. See the
+[emoji key](https://allcontributors.org/en/reference/emoji-key/) for what each one
+means. If none of these seem to fit, feel free to suggest another emoji type.
 
 ### How to be removed
 
