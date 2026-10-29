@@ -21,6 +21,7 @@ INSERT {
         rdf:type                          djht:DatasetContainer ;
         djht:account                      ?account ;
         djht:dataset_id                   "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d"^^xsd:string ;
+        djht:doi                          "10.4121/search-seed-a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d"^^xsd:string ;
         djht:latest_published_version     <dataset:b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e> ;
         djht:published_versions           <blank:c3d4e5f6-a7b8-4c9d-8e0f-1a2b3c4d5e6f> ;
         djht:first_online_date            "2026-01-15T12:00:00"^^xsd:dateTime ;
@@ -120,6 +121,7 @@ INSERT {
         rdf:type                          djht:DatasetContainer ;
         djht:account                      ?account ;
         djht:dataset_id                   "11111111-2222-3333-8444-555555555555"^^xsd:string ;
+        djht:doi                          "10.4121/retract-seed-11111111-2222-3333-8444-555555555555"^^xsd:string ;
         djht:latest_published_version     <dataset:22222222-3333-4444-9555-666666666666> ;
         djht:published_versions           <blank:33333333-4444-5555-6666-777777777777> ;
         djht:first_online_date            "2026-02-01T12:00:00"^^xsd:dateTime ;
@@ -212,6 +214,7 @@ INSERT {
         rdf:type                          djht:DatasetContainer ;
         djht:account                      ?account ;
         djht:dataset_id                   "c0ffee00-0000-4000-8000-000000000001"^^xsd:string ;
+        djht:doi                          "10.4121/remove-files-seed-c0ffee00-0000-4000-8000-000000000001"^^xsd:string ;
         djht:latest_published_version     <dataset:c0ffee00-0000-4000-8000-000000000002> ;
         djht:published_versions           <blank:c0ffee00-0000-4000-8000-00000000000a> ;
         djht:first_online_date            "2026-03-01T12:00:00"^^xsd:dateTime ;
