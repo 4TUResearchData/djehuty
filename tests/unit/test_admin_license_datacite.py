@@ -93,6 +93,7 @@ class _Db:
 def _server(
     monkeypatch,
     in_production=True,
+    in_preproduction=False,
     doi_plan=None,
     revert_fails=False,
     previous_license=OLD_LICENSE,
@@ -107,9 +108,10 @@ def _server(
     server.db = _Db(events, previous_license=previous_license)
     server.db.revert_fails = revert_fails
     monkeypatch.setattr(config, "in_production", in_production)
-    monkeypatch.setattr(config, "in_preproduction", False)
+    monkeypatch.setattr(config, "in_preproduction", in_preproduction)
 
     def fake_send(self, item_id, **kwargs):
+        assert kwargs.get("from_draft") is False
         target = (kwargs.get("version"), kwargs.get("doi"))
         attempt = sum(1 for event in events if event == ("doi", target)) + 1
         events.append(("doi", target))
@@ -150,6 +152,13 @@ def test_both_doi_records_are_sent(monkeypatch):
 def test_datacite_is_untouched_outside_production(monkeypatch):
     """Outside production only the database is changed. DataCite is not called."""
     client, events = _server(monkeypatch, in_production=False)
+    assert _update_license(client).status_code == 204
+    assert events == [("db", NEW_LICENSE)]
+
+
+def test_datacite_is_untouched_in_preproduction(monkeypatch):
+    """In preproduction only the database is changed. DataCite is not called."""
+    client, events = _server(monkeypatch, in_preproduction=True)
     assert _update_license(client).status_code == 204
     assert events == [("db", NEW_LICENSE)]
 
@@ -228,16 +237,18 @@ def test_clearing_the_licence_inserts_nothing():
     """With None, the query only deletes the licence. It must not insert the
     text "None" as a licence."""
     query = _render_update_license(None)
-    assert "?dataset djht:license ?current_license" in query
-    assert "INSERT" not in query
+    changes = query.split("WHERE", 1)[0]
+    assert "?dataset djht:license ?current_license" in changes
+    assert "INSERT" not in changes
     assert "None" not in query
 
 
 def test_setting_a_licence_replaces_the_old_one():
     """With a URL, the query deletes the old licence and inserts the new one."""
     query = _render_update_license(NEW_LICENSE)
-    assert "?dataset djht:license ?current_license" in query
-    assert f"?dataset djht:license <{NEW_LICENSE}>" in query
+    changes = query.split("WHERE", 1)[0]
+    assert "?dataset djht:license ?current_license" in changes
+    assert f"?dataset djht:license <{NEW_LICENSE}>" in changes
 
 
 def test_a_failed_resend_is_reported_as_out_of_step(monkeypatch):
@@ -264,9 +275,14 @@ def test_a_failed_revert_is_reported_as_out_of_step(monkeypatch):
     """DataCite refuses the container record and the database revert fails.
 
     The database keeps the new licence while DataCite has the old one, so the
-    response is a 500."""
-    client, _ = _server(monkeypatch, doi_plan=lambda target, attempt: False, revert_fails=True)
+    response is a 500.
+    """
+    client, events = _server(monkeypatch, doi_plan=lambda target, attempt: False, revert_fails=True)
     assert _update_license(client).status_code == 500
+    assert events == [
+        ("db", NEW_LICENSE),
+        ("doi", CONTAINER_TARGET),
+    ]
 
 
 def _capture_doi_call(monkeypatch, exported_doi="10.4121/x.v2", raises=None):
@@ -317,8 +333,9 @@ def test_the_exported_identifier_is_kept_without_an_override(monkeypatch):
 
 
 def test_a_read_timeout_is_reported_as_a_failure(monkeypatch):
-    """A DataCite read timeout counts as a failed send, so the licence change
-    is undone instead of the request crashing with the new licence kept."""
+    """A DataCite read timeout counts as a failed send instead of escaping as
+    an exception.
+    """
     _capture_doi_call(monkeypatch, raises=requests.exceptions.ReadTimeout("too slow"))
     assert (
         WebServer()._WebServer__update_item_doi(CONTAINER_UUID, version=2, from_draft=False)
