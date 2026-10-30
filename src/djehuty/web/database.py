@@ -2267,9 +2267,7 @@ class SparqlInterface:
     def soft_delete_dataset_draft (self, container_uuid, dataset_uuid, account_uuid, owner_account_uuid):
         """Mark the draft dataset as deleted without removing its triples."""
 
-        # Only explicit collaborators are needed for cache invalidation; skip
-        # the costly inferred institution-group members.
-        collaborators = self.collaborators (dataset_uuid, include_inferred=False)
+        collaborators = self.collaborators (dataset_uuid)
         current_time  = datetime.strftime (datetime.now(), datetime_format)
         query   = self.__query_from_template ("soft_delete_dataset_draft", {
             "account_uuid":        account_uuid,
@@ -2286,8 +2284,7 @@ class SparqlInterface:
     def restore_dataset_draft (self, container_uuid, dataset_uuid, account_uuid, owner_account_uuid):
         """Clear the deleted mark on a soft-deleted draft dataset."""
 
-        # See soft_delete_dataset_draft: inferred members are not needed here.
-        collaborators = self.collaborators (dataset_uuid, include_inferred=False)
+        collaborators = self.collaborators (dataset_uuid)
         query   = self.__query_from_template ("restore_dataset_draft", {
             "account_uuid":        account_uuid,
             "container_uri":       rdf.uuid_to_uri (container_uuid, "container"),
