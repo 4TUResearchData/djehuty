@@ -35,10 +35,15 @@ def db():
 
 
 @pytest.fixture
-def draft(db):
-    container_uuid, dataset_uuid = db.insert_dataset(title="draft", account_uuid=OWNER)
+def group(db):
     group_uuid = db.insert_group("TU Delft", False, True, 28586, 28585, "tudelft.nl")
     db.insert_group_member(group_uuid, SUPERVISOR, True)
+    return group_uuid
+
+
+@pytest.fixture
+def draft(db, group):
+    container_uuid, dataset_uuid = db.insert_dataset(title="draft", account_uuid=OWNER)
 
     criteria = Graph()
     rdf.add(
@@ -96,6 +101,11 @@ def _delete_permanently(db, draft, account_uuid):
     return db.delete_dataset_draft(container_uuid, dataset_uuid, account_uuid, OWNER)
 
 
+def _draft_uuids(db, account_uuid, is_deleted):
+    records = db.datasets(account_uuid=account_uuid, is_published=False, is_deleted=is_deleted)
+    return [record["uuid"] for record in records]
+
+
 @pytest.mark.parametrize("account_uuid", [OWNER, SUPERVISOR])
 def test_owner_and_supervisor_can_soft_delete_and_restore(db, draft, account_uuid):
     _soft_delete(db, draft, account_uuid)
@@ -107,8 +117,15 @@ def test_owner_and_supervisor_can_soft_delete_and_restore(db, draft, account_uui
 
 @pytest.mark.parametrize("account_uuid", [OWNER, SUPERVISOR])
 def test_owner_and_supervisor_can_delete_permanently(db, draft, account_uuid):
+    _soft_delete(db, draft, OWNER)
+
     _delete_permanently(db, draft, account_uuid)
     assert not _has_draft(db, draft)
+
+
+def test_permanent_delete_requires_soft_delete(db, draft):
+    _delete_permanently(db, draft, OWNER)
+    assert _has_draft(db, draft)
 
 
 def test_collaborator_with_metadata_remove_cannot_soft_delete(db, draft):
@@ -128,6 +145,7 @@ def test_collaborator_with_metadata_remove_cannot_restore(db, draft):
 
 def test_collaborator_with_metadata_remove_cannot_delete_permanently(db, draft):
     _share_with_remove(db, draft[1])
+    _soft_delete(db, draft, OWNER)
 
     _delete_permanently(db, draft, COLLABORATOR)
     assert _has_draft(db, draft)
@@ -148,3 +166,23 @@ def test_dashboard_withholds_removal_from_collaborator(db, draft):
 
     records = db.datasets(account_uuid=COLLABORATOR, is_published=False)
     assert [record["is_supervisor"] for record in records] == [False]
+
+
+def test_supervisor_dashboard_follows_soft_delete_and_restore(db, draft):
+    assert _draft_uuids(db, SUPERVISOR, is_deleted=False) == [draft[1]]
+    assert _draft_uuids(db, SUPERVISOR, is_deleted=True) == []
+
+    _soft_delete(db, draft, OWNER)
+    assert _draft_uuids(db, SUPERVISOR, is_deleted=False) == []
+    assert _draft_uuids(db, SUPERVISOR, is_deleted=True) == [draft[1]]
+
+    _restore(db, draft, OWNER)
+    assert _draft_uuids(db, SUPERVISOR, is_deleted=False) == [draft[1]]
+    assert _draft_uuids(db, SUPERVISOR, is_deleted=True) == []
+
+
+def test_owner_who_is_supervisor_sees_draft_once(db, group, draft):
+    db.insert_group_member(group, OWNER, True)
+
+    records = db.datasets(account_uuid=OWNER, is_published=False)
+    assert [record["is_supervisor"] for record in records] == [True]
