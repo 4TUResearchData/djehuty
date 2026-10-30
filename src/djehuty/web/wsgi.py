@@ -2130,6 +2130,7 @@ class WebServer:
                             # to the group automatically.
                             datasets = self.db.datasets (account_uuid = account_uuid,
                                                          is_published = False,
+                                                         is_deleted   = None,
                                                          limit        = 10000,
                                                          use_cache    = False)
                             for dataset in datasets:
