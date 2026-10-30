@@ -11,7 +11,7 @@
 
 djht:is_deleted a owl:DatatypeProperty ;
     rdfs:label "is deleted"^^xsd:string ;
-    rdfs:comment "True when a draft dataset has been soft-deleted by its owner or a reviewer."^^xsd:string ;
+    rdfs:comment "True when a draft dataset has been soft-deleted by its owner or a group supervisor."^^xsd:string ;
     rdfs:domain djht:Dataset ;
     rdfs:range xsd:boolean .
 
