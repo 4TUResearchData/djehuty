@@ -181,6 +181,9 @@ WHERE {
 
       ?member_uri         djht:is_supervisor         "true"^^xsd:boolean .
       ?member_uri         djht:account               ?member_account .
+      {%- if account_uuid is not none %}
+      FILTER (?member_account = <account:{{account_uuid}}>)
+      {%- endif %}
     }
     {%- endif %}
 
