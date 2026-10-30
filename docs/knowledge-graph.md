@@ -81,6 +81,21 @@ The data model follows a natural expression of published versions as a linked
 list. The figure above further reveals that the *view*, *download*, *share* and
 *citation* counts are stored in a version-unspecific way.
 
+### Soft-deleted drafts
+
+Deleting a draft dataset does not remove its triples. Instead, the draft is
+marked with `djht:is_deleted` set to `true` and a `djht:deleted_date`
+timestamp, while its link to the `djht:DatasetContainer` is kept. A soft-deleted
+draft is hidden from the depositor's *Drafts*, *Under review*, and *Published*
+lists and appears under a separate *Deleted* list, from where it can be restored
+(clearing `djht:is_deleted`) or permanently deleted (removing the triples as
+before). The absence of `djht:is_deleted` is treated as "not deleted", so drafts
+created before this property existed need no migration. File contents on the
+filesystem are not affected by soft delete, restore, or permanent delete.
+Only the depositor and the supervisors of the dataset's group can soft delete,
+restore or permanently delete a draft (see [Collaborators](#collaborators) and
+[Institutions/groups](#institutionsgroups)).
+
 ## Collections
 
 Collections provide a way to group `djht:Dataset` objects.
@@ -151,6 +166,19 @@ properties.
 
 *Figure: The RDF pattern for a `djht:InstitutionGroup`.*
 
+A draft belongs to every group whose `djht:association_criteria` matches the
+draft's, which is copied from the depositor's account domain when the draft is
+created. The group chosen on the dataset form is not used for this. That choice
+is stored as `djht:group_id` and decides which institution the dataset is
+credited to: the institution shown on the dataset page, the institution pages
+and search filters it appears under, and which institution reviewers may
+review and publish it.
+
+A group can have supervisors. Members marked as supervisor who can do
+everything the depositor can on drafts belonging to their group, including
+soft deleting, restoring and permanently deleting them. Other group members get
+no access to drafts they did not create.
+
 ## Files
 
 A `djht:Dataset` keeps a list of `djht:File` records. The file metadata is
@@ -183,3 +211,8 @@ for both metadata (the form fields) and data (the files).
 ![](figures/collaborators.svg)
 
 *Figure: The RDF pattern for a `djht:Collaborator`.*
+
+The **depositor** (the `djht:account` of the `djht:DatasetContainer`) can do
+everything, including deleting the draft. An **invited collaborator** is a `djht:Collaborator` 
+the depositor adds on the dataset's edit page. They can be given metadata read and edit, and data read,
+edit and remove. They cannot be given rights to delete, restore or permanently delete the draft.
