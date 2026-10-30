@@ -166,6 +166,14 @@ properties.
 
 *Figure: The RDF pattern for a `djht:InstitutionGroup`.*
 
+A draft belongs to every group whose `djht:association_criteria` matches the
+draft's, which is copied from the depositor's account domain when the draft is
+created. The group chosen on the dataset form is not used for this. That choice
+is stored as `djht:group_id` and decides which institution the dataset is
+credited to: the institution shown on the dataset page, the institution pages
+and search filters it appears under, and which institution reviewers may
+review and publish it.
+
 A group can have supervisors. Members marked as supervisor who can do
 everything the depositor can on drafts belonging to their group, including
 soft deleting, restoring and permanently deleting them. Other group members get
