@@ -256,9 +256,7 @@ def test_collaborator_sees_deleted_draft_without_removal(db, draft):
     _soft_delete(db, draft, OWNER)
 
     records = db.datasets(account_uuid=COLLABORATOR, is_published=False, is_deleted=True)
-    assert [(record["uuid"], record["is_supervisor"]) for record in records] == [
-        (draft[1], False)
-    ]
+    assert [(record["uuid"], record["is_supervisor"]) for record in records] == [(draft[1], False)]
 
 
 def test_published_version_cannot_be_soft_deleted(db, draft):
