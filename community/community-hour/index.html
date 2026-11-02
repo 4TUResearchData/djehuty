@@ -38,8 +38,6 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
 <link href="../assets/img/logo.png" rel="icon" type="image/png">
-<script src="../site_libs/quarto-listing/list.min.js"></script>
-<script src="../site_libs/quarto-listing/quarto-listing.js"></script>
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
@@ -77,65 +75,7 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
-<script>
 
-  window.document.addEventListener("DOMContentLoaded", function (_event) {
-    const listingTargetEl = window.document.querySelector('#listing-notes .list');
-    if (!listingTargetEl) {
-      // No listing discovered, do not attach.
-      return; 
-    }
-
-    const options = {
-      valueNames: ['listing-date','listing-title','listing-description',{ data: ['index'] },{ data: ['categories'] }],
-      
-      searchColumns: [],
-    };
-
-    window['quarto-listings'] = window['quarto-listings'] || {};
-    window['quarto-listings']['listing-notes'] = new List('listing-notes', options);
-
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  });
-
-  window.addEventListener('hashchange',() => {
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  })
-  </script>
-
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
 
 <meta property="og:title" content="Community Hour – djehuty Community">
 <meta property="og:description" content="Our monthly open online meeting for everyone interested in djehuty.">
@@ -318,21 +258,22 @@ Note
 <section id="meeting-notes" class="level2">
 <h2 class="anchored" data-anchor-id="meeting-notes">Meeting notes</h2>
 <p>We publish notes after each Community Hour, including the topics discussed, decisions taken and follow-up actions. Notes from all past meetings are listed below.</p>
-<div id="listing-notes" class="quarto-listing quarto-listing-container-table">
-<table class="quarto-listing-table table caption-top">
+<table class="caption-top table">
 <thead>
 <tr class="header">
-<th data-quarto-table-cell-role="th">Date</th>
-<th data-quarto-table-cell-role="th">Meeting</th>
-<th data-quarto-table-cell-role="th">Summary</th>
+<th>Date</th>
+<th>Meeting</th>
+<th>Summary</th>
 </tr>
 </thead>
-<tbody class="list">
+<tbody>
+<tr class="odd">
+<td>28 October 2026</td>
+<td><a href="https://hackmd.io/DJypl8JxTEaL__8qud-3Fg?view#28th-October-2026">Community Hour: October 2026</a></td>
+<td>Inaugural Community Hour: modernising and scaling <code>djehuty</code>, path towards contributing, AI-assisted coding, and a poll on the new logo.</td>
+</tr>
 </tbody>
 </table>
-<div class="listing-no-matching d-none">No matching items</div>
-</div>
-
 
 
 </section>
