@@ -134,3 +134,19 @@
   border-color: #5c6d77;
   color: #3c3c3c;
 }
+
+/* Header logo, set via CSS because theme.logo is not configured. */
+.md-header__button.md-logo {
+  display: inline-block;          /* Material hides it on narrow screens */
+  width: 2rem;
+  height: 2rem;
+  margin: 0.2rem;
+  padding: 0;
+  background: url("../assets/images/djehuty-logo.png") center / contain no-repeat;
+}
+
+/* Hide Material's default icon (the person reading a book) inside the link. */
+.md-header__button.md-logo svg,
+.md-header__button.md-logo img {
+  display: none;
+}

@@ -1,5 +1,8 @@
-djehuty
-=========
+<p align="center">
+  <img src="docs/img/djehuty-logo.png" alt="djehuty logo" width="200">
+</p>
+
+<h1 align="center">djehuty</h1>
 
 `djehuty` is a research data repository system developed by
 [4TU.ResearchData](https://data.4tu.nl/). It is utilized by
