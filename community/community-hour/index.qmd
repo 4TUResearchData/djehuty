@@ -1,19 +1,7 @@
 ---
 title: "Community Hour"
 description: "Our monthly open online meeting for everyone interested in djehuty."
-listing:
-  id: notes
-  contents: notes
-  type: table
-  sort: "date desc"
-  fields: [date, title, description]
-  field-display-names:
-    date: Date
-    title: Meeting
-    description: Summary
-  date-format: long
-  sort-ui: false
-  filter-ui: false
+
 ---
 
 ## What is the Community Hour?
@@ -84,5 +72,6 @@ Can't attend live? Add your item anyway and check the [meeting notes](#meeting-n
 
 We publish notes after each Community Hour, including the topics discussed, decisions taken and follow-up actions. Notes from all past meetings are listed below.
 
-::: {#notes}
-:::
+| Date | Meeting | Summary |
+|------|---------|---------|
+| 28 October 2026 | [Community Hour: October 2026](https://hackmd.io/DJypl8JxTEaL__8qud-3Fg?view#28th-October-2026) | Inaugural Community Hour: modernising and scaling `djehuty`, path towards contributing, AI-assisted coding, and a poll on the new logo. |
