@@ -391,8 +391,10 @@ async def upload_file(
         not interrupted and computed_file_size == file_size and bytes_to_read == len(expected_end)
     )
     if complete:
-        complete = await reader.read(bytes_to_read) == expected_end
-
+        try:
+            complete = await reader.read(bytes_to_read) == expected_end
+        except ClientDisconnect:
+            complete = False
     if strict_check and computed_md5 != supplied_md5:
         _discard_upload(db, dataset, account_uuid, file_uuid, part_filename)
         raise InvalidInputError("MD5 checksum mismatch.", "MD5Mismatch")
