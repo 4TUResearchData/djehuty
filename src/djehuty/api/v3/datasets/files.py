@@ -135,19 +135,25 @@ class _MultipartStreamReader:
     """
 
     def __init__(self, request):
-        self._iterator = request.stream().__aiter__()
+        self._receive = request.receive
         self._buffer = bytearray()
         self._eof = False
+
 
     async def _pull(self):
         if self._eof:
             return False
-        try:
-            self._buffer.extend(await self._iterator.__anext__())
-        except StopAsyncIteration:
-            self._eof = True
-            return False
-        return True
+        message = await self._receive()
+        if message["type"] == "http.disconnect":
+            raise ClientDisconnect()
+        body = message.get("body", b"")
+        more_body = message.get("more_body", False)
+        if not body and more_body:
+            raise ClientDisconnect()
+        self._buffer.extend(body)
+        self._eof = not more_body
+        return bool(body)
+
 
     async def read(self, size):
         while len(self._buffer) < size and not self._eof:
