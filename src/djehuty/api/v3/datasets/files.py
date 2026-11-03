@@ -139,7 +139,6 @@ class _MultipartStreamReader:
         self._buffer = bytearray()
         self._eof = False
 
-
     async def _pull(self):
         if self._eof:
             return False
@@ -153,7 +152,6 @@ class _MultipartStreamReader:
         self._buffer.extend(body)
         self._eof = not more_body
         return bool(body)
-
 
     async def read(self, size):
         while len(self._buffer) < size and not self._eof:
