@@ -83,7 +83,7 @@ def list_image_files(
 # Native FastAPI port of /v3/datasets/<id>/upload. Reproduces the legacy
 # ``api_v3_dataset_upload_file`` success behaviour (status codes, response
 # shape, storage path layout, MD5 strict-check). The single multipart part is
-# streamed from ``request.stream()`` to a ``.part`` scratch file and renamed
+# streamed from ``request.receive()`` to a ``.part`` scratch file and renamed
 # onto the final name only once fully received; any failure discards it, so
 # the final name always denotes a complete file. Once api-service=new is the
 # only configuration, the legacy implementation can be deleted.
