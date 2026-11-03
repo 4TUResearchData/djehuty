@@ -2,7 +2,7 @@
 about: 
   id: hero
   template: solana
-  image: assets/img/logo.png
+  image: assets/img/logo.svg
   image-shape: rounded
   links: 
     - text: GitHub

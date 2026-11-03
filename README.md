@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/img/djehuty-logo.png" alt="djehuty logo" width="200">
+  <img src="docs/assets/images/djehuty-logo.svg" alt="djehuty logo" width="200">
 </p>
 
 <h1 align="center">djehuty</h1>

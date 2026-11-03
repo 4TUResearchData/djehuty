@@ -142,7 +142,7 @@
   height: 2rem;
   margin: 0.2rem;
   padding: 0;
-  background: url("../assets/images/djehuty-logo.png") center / contain no-repeat;
+  background: url("../assets/images/djehuty-logo.svg") center / contain no-repeat;
 }
 
 /* Hide Material's default icon (the person reading a book) inside the link. */
