@@ -131,7 +131,7 @@ class _MultipartStreamReader:
     """Forward-only reader over the ASGI request body.
 
     Exposes the ``read``/``readline`` surface the single-part multipart parse
-    needs, pulling chunks from ``request.stream()`` on demand.
+    needs, pulling messages from ``request.receive()`` on demand.
     """
 
     def __init__(self, request):
