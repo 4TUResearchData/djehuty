@@ -817,7 +817,7 @@ invalidations a handler performs itself are noted.</p>
 </tr>
 <tr>
 <td><code>POST /v3/datasets/&lt;id&gt;/upload</code></td>
-<td><code>insert_file</code>, chunked write to <code>storage/&lt;dataset_id&gt;_&lt;file_uuid&gt;</code> (0o600 → 0o400), handle.net PID registration (<code>services.handles</code>), <code>update_file</code>. MD5 strict-check cleanup: <code>delete_item_from_list</code> + <code>&lt;account&gt;_storage</code> and <code>&lt;dataset_uuid&gt;_dataset_storage</code> invalidations + <code>os.remove</code>. Held under the <code>FILE_LIST</code> lock around the insert.</td>
+<td><code>insert_file</code>, streamed write to <code>storage/&lt;dataset_id&gt;_&lt;file_uuid&gt;.part</code>, renamed to the final name (0o600 → 0o400) on a complete upload; handle.net PID registration (<code>services.handles</code>), <code>update_file</code>. Any failure (client disconnect, incomplete body, MD5 mismatch) discards the <code>.part</code> and rolls back: <code>delete_item_from_list</code> + <code>&lt;account&gt;_storage</code> and <code>&lt;dataset_uuid&gt;_dataset_storage</code> invalidations. Held under the <code>FILE_LIST</code> lock around the insert. <strong>Deviation:</strong> legacy keeps an aborted upload as <code>is_incomplete</code>; the new stack discards it.</td>
 </tr>
 <tr>
 <td><code>PUT /v3/datasets/&lt;id&gt;/update-thumbnail</code></td>
