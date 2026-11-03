@@ -56,6 +56,7 @@ class _Db:
         self.cache = _Cache()
         self.events = events
         self.previous_license = previous_license
+        self.write_fails = False
         self.revert_fails = False
 
     def may_administer(self, token, account=None):
@@ -81,6 +82,8 @@ class _Db:
         return []
 
     def admin_update_license(self, container_uuid, dataset_uuid, url, admin_uuid, **kwargs):
+        if self.write_fails:
+            return False
         if self.revert_fails and any(event[0] == "db" for event in self.events):
             return False
         self.events.append(("db", url))
@@ -95,6 +98,7 @@ def _server(
     in_production=True,
     in_preproduction=False,
     doi_plan=None,
+    write_fails=False,
     revert_fails=False,
     previous_license=OLD_LICENSE,
 ):
@@ -106,6 +110,7 @@ def _server(
     events = []
     server = WebServer()
     server.db = _Db(events, previous_license=previous_license)
+    server.db.write_fails = write_fails
     server.db.revert_fails = revert_fails
     monkeypatch.setattr(config, "in_production", in_production)
     monkeypatch.setattr(config, "in_preproduction", in_preproduction)
@@ -123,13 +128,13 @@ def _server(
     return client, events
 
 
-def _update_license(client):
+def _update_license(client, dataset_uuid=DATASET_UUID):
     return client.put(
         "/admin/update-published-dataset/license/update",
         data=json.dumps(
             {
                 "container_uuid": CONTAINER_UUID,
-                "dataset_uuid": DATASET_UUID,
+                "dataset_uuid": dataset_uuid,
                 "new_license_url": NEW_LICENSE,
             }
         ),
@@ -283,6 +288,25 @@ def test_a_failed_revert_is_reported_as_out_of_step(monkeypatch):
         ("db", NEW_LICENSE),
         ("doi", CONTAINER_TARGET),
     ]
+
+
+def test_an_unknown_dataset_gives_404_and_changes_nothing(monkeypatch):
+    """A dataset_uuid that is not the latest published version gives a 404.
+
+    The lookup happens before anything is written, so the database and
+    DataCite should not be touched.
+    """
+    client, events = _server(monkeypatch)
+    response = _update_license(client, dataset_uuid="b2c3d4e5-f6a7-4901-b345-678901abcdef")
+    assert response.status_code == 404
+    assert events == []
+
+
+def test_a_failed_database_write_sends_nothing_to_datacite(monkeypatch):
+    """The database refuses the new licence, so the response is a 500 and nothing changes."""
+    client, events = _server(monkeypatch, write_fails=True)
+    assert _update_license(client).status_code == 500
+    assert events == []
 
 
 def _capture_doi_call(monkeypatch, exported_doi="10.4121/x.v2", raises=None):
