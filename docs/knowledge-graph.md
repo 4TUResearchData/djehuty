@@ -88,8 +88,7 @@ marked with `djht:is_deleted` set to `true` and a `djht:deleted_date`
 timestamp, while its link to the `djht:DatasetContainer` is kept. A soft-deleted
 draft is hidden from the depositor's *Drafts*, *Under review*, and *Published*
 lists and appears under a separate *Deleted* list, from where it can be restored
-(clearing `djht:is_deleted`) or permanently deleted (removing the triples as
-before). The absence of `djht:is_deleted` is treated as "not deleted", so drafts
+(clearing `djht:is_deleted`) or permanently deleted (removing the triples). The absence of `djht:is_deleted` is treated as "not deleted", so drafts
 created before this property existed need no migration. File contents on the
 filesystem are not affected by soft delete, restore, or permanent delete.
 Only the depositor and the supervisors of the dataset's group can soft delete,
@@ -174,7 +173,7 @@ credited to: the institution shown on the dataset page, the institution pages
 and search filters it appears under, and which institution reviewers may
 review and publish it.
 
-A group can have supervisors. Members marked as supervisor who can do
+A group can have supervisors. Members marked as supervisor can do
 everything the depositor can on drafts belonging to their group, including
 soft deleting, restoring and permanently deleting them. Other group members get
 no access to drafts they did not create.
