@@ -83,7 +83,7 @@ list. The figure above further reveals that the *view*, *download*, *share* and
 
 ### Soft-deleted drafts
 
-Deleting a draft dataset does not remove its triples. Instead, the draft is
+Soft deleting a draft dataset does not remove its triples. Instead, the draft is
 marked with `djht:is_deleted` set to `true` and a `djht:deleted_date`
 timestamp, while its link to the `djht:DatasetContainer` is kept. A soft-deleted
 draft is hidden from the depositor's *Drafts*, *Under review*, and *Published*
