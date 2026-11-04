@@ -48,31 +48,27 @@ We welcome contributions in the form of bug reports and feature suggestions. Her
 
 ### Code contributions
 
-1. **Contact us!**
-
-    Before starting any work, please **contact repository maintainers at [info@djehuty.4tu.nl](mailto:info@djehuty.4tu.nl)** to discuss how your idea fits with our strategic goals.
-
-2. **Check or open an issue**
+1. **Check or open an issue**
 
     Before you start work, **search the [issue tracker](https://github.com/4TUResearchData/djehuty/issues)** to see if your idea is already being discussed.
 
-    - If you find a relevant issue, comment to say you’re taking it on and, if possible, assign yourself. If you cannot assign, leave a comment like “Working on this” so maintainers know.
+    - If you find a relevant issue, comment to say you’re taking it on and, if possible, assign yourself. If you cannot assign, leave a comment like *Working on this* so maintainers know.
     - If no issue exists, open a new issue using the issue template and include: a short, descriptive title; a brief explanation of the problem or feature and why it’s needed.
       - ⚠️ **IMPORTANT**: **Do not discuss security-related aspects**: to report a vulnerability, please see [SECURITY.md](https://github.com/4TUResearchData/djehuty/blob/main/SECURITY.md)
 
-3. **Work from a fork**
+2. **Work from a fork**
 
     Contributors should work from a fork of the repository. Maintainers may work directly on the main djehuty instance. If you’re new to the fork-and-pull-request workflow, [check out the First Contributions](https://github.com/firstcontributions/first-contributions) guide for a step-by-step introduction.
 
-4. **Clone and create a branch**
+3. **Clone and create a branch**
 
     Clone your fork to your local machine and create a new branch for your work.
 
-5. **Set up your development environment**
+4. **Set up your development environment**
 
     Follow the [Development environment](#development-environment) instructions below to install the prerequisites, start a local instance, and run the tests. Make sure you can build and test the project locally before starting your contribution.
 
-6. **Work on your branch and open a PR**
+5. **Work on your branch and open a PR**
 
     - Make your changes on your branch.
     - Commits must be verified, see the [commit signature verification guide](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification) for more details.
@@ -81,11 +77,9 @@ We welcome contributions in the form of bug reports and feature suggestions. Her
       - Use the PR template - you will see it once you open a PR,  and check the approval checklist before submitting.
       - ⚠️ **IMPORTANT**: **Do not open a PR for a security issue**: to report a vulnerability, please see [SECURITY.md](https://github.com/4TUResearchData/djehuty/blob/main/SECURITY.md)
 
-7. **Final approval and merge**
+6. **Final approval and merge**
 
     After review and approval, your PR must be squashed into a single commit. Once the checklist is complete, a maintainer will rebase-merge it into the main branch to keep the history clean.
-
-If you want to make a very small contribution, such as one or a few lines of code for which following the code contributions workflow is not convenient, please contact the [core maintainers](mailto:info@djehuty.4tu.nl).
 
 ---
 
