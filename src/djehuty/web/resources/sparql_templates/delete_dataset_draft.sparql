@@ -15,6 +15,7 @@ WHERE {
                djht:draft            ?dataset .
 
     ?container djht:account         ?account .
+    ?dataset   djht:is_deleted      "true"^^xsd:boolean .
 
     ?dataset   ?predicate           ?object ;
                ?list_predicate      ?list .

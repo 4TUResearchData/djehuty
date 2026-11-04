@@ -15,7 +15,7 @@ read-only routes are omitted.
 |---|---|
 | `POST /` | `insert_dataset` incl. the author/reference/tag/category/funding lists |
 | `PUT /<id>` | `update_dataset` (full field set); assigns the review when a reviewer saves |
-| `DELETE /<id>` | `delete_dataset_draft` |
+| `DELETE /<id>` | `soft_delete_dataset_draft` (flags the draft `is_deleted`; purged via `/my/datasets/<id>/delete-permanently`) |
 | `POST/PUT /<id>/authors` | `insert_author` + `update_item_list` |
 | `DELETE /<id>/authors/<aid>` | `update_item_list` |
 | `POST/PUT /<id>/funding` | `insert_funding` + `update_item_list` |
