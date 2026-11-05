@@ -1,0 +1,38 @@
+# .github/workflows/community-issues.yml
+name: Add community issues to board
+
+on:
+  issues:
+    types: [opened, labeled]
+
+env:
+  PROJECT_URL: ${{ vars.PROJECT_URL }}
+  PROJECT_ID: ${{ vars.PROJECT_ID }}
+  STATUS_FIELD_ID: ${{ vars.STATUS_FIELD_ID }}
+  COMMUNITY_OPTION_ID: ${{ vars.COMMUNITY_OPTION_ID }}
+
+jobs:
+  add-to-board:
+    runs-on: ubuntu-latest
+    if: >
+      (github.event.action == 'opened' &&
+       contains(fromJSON('["NONE","FIRST_TIME_CONTRIBUTOR","FIRST_TIMER","CONTRIBUTOR"]'),
+                github.event.issue.author_association)) ||
+      (github.event.action == 'labeled' && github.event.label.name == 'community')
+    steps:
+      - name: Add issue to project
+        id: add
+        uses: actions/add-to-project@v1.0.2
+        with:
+          project-url: ${{ env.PROJECT_URL }}
+          github-token: ${{ secrets.PROJECT_TOKEN }}
+
+      - name: Set Status to COMMUNITY
+        env:
+          GH_TOKEN: ${{ secrets.PROJECT_TOKEN }}
+        run: |
+          gh project item-edit \
+            --id "${{ steps.add.outputs.itemId }}" \
+            --project-id "$PROJECT_ID" \
+            --field-id "$STATUS_FIELD_ID" \
+            --single-select-option-id "$COMMUNITY_OPTION_ID"
