@@ -477,6 +477,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Datasets">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#soft-deleted-drafts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Soft-deleted drafts
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -875,6 +892,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Datasets">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#soft-deleted-drafts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Soft-deleted drafts
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1070,6 +1104,18 @@ of versioned datasets.</p>
 <p>The data model follows a natural expression of published versions as a linked
 list. The figure above further reveals that the <em>view</em>, <em>download</em>, <em>share</em> and
 <em>citation</em> counts are stored in a version-unspecific way.</p>
+<h3 id="soft-deleted-drafts">Soft-deleted drafts</h3>
+<p>Soft deleting a draft dataset does not remove its triples. Instead, the draft is
+marked with <code>djht:is_deleted</code> set to <code>true</code> and a <code>djht:deleted_date</code>
+timestamp, while its link to the <code>djht:DatasetContainer</code> is kept. A soft-deleted
+draft is hidden from the depositor's <em>Drafts</em>, <em>Under review</em>, and <em>Published</em>
+lists and appears under a separate <em>Deleted</em> list, from where it can be restored
+(clearing <code>djht:is_deleted</code>) or permanently deleted (removing the triples). The absence of <code>djht:is_deleted</code> is treated as "not deleted", so drafts
+created before this property existed need no migration. File contents on the
+filesystem are not affected by soft delete, restore, or permanent delete.
+Only the depositor and the supervisors of the dataset's group can soft delete,
+restore or permanently delete a draft (see <a href="#collaborators">Collaborators</a> and
+<a href="#institutionsgroups">Institutions/groups</a>).</p>
 <h2 id="collections">Collections</h2>
 <p>Collections provide a way to group <code>djht:Dataset</code> objects.</p>
 <p><img alt="" src="../figures/collection.svg" /></p>
@@ -1112,6 +1158,17 @@ groups can be structured hierarchically by using the <code>id</code> and <code>p
 properties.</p>
 <p><img alt="" src="../figures/institutiongroup.svg" /></p>
 <p><em>Figure: The RDF pattern for a <code>djht:InstitutionGroup</code>.</em></p>
+<p>A draft belongs to every group whose <code>djht:association_criteria</code> matches the
+draft's, which is copied from the depositor's account domain when the draft is
+created. The group chosen on the dataset form is not used for this. That choice
+is stored as <code>djht:group_id</code> and decides which institution the dataset is
+credited to: the institution shown on the dataset page, the institution pages
+and search filters it appears under, and which institution reviewers may
+review and publish it.</p>
+<p>A group can have supervisors. Members marked as supervisor can do
+everything the depositor can on drafts belonging to their group, including
+soft deleting, restoring and permanently deleting them. Other group members get
+no access to drafts they did not create.</p>
 <h2 id="files">Files</h2>
 <p>A <code>djht:Dataset</code> keeps a list of <code>djht:File</code> records. The file metadata is
 stored in the knowledge graph while the file contents are stored on a
@@ -1133,6 +1190,10 @@ each <code>djht:Dataset</code> can have a list of <code>djht:Collaborator</code>
 for both metadata (the form fields) and data (the files).</p>
 <p><img alt="" src="../figures/collaborators.svg" /></p>
 <p><em>Figure: The RDF pattern for a <code>djht:Collaborator</code>.</em></p>
+<p>The <strong>depositor</strong> (the <code>djht:account</code> of the <code>djht:DatasetContainer</code>) can do
+everything, including deleting the draft. An <strong>invited collaborator</strong> is a <code>djht:Collaborator</code> 
+the depositor adds on the dataset's edit page. They can be given metadata read and edit, and data read,
+edit and remove. They cannot be given rights to delete, restore or permanently delete the draft.</p>
 
 
 

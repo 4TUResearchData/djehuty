@@ -716,7 +716,7 @@ read-only routes are omitted.</p>
 </tr>
 <tr>
 <td><code>DELETE /&lt;id&gt;</code></td>
-<td><code>delete_dataset_draft</code></td>
+<td><code>soft_delete_dataset_draft</code> (flags the draft <code>is_deleted</code>; purged via <code>/my/datasets/&lt;id&gt;/delete-permanently</code>)</td>
 </tr>
 <tr>
 <td><code>POST/PUT /&lt;id&gt;/authors</code></td>
