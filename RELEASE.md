@@ -6,10 +6,7 @@ Once approved, the container image is pushed to GHCR, the package is published t
 
 ## How to release
 
-1. **Bump the version** in `pyproject.toml` (e.g. `version = "26.3"`) and `configure.ac` (e.g `AC_INIT(djehuty, 26.3)`).
-
-   > [!Note]
-   > `configure.ac` will be discontinued on October 31, 2026
+1. **Bump the version** in `pyproject.toml` (e.g. `version = "26.3"`).
 
 2. **Add the release section at the top of `CHANGELOG.md`.** `CHANGELOG.md` is
    the single source of truth for release notes. Maintainers only edit this
@@ -29,7 +26,7 @@ Once approved, the container image is pushed to GHCR, the package is published t
 
 3. Run `uv lock` to update the uv lock
 
-4. Open a PR with the `pyproject.toml`, `CHANGELOG.md`, `configure.ac` and `uv.lock`
+4. Open a PR with the `pyproject.toml`, `CHANGELOG.md` and `uv.lock`
    changes and merge it to `main`.
 
    > [!WARNING]

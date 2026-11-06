@@ -1,20 +1,6 @@
 .venv/
 src/djehuty.egg-info/
 
-# Autotools (deprecated — will be removed on October 31, 2026)
-autom4te.cache/
-aclocal.m4
-configure
-configure~
-config.log
-config.status
-Makefile
-Makefile.in
-src/Makefile
-src/Makefile.in
-missing
-install-sh
-install-sh~
 pylint.log
 *__pycache__*
 dist/
@@ -29,16 +15,10 @@ docs/community/
 community/assets/ics/*.ics
 !community/assets/ics/example-event.ics
 dump/
-rpmbuild/BUILD/
-rpmbuild/RPMS/
-rpmbuild/SOURCES/
-rpmbuild/SPECS/djehuty.spec
-rpmbuild/SRPMS/
 .DS_Store
 .idea/
 djehuty.xml
 djehuty.json
-guix.scm
 *.bak
 *.BAK
 djehuty.code-workspace
