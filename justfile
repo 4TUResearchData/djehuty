@@ -22,14 +22,6 @@ sdist:
 wheel:
     uv build --wheel
 
-# Build RPM package
-dist-rpm: sdist
-    mkdir -p rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
-    rm -f rpmbuild/SOURCES/*
-    ln -s "$(pwd)/dist/djehuty-{{ version }}.tar.gz" rpmbuild/SOURCES/djehuty-{{ version }}.tar.gz
-    sed -e 's/@VERSION@/{{ version }}/g' rpmbuild/SPECS/djehuty.spec.in > rpmbuild/SPECS/djehuty.spec
-    rpmbuild --define "_topdir $(pwd)/rpmbuild" -ba rpmbuild/SPECS/djehuty.spec
-
 # Build Docker image
 dist-docker:
     docker image build --no-cache \
@@ -53,10 +45,6 @@ publish-test-pypi: build
     uv publish --publish-url https://test.pypi.org/legacy/ \
         dist/djehuty-{{ version }}.tar.gz \
         dist/djehuty-{{ version }}-py3-none-any.whl
-
-# Generate Guix package definition
-guix:
-    sed -e 's/@VERSION@/{{ version }}/g' guix.scm.in > guix.scm
 
 # Build the documentation site with MkDocs (output in site/)
 docs-md:
