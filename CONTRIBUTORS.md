@@ -71,4 +71,4 @@ talks, community support and more.
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
-To be added, or to be removed, see [CONTRIBUTING.md](./CONTRIBUTING.md#recognition-of-contributions).
+To be added or removed, see [CONTRIBUTING.md](./CONTRIBUTING.md#recognition-of-contributions).

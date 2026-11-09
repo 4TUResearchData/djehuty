@@ -30,14 +30,13 @@ you.
 We currently use these types: `code`, `doc`, `ideas`, `bug`, `security`,
 `question`, `review`, `design` and `talk`. See the
 [emoji key](https://allcontributors.org/en/reference/emoji-key/) for what each one
-means. If none of these seem to fit, feel free to suggest another emoji type.
+means. If none of these seem to fit, feel free to suggest another type.
 
 ### How to be removed
 
 If you would rather not be listed, or want an entry or a type removed, write to
 [info@djehuty.4tu.nl](mailto:info@djehuty.4tu.nl) and a maintainer will remove
 it.
-
 
 ## Join the community
 
