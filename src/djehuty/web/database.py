@@ -3006,11 +3006,12 @@ class SparqlInterface:
     def __retract_invalidate_caches(self, container_uuid: str,
                                     owner_account_uuid: str | None) -> None:
         """STEP 9 — cache invalidation. Covers container, account (if known)
-        and the global datasets prefix."""
+        the global datasets prefix and the reviews list."""
         self.cache.invalidate_by_prefix(container_uuid)
         if owner_account_uuid:
             self.cache.invalidate_by_prefix(f"datasets_{owner_account_uuid}")
         self.cache.invalidate_by_prefix("datasets")
+        self.cache.invalidate_by_prefix("reviews")
 
     def admin_retract_dataset(self, container_uuid: str, admin_account_uuid: str | None,
                               version_uuids: list[str] | None = None,
