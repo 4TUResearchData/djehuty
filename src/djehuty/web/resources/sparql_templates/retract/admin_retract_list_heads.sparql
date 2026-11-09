@@ -1,0 +1,12 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT ?published_head ?retracted_head
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?container rdf:type djht:DatasetContainer .
+    OPTIONAL { ?container djht:published_versions ?published_head . }
+    OPTIONAL { ?container djht:retracted_versions ?retracted_head . }
+    FILTER (?container = <{{container_uri}}>)
+  }
+}
+{% endblock %}

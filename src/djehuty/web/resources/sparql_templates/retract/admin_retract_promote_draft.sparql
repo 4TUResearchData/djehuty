@@ -1,0 +1,12 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+INSERT { GRAPH <{{state_graph}}> { ?container djht:draft ?dataset . } }
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?container rdf:type       djht:DatasetContainer .
+    ?dataset   djht:container ?container .
+    FILTER (?container = <{{container_uri}}>)
+    FILTER (?dataset   = <{{dataset_uri}}>)
+  }
+}
+{% endblock %}
