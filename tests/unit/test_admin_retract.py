@@ -1,5 +1,6 @@
 """Unit tests for retracting every published version of a dataset"""
 
+import logging
 import tempfile
 
 import pytest
@@ -7,7 +8,7 @@ from rdflib import RDF, XSD, Graph, Literal, URIRef
 
 from djehuty.utils import rdf
 from djehuty.web.config import config
-from djehuty.web.database import SparqlInterface
+from djehuty.web.database import RetractRefused, SparqlInterface
 
 DJHT = rdf.DJHT
 BOOLEAN = XSD.boolean
@@ -76,8 +77,9 @@ def _seed_container(db, container, versions, draft=None, older_are_latest=True):
 
     newest = _dataset_uri(versions[-1])
     rdf.add(graph, container_uri, DJHT["latest_published_version"], newest, "uri")
-    db.insert_item_list(graph, container_uri, [_dataset_uri(u) for u in versions],
-                        "published_versions")
+    db.insert_item_list(
+        graph, container_uri, [_dataset_uri(u) for u in versions], "published_versions"
+    )
 
     if draft is not None:
         draft_uri = _dataset_uri(draft)
@@ -107,8 +109,21 @@ def _flag_is_set(db, uuid, flag):
     return _has(db, _dataset_uri(uuid), flag, f'"1"^^<{BOOLEAN}>')
 
 
-def _retract(db, container=CONTAINER):
-    return db.admin_retract_dataset(container, ADMIN)
+def _retract(db, versions=None, container=CONTAINER):
+    return db.admin_retract_dataset(container, ADMIN, version_uuids=versions)
+
+
+def _members(db, predicate, container=CONTAINER):
+    query = (
+        f"SELECT ?item WHERE {{ GRAPH <{config.state_graph}> {{ "
+        f"<{_container_uri(container)}> <{DJHT[predicate]}>/<{RDF.rest}>*/<{RDF.first}> ?item . "
+        "} }"
+    )
+    return {str(row.item) for row in db.sparql.query(query)}
+
+
+def _uris(uuids):
+    return {str(_dataset_uri(uuid)) for uuid in uuids}
 
 
 class TestRetractAllVersions:
@@ -192,11 +207,15 @@ class TestRetractRefusals:
     """Cases where nothing may be changed."""
 
     def test_unknown_container_is_refused(self, db):
-        assert _retract(db, OTHER_CONTAINER) is False
+        with pytest.raises(RetractRefused) as refusal:
+            _retract(db, container=OTHER_CONTAINER)
+        assert refusal.value.code == "NoPublishedVersions"
 
     def test_container_with_a_draft_is_refused(self, db):
         _seed_container(db, CONTAINER, VERSIONS, draft=DRAFT)
-        assert _retract(db) is False
+        with pytest.raises(RetractRefused) as refusal:
+            _retract(db)
+        assert refusal.value.code == "DraftExists"
         for uuid in VERSIONS:
             for flag in FLAGS:
                 assert _flag_is_set(db, uuid, flag)
@@ -205,4 +224,259 @@ class TestRetractRefusals:
     def test_already_retracted_container_is_refused(self, db):
         _seed_container(db, CONTAINER, VERSIONS)
         assert _retract(db) is True
-        assert _retract(db) is False
+        with pytest.raises(RetractRefused) as refusal:
+            _retract(db)
+        assert refusal.value.code == "NoPublishedVersions"
+
+
+class TestRetractSubset:
+    """Retracting only some of the published versions."""
+
+    def test_latest_only_promotes_the_previous_version(self, db):
+        _seed_container(db, CONTAINER, VERSIONS, older_are_latest=False)
+        assert _retract(db, VERSIONS[-1:]) is True
+        container = _container_uri(CONTAINER)
+        assert _members(db, "published_versions") == _uris(VERSIONS[:2])
+        assert _members(db, "retracted_versions") == _uris(VERSIONS[2:])
+        assert _has(db, container, "latest_published_version", _dataset_uri(VERSIONS[1]).n3())
+        assert _flag_is_set(db, VERSIONS[1], "is_latest")
+        assert _has(db, container, "draft", _dataset_uri(VERSIONS[2]).n3())
+        assert _has(db, container, "first_online_date")
+
+    def test_older_only_leaves_latest_and_draft_slot_alone(self, db):
+        _seed_container(db, CONTAINER, VERSIONS)
+        assert _retract(db, VERSIONS[:1]) is True
+        container = _container_uri(CONTAINER)
+        assert _members(db, "published_versions") == _uris(VERSIONS[1:])
+        assert _members(db, "retracted_versions") == _uris(VERSIONS[:1])
+        assert _has(db, container, "latest_published_version", _dataset_uri(VERSIONS[2]).n3())
+        assert not _has(db, container, "draft")
+        assert _has(db, container, "first_online_date")
+        assert not _has(db, _dataset_uri(VERSIONS[0]), "posted_date")
+        assert _has(db, _dataset_uri(VERSIONS[1]), "posted_date")
+
+    def test_older_only_is_allowed_with_an_open_draft(self, db):
+        _seed_container(db, CONTAINER, VERSIONS, draft=DRAFT)
+        assert _retract(db, VERSIONS[:1]) is True
+        assert _has(db, _container_uri(CONTAINER), "draft", _dataset_uri(DRAFT).n3())
+
+    def test_unselected_versions_keep_their_flags_dates_and_reviews(self, db):
+        _seed_container(db, CONTAINER, VERSIONS)
+        assert _retract(db, VERSIONS[:1]) is True
+        for flag in FLAGS:
+            assert not _flag_is_set(db, VERSIONS[0], flag)
+        assert not _has(db, _dataset_uri(VERSIONS[0]), "published_date")
+        assert not _ask(db, f"<{_review_uri(VERSIONS[0])}> ?predicate ?value .")
+
+        for uuid in VERSIONS[1:]:
+            for flag in FLAGS:
+                assert _flag_is_set(db, uuid, flag)
+            assert _has(db, _dataset_uri(uuid), "published_date")
+            assert _has(db, _dataset_uri(uuid), "posted_date")
+            assert _ask(db, f"<{_review_uri(uuid)}> ?predicate ?value .")
+
+    def test_latest_and_older_together(self, db):
+        _seed_container(db, CONTAINER, VERSIONS)
+        assert _retract(db, [VERSIONS[0], VERSIONS[2]]) is True
+        container = _container_uri(CONTAINER)
+        assert _members(db, "published_versions") == _uris(VERSIONS[1:2])
+        assert _members(db, "retracted_versions") == _uris([VERSIONS[0], VERSIONS[2]])
+        assert _has(db, container, "latest_published_version", _dataset_uri(VERSIONS[1]).n3())
+        assert _has(db, container, "draft", _dataset_uri(VERSIONS[2]).n3())
+
+    def test_explicit_full_selection_matches_retract_all(self, db):
+        _seed_container(db, CONTAINER, VERSIONS)
+        assert _retract(db, VERSIONS) is True
+        container = _container_uri(CONTAINER)
+        assert not _has(db, container, "published_versions")
+        assert not _has(db, container, "first_online_date")
+        assert _members(db, "retracted_versions") == _uris(VERSIONS)
+
+    def test_repeat_partial_retracts_accumulate(self, db):
+        _seed_container(db, CONTAINER, VERSIONS)
+        assert _retract(db, VERSIONS[:1]) is True
+        assert _retract(db, VERSIONS[1:2]) is True
+        assert _members(db, "published_versions") == _uris(VERSIONS[2:])
+        assert _members(db, "retracted_versions") == _uris(VERSIONS[:2])
+
+    def test_latest_with_an_open_draft_is_refused_and_changes_nothing(self, db):
+        _seed_container(db, CONTAINER, VERSIONS, draft=DRAFT)
+        with pytest.raises(RetractRefused) as refusal:
+            _retract(db, VERSIONS[-1:])
+        assert refusal.value.code == "DraftExists"
+        assert _members(db, "published_versions") == _uris(VERSIONS)
+
+    def test_unknown_version_is_refused_and_changes_nothing(self, db):
+        _seed_container(db, CONTAINER, VERSIONS)
+        with pytest.raises(RetractRefused) as refusal:
+            _retract(db, [OTHER_VERSIONS[0]])
+        assert refusal.value.code == "UnknownVersion"
+        assert _members(db, "published_versions") == _uris(VERSIONS)
+
+    def test_empty_selection_is_refused_and_changes_nothing(self, db):
+        _seed_container(db, CONTAINER, VERSIONS)
+        with pytest.raises(RetractRefused) as refusal:
+            _retract(db, [])
+        assert refusal.value.code == "NoVersionsSelected"
+        assert _members(db, "published_versions") == _uris(VERSIONS)
+        assert not _has(db, _container_uri(CONTAINER), "retracted_versions")
+
+
+def _count(db, predicate, container=CONTAINER):
+    query = (
+        f"SELECT (COUNT(?value) AS ?total) WHERE {{ GRAPH <{config.state_graph}> {{ "
+        f"<{_container_uri(container)}> <{DJHT[predicate]}> ?value . }} }}"
+    )
+    return int(next(iter(db.sparql.query(query))).total)
+
+
+def _ordered(db, predicate, container=CONTAINER):
+    query = (
+        f"SELECT ?item WHERE {{ GRAPH <{config.state_graph}> {{ "
+        f"<{_container_uri(container)}> <{DJHT[predicate]}>/<{RDF.rest}>*/<{RDF.first}> ?item . "
+        f"?node <{RDF.first}> ?item ; <{DJHT['index']}> ?index . "
+        "} } ORDER BY ?index"
+    )
+    return [str(row.item) for row in db.sparql.query(query)]
+
+
+def _node_count(db):
+    query = (
+        f"SELECT (COUNT(DISTINCT ?node) AS ?total) WHERE {{ GRAPH <{config.state_graph}> {{ "
+        f"?node <{RDF.first}> ?item . }} }}"
+    )
+    return int(next(iter(db.sparql.query(query))).total)
+
+
+def _head(db, predicate, container=CONTAINER):
+    query = (
+        f"SELECT ?head WHERE {{ GRAPH <{config.state_graph}> {{ "
+        f"<{_container_uri(container)}> <{DJHT[predicate]}> ?head . }} }}"
+    )
+    return next(iter(db.sparql.query(query))).head
+
+
+class TestVersionListSwap:
+    """The version lists are replaced by building new nodes and swapping the heads."""
+
+    def test_no_orphan_nodes_are_left_behind(self, db):
+        _seed_container(db, CONTAINER, VERSIONS)
+        assert _node_count(db) == len(VERSIONS)
+        assert _retract(db, VERSIONS[:1]) is True
+        assert _node_count(db) == len(VERSIONS)
+
+    def test_old_heads_are_gone(self, db):
+        _seed_container(db, CONTAINER, VERSIONS)
+        old_head = _head(db, "published_versions")
+        assert _retract(db, VERSIONS[:1]) is True
+        assert not _ask(db, f"<{old_head}> ?p ?o .")
+        assert _head(db, "published_versions") != old_head
+
+    def test_repeat_retracts_append_in_order(self, db):
+        _seed_container(db, CONTAINER, VERSIONS)
+        assert _retract(db, VERSIONS[:1]) is True
+        assert _retract(db, VERSIONS[1:2]) is True
+        assert _ordered(db, "retracted_versions") == [
+            str(_dataset_uri(uuid)) for uuid in VERSIONS[:2]
+        ]
+
+    def test_retract_all_leaves_no_published_link_and_no_orphans(self, db):
+        _seed_container(db, CONTAINER, VERSIONS)
+        assert _retract(db) is True
+        assert not _has(db, _container_uri(CONTAINER), "published_versions")
+        assert _node_count(db) == len(VERSIONS)
+
+    def test_failed_swap_keeps_the_old_lists_linked(self, db, monkeypatch):
+        _seed_container(db, CONTAINER, VERSIONS)
+        original = SparqlInterface._SparqlInterface__run_logged_query
+
+        def fail_on_swap(self, query, *args, **kwargs):
+            if "?old_published" in query:
+                return False
+            return original(self, query, *args, **kwargs)
+
+        monkeypatch.setattr(SparqlInterface, "_SparqlInterface__run_logged_query", fail_on_swap)
+        assert _retract(db, VERSIONS[:1]) is False
+        assert _members(db, "published_versions") == _uris(VERSIONS)
+        assert not _has(db, _container_uri(CONTAINER), "retracted_versions")
+        assert _node_count(db) == len(VERSIONS) + 2 + 1
+
+    def test_failed_cleanup_still_retracts_and_warns(self, db, monkeypatch, caplog):
+        _seed_container(db, CONTAINER, VERSIONS)
+        original = SparqlInterface._SparqlInterface__run_logged_query
+
+        def fail_on_cleanup(self, query, *args, **kwargs):
+            if "rdf:rest*" in query:
+                return False
+            return original(self, query, *args, **kwargs)
+
+        monkeypatch.setattr(SparqlInterface, "_SparqlInterface__run_logged_query", fail_on_cleanup)
+        with caplog.at_level(logging.WARNING):
+            assert _retract(db, VERSIONS[:1]) is True
+
+        assert _members(db, "published_versions") == _uris(VERSIONS[1:])
+        assert _members(db, "retracted_versions") == _uris(VERSIONS[:1])
+        assert _node_count(db) == len(VERSIONS) + 2 + 1
+        assert "orphan list nodes" in caplog.text
+
+    def test_retry_after_a_later_step_failed_does_not_duplicate(self, db, monkeypatch):
+        _seed_container(db, CONTAINER, VERSIONS)
+        with monkeypatch.context() as patch:
+            patch.setattr(
+                SparqlInterface,
+                "_SparqlInterface__retract_delete_reviews",
+                lambda self, plan: False,
+            )
+            assert _retract(db, VERSIONS[:1]) is False
+
+        assert _retract(db, VERSIONS[:1]) is True
+        assert _ordered(db, "retracted_versions") == [str(_dataset_uri(VERSIONS[0]))]
+
+    def test_latest_pointer_stays_single_valued(self, db):
+        _seed_container(db, CONTAINER, VERSIONS, older_are_latest=False)
+        assert _retract(db, VERSIONS[-1:]) is True
+        assert _count(db, "latest_published_version") == 1
+        assert _retract(db, VERSIONS[:1]) is True
+        assert _count(db, "latest_published_version") == 1
+
+    def test_retract_all_removes_the_latest_pointer(self, db):
+        _seed_container(db, CONTAINER, VERSIONS)
+        assert _retract(db) is True
+        assert _count(db, "latest_published_version") == 0
+
+
+class TestPlanRetract:
+    def test_latest_only_promotes_a_draft(self, db):
+        _seed_container(db, CONTAINER, VERSIONS)
+        plan = db.plan_retract(CONTAINER, VERSIONS[-1:])
+        assert [v["version"] for v in plan["selected"]] == [3]
+        assert [v["version"] for v in plan["remaining"]] == [1, 2]
+        assert plan["retracts_latest"] is True
+
+    def test_older_only_keeps_the_latest(self, db):
+        _seed_container(db, CONTAINER, VERSIONS, draft=DRAFT)
+        plan = db.plan_retract(CONTAINER, VERSIONS[:1])
+        assert plan["retracts_latest"] is False
+        assert plan["latest"]["version"] == 3
+
+    def test_everything_leaves_nothing_remaining(self, db):
+        _seed_container(db, CONTAINER, VERSIONS)
+        plan = db.plan_retract(CONTAINER, VERSIONS)
+        assert plan["remaining"] == []
+
+    def test_plan_does_not_modify_the_store(self, db):
+        _seed_container(db, CONTAINER, VERSIONS)
+        db.plan_retract(CONTAINER, VERSIONS)
+        assert _members(db, "published_versions") == _uris(VERSIONS)
+
+    def test_latest_with_an_open_draft_is_refused(self, db):
+        _seed_container(db, CONTAINER, VERSIONS, draft=DRAFT)
+        with pytest.raises(RetractRefused) as refusal:
+            db.plan_retract(CONTAINER, VERSIONS[-1:])
+        assert refusal.value.code == "DraftExists"
+
+    def test_unknown_version_is_refused(self, db):
+        _seed_container(db, CONTAINER, VERSIONS)
+        with pytest.raises(RetractRefused) as refusal:
+            db.plan_retract(CONTAINER, [OTHER_VERSIONS[0]])
+        assert refusal.value.code == "UnknownVersion"
