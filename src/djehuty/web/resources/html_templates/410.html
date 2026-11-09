@@ -1,5 +1,25 @@
 {% extends "layout.html" %}
+{% block headers %}
+{%- if item %}
+{%- set doi = item.doi if version else item.container_doi %}
+{%- if doi %}
+<link rel="cite-as" href="https://doi.org/{{ doi }}">
+<meta name="DC.identifier" content="https://doi.org/{{ doi }}">
+{%- endif %}
+{%- endif %}
+{% endblock %}
 {% block body %}
 <h1>Content was removed</h1>
-<p>The content of this page has been retracted.
+{%- if item %}
+{%- set doi = item.doi if version else item.container_doi %}
+<p>This dataset has been retracted by the repository administrators{% if item.retracted_date %} on {{ item.retracted_date[:10] }}{% endif %} and is no longer available.</p>
+<p>Citation:
+  {{ authors | map (attribute="full_name") | join ("; ") }}
+  {%- if item.retracted_published_date %} ({{ item.retracted_published_date[:4] }}){% endif %}.
+  <em>{{ item.title }}</em>{% if version %} (version {{ version }}){% endif %}.
+  {{ item.publisher or "4TU.ResearchData" }}.
+  {%- if doi %} <a href="https://doi.org/{{ doi }}">https://doi.org/{{ doi }}</a>{% endif %}</p>
+{%- else %}
+<p>The content of this page has been retracted.</p>
+{%- endif %}
 {% endblock %}

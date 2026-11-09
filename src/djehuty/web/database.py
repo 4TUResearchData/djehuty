@@ -2993,7 +2993,8 @@ class SparqlInterface:
 
     def __retract_strip_metadata(self, container_uri: str, plan: RetractPlan) -> bool:
         """STEP 7 — strip published_date and posted_date from the selected versions,
-        is_under_review from the new draft, first_online_date when nothing stays published."""
+        is_under_review from the new draft, first_online_date when nothing stays published.
+        The published date is kept as retracted_published_date, next to retracted_date."""
         draft_uri = plan["latest"]["dataset_uri"] if plan["retracts_latest"] else None
 
         return self.__retract_query("7 (strip metadata)", "admin_retract_strip_publish_metadata", {
@@ -3001,6 +3002,7 @@ class SparqlInterface:
             "dataset_uris":       self.__retract_uri_list(plan["selected"]),
             "draft_uri":          draft_uri,
             "strip_first_online": not plan["remaining"],
+            "retracted_date":     datetime.strftime(datetime.now(), datetime_format),
         })
 
     def __retract_invalidate_caches(self, container_uuid: str,

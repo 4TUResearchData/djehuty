@@ -289,10 +289,18 @@ def datacite_tree(parameters, debug=False):
                 )
 
     # 09 dates
-    if "published_date" in parameters:
-        maker.child(
-            maker.child(root, "dates"), "date", {"dateType": "Issued"}, parameters["published_date"]
-        )
+    withdrawn = value_or_none(parameters, "withdrawn")
+    if "published_date" in parameters or withdrawn:
+        dates_element = maker.child(root, "dates")
+        if "published_date" in parameters:
+            maker.child(dates_element, "date", {"dateType": "Issued"}, parameters["published_date"])
+        if withdrawn:
+            maker.child(
+                dates_element,
+                "date",
+                {"dateType": "Withdrawn", "dateInformation": withdrawn["reason"]},
+                withdrawn["date"],
+            )
 
     # 10 language
     if "language" in item:

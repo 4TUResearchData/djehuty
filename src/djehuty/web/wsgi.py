@@ -1077,10 +1077,15 @@ class WebServer:
         response.status_code = 409
         return response
 
-    def error_410 (self, request):
+    def error_410 (self, request, item=None, version=None):
         """Procedure to respond with HTTP 410."""
+        ## Tombstone page, as recommended by DataCite for retracted datasets.
         if self.accepts_html (request, strict=True):
-            response = self.__render_template (request, "410.html")
+            authors = []
+            if item is not None:
+                authors = self.db.authors(item_uri=item["uri"], item_type="dataset")
+            response = self.__render_template(request, "410.html", item=item,
+                                              authors=authors, version=version)
         else:
             response = self.response (json.dumps({
                 "message": "This resource is gone."
@@ -4988,7 +4993,7 @@ class WebServer:
                 "draft_version": plan["latest"]["version"] if plan["retracts_latest"] else None,
             }
             return self.response(json.dumps(preview))
-        except validator.ValidationException as error:
+        except validator.ValidationError as error:
             return self.error_400(request, error.message, error.code)
 
     def api_admin_retract_execute (self, request):
@@ -5055,6 +5060,11 @@ class WebServer:
                 admin_account_uuid = admin_account.get("uuid")
 
             try:
+                plan = self.db.plan_retract(container_uuid, version_uuids)
+                snapshot = {}
+                if self.__datacite_enabled():
+                    snapshot = self.__retract_snapshot(container_uuid, plan)
+
                 success = self.db.admin_retract_dataset(
                     container_uuid,
                     admin_account_uuid,
@@ -5065,7 +5075,13 @@ class WebServer:
 
             if not success:
                 return self.error_500 ()
-            return self.respond_204 ()
+
+            warnings = []
+            if self.__datacite_enabled():
+                warnings = self.__sync_datacite_after_retract(container_uuid, snapshot, plan)
+            if warnings:
+                return self.response(json.dumps({"warnings": warnings}))
+            return self.respond_204()
         except validator.ValidationError as error:
             return self.error_400 (request, error.message, error.code)
 
@@ -5682,9 +5698,10 @@ class WebServer:
 
             ## For retracted datasets we display a different error page.
             if dataset is None:
-                dataset = self.__dataset_by_id_or_uri (dataset_id, is_published=None, is_latest=None)
+                dataset = self.__dataset_by_id_or_uri(dataset_id, is_published=None,
+                                                      is_latest=None, version=version)
                 if dataset is not None and value_or (dataset, "is_public", 1) == 0:
-                    return self.error_410 (request)
+                    return self.error_410(request, dataset, version)
                 return self.error_404 (request)
 
         my_collections = []
@@ -8304,6 +8321,100 @@ class WebServer:
             self.log.error ("Failed to update a DOI due to a connection error.")
 
         return False
+
+    def __datacite_enabled(self):
+        return config.in_production and not config.in_preproduction
+
+    def __datacite_put(self, doi, attributes):
+        """Procedure to update a DOI at DataCite.  Returns True on success."""
+
+        headers = {
+            "Accept": "application/vnd.api+json",
+            "Content-Type": "application/vnd.api+json"
+        }
+
+        try:
+            response = requests.put(f"{config.datacite_url}/dois/{doi}",
+                                    headers=headers,
+                                    auth=(config.datacite_id, config.datacite_password),
+                                    timeout=60,
+                                    json={"data": {"attributes": attributes}})
+            if response.status_code in (200, 201):
+                return True
+
+            self.log.error("DataCite responded with %s (%s)",
+                           response.status_code, response.text)
+        except requests.exceptions.ConnectionError:
+            self.log.error("Failed to update DOI %s: connection error.", doi)
+
+        return False
+
+    def __datacite_xml(self, parameters):
+        """Returns PARAMETERS as the base64 DataCite XML that the API expects."""
+
+        xml = str(xml_formatter.datacite(parameters, indent=False), encoding="utf-8")
+        xml = '<?xml version="1.0" encoding="UTF-8"?>' + xml.split('?>', 1)[1]
+        return str(base64.b64encode(xml.encode("utf-8")), "utf-8")
+
+    def __retract_snapshot(self, container_uuid, plan):
+        """Export parameters of the versions about to be retracted.  They cannot be
+        rebuilt afterwards, because the retract strips what they are built from."""
+
+        snapshot = {}
+        for version in plan["selected"]:
+            parameters = self.__metadata_export_parameters(container_uuid,
+                                                           version=version["version"],
+                                                           from_draft=False)
+            if parameters is not None and value_or_none(parameters, "doi"):
+                snapshot[version["version"]] = parameters
+
+        return snapshot
+
+    def __retract_doi(self, doi, parameters, container_uuid, version):
+        """Hides DOI, points it at the tombstone and records the withdrawal date."""
+
+        withdrawn = {"date": date.today().isoformat(),
+                     "reason": "Retracted by the repository administrators."}
+        parameters = dict(parameters, doi=doi, withdrawn=withdrawn)
+        url = landing_page_url(container_uuid, version, base_url=config.base_url)
+        attributes = {"event": "hide",
+                      "url": url,
+                      "xml": self.__datacite_xml(parameters)}
+        if self.__datacite_put(doi, attributes):
+            return True
+
+        self.log.error("DataCite retract failed, replay by hand: doi=%s event=hide url=%s",
+                       doi, url)
+        return False
+
+    def __sync_datacite_after_retract(self, container_uuid, snapshot, plan):
+        """Brings DataCite in line with a finished retract.  Returns warning strings."""
+
+        warnings = []
+        container_doi = value_or_none(self.db.container(container_uuid), "doi")
+
+        for number, parameters in snapshot.items():
+            if not self.__retract_doi(parameters["doi"], parameters, container_uuid, number):
+                warnings.append(f"DataCite: could not hide {parameters['doi']}.")
+
+        if not container_doi:
+            return warnings
+
+        if plan["remaining"]:
+            parameters = self.__metadata_export_parameters(container_uuid, from_draft=False)
+            refreshed = parameters is not None and self.__datacite_put(container_doi, {
+                "event": "publish",
+                "url": landing_page_url(container_uuid, base_url=config.base_url),
+                "xml": self.__datacite_xml(dict(parameters, doi=container_doi))
+            })
+            if not refreshed:
+                warnings.append(f"DataCite: could not update {container_doi}.")
+        elif snapshot:
+            newest = snapshot[max(snapshot)]
+            if not self.__retract_doi(container_doi, newest, container_uuid, None):
+                warnings.append(f"DataCite: could not hide {container_doi}.")
+
+        return warnings
 
     def __physical_sample_datacite_parameters (self, sample, doi):
         """Collect the parameters needed to render a physical sample's DataCite
