@@ -17,6 +17,7 @@ import uuid
 from datetime import date, datetime, timedelta
 from io import StringIO, BytesIO
 from math import ceil, log2
+from typing import TypedDict
 
 import pygit2
 import requests
@@ -131,6 +132,15 @@ def resolve_byte_range (range_header, if_range_header, etag, total_length):
 
     return ("partial", range_tuple)
 
+
+class RetractPreview(TypedDict):
+    """JSON body of the retract preview response."""
+
+    retracted:     list[int]
+    new_latest:    int | None
+    draft_version: int | None
+
+
 class WebServer:
     """This class implements the HTTP interface for users."""
 
@@ -216,6 +226,7 @@ class WebServer:
             R("/admin/update-published-dataset/license",                         self.ui_admin_license),
             R("/admin/update-published-dataset/license/update",                  self.api_admin_license_update),
             R("/admin/update-published-dataset/retract",                         self.ui_admin_retract),
+            R("/admin/update-published-dataset/retract/preview",                 self.api_admin_retract_preview),
             R("/admin/update-published-dataset/retract/execute",                 self.api_admin_retract_execute),
             R("/admin/update-published-dataset/remove-files",                    self.ui_admin_remove_files),
             R("/admin/update-published-dataset/remove-files/versions",           self.api_admin_remove_files_versions),
@@ -4930,6 +4941,56 @@ class WebServer:
 
         return self.__render_template (request, "admin/update_published_dataset/retract.html")
 
+    def api_admin_retract_preview(self, request: Request) -> Response:
+        """Implements /admin/update-published-dataset/retract/preview.
+
+        Returns what retracting the selected versions would do, using the
+        same planning as the retraction itself.
+
+        Responds with a RetractPreview as JSON (200), or with an error:
+        400 for invalid input or a refused retract (the refusal's code is
+        in the body), 403 when the user is not an administrator."""
+
+        handler = self.default_error_handling(request, "POST", "application/json")
+        if handler is not None:
+            return handler
+
+        token = self.token_from_cookie(request)
+        if not self.db.may_administer(token):
+            return self.error_403(request)
+
+        try:
+            parameters     = request.get_json()
+            container_uuid = validator.string_value(parameters, "container_uuid",
+                                                    maximum_length=36)
+            version_uuids  = validator.array_value(parameters, "version_uuids",
+                                                   required=True)
+
+            if container_uuid is None or not validator.is_valid_uuid(container_uuid):
+                return self.error_400(request, "Invalid container_uuid.", "InvalidUuid")
+            if not version_uuids:
+                return self.error_400(request, "No versions selected.",
+                                      "MissingRequiredField")
+            for version_uuid in version_uuids:
+                if not validator.is_valid_uuid(version_uuid):
+                    return self.error_400(request, "Invalid version uuid in selection.",
+                                          "InvalidUuid")
+
+            try:
+                plan = self.db.plan_retract(container_uuid, version_uuids)
+            except database.RetractRefused as refusal:
+                return self.error_400(request, str(refusal), refusal.code)
+
+            remaining = plan["remaining"]
+            preview: RetractPreview = {
+                "retracted":     [version["version"] for version in plan["selected"]],
+                "new_latest":    remaining[-1]["version"] if remaining else None,
+                "draft_version": plan["latest"]["version"] if plan["retracts_latest"] else None,
+            }
+            return self.response(json.dumps(preview))
+        except validator.ValidationException as error:
+            return self.error_400(request, error.message, error.code)
+
     def api_admin_retract_execute (self, request):
         """Implements /admin/update-published-dataset/retract/execute."""
 
@@ -4948,8 +5009,6 @@ class WebServer:
             parameters     = request.get_json()
             container_uuid = validator.string_value (parameters, "container_uuid",
                                                      maximum_length=36)
-            dataset_uuid   = validator.string_value (parameters, "dataset_uuid",
-                                                     maximum_length=36)
             confirm_doi    = validator.string_value (parameters, "confirm_doi",
                                                      maximum_length=255)
             expected_doi   = validator.string_value (parameters, "expected_doi",
@@ -4957,22 +5016,18 @@ class WebServer:
             owner_account_uuid = validator.string_value (
                 parameters, "owner_account_uuid",
                 maximum_length=36, required=False)
+            version_uuids  = validator.array_value(parameters, "version_uuids",
+                                                   required=True)
 
-            if (container_uuid is None or dataset_uuid is None
-                or confirm_doi is None or expected_doi is None):
+            if container_uuid is None or confirm_doi is None or expected_doi is None:
                 return self.error_400 (
                     request,
-                    "Missing container_uuid, dataset_uuid, confirm_doi or expected_doi.",
+                    "Missing container_uuid, confirm_doi or expected_doi.",
                     "MissingRequiredField")
             if not validator.is_valid_uuid (container_uuid):
                 return self.error_400 (
                     request,
                     "Invalid container_uuid.",
-                    "InvalidUuid")
-            if not validator.is_valid_uuid (dataset_uuid):
-                return self.error_400 (
-                    request,
-                    "Invalid dataset_uuid.",
                     "InvalidUuid")
             if (owner_account_uuid is not None
                 and not validator.is_valid_uuid (owner_account_uuid)):
@@ -4980,6 +5035,13 @@ class WebServer:
                     request,
                     "Invalid owner_account_uuid.",
                     "InvalidUuid")
+            if not version_uuids:
+                return self.error_400(request, "No versions selected.",
+                                      "MissingRequiredField")
+            for version_uuid in version_uuids:
+                if not validator.is_valid_uuid(version_uuid):
+                    return self.error_400(request, "Invalid version uuid in selection.",
+                                          "InvalidUuid")
 
             if confirm_doi.strip() != expected_doi.strip():
                 return self.error_400 (
@@ -4992,10 +5054,15 @@ class WebServer:
             if isinstance (admin_account, dict):
                 admin_account_uuid = admin_account.get("uuid")
 
-            success = self.db.admin_retract_dataset (
-                container_uuid,
-                admin_account_uuid,
-                owner_account_uuid=owner_account_uuid)
+            try:
+                success = self.db.admin_retract_dataset(
+                    container_uuid,
+                    admin_account_uuid,
+                    version_uuids=version_uuids,
+                    owner_account_uuid=owner_account_uuid)
+            except database.RetractRefused as refusal:
+                return self.error_400(request, str(refusal), refusal.code)
+
             if not success:
                 return self.error_500 ()
             return self.respond_204 ()
