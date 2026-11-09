@@ -136,6 +136,12 @@ class TestRetractAllVersions:
         assert _retract(db) is True
         return db
 
+    def test_cached_reviews_list_is_invalidated(self, db):
+        _seed_container(db, CONTAINER, VERSIONS)
+        db.cache.cache_value("reviews", "stale", ["old"])
+        assert _retract(db) is True
+        assert db.cache.cached_value("reviews", "stale") is None
+
     def test_every_version_goes_offline(self, retracted):
         """No version stays public or latest, and only the draft is active."""
         for uuid in VERSIONS:
