@@ -105,6 +105,14 @@ def _has(db, subject, predicate, value="?value"):
     return _ask(db, f"<{subject}> <{DJHT[predicate]}> {value} .")
 
 
+def _values_of(db, subject, predicate):
+    query = (
+        f"SELECT ?value WHERE {{ GRAPH <{config.state_graph}> {{ "
+        f"<{subject}> <{DJHT[predicate]}> ?value . }} }}"
+    )
+    return len(list(db.sparql.query(query)))
+
+
 def _flag_is_set(db, uuid, flag):
     return _has(db, _dataset_uri(uuid), flag, f'"1"^^<{BOOLEAN}>')
 
@@ -180,6 +188,19 @@ class TestRetractAllVersions:
             assert not _has(retracted, _dataset_uri(uuid), "published_date")
             assert not _has(retracted, _dataset_uri(uuid), "posted_date")
         assert not _has(retracted, _container_uri(CONTAINER), "first_online_date")
+
+    def test_published_date_is_kept_as_retracted_published_date(self, retracted):
+        """The year survives the strip, together with the time of the retract."""
+        published = f'"2026-01-01T00:00:00"^^<{XSD.dateTime}>'
+        for uuid in VERSIONS:
+            assert _has(retracted, _dataset_uri(uuid), "retracted_published_date", published)
+            assert _values_of(retracted, _dataset_uri(uuid), "retracted_date") == 1
+
+    def test_other_containers_get_no_retraction_dates(self, retracted):
+        other = _dataset_uri(OTHER_VERSIONS[0])
+        assert _has(retracted, other, "published_date")
+        assert not _has(retracted, other, "retracted_published_date")
+        assert not _has(retracted, other, "retracted_date")
 
     def test_reviews_of_every_version_are_deleted(self, retracted):
         """Each version's review node is removed."""
@@ -280,6 +301,58 @@ class TestRetractSubset:
             assert _has(db, _dataset_uri(uuid), "published_date")
             assert _has(db, _dataset_uri(uuid), "posted_date")
             assert _ask(db, f"<{_review_uri(uuid)}> ?predicate ?value .")
+
+    def test_only_selected_versions_get_retraction_dates(self, db):
+        _seed_container(db, CONTAINER, VERSIONS)
+        assert _retract(db, VERSIONS[:1]) is True
+        assert _has(db, _dataset_uri(VERSIONS[0]), "retracted_published_date")
+        assert _has(db, _dataset_uri(VERSIONS[0]), "retracted_date")
+        for uuid in VERSIONS[1:]:
+            assert not _has(db, _dataset_uri(uuid), "retracted_published_date")
+            assert not _has(db, _dataset_uri(uuid), "retracted_date")
+
+    def test_second_retract_replaces_the_retraction_dates(self, db):
+        """A republished version that is retracted again keeps one pair of dates."""
+        _seed_container(db, CONTAINER, VERSIONS)
+        assert _retract(db, VERSIONS[:1]) is True
+        dataset = _dataset_uri(VERSIONS[0])
+        graph = Graph()
+        rdf.add(graph, dataset, DJHT["published_date"], "2026-02-02T00:00:00", XSD.dateTime)
+        db.add_triples_from_graph(graph)
+
+        plan = {
+            "selected": [{"dataset_uri": str(dataset)}],
+            "remaining": [{"dataset_uri": "unused"}],
+            "latest": {"dataset_uri": "unused"},
+            "retracts_latest": False,
+        }
+        assert db._SparqlInterface__retract_strip_metadata(str(_container_uri(CONTAINER)), plan)
+
+        assert _values_of(db, dataset, "retracted_date") == 1
+        assert _values_of(db, dataset, "retracted_published_date") == 1
+        assert _has(
+            db,
+            dataset,
+            "retracted_published_date",
+            f'"2026-02-02T00:00:00"^^<{XSD.dateTime}>',
+        )
+
+    def test_datasets_query_returns_the_retraction_dates(self, db):
+        _seed_container(db, CONTAINER, VERSIONS)
+        graph = Graph()
+        rdf.add(graph, _dataset_uri(VERSIONS[0]), DJHT["title"], "A title", XSD.string)
+        db.add_triples_from_graph(graph)
+        assert _retract(db, VERSIONS[:1]) is True
+        rows = db.datasets(
+            container_uuid=CONTAINER,
+            is_published=None,
+            is_latest=None,
+            version=1,
+            use_cache=False,
+            limit=1,
+        )
+        assert rows[0]["retracted_published_date"].startswith("2026-01-01")
+        assert rows[0]["retracted_date"]
 
     def test_latest_and_older_together(self, db):
         _seed_container(db, CONTAINER, VERSIONS)

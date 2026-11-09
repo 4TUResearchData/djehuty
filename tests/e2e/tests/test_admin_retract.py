@@ -188,6 +188,13 @@ class TestAdminRetractSubset:
         expect(retract_page.version_row(1)).to_have_count(0)
         screenshot(admin_page, "retract-subset-older-after")
 
+        container = MULTI_SEEDS["older"]["container"]
+        tombstone = admin_page.request.get(
+            f"/datasets/{container}/1", headers={"Accept": "text/html"}
+        )
+        assert tombstone.status == 410
+        assert f"{multi_doi('older')}.v1" in tombstone.text()
+
     def test_retract_latest_version_drafts_it_and_promotes_previous(
         self, admin_page: Page, screenshot
     ):
