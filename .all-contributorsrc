@@ -4,7 +4,7 @@
   "repoType": "github",
   "repoHost": "https://github.com",
   "files": [
-    "CONTRIBUTORS.md"
+    "docs/CONTRIBUTORS.md"
   ],
   "imageSize": 80,
   "commit": false,
@@ -21,17 +21,17 @@
         "ideas",
         "security",
         "bug",
-        "review", 
+        "review",
         "question"
       ]
     },
     {
-      "login": "egbert",
-      "name": "Egbert",
-      "avatar_url": "https://avatars.githubusercontent.com/u/23045?v=4",
-      "profile": "http://egbert.co/",
+      "login": "efgramsbergen",
+      "name": "Egbert Gramsbergen",
+      "avatar_url": "https://avatars.githubusercontent.com/u/12199846?v=4",
+      "profile": "https://github.com/efgramsbergen",
       "contributions": [
-        "code",
+        "code", 
         "ideas"
       ]
     },
@@ -46,7 +46,7 @@
         "ideas",
         "security",
         "bug",
-        "review", 
+        "review",
         "question"
       ]
     },
@@ -60,7 +60,7 @@
         "doc",
         "ideas",
         "bug",
-        "review", 
+        "review",
         "question",
         "security"
       ]
@@ -87,7 +87,7 @@
         "ideas",
         "security",
         "bug",
-        "review", 
+        "review",
         "question"
       ]
     },
@@ -114,7 +114,6 @@
         "review",
         "security",
         "design"
-
       ]
     },
     {
@@ -123,7 +122,7 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/7210572?v=4",
       "profile": "https://github.com/alwil",
       "contributions": [
-        "code", 
+        "code",
         "doc",
         "ideas",
         "bug"
@@ -135,7 +134,7 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/103572730?v=4",
       "profile": "https://github.com/sfzwarts",
       "contributions": [
-        "code", 
+        "code",
         "ideas"
       ]
     },
@@ -174,7 +173,7 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/57204078?v=4",
       "profile": "https://github.com/sousoura",
       "contributions": [
-        "code", 
+        "code",
         "talk"
       ]
     },

@@ -105,7 +105,7 @@ to meet other users and contributors and discuss recent developments and upcomin
 ## Contributors
 
 Everyone who has contributed to djehuty, in any way, is recognized in
-[CONTRIBUTORS.md](./CONTRIBUTORS.md).
+[CONTRIBUTORS.md](docs/CONTRIBUTORS.md).
 
 ## Security
 
