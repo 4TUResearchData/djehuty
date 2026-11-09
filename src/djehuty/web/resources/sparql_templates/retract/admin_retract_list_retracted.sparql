@@ -1,0 +1,15 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT ?dataset_uri
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?container rdf:type                  djht:DatasetContainer ;
+               djht:retracted_versions   ?head .
+    ?head      rdf:rest*                 ?node .
+    ?node      rdf:first                 ?dataset_uri ;
+               djht:index                ?index .
+    FILTER (?container = <{{container_uri}}>)
+  }
+}
+ORDER BY ?index
+{% endblock %}
