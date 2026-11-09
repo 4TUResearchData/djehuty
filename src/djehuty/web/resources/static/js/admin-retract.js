@@ -224,12 +224,18 @@ jQuery(document).ready(function () {
                 confirm_doi:        typed,
                 expected_doi:       selected_dataset.container_doi
             })
-        }).done(function () {
+        }).done(function (data) {
             var message = "<p>Retracted " + retract_count + " version(s).";
             if (has_draft) {
                 message += " The owner now has an editable draft.";
             }
-            show_message ("success", message + "</p>");
+            message += "</p>";
+            var warnings = (data && data.warnings) || [];
+            if (warnings.length > 0) {
+                message += "<p>DataCite was not fully updated:</p><ul><li>" +
+                           warnings.join ("</li><li>") + "</li></ul>";
+            }
+            show_message (warnings.length > 0 ? "failure" : "success", message);
             jQuery("#retract-results-body").empty();
             jQuery("#retract-results").addClass("retract-hidden");
             jQuery("#retract-search-input").val("");
