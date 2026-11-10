@@ -8344,8 +8344,8 @@ class WebServer:
 
             self.log.error("DataCite responded with %s (%s)",
                            response.status_code, response.text)
-        except requests.exceptions.ConnectionError:
-            self.log.error("Failed to update DOI %s: connection error.", doi)
+        except requests.exceptions.RequestException:
+            self.log.error("Failed to update DOI %s: request failed.", doi)
 
         return False
 
@@ -8365,7 +8365,7 @@ class WebServer:
             parameters = self.__metadata_export_parameters(container_uuid,
                                                            version=version["version"],
                                                            from_draft=False)
-            if parameters is not None and value_or_none(parameters, "doi"):
+            if parameters is not None and value_or_none(parameters["item"], "doi"):
                 snapshot[version["version"]] = parameters
 
         return snapshot

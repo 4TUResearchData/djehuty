@@ -40,7 +40,7 @@ def _plan(selected, remaining):
 def _parameters(doi, version):
     return {
         "doi": doi,
-        "item": {"title": "Penguins", "version": version, "description": "Text"},
+        "item": {"title": "Penguins", "version": version, "description": "Text", "doi": doi},
         "published_date": "2026-04-0%d" % version,
         "published_year": "2026",
     }
@@ -168,20 +168,24 @@ class TestSyncAfterRetract:
             f"doi={VERSION_DOIS[1]} event=hide url={BASE_URL}/datasets/{CONTAINER}/1" in caplog.text
         )
 
-    def test_connection_error_is_a_warning(self, server, monkeypatch):
-        def refuse(*_, **__):
-            raise requests.exceptions.ConnectionError
+    @pytest.mark.parametrize(
+        "error", [requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout]
+    )
+    def test_request_error_is_a_warning(self, server, monkeypatch, error):
+        def fail(*_, **__):
+            raise error
 
-        monkeypatch.setattr(requests, "put", refuse)
+        monkeypatch.setattr(requests, "put", fail)
         warnings = _sync(server, [1], _plan(selected=[1], remaining=[2, 3]))
 
         assert warnings[0] == f"DataCite: could not hide {VERSION_DOIS[1]}."
+        assert len(warnings) == 2
 
     def test_versions_without_a_doi_are_skipped(self, server, puts, monkeypatch):
         monkeypatch.setattr(
             server,
             "_WebServer__metadata_export_parameters",
-            lambda *args, **kwargs: {"item": {"title": "t"}},
+            lambda *args, **kwargs: {"item": {"title": "t"}, "doi": "10.4121/predicted.v1"},
             raising=False,
         )
         snapshot = server._WebServer__retract_snapshot(
