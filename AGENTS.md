@@ -1,84 +1,35 @@
 # AGENTS.md
 
-djehuty is a research data repository system developed by
-4TU.ResearchData. Researchers use it to deposit, publish and cite
-datasets and other research output. State is stored as RDF in a
-SPARQL 1.1 store (Virtuoso or Jena Fuseki), not in a relational
-database. Instances are configured, not forked: branding, menus,
-identity provider and storage back-ends are configuration.
+djehuty is a research data repository system developed by 4TU.ResearchData. State is stored as RDF in a SPARQL 1.1 store, not in a relational database. Instances are configured, not forked: branding, menus, identity provider and storage back-ends are configuration.
 
-Read [CONTRIBUTING.md](CONTRIBUTING.md) first. This file only adds
-what coding agents need; the contribution rules there apply to you too.
+See [README.md](README.md) for an overview and read [CONTRIBUTING.md](CONTRIBUTING.md) first for the contribution rules, which apply to you too. This file only adds what coding agents need.
 
 ## Where things live
 
-- `src/djehuty/api/` and `src/djehuty/application.py`: route
-  definitions (the API reference is generated from these)
-- `docs/`: Markdown documentation (MkDocs); `docs/contributing.md`
-  has a tour of the source code
-- `docs/knowledge-graph.md`: the RDF data model
-- `docs/running-djehuty.md`: every configuration option
-- `community/`: Quarto sources for the community site
+- `src/`: source code
+- `tests/`: tests 
+- `docs/`: documentation (the published site is built in CI; never commit generated output) The knowledge graph documentation is known to be incomplete and may not reflect the current implementation.
 
 ## Commands
 
-Use the `just` recipes rather than calling tools directly
-(prerequisites: Git, uv, Docker with Compose, just).
+Use the `just` recipes rather than calling tools directly (prerequisites: Git, uv, Docker with Compose, just). Run `just --list` to see what is available and `just --show <recipe>` to see what a recipe does.
 
-- Start a local instance: `just dev` (djehuty on http://localhost:8080,
-  reloads when files under `src/` change)
-- Stop and remove it: `just clean`
-- Run tests: `just test` (filter with `-m <marker>`, `-k <keyword>`
-  or a file path)
-- Lint and format: `just lint`, `just format`
-- Preview the docs: `just docs-md-serve` (Markdown pages only). After
-  changing an endpoint, re-run `just openapi`; after changing
-  `community/`, re-run `just docs-community`.
-- List all commands: `just --list`
+- Before proposing a change, run `just lint` and `just test-unit`.
+- Run unit tests: `just test-unit` (fast, no containers; filter with `-k <keyword>`).
+- Run end-to-end tests: `just test` (filter with `-m <marker>` or `-k <keyword>`; a file path does not filter, the whole suite runs). Use it when behaviour changes.
+- Ruff only checks the paths listed in `pyproject.toml`. Do not reformat files outside them.
 
-Run `just lint` and `just test` before proposing a change.
+## Rules
 
-## Things to know
-
-- - Ruff settings, including which paths it checks, are in
-  `[tool.ruff]` in `pyproject.toml`. Do not reformat files outside
-  those paths. Python version and dependencies are defined there too.
-- Tests are end-to-end (Playwright and pytest) and run in containers
-  against a live djehuty and Virtuoso stack.
-- CI runs each marker on a fresh stack. If a test fails in a full local
-  run, run that marker alone after `just clean`.
-- The published documentation site (Markdown docs, API reference and
-  community site) is built in CI. Never edit or commit generated
-  output; change the sources instead.
-
-## Conventions
-
-- Keep changes focused; avoid unrelated modifications.
-- Use Conventional Commits (`feat:`, `fix:`, `docs:`) when possible.
-- Commits must be verified, so they need the contributor's own
-  signing setup. Pull requests are squashed before merging.
 - Do not change license or copyright headers.
-- Never put secrets or credentials in the repository.
-
-## Security
-
-Never discuss security issues in public issues or pull requests, and
-never open a pull request for one. See [SECURITY.md](SECURITY.md).
-
-## GitHub interaction
-
+- Never discuss security issues in public issues or pull requests, and never open a pull request for one. See [SECURITY.md](SECURITY.md).
 - Never open issues or pull requests unless a person explicitly asks.
-- Never post comments, progress updates or review replies on GitHub on
-  someone's behalf unless asked. If you do, say it was written by an
-  AI tool on behalf of that person.
+- Never post comments or review replies on GitHub on someone's behalf unless asked. If you do, say it was written by an AI tool on behalf of that person.
 
 ## AI-assisted work
 
-The project's policy is in the "Use of AI tools" section of
-[CONTRIBUTING.md](CONTRIBUTING.md#use-of-ai-tools). In short:
+The project's policy is in the "Use of AI tools" section of [CONTRIBUTING.md](CONTRIBUTING.md#use-of-ai-tools). In short:
 
-- A person is responsible for every change and must review and
-  understand it. Explain your changes to them clearly.
+- A person is responsible for every change and must review and understand it.
 - Do not add AI co-author trailers to commits.
-- If you found a possible bug, try to reproduce it before reporting it,
-  and say what you could not verify or test.
+- Try to reproduce a possible bug before reporting it, and say what you could not verify.
