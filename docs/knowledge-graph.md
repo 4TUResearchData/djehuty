@@ -81,6 +81,9 @@ The data model follows a natural expression of published versions as a linked
 list. The figure above further reveals that the *view*, *download*, *share* and
 *citation* counts are stored in a version-unspecific way.
 
+`djht:retracted_versions` lists the versions that were taken offline. It is
+written by the admin retract, and nothing else sets it.
+
 ### Soft-deleted drafts
 
 Soft deleting a draft dataset does not remove its triples. Instead, the draft is
