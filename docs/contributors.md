@@ -3,7 +3,7 @@
 Thank you to everyone who has helped to build djehuty! This list follows the
 [All Contributors](https://allcontributors.org/) specification and recognizes
 every kind of contribution: code, documentation, bug reports, ideas, review,
-talks, community support and more.
+talks, community support and more. 
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
