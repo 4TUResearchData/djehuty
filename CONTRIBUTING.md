@@ -15,7 +15,7 @@ When contributing, remember to follow our [Code of Conduct](https://github.com/4
 
 All contributions - whether it’s code, bug reports, or ideas are appreciated and recognized. Contributors may be credited in release notes or project acknowledgments. Thank you for helping make the project better!
 
-Contributors are listed in [CONTRIBUTORS.md](./CONTRIBUTORS.md), following the
+Contributors are listed in [CONTRIBUTORS.md](./docs/CONTRIBUTORS.md), following the
 [All Contributors](https://allcontributors.org/) specification. Every kind of
 contribution counts, not only code.
 
