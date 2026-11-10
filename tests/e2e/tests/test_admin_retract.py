@@ -281,8 +281,8 @@ class TestAdminRetractAccessControl:
             method="PUT",
             data=json.dumps(
                 {
-                    "container_uuid": "00000000-0000-0000-0000-000000000000",
-                    "version_uuids": ["00000000-0000-0000-0000-000000000000"],
+                    "container_uuid": "00000000-0000-4000-8000-000000000000",
+                    "version_uuids": ["00000000-0000-4000-8000-000000000000"],
                     "confirm_doi": "wrong",
                     "expected_doi": "right",
                 }
