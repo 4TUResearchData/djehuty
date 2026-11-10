@@ -61,6 +61,24 @@ def draft_physical_sample(authenticated_page: Page):
     authenticated_page.request.get(f"/my/physical-samples/{container_uuid}/delete")
 
 
+@pytest.fixture()
+def non_reviewer_draft_physical_sample(non_reviewer_page: Page):
+    """Create a draft owned by an account with no reviewer rights.
+
+    Yields (page, container_uuid). Teardown mirrors ``draft_physical_sample``.
+    """
+    response = non_reviewer_page.request.put("/v3/physical-samples", data={})
+    if response.status == 403:
+        pytest.skip(
+            "IGSN is not enabled on this stack (PUT /v3/physical-samples -> 403); "
+            "enable the <igsn> config block to run the physical-sample API tests."
+        )
+    assert response.status == 201, f"Draft create returned {response.status}, expected 201."
+    container_uuid = _container_uuid_from_location(response)
+    yield non_reviewer_page, container_uuid
+    non_reviewer_page.request.get(f"/my/physical-samples/{container_uuid}/delete")
+
+
 class TestV3PhysicalSampleDetails:
     """GET/PUT /v3/physical-samples[/<uuid>]."""
 
@@ -248,14 +266,14 @@ class TestV3PhysicalSamplePrivateLinks:
 class TestV3PhysicalSamplePublishing:
     """Submit / publish / decline / assign-reviewer."""
 
-    def test_publish_requires_reviewer(self, draft_physical_sample):
+    def test_publish_requires_reviewer(self, non_reviewer_draft_physical_sample):
         """A depositor without reviewer rights cannot publish -> 403."""
-        page, container_uuid = draft_physical_sample
+        page, container_uuid = non_reviewer_draft_physical_sample
         response = page.request.post(f"/v3/physical-samples/{container_uuid}/publish", data={})
         assert response.status == 403
 
-    def test_decline_requires_reviewer(self, draft_physical_sample):
-        page, container_uuid = draft_physical_sample
+    def test_decline_requires_reviewer(self, non_reviewer_draft_physical_sample):
+        page, container_uuid = non_reviewer_draft_physical_sample
         response = page.request.post(f"/v3/physical-samples/{container_uuid}/decline", data={})
         assert response.status == 403
 
