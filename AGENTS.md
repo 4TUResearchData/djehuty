@@ -14,10 +14,6 @@ See [README.md](README.md) for an overview and read [CONTRIBUTING.md](CONTRIBUTI
 
 Use the `just` recipes rather than calling tools directly (prerequisites: Git, uv, Docker with Compose, just). Run `just --list` to see what is available and `just --show <recipe>` to see what a recipe does.
 
-- Before proposing a change, run `just lint` and `just test-unit`.
-- Run unit tests: `just test-unit` (fast, no containers; filter with `-k <keyword>`).
-- Run end-to-end tests: `just test` (filter with `-m <marker>` or `-k <keyword>`; a file path does not filter, the whole suite runs). Use it when behaviour changes.
-- Ruff only checks the paths listed in `pyproject.toml`. Do not reformat files outside them.
 
 ## Rules
 
