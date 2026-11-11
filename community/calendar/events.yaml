@@ -2,7 +2,7 @@
 ## `filename` must be unique per event — it's the name of the .ics file that
 ## scripts/generate_ics.py will (re)generate into assets/ics/ on every build.
 - title: djehuty Community Hour
-  description: Latest developments and open discussion.
+  description: "A demo of djehuty scaling on Kubernetes, the public roadmap, our approach to AI-assisted contributions, and open discussion."
   location: online
   date: 2026-11-25
   time: "15:00 CET"
@@ -12,15 +12,15 @@
 - title: djehuty Community Hour
   description: Latest developments and open discussion.
   location: online
-  date: 2026-12-30
+  date: 2027-01-27
   time: "15:00 CET"
-  filename: 2026-12-30.ics
+  filename: 2027-01-27.ics
   path: "https://meet.google.com/zbt-mvxe-feq"
 
 - title: djehuty Community Hour
   description: Latest developments and open discussion.
   location: online
-  date: 2027-01-27
+  date: 2027-02-24
   time: "15:00 CET"
-  filename: 2027-07-27.ics
+  filename: 2027-02-24.ics
   path: "https://meet.google.com/zbt-mvxe-feq"
