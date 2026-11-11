@@ -35,6 +35,7 @@ The documentation source lives in [`docs/`](./docs/) and is published to
 | [Knowledge graph](./docs/knowledge-graph.md) | The RDF data model |
 | [Contributing](./docs/contributing.md) | Development workflow and a tour of the source code |
 | [API](./docs/api.md) | The HTTP API |
+| [Roadmap](./docs/roadmap.md) | Recent and upcoming developments |
 
 ### Building the documentation
 
