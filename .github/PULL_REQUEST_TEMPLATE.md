@@ -21,3 +21,8 @@ Before/After visuals, UI changes, or relevant logs.
 **Notes (optional)**
 
 Additional context, caveats, or follow-up tasks.
+
+**AI assistance (optional)**
+
+- [ ] AI tools helped with parts of this contribution
+  (which tool and what for, if you like):
