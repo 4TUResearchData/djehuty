@@ -72,6 +72,22 @@ class TestV3CollectionReferencesApi:
         save_response(response, "v3-collection-add-references")
         assert response.ok
 
+    def test_references_past_ten_are_listed_and_kept(self, draft_collection, save_response):
+        """11 references in one POST, then one more. All 12 should be returned."""
+        page, container_uuid = draft_collection
+        url = f"/v3/collections/{container_uuid}/references"
+        refs = [{"url": f"https://example.com/coll-ref{index}"} for index in range(11)]
+        extra = [{"url": "https://example.com/coll-ref11"}]
+
+        response = page.request.post(url, data={"references": refs})
+        save_response(response, "v3-collection-add-many-references")
+        assert response.ok
+        assert page.request.post(url, data={"references": extra}).ok
+
+        get_response = page.request.get(url)
+        save_response(get_response, "v3-collection-add-many-references-verify")
+        assert len(get_response.json()) == 12
+
 
 class TestV3CollectionAuthorsReorderApi:
     """POST /v3/collections/<uuid>/reorder-authors — change author order."""
