@@ -154,6 +154,10 @@ table#files tbody tr td:nth-child(3) { width: 15px; text-align: right; }
 #geolocation-wrapper input[type="text"] { width: 812pt; }
 #references-list { display: none; border: none; }
 #references-list thead { display: none; }
+#references-scroll { max-height: 22em; overflow-y: auto; overflow-x: hidden; }
+#references-list { width: 100%; }
+#references-list td { overflow-wrap: anywhere; }
+#references-list td:last-child { width: 1%; white-space: nowrap; }
 #tags-list { display: none; border: none; padding: 0em; }
 #tags-list li {
   display: inline-block;
@@ -426,12 +430,14 @@ table#files tbody tr td:nth-child(3) { width: 15px; text-align: right; }
   <input type="text" id="references" name="references" value="" />
   <a id="add-reference-button" class="form-button corporate-identity-standard-button" href="#">Add reference</a>
 </div>
+<div id="references-scroll">
 <table class="inside-form-table" id="references-list">
   <thead>
     <tr><th>Reference</th><th>Actions</th></tr>
   </thead>
   <tbody></tbody>
 </table>
+</div>
 <label for="doi-wrapper">DOI reservation</label><div class="fas fa-question-circle help-icon"><span class="help-text">Upon publication, a DOI will be assigned to your dataset. If you need to have the DOI before publication, you can use this value.</span></div>
 <div id="doi-wrapper" class="options-wrapper">
   <p>The DOI of your dataset will be: <strong>{{article["doi"]}}</strong></p>
