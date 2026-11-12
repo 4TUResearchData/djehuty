@@ -1133,7 +1133,7 @@ class SparqlInterface:
         query += rdf.sparql_suffix (order, order_direction, limit, None)
         return self.__run_query(query)
 
-    def references (self, order=None, order_direction=None, limit=10,
+    def references (self, order=None, order_direction=None, limit=None,
                     item_uri=None, account_uuid=None):
         """Procedure to retrieve references."""
 
