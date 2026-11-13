@@ -4,8 +4,9 @@ Page object for the admin retract page
 
 The page is a three-step flow:
     Step 1 - Search and select a published dataset.
-    Step 2 - Review the selected target.
-    Step 3 - Type the DOI to enable Confirm, then retract.
+    Step 2 - Tick the versions to retract.
+    Step 3 - Review the plan, type the container DOI to enable Confirm,
+             then retract.
 """
 
 from playwright.sync_api import expect
@@ -44,9 +45,25 @@ class AdminRetractPage(BasePage):
     # Step 2 ------------------------------------------------------------
 
     def detail_value(self, field: str) -> str:
-        """Read the text of a Step 2 detail field (title, doi, version,
-        published, container-uuid, dataset-uuid)."""
+        """Read the text of a Step 2 detail field (title, doi, container-uuid)."""
         return self.page.locator(f"#retract-detail-{field}").inner_text()
+
+    def version_rows(self):
+        return self.page.locator("#retract-versions-body tr")
+
+    def version_row(self, version: int):
+        """The picker row whose Version cell equals `version`."""
+        version_cell = self.page.locator("td:nth-child(2)", has_text=str(version))
+        return self.version_rows().filter(has=version_cell).first
+
+    def select_version(self, version: int):
+        self.version_row(version).locator("input[type=checkbox]").check()
+
+    def selected_version_count(self) -> int:
+        return self.page.locator("#retract-versions-body input:checked").count()
+
+    def preview_button(self):
+        return self.page.locator("#retract-preview-button")
 
     def click_change_dataset(self):
         self.page.locator("#retract-back-to-search-button").click()
@@ -59,7 +76,7 @@ class AdminRetractPage(BasePage):
     # Step 3 ------------------------------------------------------------
 
     def confirm_value(self, field: str) -> str:
-        """Read the text of a Step 3 confirm field (title, doi, version)."""
+        """Read the text of a Step 3 confirm field (title, doi, versions)."""
         return self.page.locator(f"#retract-confirm-{field}").inner_text()
 
     def type_doi_confirmation(self, doi: str):

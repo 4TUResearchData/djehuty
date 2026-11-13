@@ -2,21 +2,41 @@
 {% block query %}
 DELETE {
   GRAPH <{{state_graph}}> {
+    ?dataset   djht:published_date    ?published_date .
+    ?dataset   djht:posted_date       ?posted_date .
+    ?dataset   djht:retracted_published_date ?old_published_date .
+    ?dataset   djht:retracted_date    ?old_retracted_date .
+    {%- if draft_uri %}
     ?draft     djht:is_under_review   "0"^^xsd:boolean .
-    ?draft     djht:published_date    ?published_date .
-    ?draft     djht:posted_date       ?posted_date .
+    {%- endif %}
+    {%- if strip_first_online %}
     ?container djht:first_online_date ?first_online_date .
+    {%- endif %}
+  }
+}
+INSERT {
+  GRAPH <{{state_graph}}> {
+    ?dataset   djht:retracted_published_date ?published_date .
+    ?dataset   djht:retracted_date    "{{retracted_date}}"^^xsd:dateTime .
   }
 }
 WHERE {
   GRAPH <{{state_graph}}> {
-    ?container rdf:type djht:DatasetContainer ;
-               djht:draft ?draft .
-    OPTIONAL { ?draft     djht:published_date    ?published_date . }
-    OPTIONAL { ?draft     djht:posted_date       ?posted_date . }
+    ?container rdf:type       djht:DatasetContainer .
+    ?dataset   djht:container ?container .
+    VALUES ?dataset { {{ dataset_uris | safe }} }
+    OPTIONAL { ?dataset   djht:published_date    ?published_date . }
+    OPTIONAL { ?dataset   djht:posted_date       ?posted_date . }
+    OPTIONAL { ?dataset   djht:retracted_published_date ?old_published_date . }
+    OPTIONAL { ?dataset   djht:retracted_date    ?old_retracted_date . }
+    {%- if draft_uri %}
+    ?container djht:draft ?draft .
+    FILTER (?draft = <{{draft_uri}}>)
+    {%- endif %}
+    {%- if strip_first_online %}
     OPTIONAL { ?container djht:first_online_date ?first_online_date . }
+    {%- endif %}
     FILTER (?container = <{{container_uri}}>)
-    FILTER (?draft     = <{{dataset_uri}}>)
   }
 }
 {% endblock %}
