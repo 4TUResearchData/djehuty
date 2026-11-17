@@ -15,6 +15,10 @@ When contributing, remember to follow our [Code of Conduct](https://github.com/4
 
 All contributions - whether it’s code, bug reports, or ideas are appreciated and recognized. Contributors may be credited in release notes or project acknowledgments. Thank you for helping make the project better!
 
+## License
+
+Contributions are accepted under djehuty's [license](https://github.com/4TUResearchData/djehuty?tab=License-1-ov-file), the GNU Affero General Public License, version 3 or later.
+
 ## Join the community
 
 Contributors are encouraged to take part in the
@@ -39,7 +43,7 @@ We welcome contributions in the form of bug reports and feature suggestions. Her
 
 3. **Provide Useful Information**
 
-    - **For Bugs:** Explain the steps to reproduce the problem, what you expected to happen, what actually happened, and include any relevant screenshots, logs, or environment details.
+    - **For Bugs:** Explain the steps to reproduce the problem, what you expected to happen, what actually happened, and include any relevant screenshots, logs, or environment details. If an AI tool helped you find the problem, see [Use of AI tools](#use-of-ai-tools).
     - **For Feature Suggestions:** Describe the idea clearly and explain why it would improve the project.
 
 4. **Participate in Discussion**
@@ -75,11 +79,36 @@ We welcome contributions in the form of bug reports and feature suggestions. Her
     - Once your work is ready for review, open a Pull Request (PR) against the main project repository.
       - Provide a clear description of what you changed and link the related issue.
       - Use the PR template - you will see it once you open a PR,  and check the approval checklist before submitting.
+      - If you used AI tools, see [Use of AI tools](#use-of-ai-tools).
       - ⚠️ **IMPORTANT**: **Do not open a PR for a security issue**: to report a vulnerability, please see [SECURITY.md](https://github.com/4TUResearchData/djehuty/blob/main/SECURITY.md)
 
 6. **Final approval and merge**
 
     After review and approval, your PR must be squashed into a single commit. Once the checklist is complete, a maintainer will rebase-merge it into the main branch to keep the history clean.
+
+## Use of AI tools
+
+AI-assisted contributions are welcome and are reviewed on the same merits as any other contribution. This applies to code and any other content you submit.
+
+**You are responsible for what you submit.** Treat AI output as a suggestion, not a finished contribution. Review it, test it and make sure
+you understand it before submitting. You remain the author whatever tools
+you used, so AI tools do not need to be credited as co-authors.
+
+**Be able to explain your changes.** Reviewers want to talk to people. You should be able to explain why a change works and how it fits the project, and to respond to review comments yourself. 
+
+**Respect licences.** Make sure what you submit is compatible with djehuty's [licence](#license), including any material the tool may have reproduced from other sources.
+
+**Disclosure is encouraged, not required.** If an AI tool contributed significantly, a short note in the pull request description helps reviewers understand the context. The pull request template has an optional field for this.
+
+**Help with writing is welcome.** Using AI to phrase, translate or polish descriptions, comments and reports is fine, especially if English is not your first language. Check that the text says what you mean, and take part in the discussion yourself rather than passing reviewer feedback to a tool and posting the result.
+
+**Bug and security reports.** If an AI tool helped you find a problem, verify it yourself before reporting it (for example by reproducing it), and say what you could not verify. Please write the report yourself rather than pasting unchecked generated text.
+
+**Quality matters.** Unchecked, low-quality generated contributions put an unfair burden on reviewers and may be closed,  as may changes the author cannot explain.
+
+**Reviewing.** Maintainers may use AI tools to assist a review, but a person makes the final decision on whether a contribution is accepted.
+
+This guidance may change as tools and the legal situation evolve, and will be reviewed periodically.
 
 ---
 
