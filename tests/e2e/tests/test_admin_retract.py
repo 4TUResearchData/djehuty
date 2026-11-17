@@ -6,7 +6,8 @@ Covers:
     - End-to-end retract flow on the seeded test datasets
       (docker/sparql-init/002-seed-test-data.sql)
     - Retracting a single-version dataset, an older version only, and the
-      latest version only (each scenario mutates its own seed)
+      latest version only (each scenario mutates its own seed). Retracting the
+      latest version copies it to a new draft, the retracted version keeps its tombstone
     - The Confirm button is disabled until the DOI is typed correctly
     - Non-admin users get 403 on the page and API endpoints
     - The execute endpoint rejects missing fields, a missing or invalid
@@ -195,16 +196,15 @@ class TestAdminRetractSubset:
         assert tombstone.status == 410
         assert f"{multi_doi('older')}.v1" in tombstone.text()
 
-    def test_retract_latest_version_drafts_it_and_promotes_previous(
-        self, admin_page: Page, screenshot
-    ):
+    def test_retract_latest_version_copies_it_to_a_new_draft(self, admin_page: Page, screenshot):
         retract_page = self._open_versions(admin_page, "latest")
 
         retract_page.select_version(3)
         retract_page.click_preview()
         assert retract_page.confirm_value("versions") == "v3"
         summary = admin_page.locator("#retract-summary-list").inner_text()
-        assert "v3 (latest) becomes a draft" in summary
+        assert "A new draft is created from v3 (latest)" in summary
+        assert "v3 stays retracted" in summary
         assert "v2 stays public" in summary
         screenshot(admin_page, "retract-subset-latest-step3")
 
@@ -212,6 +212,19 @@ class TestAdminRetractSubset:
         expect(retract_page.version_rows()).to_have_count(2)
         expect(retract_page.version_row(2)).to_contain_text("latest")
         screenshot(admin_page, "retract-subset-latest-after")
+
+    def test_retracted_latest_version_keeps_its_tombstone(self, admin_page: Page):
+        retract_page = self._open_versions(admin_page, "latest")
+        retract_page.select_version(3)
+        retract_page.click_preview()
+        self._confirm_and_reopen(admin_page, retract_page, "latest")
+
+        container = MULTI_SEEDS["latest"]["container"]
+        tombstone = admin_page.request.get(
+            f"/datasets/{container}/3", headers={"Accept": "text/html"}
+        )
+        assert tombstone.status == 410
+        assert f"{multi_doi('latest')}.v3" in tombstone.text()
 
 
 # ---------------------------------------------------------------------------

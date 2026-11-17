@@ -37,7 +37,7 @@ def rdflib_network_audit_hook(name, arguments):
         logger.audit("Attempted to send a network request to %s", arguments[0])
 
 
-class RetractRefused(Exception):
+class RetractRefused(Exception):  # noqa: N818
     """Raised when an admin retract is refused before anything is changed."""
 
     def __init__(self, code, message):
@@ -3544,7 +3544,8 @@ class SparqlInterface:
         plan = self.plan_retract(container_uuid, version_uuids)
         container_uri = rdf.uuid_to_uri(container_uuid, "container")
 
-        # The draft goes first so a failure never leaves a retract without one. A crash after it is fixed by hand from the STEP log
+        # The draft goes first so a failure never leaves a retract without one.
+        # A crash after it is fixed by hand from the STEP log.
         if not (
             self.__retract_create_draft(container_uuid, plan)
             and self.__retract_flip_published(container_uri, plan)

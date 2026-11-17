@@ -63,6 +63,7 @@ def _seed_container(db, container, versions, draft=None, older_are_latest=True):
         is_newest = number == len(versions)
         rdf.add(graph, dataset, RDF.type, DJHT["Dataset"], "uri")
         rdf.add(graph, dataset, DJHT["container"], container_uri, "uri")
+        rdf.add(graph, dataset, DJHT["title"], f"Version {number}", XSD.string)
         rdf.add(graph, dataset, DJHT["version"], number, XSD.integer)
         rdf.add(graph, dataset, DJHT["published_date"], "2026-01-01T00:00:00", XSD.dateTime)
         rdf.add(graph, dataset, DJHT["posted_date"], "2026-01-01T00:00:00", XSD.dateTime)
@@ -111,6 +112,32 @@ def _values_of(db, subject, predicate):
         f"<{subject}> <{DJHT[predicate]}> ?value . }} }}"
     )
     return len(list(db.sparql.query(query)))
+
+
+def _draft_of(db, container=CONTAINER):
+    """The record linked as the container's draft, or None."""
+    query = (
+        f"SELECT ?draft WHERE {{ GRAPH <{config.state_graph}> {{ "
+        f"<{_container_uri(container)}> <{DJHT['draft']}> ?draft . }} }}"
+    )
+    rows = list(db.sparql.query(query))
+    return str(rows[0].draft) if rows else None
+
+
+def _assert_fresh_draft_copy(db, source_uuid):
+    """A new record, copied from SOURCE_UUID, has no version or DOI and is an active draft."""
+    draft = _draft_of(db)
+    assert draft is not None
+    assert draft != str(_dataset_uri(source_uuid))
+    draft_uri = URIRef(draft)
+    title = f'"Version {VERSIONS.index(source_uuid) + 1}"^^<{XSD.string}>'
+    assert _has(db, draft_uri, "title", title)
+    for predicate in ("version", "doi", "posted_date", "published_date", "retracted_date"):
+        assert not _has(db, draft_uri, predicate), predicate
+    on = 'FILTER (STR(?v) IN ("1", "true"))'
+    assert _ask(db, f"<{draft_uri}> <{DJHT['is_active']}> ?v . {on}")
+    assert not _ask(db, f"<{draft_uri}> <{DJHT['is_public']}> ?v . {on}")
+    assert not _flag_is_set(db, source_uuid, "is_active")
 
 
 def _flag_is_set(db, uuid, flag):
@@ -163,17 +190,17 @@ class TestRetractAllVersions:
         for uuid in VERSIONS[:-1]:
             assert _has(retracted, _dataset_uri(uuid), "is_active", f'"0"^^<{BOOLEAN}>')
 
-    def test_latest_version_becomes_the_draft(self, retracted):
-        """The newest version is the container's draft, and it is active again."""
-        container = _container_uri(CONTAINER)
-        assert _has(retracted, container, "draft", _dataset_uri(VERSIONS[-1]).n3())
-        assert _flag_is_set(retracted, VERSIONS[-1], "is_active")
+    def test_latest_version_is_copied_to_a_new_draft(self, retracted):
+        """The newest version stays retracted, the owner gets a new record as draft."""
+        _assert_fresh_draft_copy(retracted, VERSIONS[-1])
 
-    def test_older_versions_are_not_promoted(self, retracted):
-        """Only the newest version becomes a draft."""
-        container = _container_uri(CONTAINER)
-        for uuid in VERSIONS[:-1]:
-            assert not _has(retracted, container, "draft", _dataset_uri(uuid).n3())
+    def test_retracted_versions_keep_their_version_number(self, retracted):
+        """Numbers stay on the retracted records so they are never handed out again."""
+        assert retracted.highest_version(str(_container_uri(CONTAINER))) == len(VERSIONS)
+
+    def test_retracted_versions_are_not_the_draft(self, retracted):
+        for uuid in VERSIONS:
+            assert _draft_of(retracted) != str(_dataset_uri(uuid))
 
     def test_versions_move_to_retracted(self, retracted):
         """The published list becomes the retracted list."""
@@ -225,8 +252,8 @@ class TestRetractSingleVersion:
         assert _retract(db) is True
         for flag in ("is_public", "is_latest"):
             assert not _flag_is_set(db, VERSIONS[0], flag)
-        assert _flag_is_set(db, VERSIONS[0], "is_active")
-        assert _has(db, _container_uri(CONTAINER), "draft", _dataset_uri(VERSIONS[0]).n3())
+        assert not _flag_is_set(db, VERSIONS[0], "is_active")
+        _assert_fresh_draft_copy(db, VERSIONS[0])
         assert not _ask(db, f"<{_review_uri(VERSIONS[0])}> ?predicate ?value .")
 
 
@@ -259,7 +286,7 @@ class TestRetractRefusals:
 class TestRetractSubset:
     """Retracting only some of the published versions."""
 
-    def test_latest_only_promotes_the_previous_version(self, db):
+    def test_latest_only_moves_the_pointer_and_copies_a_draft(self, db):
         _seed_container(db, CONTAINER, VERSIONS, older_are_latest=False)
         assert _retract(db, VERSIONS[-1:]) is True
         container = _container_uri(CONTAINER)
@@ -267,7 +294,7 @@ class TestRetractSubset:
         assert _members(db, "retracted_versions") == _uris(VERSIONS[2:])
         assert _has(db, container, "latest_published_version", _dataset_uri(VERSIONS[1]).n3())
         assert _flag_is_set(db, VERSIONS[1], "is_latest")
-        assert _has(db, container, "draft", _dataset_uri(VERSIONS[2]).n3())
+        _assert_fresh_draft_copy(db, VERSIONS[2])
         assert _has(db, container, "first_online_date")
 
     def test_older_only_leaves_latest_and_draft_slot_alone(self, db):
@@ -361,7 +388,7 @@ class TestRetractSubset:
         assert _members(db, "published_versions") == _uris(VERSIONS[1:2])
         assert _members(db, "retracted_versions") == _uris([VERSIONS[0], VERSIONS[2]])
         assert _has(db, container, "latest_published_version", _dataset_uri(VERSIONS[1]).n3())
-        assert _has(db, container, "draft", _dataset_uri(VERSIONS[2]).n3())
+        _assert_fresh_draft_copy(db, VERSIONS[2])
 
     def test_explicit_full_selection_matches_retract_all(self, db):
         _seed_container(db, CONTAINER, VERSIONS)
@@ -525,7 +552,7 @@ class TestVersionListSwap:
 
 
 class TestPlanRetract:
-    def test_latest_only_promotes_a_draft(self, db):
+    def test_latest_only_retracts_the_latest(self, db):
         _seed_container(db, CONTAINER, VERSIONS)
         plan = db.plan_retract(CONTAINER, VERSIONS[-1:])
         assert [v["version"] for v in plan["selected"]] == [3]
@@ -559,3 +586,49 @@ class TestPlanRetract:
         with pytest.raises(RetractRefused) as refusal:
             db.plan_retract(CONTAINER, [OTHER_VERSIONS[0]])
         assert refusal.value.code == "UnknownVersion"
+
+
+class TestVersionNumbering:
+    """A number is never given twice, retracted versions included."""
+
+    def _request_review(self, db):
+        graph = Graph()
+        review = URIRef("review:dddddddd-dddd-dddd-dddd-dddddddddddd")
+        rdf.add(graph, review, RDF.type, DJHT["Review"], "uri")
+        rdf.add(graph, review, DJHT["dataset"], URIRef(_draft_of(db)), "uri")
+        rdf.add(graph, review, DJHT["status"], DJHT["ReviewPending"], "uri")
+        db.add_triples_from_graph(graph)
+
+    def _publish(self, db):
+        self._request_review(db)
+        return db.publish_dataset(CONTAINER, OWNER)
+
+    def test_empty_container_is_zero(self, db):
+        assert db.highest_version(str(_container_uri(CONTAINER))) == 0
+
+    def test_a_draft_without_a_version_is_ignored(self, db):
+        _seed_container(db, CONTAINER, VERSIONS, draft=DRAFT)
+        assert db.highest_version(str(_container_uri(CONTAINER))) == len(VERSIONS)
+
+    def test_republish_after_retracting_the_latest_skips_its_number(self, db):
+        _seed_container(db, CONTAINER, VERSIONS)
+        assert _retract(db, VERSIONS[-1:]) is True
+        assert self._publish(db) is True
+        assert db.highest_version(str(_container_uri(CONTAINER))) == len(VERSIONS) + 1
+
+    def test_republish_after_retracting_everything_continues_the_numbering(self, db):
+        _seed_container(db, CONTAINER, VERSIONS)
+        assert _retract(db) is True
+        assert self._publish(db) is True
+        assert db.highest_version(str(_container_uri(CONTAINER))) == len(VERSIONS) + 1
+
+
+class TestDraftFailure:
+    def test_failed_draft_changes_nothing(self, db, monkeypatch):
+        _seed_container(db, CONTAINER, VERSIONS)
+        monkeypatch.setattr(db, "create_draft_from_record", lambda *args, **kwargs: None)
+        assert _retract(db) is False
+        assert _members(db, "published_versions") == _uris(VERSIONS)
+        assert not _members(db, "retracted_versions")
+        assert _flag_is_set(db, VERSIONS[-1], "is_public")
+        assert _draft_of(db) is None
