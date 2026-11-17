@@ -12,7 +12,7 @@
 <h1>Content was removed</h1>
 {%- if item %}
 {%- set doi = item.doi if version else item.container_doi %}
-<p>This dataset has been retracted by the repository administrators{% if item.retracted_date %} on {{ item.retracted_date[:10] }}{% endif %} and is no longer available.</p>
+<p>This dataset has been retracted{% if item.retracted_date %} on {{ item.retracted_date[8:10] }}-{{ item.retracted_date[5:7] }}-{{ item.retracted_date[:4] }}{% endif %} and is no longer available.</p>
 <p>Citation:
   {{ authors | map (attribute="full_name") | join ("; ") }}
   {%- if item.retracted_published_date %} ({{ item.retracted_published_date[:4] }}){% endif %}.

@@ -8496,7 +8496,7 @@ class WebServer:
         """Hides DOI, points it at the tombstone and records the withdrawal date."""
 
         withdrawn = {"date": date.today().isoformat(),
-                     "reason": "Retracted by the repository administrators."}
+                     "reason": "Retracted."}
         parameters = dict(parameters, doi=doi, withdrawn=withdrawn)
         url = landing_page_url(container_uuid, version, base_url=config.base_url)
         attributes = {"event": "hide",

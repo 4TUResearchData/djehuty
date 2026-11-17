@@ -59,13 +59,13 @@ class TestTombstoneTemplate:
         )
         html = _render(item=item, authors=AUTHORS, version="1")
         assert "Grace Hopper (2026)." in html
-        assert "retracted by the repository administrators on 2026-11-09 and" in html
+        assert "retracted on 09-11-2026 and" in html
 
     def test_citation_without_dates_has_no_year_or_retraction_date(self):
         html = _render(item=ITEM, authors=AUTHORS, version="1")
         assert "Grace Hopper." in html
         assert "(20" not in html
-        assert "administrators and is no longer available" in html
+        assert "has been retracted and is no longer available" in html
 
     def test_title_is_escaped(self):
         html = _render(item=ITEM, authors=AUTHORS, version="1")

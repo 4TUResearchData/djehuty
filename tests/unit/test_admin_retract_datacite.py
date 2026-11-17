@@ -127,7 +127,7 @@ class TestSyncAfterRetract:
         assert attributes["url"] == f"{BASE_URL}/datasets/{CONTAINER}/1"
         xml = _decoded_xml(attributes)
         assert 'dateType="Withdrawn"' in xml
-        assert 'dateInformation="Retracted by the repository administrators."' in xml
+        assert 'dateInformation="Retracted."' in xml
         assert 'dateType="Issued"' in xml
 
     def test_container_doi_refreshed_when_versions_remain(self, server, puts):
