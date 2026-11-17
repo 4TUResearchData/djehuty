@@ -1,0 +1,10 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT (MAX(?version) AS ?version)
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?dataset djht:container <{{container_uri}}> ;
+             djht:version   ?version .
+  }
+}
+{% endblock %}

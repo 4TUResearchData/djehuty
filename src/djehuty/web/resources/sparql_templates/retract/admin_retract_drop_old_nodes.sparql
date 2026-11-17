@@ -1,0 +1,10 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+DELETE { GRAPH <{{state_graph}}> { ?node ?p ?o . } }
+WHERE {
+  GRAPH <{{state_graph}}> {
+    <{{head_uri}}> rdf:rest* ?node .
+    ?node ?p ?o .
+  }
+}
+{% endblock %}

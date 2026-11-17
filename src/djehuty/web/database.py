@@ -9,6 +9,7 @@ import secrets
 import sys
 import uuid
 from datetime import datetime
+from typing import TypedDict
 
 from jinja2 import Environment, FileSystemLoader
 from rdflib import RDF, XSD, Dataset, Graph, Literal, URIRef
@@ -34,6 +35,23 @@ def rdflib_network_audit_hook(name, arguments):
     ):
         logger = logging.getLogger(__name__)
         logger.audit("Attempted to send a network request to %s", arguments[0])
+
+
+class RetractRefused(Exception):  # noqa: N818
+    """Raised when an admin retract is refused before anything is changed."""
+
+    def __init__(self, code, message):
+        super().__init__(message)
+        self.code = code
+
+
+class RetractPlan(TypedDict):
+    """What an admin retract would change, as worked out by plan_retract."""
+
+    selected: list[dict]
+    remaining: list[dict]
+    latest: dict
+    retracts_latest: bool
 
 
 class SparqlInterface:
@@ -300,6 +318,19 @@ class SparqlInterface:
         query += rdf.sparql_suffix(order, order_direction, limit, offset)
 
         return self.__run_query(query)
+
+    def highest_version(self, container_uri):
+        """Highest version number ever given in the container, retracted versions included."""
+
+        rows = self.__run_query(
+            self.__query_from_template(
+                "container_highest_version", {"container_uri": container_uri}
+            )
+        )
+        if rows and rows[0].get("version"):
+            return int(rows[0]["version"])
+
+        return 0
 
     def container_items(
         self,
@@ -1382,6 +1413,35 @@ class SparqlInterface:
 
         return uri
 
+    def insert_record_nodes(self, graph, records, insert_procedure) -> URIRef | None:
+        """Adds the nodes of an RDF list for RECORDS to GRAPH without linking it to a
+        subject. Returns the head node, or None when RECORDS is empty."""
+        head = None
+        previous = None
+        for index, item in enumerate(records):
+            if insert_procedure:
+                item = insert_procedure(**item)
+
+            node = rdf.blank_node()
+            head = head or node
+            rdf.add(graph, node, rdf.DJHT["index"], index, XSD.integer)
+            if isinstance(item, URIRef):
+                rdf.add(graph, node, RDF.first, item, "uri")
+            else:
+                rdf.add(graph, node, RDF.first, item, XSD.string)
+
+            if previous is not None:
+                rdf.add(graph, previous, RDF.rest, node, "uri")
+                rdf.add(graph, previous, RDF.type, RDF.List, "uri")
+
+            previous = node
+
+        if previous is not None:
+            rdf.add(graph, previous, RDF.rest, RDF.nil, "uri")
+            rdf.add(graph, previous, RDF.type, RDF.List, "uri")
+
+        return head
+
     def insert_record_list(self, graph, uri, records, name, insert_procedure):
         """
         Adds an RDF list with indexes for RECORDS to the graph using
@@ -1389,31 +1449,9 @@ class SparqlInterface:
         from RECORDS, and it must return the URI used as subject to describe
         the record.
         """
-        if records:
-            blank_node = rdf.blank_node()
-            rdf.add(graph, uri, rdf.DJHT[name], blank_node, "uri")
-
-            previous_blank_node = None
-            for index, item in enumerate(records):
-                if insert_procedure:
-                    item = insert_procedure(**item)
-
-                rdf.add(graph, blank_node, rdf.DJHT["index"], index, XSD.integer)
-                if isinstance(item, URIRef):
-                    rdf.add(graph, blank_node, RDF.first, item, "uri")
-                else:
-                    rdf.add(graph, blank_node, RDF.first, item, XSD.string)
-
-                if previous_blank_node is not None:
-                    rdf.add(graph, previous_blank_node, RDF.rest, blank_node, "uri")
-                    rdf.add(graph, previous_blank_node, RDF.type, RDF.List, "uri")
-
-                previous_blank_node = blank_node
-                blank_node = rdf.blank_node()
-
-            del blank_node
-            rdf.add(graph, previous_blank_node, RDF.rest, RDF.nil, "uri")
-            rdf.add(graph, previous_blank_node, RDF.type, RDF.List, "uri")
+        head = self.insert_record_nodes(graph, records, insert_procedure)
+        if head is not None:
+            rdf.add(graph, uri, rdf.DJHT[name], head, "uri")
 
         return True
 
@@ -2795,13 +2833,12 @@ class SparqlInterface:
             self.log.error("Attempted to publish without a draft <container:%s>.", container_uuid)
             return False
 
-        new_version_number = 1
+        new_version_number = self.highest_version(rdf.uuid_to_uri(container_uuid, "container")) + 1
         latest = None
         try:
             latest = self.datasets(
                 container_uuid=container_uuid, is_published=True, is_latest=True, use_cache=False
             )[0]
-            new_version_number = latest["version"] + 1
         except IndexError:
             self.log.error("No latest version for <container:%s>.", container_uuid)
 
@@ -2859,7 +2896,6 @@ class SparqlInterface:
     def create_draft_from_published_dataset(self, container_uuid, account_uuid=None):
         """Procedure to copy a published dataset as draft in its container."""
 
-        latest_uri = None
         try:
             latest = self.datasets(
                 container_uuid=container_uuid,
@@ -2868,22 +2904,29 @@ class SparqlInterface:
                 use_cache=False,
                 limit=1,
             )[0]
-
-            latest_uri = latest["uri"]
         except (IndexError, TypeError):
             return None
 
+        return self.create_draft_from_record(latest, container_uuid, account_uuid)
+
+    def create_draft_from_record(self, source, container_uuid, account_uuid=None):
+        """Copies SOURCE, a row of datasets(), into a new draft of the container.
+
+        Returns the uuid of the draft, or None when the draft could not be linked."""
+
+        source_uri = source["uri"]
+
         ## Derive the new draft from the published version.
-        draft_authors = self.authors(item_uri=latest_uri, limit=None)
+        draft_authors = self.authors(item_uri=source_uri, limit=None)
         draft_files = self.dataset_files(
-            dataset_uri=latest_uri, account_uuid=account_uuid, limit=None
+            dataset_uri=source_uri, account_uuid=account_uuid, limit=None
         )
-        draft_tags = self.tags(item_uri=latest_uri, limit=None)
-        draft_categories = self.categories(item_uri=latest_uri, limit=None)
-        draft_references = self.references(item_uri=latest_uri, limit=None)
-        draft_derived_from = self.derived_from(item_uri=latest_uri, limit=None)
-        draft_fundings = self.fundings(item_uri=latest_uri, limit=None)
-        draft_custom_fields = self.custom_fields(item_uri=latest_uri, item_type="dataset")
+        draft_tags = self.tags(item_uri=source_uri, limit=None)
+        draft_categories = self.categories(item_uri=source_uri, limit=None)
+        draft_references = self.references(item_uri=source_uri, limit=None)
+        draft_derived_from = self.derived_from(item_uri=source_uri, limit=None)
+        draft_fundings = self.fundings(item_uri=source_uri, limit=None)
+        draft_custom_fields = self.custom_fields(item_uri=source_uri, item_type="dataset")
 
         if isinstance(draft_derived_from, list):
             draft_derived_from = conv.value_or_none(draft_derived_from, 0)
@@ -2897,24 +2940,24 @@ class SparqlInterface:
         # We also don't copy posted, published, and submission dates because
         # these are yet-to-be-determined.
         container_uuid, draft_uuid = self.insert_dataset(
-            title=conv.value_or_none(latest, "title"),
-            account_uuid=conv.value_or_none(latest, "account_uuid"),
+            title=conv.value_or_none(source, "title"),
+            account_uuid=conv.value_or_none(source, "account_uuid"),
             container_uuid=container_uuid,
-            description=conv.value_or_none(latest, "description"),
-            defined_type=conv.value_or_none(latest, "defined_type"),
-            defined_type_name=conv.value_or_none(latest, "defined_type_name"),
+            description=conv.value_or_none(source, "description"),
+            defined_type=conv.value_or_none(source, "defined_type"),
+            defined_type_name=conv.value_or_none(source, "defined_type_name"),
             derived_from=draft_derived_from,
             funding=draft_funding_title,
-            license_url=conv.value_or_none(latest, "license_url"),
-            language=conv.value_or_none(latest, "language"),
-            resource_doi=conv.value_or_none(latest, "resource_doi"),
-            resource_title=conv.value_or_none(latest, "resource_title"),
-            revision=conv.value_or_none(latest, "timeline_revision"),
-            group_id=conv.value_or_none(latest, "group_id"),
-            publisher=conv.value_or_none(latest, "publisher"),
-            data_link=conv.value_or_none(latest, "data_link"),
-            thumb=conv.value_or_none(latest, "thumb"),
-            thumb_origin=conv.value_or_none(latest, "thumb_origin"),
+            license_url=conv.value_or_none(source, "license_url"),
+            language=conv.value_or_none(source, "language"),
+            resource_doi=conv.value_or_none(source, "resource_doi"),
+            resource_title=conv.value_or_none(source, "resource_title"),
+            revision=conv.value_or_none(source, "timeline_revision"),
+            group_id=conv.value_or_none(source, "group_id"),
+            publisher=conv.value_or_none(source, "publisher"),
+            data_link=conv.value_or_none(source, "data_link"),
+            thumb=conv.value_or_none(source, "thumb"),
+            thumb_origin=conv.value_or_none(source, "thumb_origin"),
             funding_list=draft_fundings,
             tags=draft_tags,
             references=draft_references,
@@ -2923,11 +2966,11 @@ class SparqlInterface:
             custom_fields_list=draft_custom_fields,
             private_links=None,
             files=draft_files,
-            embargo_type=conv.value_or_none(latest, "embargo_type"),
-            embargo_until_date=conv.value_or_none(latest, "embargo_until_date"),
-            embargo_title=conv.value_or_none(latest, "embargo_title"),
-            embargo_reason=conv.value_or_none(latest, "embargo_reason"),
-            eula=conv.value_or_none(latest, "eula"),
+            embargo_type=conv.value_or_none(source, "embargo_type"),
+            embargo_until_date=conv.value_or_none(source, "embargo_until_date"),
+            embargo_title=conv.value_or_none(source, "embargo_title"),
+            embargo_reason=conv.value_or_none(source, "embargo_reason"),
+            eula=conv.value_or_none(source, "eula"),
             is_public=0,
             is_active=1,
             is_latest=0,
@@ -3229,121 +3272,296 @@ class SparqlInterface:
         )
         return True
 
-    def admin_retract_dataset(
-        self, container_uuid, dataset_uuid, admin_account_uuid, owner_account_uuid=None
-    ):
-        """Admin procedure to retract a published dataset and revert the
-        container's published version to a draft.
+    def __rebuild_version_lists(
+        self, container_uri: str, selected: list[dict], remaining: list[dict]
+    ) -> bool:
+        """Replaces published_versions and retracted_versions of a container.
 
-        Runs each step from the retract playbook as its own SPARQL mutation
-        so every step lands in the audit log (when enable_query_audit_log is
-        on) just like queries submitted via /admin/sparql.
+        The new lists are written as unlinked nodes first, then one query swaps
+        the heads, then the old nodes are removed.  A failure leaves either the
+        old or the new lists linked, never neither.
 
-        Returns True on success, False on any failure (one of the mutations
-        returned a falsy result)."""
+        Returns True when the swap was applied, False when a query failed."""
 
-        self.log.info(
-            "Admin retract start: admin=%s container=%s dataset=%s",
-            admin_account_uuid,
-            container_uuid,
-            dataset_uuid,
+        # Grab all retracted versions including past retractions
+        previously_retracted = self.__run_query(
+            self.__query_from_template(
+                "retract/admin_retract_list_retracted", {"container_uri": container_uri}
+            )
         )
+        retracted_uris = [row["dataset_uri"] for row in previously_retracted or []]
+        retracted_uris += [version["dataset_uri"] for version in selected]
+        retracted_uris = list(dict.fromkeys(retracted_uris))
+
+        # The swap deletes the only links to the old nodes, so read them first
+        old_heads = self.__run_query(
+            self.__query_from_template(
+                "retract/admin_retract_list_heads", {"container_uri": container_uri}
+            )
+        )
+        stale_heads = [
+            row[column]
+            for row in old_heads or []
+            for column in ("published_head", "retracted_head")
+            if row.get(column)
+        ]
+
+        # Write the new version lists as nodes that nothing links to yet
+        graph = Graph()
+        published_head = self.insert_record_nodes(
+            graph, [URIRef(version["dataset_uri"]) for version in remaining], None
+        )
+        retracted_head = self.insert_record_nodes(
+            graph, [URIRef(uri) for uri in retracted_uris], None
+        )
+        if not self.add_triples_from_graph(graph):
+            return False
+
+        # Point the container at the new heads in a single request
+        swap = self.__query_from_template(
+            "retract/admin_retract_swap_version_lists",
+            {
+                "container_uri": container_uri,
+                "published_head": published_head,
+                "retracted_head": retracted_head,
+            },
+        )
+        if not self.__run_logged_query(swap):
+            return False
+
+        # Orphan nodes will not fail the retract
+        for head in stale_heads:
+            cleanup = self.__query_from_template(
+                "retract/admin_retract_drop_old_nodes", {"head_uri": head}
+            )
+            if not self.__run_logged_query(cleanup):
+                self.log.warning("Admin retract left orphan list nodes under %s", head)
+
+        return True
+
+    def plan_retract(
+        self, container_uuid: str, version_uuids: list[str] | None = None
+    ) -> RetractPlan:
+        """Works out what retracting VERSION_UUIDS (all versions when None) would do.
+
+        Returns a RetractPlan with the versions to retract ('selected'), the
+        ones that stay published ('remaining'), the current 'latest' version
+        and whether the latest version is retracted ('retracts_latest').
+        Versions are the rows of 'dataset_versions', oldest first."""
 
         container_uri = rdf.uuid_to_uri(container_uuid, "container")
-        dataset_uri = rdf.uuid_to_uri(dataset_uuid, "dataset")
 
-        # Only single-version datasets can be retracted.
+        # Return all published versions
         versions = self.dataset_versions(container_uri=container_uri)
-        if versions is not None and len(versions) > 1:
-            self.log.error(
-                "Admin retract refused: container %s has %s published "
-                "versions; only single-version datasets can be retracted.",
-                container_uuid,
-                len(versions),
+
+        # A dataset that's already retracted, or un-published will have no versions associated to it
+        if not versions:
+            raise RetractRefused(
+                "NoPublishedVersions", "The dataset has no published versions to retract."
             )
-            return False
 
-        # STEP 3 — flip is_active / is_public / is_latest 1 -> 0 on the
-        # published version.
-        step3 = self.__query_from_template(
-            "retract/admin_retract_flip_published",
+        versions = sorted(versions, key=lambda version: version["version"])
+        latest = versions[-1]
+        known_uuids = {version["uuid"] for version in versions}
+
+        # If not provided we select all UUIDs, an empty selection is refused
+        if version_uuids is not None and not version_uuids:
+            raise RetractRefused("NoVersionsSelected", "No versions were selected to retract.")
+
+        selected_uuids = known_uuids if version_uuids is None else set(version_uuids)
+        if not (selected_uuids <= known_uuids):
+            raise RetractRefused(
+                "UnknownVersion", "The selection contains a version that is not published."
+            )
+
+        retracts_latest = latest["uuid"] in selected_uuids
+
+        # If we are retracting a latest published version, make sure there is no draft
+        if retracts_latest:
+            existing_draft = self.datasets(
+                container_uuid=container_uuid, is_published=False, use_cache=False, limit=1
+            )
+            if existing_draft:
+                raise RetractRefused(
+                    "DraftExists",
+                    "The dataset already has a draft. Retracting the latest "
+                    "version needs that draft slot to be free.",
+                )
+
+        return {
+            "selected": [version for version in versions if version["uuid"] in selected_uuids],
+            "remaining": [version for version in versions if version["uuid"] not in selected_uuids],
+            "latest": latest,
+            "retracts_latest": retracts_latest,
+        }
+
+    def __retract_uri_list(self, versions: list[dict]) -> str:
+        """Returns the URIs of VERSIONS, ready for a SPARQL VALUES clause."""
+        return " ".join(f"<{version['dataset_uri']}>" for version in versions)
+
+    def __retract_query(self, step: str, template: str, parameters: dict) -> bool:
+        """Runs the retract TEMPLATE and logs a failure as STEP."""
+        query = self.__query_from_template(f"retract/{template}", parameters)
+        if self.__run_logged_query(query):
+            return True
+
+        self.log.error("Admin retract failed at STEP %s.", step)
+        return False
+
+    def __retract_flip_published(self, container_uri: str, plan: RetractPlan) -> bool:
+        """STEP 3 — flip is_active / is_public / is_latest 1 -> 0 on the selected versions."""
+        return self.__retract_query(
+            "3 (flip published)",
+            "admin_retract_flip_published",
             {
                 "container_uri": container_uri,
-                "dataset_uri": dataset_uri,
+                "dataset_uris": self.__retract_uri_list(plan["selected"]),
             },
         )
-        if not self.__run_logged_query(step3):
-            self.log.error("Admin retract failed at STEP 3 (flip published).")
+
+    def __retract_move_versions(self, container_uri: str, plan: RetractPlan) -> bool:
+        """STEP 4 — rebuild published_versions / retracted_versions and move the latest pointer."""
+        remaining = plan["remaining"]
+
+        if not self.__rebuild_version_lists(container_uri, plan["selected"], remaining):
+            self.log.error("Admin retract failed at STEP 4a (rebuild version lists).")
             return False
 
-        # STEP 4 — move published_versions -> retracted_versions, promote draft.
-        step4 = self.__query_from_template(
-            "retract/admin_retract_move_versions_and_promote_draft",
+        # If a crash occurs here the latest pointer is stale, re-run the same retract to fix it
+        if remaining and not self.__retract_query(
+            "4b (set latest)",
+            "admin_retract_set_latest",
             {
                 "container_uri": container_uri,
-                "dataset_uri": dataset_uri,
+                "dataset_uri": remaining[-1]["dataset_uri"],
             },
-        )
-        if not self.__run_logged_query(step4):
-            self.log.error("Admin retract failed at STEP 4 (move + promote).")
+        ):
             return False
 
-        # STEP 5 — find any Review attached to this dataset and delete it.
+        return True
+
+    def __retract_delete_reviews(self, plan: RetractPlan) -> bool:
+        """STEP 5 — find any Review attached to the selected versions and delete it."""
         find_review_query = self.__query_from_template(
-            "retract/admin_retract_find_review", {"dataset_uri": dataset_uri}
+            "retract/admin_retract_find_review",
+            {"dataset_uris": self.__retract_uri_list(plan["selected"])},
         )
         if config.enable_query_audit_log:
             self.__log_query(find_review_query, "Query Audit Log")
-        reviews = self.__run_query(find_review_query)
-        for review in reviews or []:
+
+        for review in self.__run_query(find_review_query) or []:
             review_uri = review.get("review_uri")
             if not review_uri:
                 continue
             self.log.info("Admin retract: deleting review %s", review_uri)
-            delete_review_query = self.__query_from_template(
-                "retract/admin_retract_delete_review", {"review_uri": review_uri}
-            )
-            if not self.__run_logged_query(delete_review_query):
-                self.log.error("Admin retract failed at STEP 5c (delete review %s).", review_uri)
+            if not self.__retract_query(
+                f"5b (delete review {review_uri})",
+                "admin_retract_delete_review",
+                {"review_uri": review_uri},
+            ):
                 return False
 
-        # STEP 6 — flip draft.is_active 0 -> 1.
-        step6 = self.__query_from_template(
-            "retract/admin_retract_flip_draft_active",
-            {
-                "container_uri": container_uri,
-                "dataset_uri": dataset_uri,
-            },
-        )
-        if not self.__run_logged_query(step6):
-            self.log.error("Admin retract failed at STEP 6 (flip draft active).")
+        return True
+
+    def __retract_create_draft(self, container_uuid: str, plan: RetractPlan) -> bool:
+        """STEP 1 — when the latest version is retracted, give the owner a new draft copied from it.
+
+        Runs before anything is changed, so a failure here leaves the dataset untouched."""
+        if not plan["retracts_latest"]:
+            return True
+
+        try:
+            source = self.datasets(
+                container_uuid=container_uuid,
+                dataset_uuid=plan["latest"]["uuid"],
+                is_published=None,
+                is_latest=None,
+                use_cache=False,
+                limit=1,
+            )[0]
+        except (IndexError, TypeError):
+            self.log.error("Admin retract failed at STEP 1 (find the version to copy).")
             return False
 
-        # STEP 7 — strip published_date, posted_date, is_under_review,
-        # first_online_date.
-        step7 = self.__query_from_template(
-            "retract/admin_retract_strip_publish_metadata",
-            {
-                "container_uri": container_uri,
-                "dataset_uri": dataset_uri,
-            },
+        draft_uuid = self.create_draft_from_record(
+            source, container_uuid, conv.value_or_none(source, "account_uuid")
         )
-        if not self.__run_logged_query(step7):
-            self.log.error("Admin retract failed at STEP 7 (strip metadata).")
+        if draft_uuid is None:
+            self.log.error("Admin retract failed at STEP 1 (create draft).")
             return False
 
-        # STEP 9 — cache invalidation. Covers container, account (if known)
-        # and the global datasets prefix.
+        return True
+
+    def __retract_strip_metadata(self, container_uri: str, plan: RetractPlan) -> bool:
+        """STEP 7 — strip published_date and posted_date from the selected versions,
+        first_online_date when nothing stays published.
+        The published date is kept as retracted_published_date, next to retracted_date."""
+        return self.__retract_query(
+            "7 (strip metadata)",
+            "admin_retract_strip_publish_metadata",
+            {
+                "container_uri": container_uri,
+                "dataset_uris": self.__retract_uri_list(plan["selected"]),
+                "strip_first_online": not plan["remaining"],
+                "retracted_date": datetime.strftime(datetime.now(), datetime_format),
+            },
+        )
+
+    def __retract_invalidate_caches(
+        self, container_uuid: str, owner_account_uuid: str | None
+    ) -> None:
+        """STEP 9 — cache invalidation. Covers container, account (if known)
+        the global datasets prefix and the reviews list."""
         self.cache.invalidate_by_prefix(container_uuid)
         if owner_account_uuid:
             self.cache.invalidate_by_prefix(f"datasets_{owner_account_uuid}")
         self.cache.invalidate_by_prefix("datasets")
+        self.cache.invalidate_by_prefix("reviews")
+
+    def admin_retract_dataset(
+        self,
+        container_uuid: str,
+        admin_account_uuid: str | None,
+        version_uuids: list[str] | None = None,
+        owner_account_uuid: str | None = None,
+    ) -> bool:
+        """Admin procedure to retract published versions of a dataset.
+
+        Retracts every published version when VERSION_UUIDS is None, otherwise
+        only those. When the latest version is retracted the owner gets a new
+        draft copied from it. The retracted version stays retracted.
+
+        Raises RetractRefused when nothing was changed because the request is
+        not allowed.  Returns True on success, False when a mutation failed."""
 
         self.log.info(
-            "Admin retract success: admin=%s container=%s dataset=%s",
+            "Admin retract start: admin=%s container=%s versions=%s",
             admin_account_uuid,
             container_uuid,
-            dataset_uuid,
+            version_uuids or "all",
+        )
+
+        plan = self.plan_retract(container_uuid, version_uuids)
+        container_uri = rdf.uuid_to_uri(container_uuid, "container")
+
+        # The draft goes first so a failure never leaves a retract without one.
+        # A crash after it is fixed by hand from the STEP log.
+        if not (
+            self.__retract_create_draft(container_uuid, plan)
+            and self.__retract_flip_published(container_uri, plan)
+            and self.__retract_move_versions(container_uri, plan)
+            and self.__retract_delete_reviews(plan)
+            and self.__retract_strip_metadata(container_uri, plan)
+        ):
+            return False
+
+        self.__retract_invalidate_caches(container_uuid, owner_account_uuid)
+
+        self.log.info(
+            "Admin retract success: admin=%s container=%s retracted=%s",
+            admin_account_uuid,
+            container_uuid,
+            [version["uuid"] for version in plan["selected"]],
         )
         return True
 
