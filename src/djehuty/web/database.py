@@ -5112,7 +5112,8 @@ class SparqlInterface:
                 else:
                     value = f"<{triple['object']}>"
                 stream.write(
-                    f"<{triple['subject']}> <{triple['predicate']}> {value} <{config.state_graph}> .\n"
+                    f"<{triple['subject']}> <{triple['predicate']}> {value} "
+                    f"<{config.state_graph}> .\n"
                 )
             if os.name != "nt":
                 os.fchmod(stream_fd, 0o400)  # pylint: disable=no-member
