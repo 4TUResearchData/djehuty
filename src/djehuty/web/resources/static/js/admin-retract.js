@@ -24,9 +24,10 @@ jQuery(document).ready(function () {
                    " from the public record (their public pages will show " +
                    "<em>\"CONTENT WAS REMOVED\"</em>). Version numbers are not reused.");
         lines.push("Delete the Review records of those versions (if any).");
-        if (plan.draft_version !== null) {
-            lines.push("<strong>v" + plan.draft_version + " (latest)</strong> becomes a draft " +
-                       "the owner can edit again.");
+        if (plan.draft_from_version !== null) {
+            lines.push("A new draft is created from <strong>v" + plan.draft_from_version +
+                       " (latest)</strong> for the owner. It is published as the next free " +
+                       "version number, v" + plan.draft_from_version + " stays retracted.");
         }
         if (plan.new_latest !== null) {
             lines.push("<strong>v" + plan.new_latest + "</strong> stays public as the " +
@@ -211,7 +212,7 @@ jQuery(document).ready(function () {
         var typed         = jQuery("#retract-doi-confirm-input").val().trim();
         var uuids         = selected_uuids ();
         var retract_count = uuids.length;
-        var has_draft     = plan.draft_version !== null;
+        var has_draft     = plan.draft_from_version !== null;
 
         jQuery.ajax({
             url:  "/admin/update-published-dataset/retract/execute",

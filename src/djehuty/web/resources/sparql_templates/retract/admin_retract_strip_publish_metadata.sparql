@@ -6,9 +6,6 @@ DELETE {
     ?dataset   djht:posted_date       ?posted_date .
     ?dataset   djht:retracted_published_date ?old_published_date .
     ?dataset   djht:retracted_date    ?old_retracted_date .
-    {%- if draft_uri %}
-    ?draft     djht:is_under_review   "0"^^xsd:boolean .
-    {%- endif %}
     {%- if strip_first_online %}
     ?container djht:first_online_date ?first_online_date .
     {%- endif %}
@@ -29,10 +26,6 @@ WHERE {
     OPTIONAL { ?dataset   djht:posted_date       ?posted_date . }
     OPTIONAL { ?dataset   djht:retracted_published_date ?old_published_date . }
     OPTIONAL { ?dataset   djht:retracted_date    ?old_retracted_date . }
-    {%- if draft_uri %}
-    ?container djht:draft ?draft .
-    FILTER (?draft = <{{draft_uri}}>)
-    {%- endif %}
     {%- if strip_first_online %}
     OPTIONAL { ?container djht:first_online_date ?first_online_date . }
     {%- endif %}

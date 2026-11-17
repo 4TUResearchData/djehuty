@@ -136,9 +136,9 @@ def resolve_byte_range (range_header, if_range_header, etag, total_length):
 class RetractPreview(TypedDict):
     """JSON body of the retract preview response."""
 
-    retracted:     list[int]
-    new_latest:    int | None
-    draft_version: int | None
+    retracted:          list[int]
+    new_latest:         int | None
+    draft_from_version: int | None
 
 
 class WebServer:
@@ -5095,9 +5095,9 @@ class WebServer:
 
             remaining = plan["remaining"]
             preview: RetractPreview = {
-                "retracted":     [version["version"] for version in plan["selected"]],
-                "new_latest":    remaining[-1]["version"] if remaining else None,
-                "draft_version": plan["latest"]["version"] if plan["retracts_latest"] else None,
+                "retracted":          [version["version"] for version in plan["selected"]],
+                "new_latest":         remaining[-1]["version"] if remaining else None,
+                "draft_from_version": plan["latest"]["version"] if plan["retracts_latest"] else None,
             }
             return self.response(json.dumps(preview))
         except validator.ValidationError as error:
