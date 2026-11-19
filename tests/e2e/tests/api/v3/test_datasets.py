@@ -136,6 +136,22 @@ class TestV3DatasetReferencesApi:
         refs = get_response.json()
         assert len(refs) > 0
 
+    def test_references_past_ten_are_listed_and_kept(self, draft_dataset, save_response):
+        """11 references in one POST, then one more. All 12 should be returned."""
+        page, container_uuid = draft_dataset
+        url = f"/v3/datasets/{container_uuid}/references"
+        refs = [{"url": f"https://example.com/ref{index}"} for index in range(11)]
+        extra = [{"url": "https://example.com/ref11"}]
+
+        response = page.request.post(url, data={"references": refs})
+        save_response(response, "api-add-many-references")
+        assert response.ok
+        assert page.request.post(url, data={"references": extra}).ok
+
+        get_response = page.request.get(url)
+        save_response(get_response, "api-add-many-references-verify")
+        assert len(get_response.json()) == 12
+
     def test_delete_references(self, draft_dataset, save_response):
         """DELETE /v3/datasets/<uuid>/references?url=<url> removes a reference."""
         page, container_uuid = draft_dataset

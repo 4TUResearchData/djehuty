@@ -1294,7 +1294,7 @@ class SparqlInterface:
         return self.__run_query(query)
 
     def references(
-        self, order=None, order_direction=None, limit=10, item_uri=None, account_uuid=None
+        self, order=None, order_direction=None, limit=None, item_uri=None, account_uuid=None
     ):
         """Procedure to retrieve references."""
 
