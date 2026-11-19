@@ -5,7 +5,7 @@ appear first; this file is the source of truth for release notes.
 
 Commit links point to <https://github.com/4TUResearchData/djehuty>.
 
-## [v26.10]
+## [v26.9.1]
 
 This release consists of 12 commits made by 5 authors.
 
@@ -27,7 +27,7 @@ puts community issues on the project board, and updates the community calendar.
 
 ### Incremental improvements
 
-- Update the Python dependencies. ([79c000e](https://github.com/4TUResearchData/djehuty/commit/79c000e8), [9606a2e](https://github.com/4TUResearchData/djehuty/commit/9606a2e0), [9db88e8](https://github.com/4TUResearchData/djehuty/commit/9db88e8e))
+- Update the Python dependencies. ([79c000e](https://github.com/4TUResearchData/djehuty/commit/79c000e8), [9606a2e](https://github.com/4TUResearchData/djehuty/commit/9606a2e0), [9db88e8](https://github.com/4TUResearchData/djehuty/commit/9db88e8e)), [5cc6945](https://github.com/4TUResearchData/djehuty/commit/5cc6945b587f89a3d38c9017cde052b9a7deab38)
 - Update the GitHub Actions. ([751141d](https://github.com/4TUResearchData/djehuty/commit/751141d9), [1925657](https://github.com/4TUResearchData/djehuty/commit/1925657f))
 - Add a workflow that puts community issues on the project board. ([d8e5f39](https://github.com/4TUResearchData/djehuty/commit/d8e5f397))
 
