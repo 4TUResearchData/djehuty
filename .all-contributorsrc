@@ -31,7 +31,7 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/12199846?v=4",
       "profile": "https://github.com/efgramsbergen",
       "contributions": [
-        "code", 
+        "code",
         "ideas"
       ]
     },
@@ -174,7 +174,8 @@
       "profile": "https://github.com/sousoura",
       "contributions": [
         "code",
-        "talk"
+        "talk",
+        "review"
       ]
     },
     {
@@ -431,5 +432,6 @@
       ]
     }
   ],
-  "commitConvention": "angular"
+  "commitConvention": "angular",
+  "commitType": "docs"
 }
