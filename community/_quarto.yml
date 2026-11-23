@@ -18,11 +18,11 @@ website:
   # "edit this page" links need the subdirectory to resolve.
   repo-subdir: community
   repo-actions: [edit, issue]
-  favicon: assets/img/logo.png
+  favicon: assets/img/logo.svg
   open-graph: true
 
   navbar:
-    logo: assets/img/logo.png
+    logo: assets/img/logo.svg
     logo-alt: djehuty logo
     right:
       - text: About

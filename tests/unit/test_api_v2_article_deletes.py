@@ -21,13 +21,16 @@ class _Cache:
 
 
 class _Db:
-    def __init__(self, files=None, fundings=None, category=None):
+    def __init__(self, files=None, fundings=None, category=None, soft_delete_result=True):
         self.cache = _Cache()
         self._files = files or []
         self._fundings = fundings or []
         self._category = category
+        self._soft_delete_result = soft_delete_result
         self.deleted = None
         self.updated = None
+        self.soft_deleted = None
+        self.hard_deleted = None
 
     def account_by_session_token(self, token):
         return {"uuid": "acct-1", "email": "x"} if token == "good" else None
@@ -57,6 +60,14 @@ class _Db:
 
     def update_item_list(self, item_uuid, account_uuid, items, predicate):
         self.updated = (item_uuid, account_uuid, list(items), predicate)
+        return True
+
+    def soft_delete_dataset_draft(self, container_uuid, dataset_uuid, account_uuid, owner_uuid):
+        self.soft_deleted = (container_uuid, dataset_uuid, account_uuid, owner_uuid)
+        return self._soft_delete_result
+
+    def delete_dataset_draft(self, *args, **kwargs):
+        self.hard_deleted = args
         return True
 
     def __getattr__(self, name):
@@ -136,4 +147,18 @@ def test_get_absent_file_is_500():
     response = _client(db).get(
         f"/v2/account/articles/{DATASET_UUID}/files/{FILE_UUID}", headers=AUTH
     )
+    assert response.status_code == 500
+
+
+def test_delete_dataset_soft_deletes_the_draft():
+    db = _Db()
+    response = _client(db).delete(f"/v2/account/articles/{DATASET_UUID}", headers=AUTH)
+    assert response.status_code == 204
+    assert db.soft_deleted == (DATASET_UUID, "ds-1", "acct-1", "acct-1")
+    assert db.hard_deleted is None
+
+
+def test_delete_dataset_failed_soft_delete_is_500():
+    db = _Db(soft_delete_result=False)
+    response = _client(db).delete(f"/v2/account/articles/{DATASET_UUID}", headers=AUTH)
     assert response.status_code == 500

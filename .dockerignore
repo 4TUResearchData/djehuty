@@ -15,10 +15,6 @@ src/djehuty.egg-info/
 # Build artifacts
 build/
 dist/
-rpmbuild/BUILD/
-rpmbuild/RPMS/
-rpmbuild/SOURCES/
-rpmbuild/SRPMS/
 
 # Test outputs
 tests/e2e/test-results/

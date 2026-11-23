@@ -1,13 +1,5 @@
 """
 ROR publisher link tests.
-
-Covers:
-    - The publisher block on a published dataset links to the configured
-      ROR URL with the ROR icon when item.publisher matches site_name.
-    - The ROR icon SVG is served from /static/images/ror-icon.svg.
-
-Run with:
-    cd tests/e2e && python -m pytest tests/test_ror_publisher.py -v
 """
 
 from pathlib import Path
@@ -32,7 +24,7 @@ def test_file(tmp_path: Path) -> str:
 
 @pytest.fixture()
 def published_dataset(authenticated_page: Page, test_file: str):
-    """Create, publish a dataset (publisher defaults to 4TU.ResearchData)."""
+    """Create, publish a dataset."""
     url = create_draft_dataset(authenticated_page)
     container_uuid = get_container_uuid_from_url(url)
     editor = DatasetEditorPage(authenticated_page)
@@ -50,7 +42,6 @@ def published_dataset(authenticated_page: Page, test_file: str):
     authenticated_page.goto("/login")
     authenticated_page.wait_for_url("**/my/dashboard**")
 
-    # The SPARQL store may need a moment to reflect the published state.
     for _ in range(5):
         authenticated_page.goto(f"/datasets/{container_uuid}")
         authenticated_page.wait_for_load_state("domcontentloaded")
@@ -61,19 +52,27 @@ def published_dataset(authenticated_page: Page, test_file: str):
     return authenticated_page, container_uuid
 
 
-@pytest.mark.ror
+@pytest.mark.dataset
 class TestRorPublisherLink:
-    """Verify the ROR link and icon render in the publisher block."""
+    """Verify the publisher name is plain text and only the ROR icon links."""
 
-    def test_publisher_links_to_ror_with_icon(self, published_dataset, screenshot):
-        """Publisher should be a link to the ROR URL with the ROR icon adjacent."""
+    def test_ror_icon_opens_ror_record(self, published_dataset, screenshot):
+        """Clicking the ROR icon should open the ROR record in a new tab."""
         page, _ = published_dataset
+        page.context.route(f"{ROR_URL}**", lambda route: route.fulfill(body="ok"))
         screenshot(page, "dataset-publisher")
 
-        link = page.locator(f"#publisher a[href='{ROR_URL}']")
-        expect(link).to_be_visible()
-        expect(link).to_contain_text("4TU.ResearchData")
-        expect(link.locator("img.ror-icon")).to_be_visible()
+        with page.context.expect_page() as popup_info:
+            page.locator("#publisher a img.ror-icon").click()
+        popup = popup_info.value
+        popup.wait_for_load_state()
+        assert popup.url.startswith(ROR_URL)
+
+    def test_publisher_name_is_not_a_link(self, published_dataset):
+        """The publisher name must render as plain text, not inside the ROR link."""
+        page, _ = published_dataset
+        expect(page.locator("#publisher")).to_contain_text("4TU.ResearchData")
+        expect(page.locator("#publisher a", has_text="4TU.ResearchData")).to_have_count(0)
 
     def test_ror_icon_asset_served(self, page: Page):
         """The ROR icon SVG should be reachable as a static asset."""

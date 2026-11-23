@@ -2,7 +2,7 @@
 
 ## Stay up-to-date
 
-Subscribe to the [4TU.ResearchData newsletter](https://m7.mailplus.nl/wpmY6EeZdyiQ-1051-370649-test-1)
+Subscribe to the [4TU.ResearchData newsletter](https://community.data.4tu.nl/subscribe-to-newsletter/)
 for news, events, opportunities and announcements regarding `djehuty` and 4TU.ResearchData.
 
 ## General inquiries

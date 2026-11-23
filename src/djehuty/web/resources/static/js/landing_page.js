@@ -73,21 +73,7 @@ function submit_access_request (event) {
 }
 
 function prompt_download_all_request (event) {
-    jQuery("#download-all-files-message")
-        .addClass("success")
-        .append("<p>Your download is being prepared. This may take a while.</p>")
-        .fadeIn(250);
-    setTimeout(function() {
-        jQuery("#download-all-files-message").fadeOut(500, function() {
-            jQuery("#message")
-                .removeClass("success")
-                .addClass("transparent")
-                .html("<p>&nbsp;</p>")
-                .show();
-        });
-    }, 120000);
-
-    show_message ("success", );
+    show_message ("success", "<p>Your download is being prepared. This may take a while.</p>");
 }
 
 function toggle_versions (event) {

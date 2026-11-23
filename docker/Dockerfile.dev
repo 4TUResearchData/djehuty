@@ -8,6 +8,7 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends \
        git \
        libxmlsec1-dev \
+       libatomic1 \
        pkg-config \
        curl \
     && apt-get clean \

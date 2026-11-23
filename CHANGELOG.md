@@ -5,6 +5,75 @@ appear first; this file is the source of truth for release notes.
 
 Commit links point to <https://github.com/4TUResearchData/djehuty>.
 
+## [v26.9.1]
+
+This release consists of 12 commits made by 5 authors.
+
+It updates the DataCite record when an administrator changes a licence, lists all
+references in the edit forms, adds an AI use policy and AGENTS.md for contributors, 
+lints and formats the database module with Ruff and enforces it, 
+puts community issues on the project board, and updates the community calendar.
+
+### Documentation
+
+- Add an AI use policy and AGENTS.md. ([a32801b](https://github.com/4TUResearchData/djehuty/commit/a32801b4))
+- Update the community calendar with the agenda for the next community hours. ([1a60488](https://github.com/4TUResearchData/djehuty/commit/1a60488d))
+
+### Bugfixes
+
+- Update the DataCite record when an administrator changes a licence. ([e963e27](https://github.com/4TUResearchData/djehuty/commit/e963e27a))
+- Show all references in the dataset and collection edit forms in a scrollable list. ([b42cdda](https://github.com/4TUResearchData/djehuty/commit/b42cdda8))
+- Fix the download-all message and the token name error by using `show_message()` (issue #440). ([5efffee](https://github.com/4TUResearchData/djehuty/commit/5efffeeb))
+
+### Incremental improvements
+
+- Update the Python dependencies. ([79c000e](https://github.com/4TUResearchData/djehuty/commit/79c000e8), [9606a2e](https://github.com/4TUResearchData/djehuty/commit/9606a2e0), [9db88e8](https://github.com/4TUResearchData/djehuty/commit/9db88e8e)), [5cc6945](https://github.com/4TUResearchData/djehuty/commit/5cc6945b587f89a3d38c9017cde052b9a7deab38)
+- Update the GitHub Actions. ([751141d](https://github.com/4TUResearchData/djehuty/commit/751141d9), [1925657](https://github.com/4TUResearchData/djehuty/commit/1925657f))
+- Add a workflow that puts community issues on the project board. ([d8e5f39](https://github.com/4TUResearchData/djehuty/commit/d8e5f397))
+
+### Technical debt
+
+- Lint and format the database module with Ruff, and enforce it. ([e558628](https://github.com/4TUResearchData/djehuty/commit/e5586281))
+
+
+## [v26.9]
+
+This release consists of 18 commits made by 4 authors.
+
+It introduces soft deletion of datasets, fixes large-file uploads and several UI
+issues around publisher names and missing DOIs, retires the deprecated autotools,
+Guix and RPM build tooling in favour of just/uv, refreshes the Python dependencies
+and GitHub Actions, extends Ruff enforcement to the web UI module, and improves
+the documentation and community website.
+
+### New features
+
+- Soft delete a dataset. ([6841a87](https://github.com/4TUResearchData/djehuty/commit/6841a878))
+
+### Documentation
+
+- Fix the link to the newsletter subscription. ([e5c08e9](https://github.com/4TUResearchData/djehuty/commit/e5c08e96))
+- Remove stale parts of the contributing workflow. ([7a141c8](https://github.com/4TUResearchData/djehuty/commit/7a141c8f))
+- Add the new djehuty logo to the documentation. ([b2a0579](https://github.com/4TUResearchData/djehuty/commit/b2a05795))
+- Update the community website with the notes from the last community hour. ([da92fd9](https://github.com/4TUResearchData/djehuty/commit/da92fd91))
+
+### Bugfixes
+
+- Restore the plain-text publisher name with an icon-only ROR link. ([7d3c886](https://github.com/4TUResearchData/djehuty/commit/7d3c886b))
+- Fix an error while uploading large files. ([56736f7](https://github.com/4TUResearchData/djehuty/commit/56736f77))
+- Show the DOI when an associated publication has no title. ([df34471](https://github.com/4TUResearchData/djehuty/commit/df34471e))
+
+### Incremental improvements
+
+- Update the Python dependencies. ([c922e44](https://github.com/4TUResearchData/djehuty/commit/c922e445), [c8ffa3b](https://github.com/4TUResearchData/djehuty/commit/c8ffa3bb), [3efd25d](https://github.com/4TUResearchData/djehuty/commit/3efd25de), [8b9d51d](https://github.com/4TUResearchData/djehuty/commit/8b9d51dd), [e3233b0](https://github.com/4TUResearchData/djehuty/commit/e3233b0c), [1857370](https://github.com/4TUResearchData/djehuty/commit/18573704))
+- Update the GitHub Actions. ([9e29998](https://github.com/4TUResearchData/djehuty/commit/9e299980), [a44ac32](https://github.com/4TUResearchData/djehuty/commit/a44ac32a))
+
+### Technical debt
+
+- Remove the deprecated autotools, Guix and RPM build tooling. ([c1be342](https://github.com/4TUResearchData/djehuty/commit/c1be3426))
+- Lint and format the web UI module with Ruff, and add it to the enforced scope. ([dbb60d8](https://github.com/4TUResearchData/djehuty/commit/dbb60d80))
+
+
 ## [v26.8.2]
 
 This patch release consists of 14 commits made by 5 authors.

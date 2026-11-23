@@ -1,6 +1,7 @@
 {% extends "layout.html" %}
 {% block headers %}
 <script src="/static/js/jquery-3.6.0.min.js"></script>
+<script src="/static/js/utils.js?cache=1744290797"></script>
 <script nonce="{{nonce}}">
 function save_session (session_id) {
     event.preventDefault();
@@ -15,10 +16,7 @@ function save_session (session_id) {
     }).done(function () {
         window.location.replace("/my/dashboard");
     }).fail(function () {
-        jQuery("#message")
-            .addClass("failure")
-            .append("<p>Please provide a token name</p>")
-            .fadeIn(250);
+        show_message ("failure", "<p>Please provide a token name</p>");
     });
 }
 

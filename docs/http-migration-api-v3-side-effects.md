@@ -29,7 +29,7 @@ invalidations a handler performs itself are noted.
 | `POST /v3/datasets/<id>/collaborators` | `insert_collaborator` (triple insert + list attach + `datasets_<collaborator_account>` invalidation for the first collaborator). |
 | `PUT /v3/datasets/<id>/collaborators/<cid>` | `update_collaborator` (SPARQL update; no cache invalidation). |
 | `DELETE /v3/datasets/<id>/collaborators/<cid>` | `delete_collaborator` (invalidates `datasets_<dataset_uuid>`, `datasets`). |
-| `POST /v3/datasets/<id>/upload` | `insert_file`, chunked write to `storage/<dataset_id>_<file_uuid>` (0o600 → 0o400), handle.net PID registration (`services.handles`), `update_file`. MD5 strict-check cleanup: `delete_item_from_list` + `<account>_storage` and `<dataset_uuid>_dataset_storage` invalidations + `os.remove`. Held under the `FILE_LIST` lock around the insert. |
+| `POST /v3/datasets/<id>/upload` | `insert_file`, streamed write to `storage/<dataset_id>_<file_uuid>.part`, renamed to the final name (0o600 → 0o400) on a complete upload; handle.net PID registration (`services.handles`), `update_file`. Any failure (client disconnect, incomplete body, MD5 mismatch) discards the `.part` and rolls back: `delete_item_from_list` + `<account>_storage` and `<dataset_uuid>_dataset_storage` invalidations. Held under the `FILE_LIST` lock around the insert. **Deviation:** legacy keeps an aborted upload as `is_incomplete`; the new stack discards it. |
 | `PUT /v3/datasets/<id>/update-thumbnail` | `dataset_update_thumb` (clear or set); thumbnail written to `thumbnail_storage/<dataset_uuid>.<ext>` via `services.imaging`. |
 | `POST/DELETE /v3/datasets/<id>/references` | `update_item_list(..., "references")`. |
 | `POST/DELETE /v3/datasets/<id>/tags` | `update_item_list(..., "tags")`. |

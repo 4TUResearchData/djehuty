@@ -21,6 +21,7 @@ WHERE {
 
     ?dataset            djht:container            ?container_uri ;
                         djht:title                ?dataset_title .
+    FILTER NOT EXISTS { ?dataset djht:is_deleted "true"^^xsd:boolean . }
     OPTIONAL { ?dataset djht:published_date       ?published_date . }
     OPTIONAL { ?dataset djht:declined_date        ?declined_date . }
     OPTIONAL { ?dataset djht:modified_date        ?modified_date . }

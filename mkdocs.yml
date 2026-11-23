@@ -9,6 +9,8 @@ theme:
     primary: custom
     accent: custom
   font: false
+  logo: assets/images/djehuty-logo.svg
+  favicon: assets/images/djehuty-logo.svg
   features:
     - navigation.sections
     - navigation.top

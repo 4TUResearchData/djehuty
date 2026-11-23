@@ -20,9 +20,10 @@
   <site-shorttag>example-shorttag</site-shorttag>
   <site-description>Djehuty example instance</site-description>
   <!-- Mapping of publisher names to ROR URLs. When a dataset's publisher
-       matches an entry, its name is rendered as a link to the ROR record
-       with the ROR icon. Add an entry whose name matches <site-name> to
-       identify this instance's own organization in the RO-Crate export. -->
+       matches an entry, its name is shown as plain text followed by the ROR
+       icon, which links to the ROR record. Add an entry whose name matches
+       <site-name> to identify this instance's own organization in the
+       RO-Crate export. -->
   <publisher-rors>
     <publisher-ror name="Djehuty example instance" url="https://ror.org/02d887280" />
     <publisher-ror name="Delft University of Technology" url="https://ror.org/02e2c7k09" />
