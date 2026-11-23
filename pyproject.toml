@@ -7,7 +7,7 @@ build-backend   = "setuptools.build_meta"
 
 [project]
 name            = "djehuty"
-version         = "26.9"
+version         = "26.9.1"
 authors = [{ name = "TU Delft and Contributors", email = "researchdata@4tu.nl" }]
 description     = "The 4TU.ResearchData and Nikhef data repository system"
 readme          = "README.md"
@@ -119,6 +119,7 @@ include = [
     "src/djehuty/web/formatter.py",
     "src/djehuty/web/validator.py",
     "src/djehuty/web/ui.py",
+    "src/djehuty/web/database.py"
 ]
 
 [tool.ruff.lint]
