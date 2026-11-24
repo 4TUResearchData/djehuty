@@ -31,4 +31,5 @@ back-ends are all configuration.
 4. [Contributing](contributing.md) — Development workflow and navigating the source code
 5. [API](api/index.html) — Application Programming Interface
 6. [Contact](contact.md) — Contacting the maintainers
-7. [News](news.md) — Release notes
+7. [Roadmap](roadmap.md) — High-level overview of recent and upcoming developments
+8. [News](news.md) — Release notes

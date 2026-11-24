@@ -9,8 +9,9 @@ When contributing, remember to follow our [Code of Conduct](https://github.com/4
 
 - **Report bugs or request features** by opening an issue.
     - By opening an issue you can be in touch with us to request a new feature or report a bug. Check in the Report bugs or request features section how to make the request.
+    - Before proposing a larger feature, check the [roadmap](https://github.com/4TUResearchData/djehuty/blob/main/docs/roadmap.md) to see whether it is already planned or being explored.
 - **Code contributions:** pick an open issue or propose a new idea.
-    - Do you have development skills? You also can contribute by helping us to develop Djehuty. Check the Code contributions section on how to become a developer contributor.
+    - Do you have development skills? You can also contribute by helping us to develop djehuty. Check the Code contributions section on how to become a developer contributor.
 
 ## Recognition of Contributions
 
@@ -40,12 +41,11 @@ Contributions are accepted under djehuty's [license](https://github.com/4TUResea
 Contributors are encouraged to take part in the
 [djehuty community](https://djehuty.4tu.nl/community/), where users and
 contributors connect, share ideas and discuss recent developments and upcoming work. Join the monthly
-[Community Hours](https://djehuty.4tu.nl/community/community-hour/); the
-community website has the meeting information. 
+[Community Hours](https://djehuty.4tu.nl/community/community-hour/); the community website has the meeting information. The
+[roadmap](https://github.com/4TUResearchData/djehuty/blob/main/docs/roadmap.md) shows where the project is heading. 
 
 Questions and ideas are welcome in
-[Discussions](https://github.com/4TUResearchData/djehuty/discussions), where
-you can start a conversation any time. Bugs and concrete feature requests
+[Discussions](https://github.com/4TUResearchData/djehuty/discussions), where you can start a conversation any time. Bugs and concrete feature requests
 belong in [issues](https://github.com/4TUResearchData/djehuty/issues).
 
 ## Contribution workflows
@@ -177,7 +177,7 @@ licences, and a dev account with full admin privileges — no extra setup needed
 
 Once running:
 
-- **Djehuty**: http://localhost:8080 (auto-login, no auth setup needed)
+- **djehuty**: http://localhost:8080 (auto-login, no auth setup needed)
 - **Virtuoso SPARQL**: http://localhost:8890/sparql (useful for troubleshooting)
 
 Edit any Python file under `src/` and the server reloads automatically.

@@ -33,6 +33,7 @@ nav:
       - Community: community/index.html
   - API: api/index.html
   - Contact: contact.md
+  - Roadmap: roadmap.md
   - News: news.md
 
 plugins:

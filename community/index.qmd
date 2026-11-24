@@ -21,7 +21,8 @@ listing:
 
 A space for users, contributors, and stakeholders to connect, share ideas, discuss upcoming work, and help shape the future of [`djehuty`](https://github.com/4TUResearchData/djehuty). Whether you're exploring the platform, contributing code, or providing feedback, you're welcome to join the conversation.
 
-**Get involved**: Join our Community Hours, participate in [discussions](https://github.com/4TUResearchData/djehuty/discussions), or explore ways to contribute.
+**Get involved**: Join our [Community Hours](https://djehuty.4tu.nl/community/community-hour/), take part in [discussions](https://github.com/4TUResearchData/djehuty/discussions), see where djehuty is heading in the [roadmap](https://djehuty.4tu.nl/roadmap/), or explore ways to [contribute](https://github.com/4TUResearchData/djehuty/blob/main/CONTRIBUTING.md).
+
 :::
 
 ## <i class="bi bi-calendar-event"></i> Next Community Hour {style="border-bottom: none;"}
