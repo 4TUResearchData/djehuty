@@ -75,3 +75,4 @@ We publish notes after each Community Hour, including the topics discussed, deci
 | Date | Meeting | Summary |
 |------|---------|---------|
 | 28 October 2026 | [Community Hour: October 2026](https://hackmd.io/DJypl8JxTEaL__8qud-3Fg?view#28th-October-2026) | Inaugural Community Hour: modernising and scaling `djehuty`, path towards contributing, AI-assisted coding, and a poll on the new logo. |
+| 25 November 2026 | [Community Hour: November 2026](https://hackmd.io/DJypl8JxTEaL__8qud-3Fg?view#25th-November-2026) | Project updates, roadmap, policy on AI-assisted contributions, and a demo of `djehuty` scaling in a Kubernetes cluster. |
