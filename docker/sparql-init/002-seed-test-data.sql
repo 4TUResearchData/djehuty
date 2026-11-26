@@ -21,6 +21,7 @@ INSERT {
         rdf:type                          djht:DatasetContainer ;
         djht:account                      ?account ;
         djht:dataset_id                   "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d"^^xsd:string ;
+        djht:doi                          "10.4121/search-seed-a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d"^^xsd:string ;
         djht:latest_published_version     <dataset:b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e> ;
         djht:published_versions           <blank:c3d4e5f6-a7b8-4c9d-8e0f-1a2b3c4d5e6f> ;
         djht:first_online_date            "2026-01-15T12:00:00"^^xsd:dateTime ;
@@ -120,6 +121,7 @@ INSERT {
         rdf:type                          djht:DatasetContainer ;
         djht:account                      ?account ;
         djht:dataset_id                   "11111111-2222-3333-8444-555555555555"^^xsd:string ;
+        djht:doi                          "10.4121/retract-seed-11111111-2222-3333-8444-555555555555"^^xsd:string ;
         djht:latest_published_version     <dataset:22222222-3333-4444-9555-666666666666> ;
         djht:published_versions           <blank:33333333-4444-5555-6666-777777777777> ;
         djht:first_online_date            "2026-02-01T12:00:00"^^xsd:dateTime ;
@@ -212,6 +214,7 @@ INSERT {
         rdf:type                          djht:DatasetContainer ;
         djht:account                      ?account ;
         djht:dataset_id                   "c0ffee00-0000-4000-8000-000000000001"^^xsd:string ;
+        djht:doi                          "10.4121/remove-files-seed-c0ffee00-0000-4000-8000-000000000001"^^xsd:string ;
         djht:latest_published_version     <dataset:c0ffee00-0000-4000-8000-000000000002> ;
         djht:published_versions           <blank:c0ffee00-0000-4000-8000-00000000000a> ;
         djht:first_online_date            "2026-03-01T12:00:00"^^xsd:dateTime ;
@@ -303,6 +306,315 @@ INSERT {
         djht:is_public                    "true"^^xsd:boolean .
 
     <blank:c0ffee00-0000-4000-8000-000000000010>
+        rdf:type                          rdf:List ;
+        rdf:first                         ?category ;
+        rdf:rest                          rdf:nil ;
+        djht:index                        0 .
+  }
+}
+WHERE {
+  GRAPH <djehuty://local> {
+    ?account  rdf:type       djht:Account ;
+              djht:email     "dev@djehuty.com"^^xsd:string .
+    ?category rdf:type       djht:Category ;
+              djht:id        13431 .
+  }
+};
+
+SPARQL
+PREFIX djht: <https://ontologies.data.4tu.nl/djehuty/0.0.1/>
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+INSERT {
+  GRAPH <djehuty://local> {
+    <container:a4b15000-0001-4000-8000-010000000000>
+        rdf:type                          djht:DatasetContainer ;
+        djht:account                      ?account ;
+        djht:dataset_id                   "a4b15000-0001-4000-8000-010000000000"^^xsd:string ;
+        djht:doi                          "10.4121/retract-multi-1-a4b15000-0001-4000-8000-010000000000"^^xsd:string ;
+        djht:latest_published_version     <dataset:a4b15000-0001-4000-8000-020000000003> ;
+        djht:published_versions           <blank:a4b15000-0001-4000-8000-030000000001> ;
+        djht:first_online_date            "2026-04-01T12:00:00"^^xsd:dateTime ;
+        djht:total_downloads              0 ;
+        djht:total_views                  0 ;
+        djht:total_shares                 0 ;
+        djht:total_cites                  0 .
+    <blank:a4b15000-0001-4000-8000-030000000001>
+        rdf:type                          rdf:List ;
+        rdf:first                         <dataset:a4b15000-0001-4000-8000-020000000001> ;
+        rdf:rest                          <blank:a4b15000-0001-4000-8000-030000000002> ;
+        djht:index                        0 .
+
+    <dataset:a4b15000-0001-4000-8000-020000000001>
+        rdf:type                          djht:Dataset ;
+        djht:container                    <container:a4b15000-0001-4000-8000-010000000000> ;
+        djht:title                        "Retract Multi Seed One"^^xsd:string ;
+        djht:description                  "<p>Dataset seeded for the admin retract subset E2E tests.</p>"^^xsd:string ;
+        djht:doi                          "10.4121/retract-multi-1-a4b15000-0001-4000-8000-010000000000.v1"^^xsd:string ;
+        djht:defined_type                 3 ;
+        djht:defined_type_name            "Dataset"^^xsd:string ;
+        djht:language                     "en"^^xsd:string ;
+        djht:publisher                    "4TU.ResearchData"^^xsd:string ;
+        djht:is_public                    "true"^^xsd:boolean ;
+        djht:is_active                    1 ;
+        djht:is_latest                    "false"^^xsd:boolean ;
+        djht:is_editable                  "false"^^xsd:boolean ;
+        djht:is_under_review              "false"^^xsd:boolean ;
+        djht:version                      1 ;
+        djht:group_id                     28586 ;
+        djht:created_date                 "2026-04-01T12:00:00"^^xsd:dateTime ;
+        djht:modified_date                "2026-04-01T12:00:00"^^xsd:dateTime ;
+        djht:published_date               "2026-04-01T12:00:00"^^xsd:dateTime ;
+        djht:posted_date                  "2026-04-01T12:00:00"^^xsd:dateTime ;
+        djht:submission_date              "2026-04-01T12:00:00"^^xsd:dateTime ;
+        djht:tags                         <blank:a4b15000-0001-4000-8000-040000000000> ;
+        djht:authors                      <blank:a4b15000-0001-4000-8000-050000000000> ;
+        djht:categories                   <blank:a4b15000-0001-4000-8000-060000000000> .
+
+    <blank:a4b15000-0001-4000-8000-030000000002>
+        rdf:type                          rdf:List ;
+        rdf:first                         <dataset:a4b15000-0001-4000-8000-020000000002> ;
+        rdf:rest                          <blank:a4b15000-0001-4000-8000-030000000003> ;
+        djht:index                        1 .
+
+    <dataset:a4b15000-0001-4000-8000-020000000002>
+        rdf:type                          djht:Dataset ;
+        djht:container                    <container:a4b15000-0001-4000-8000-010000000000> ;
+        djht:title                        "Retract Multi Seed One"^^xsd:string ;
+        djht:description                  "<p>Dataset seeded for the admin retract subset E2E tests.</p>"^^xsd:string ;
+        djht:doi                          "10.4121/retract-multi-1-a4b15000-0001-4000-8000-010000000000.v2"^^xsd:string ;
+        djht:defined_type                 3 ;
+        djht:defined_type_name            "Dataset"^^xsd:string ;
+        djht:language                     "en"^^xsd:string ;
+        djht:publisher                    "4TU.ResearchData"^^xsd:string ;
+        djht:is_public                    "true"^^xsd:boolean ;
+        djht:is_active                    1 ;
+        djht:is_latest                    "false"^^xsd:boolean ;
+        djht:is_editable                  "false"^^xsd:boolean ;
+        djht:is_under_review              "false"^^xsd:boolean ;
+        djht:version                      2 ;
+        djht:group_id                     28586 ;
+        djht:created_date                 "2026-04-08T12:00:00"^^xsd:dateTime ;
+        djht:modified_date                "2026-04-08T12:00:00"^^xsd:dateTime ;
+        djht:published_date               "2026-04-08T12:00:00"^^xsd:dateTime ;
+        djht:posted_date                  "2026-04-08T12:00:00"^^xsd:dateTime ;
+        djht:submission_date              "2026-04-08T12:00:00"^^xsd:dateTime ;
+        djht:tags                         <blank:a4b15000-0001-4000-8000-040000000000> ;
+        djht:authors                      <blank:a4b15000-0001-4000-8000-050000000000> ;
+        djht:categories                   <blank:a4b15000-0001-4000-8000-060000000000> .
+
+    <blank:a4b15000-0001-4000-8000-030000000003>
+        rdf:type                          rdf:List ;
+        rdf:first                         <dataset:a4b15000-0001-4000-8000-020000000003> ;
+        rdf:rest                          rdf:nil ;
+        djht:index                        2 .
+
+    <dataset:a4b15000-0001-4000-8000-020000000003>
+        rdf:type                          djht:Dataset ;
+        djht:container                    <container:a4b15000-0001-4000-8000-010000000000> ;
+        djht:title                        "Retract Multi Seed One"^^xsd:string ;
+        djht:description                  "<p>Dataset seeded for the admin retract subset E2E tests.</p>"^^xsd:string ;
+        djht:doi                          "10.4121/retract-multi-1-a4b15000-0001-4000-8000-010000000000.v3"^^xsd:string ;
+        djht:defined_type                 3 ;
+        djht:defined_type_name            "Dataset"^^xsd:string ;
+        djht:language                     "en"^^xsd:string ;
+        djht:publisher                    "4TU.ResearchData"^^xsd:string ;
+        djht:is_public                    "true"^^xsd:boolean ;
+        djht:is_active                    1 ;
+        djht:is_latest                    "true"^^xsd:boolean ;
+        djht:is_editable                  "false"^^xsd:boolean ;
+        djht:is_under_review              "false"^^xsd:boolean ;
+        djht:version                      3 ;
+        djht:group_id                     28586 ;
+        djht:created_date                 "2026-04-15T12:00:00"^^xsd:dateTime ;
+        djht:modified_date                "2026-04-15T12:00:00"^^xsd:dateTime ;
+        djht:published_date               "2026-04-15T12:00:00"^^xsd:dateTime ;
+        djht:posted_date                  "2026-04-15T12:00:00"^^xsd:dateTime ;
+        djht:submission_date              "2026-04-15T12:00:00"^^xsd:dateTime ;
+        djht:tags                         <blank:a4b15000-0001-4000-8000-040000000000> ;
+        djht:authors                      <blank:a4b15000-0001-4000-8000-050000000000> ;
+        djht:categories                   <blank:a4b15000-0001-4000-8000-060000000000> .
+
+    # -- Lists and author shared by the three versions ------------------------
+    <blank:a4b15000-0001-4000-8000-040000000000>
+        rdf:type                          rdf:List ;
+        rdf:first                         "e2e-test"^^xsd:string ;
+        rdf:rest                          rdf:nil ;
+        djht:index                        0 .
+
+    <blank:a4b15000-0001-4000-8000-050000000000>
+        rdf:type                          rdf:List ;
+        rdf:first                         <author:a4b15000-0001-4000-8000-070000000000> ;
+        rdf:rest                          rdf:nil ;
+        djht:index                        0 .
+
+    <author:a4b15000-0001-4000-8000-070000000000>
+        rdf:type                          djht:Author ;
+        djht:first_name                   "Test"^^xsd:string ;
+        djht:last_name                    "Author"^^xsd:string ;
+        djht:full_name                    "Test Author"^^xsd:string ;
+        djht:is_active                    "true"^^xsd:boolean ;
+        djht:is_public                    "true"^^xsd:boolean .
+
+    <blank:a4b15000-0001-4000-8000-060000000000>
+        rdf:type                          rdf:List ;
+        rdf:first                         ?category ;
+        rdf:rest                          rdf:nil ;
+        djht:index                        0 .
+  }
+}
+WHERE {
+  GRAPH <djehuty://local> {
+    ?account  rdf:type       djht:Account ;
+              djht:email     "dev@djehuty.com"^^xsd:string .
+    ?category rdf:type       djht:Category ;
+              djht:id        13431 .
+  }
+};
+
+-- Multi-version seed 2 for the admin retract subset tests: three
+-- published versions (v3 latest) with version DOIs and a container DOI.
+-- Every retract scenario mutates its seed, so each scenario gets its own.
+SPARQL
+PREFIX djht: <https://ontologies.data.4tu.nl/djehuty/0.0.1/>
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+INSERT {
+  GRAPH <djehuty://local> {
+    <container:a4b15000-0002-4000-8000-010000000000>
+        rdf:type                          djht:DatasetContainer ;
+        djht:account                      ?account ;
+        djht:dataset_id                   "a4b15000-0002-4000-8000-010000000000"^^xsd:string ;
+        djht:doi                          "10.4121/retract-multi-2-a4b15000-0002-4000-8000-010000000000"^^xsd:string ;
+        djht:latest_published_version     <dataset:a4b15000-0002-4000-8000-020000000003> ;
+        djht:published_versions           <blank:a4b15000-0002-4000-8000-030000000001> ;
+        djht:first_online_date            "2026-04-01T12:00:00"^^xsd:dateTime ;
+        djht:total_downloads              0 ;
+        djht:total_views                  0 ;
+        djht:total_shares                 0 ;
+        djht:total_cites                  0 .
+    <blank:a4b15000-0002-4000-8000-030000000001>
+        rdf:type                          rdf:List ;
+        rdf:first                         <dataset:a4b15000-0002-4000-8000-020000000001> ;
+        rdf:rest                          <blank:a4b15000-0002-4000-8000-030000000002> ;
+        djht:index                        0 .
+
+    <dataset:a4b15000-0002-4000-8000-020000000001>
+        rdf:type                          djht:Dataset ;
+        djht:container                    <container:a4b15000-0002-4000-8000-010000000000> ;
+        djht:title                        "Retract Multi Seed Two"^^xsd:string ;
+        djht:description                  "<p>Dataset seeded for the admin retract subset E2E tests.</p>"^^xsd:string ;
+        djht:doi                          "10.4121/retract-multi-2-a4b15000-0002-4000-8000-010000000000.v1"^^xsd:string ;
+        djht:defined_type                 3 ;
+        djht:defined_type_name            "Dataset"^^xsd:string ;
+        djht:language                     "en"^^xsd:string ;
+        djht:publisher                    "4TU.ResearchData"^^xsd:string ;
+        djht:is_public                    "true"^^xsd:boolean ;
+        djht:is_active                    1 ;
+        djht:is_latest                    "false"^^xsd:boolean ;
+        djht:is_editable                  "false"^^xsd:boolean ;
+        djht:is_under_review              "false"^^xsd:boolean ;
+        djht:version                      1 ;
+        djht:group_id                     28586 ;
+        djht:created_date                 "2026-04-01T12:00:00"^^xsd:dateTime ;
+        djht:modified_date                "2026-04-01T12:00:00"^^xsd:dateTime ;
+        djht:published_date               "2026-04-01T12:00:00"^^xsd:dateTime ;
+        djht:posted_date                  "2026-04-01T12:00:00"^^xsd:dateTime ;
+        djht:submission_date              "2026-04-01T12:00:00"^^xsd:dateTime ;
+        djht:tags                         <blank:a4b15000-0002-4000-8000-040000000000> ;
+        djht:authors                      <blank:a4b15000-0002-4000-8000-050000000000> ;
+        djht:categories                   <blank:a4b15000-0002-4000-8000-060000000000> .
+
+    <blank:a4b15000-0002-4000-8000-030000000002>
+        rdf:type                          rdf:List ;
+        rdf:first                         <dataset:a4b15000-0002-4000-8000-020000000002> ;
+        rdf:rest                          <blank:a4b15000-0002-4000-8000-030000000003> ;
+        djht:index                        1 .
+
+    <dataset:a4b15000-0002-4000-8000-020000000002>
+        rdf:type                          djht:Dataset ;
+        djht:container                    <container:a4b15000-0002-4000-8000-010000000000> ;
+        djht:title                        "Retract Multi Seed Two"^^xsd:string ;
+        djht:description                  "<p>Dataset seeded for the admin retract subset E2E tests.</p>"^^xsd:string ;
+        djht:doi                          "10.4121/retract-multi-2-a4b15000-0002-4000-8000-010000000000.v2"^^xsd:string ;
+        djht:defined_type                 3 ;
+        djht:defined_type_name            "Dataset"^^xsd:string ;
+        djht:language                     "en"^^xsd:string ;
+        djht:publisher                    "4TU.ResearchData"^^xsd:string ;
+        djht:is_public                    "true"^^xsd:boolean ;
+        djht:is_active                    1 ;
+        djht:is_latest                    "false"^^xsd:boolean ;
+        djht:is_editable                  "false"^^xsd:boolean ;
+        djht:is_under_review              "false"^^xsd:boolean ;
+        djht:version                      2 ;
+        djht:group_id                     28586 ;
+        djht:created_date                 "2026-04-08T12:00:00"^^xsd:dateTime ;
+        djht:modified_date                "2026-04-08T12:00:00"^^xsd:dateTime ;
+        djht:published_date               "2026-04-08T12:00:00"^^xsd:dateTime ;
+        djht:posted_date                  "2026-04-08T12:00:00"^^xsd:dateTime ;
+        djht:submission_date              "2026-04-08T12:00:00"^^xsd:dateTime ;
+        djht:tags                         <blank:a4b15000-0002-4000-8000-040000000000> ;
+        djht:authors                      <blank:a4b15000-0002-4000-8000-050000000000> ;
+        djht:categories                   <blank:a4b15000-0002-4000-8000-060000000000> .
+
+    <blank:a4b15000-0002-4000-8000-030000000003>
+        rdf:type                          rdf:List ;
+        rdf:first                         <dataset:a4b15000-0002-4000-8000-020000000003> ;
+        rdf:rest                          rdf:nil ;
+        djht:index                        2 .
+
+    <dataset:a4b15000-0002-4000-8000-020000000003>
+        rdf:type                          djht:Dataset ;
+        djht:container                    <container:a4b15000-0002-4000-8000-010000000000> ;
+        djht:title                        "Retract Multi Seed Two"^^xsd:string ;
+        djht:description                  "<p>Dataset seeded for the admin retract subset E2E tests.</p>"^^xsd:string ;
+        djht:doi                          "10.4121/retract-multi-2-a4b15000-0002-4000-8000-010000000000.v3"^^xsd:string ;
+        djht:defined_type                 3 ;
+        djht:defined_type_name            "Dataset"^^xsd:string ;
+        djht:language                     "en"^^xsd:string ;
+        djht:publisher                    "4TU.ResearchData"^^xsd:string ;
+        djht:is_public                    "true"^^xsd:boolean ;
+        djht:is_active                    1 ;
+        djht:is_latest                    "true"^^xsd:boolean ;
+        djht:is_editable                  "false"^^xsd:boolean ;
+        djht:is_under_review              "false"^^xsd:boolean ;
+        djht:version                      3 ;
+        djht:group_id                     28586 ;
+        djht:created_date                 "2026-04-15T12:00:00"^^xsd:dateTime ;
+        djht:modified_date                "2026-04-15T12:00:00"^^xsd:dateTime ;
+        djht:published_date               "2026-04-15T12:00:00"^^xsd:dateTime ;
+        djht:posted_date                  "2026-04-15T12:00:00"^^xsd:dateTime ;
+        djht:submission_date              "2026-04-15T12:00:00"^^xsd:dateTime ;
+        djht:tags                         <blank:a4b15000-0002-4000-8000-040000000000> ;
+        djht:authors                      <blank:a4b15000-0002-4000-8000-050000000000> ;
+        djht:categories                   <blank:a4b15000-0002-4000-8000-060000000000> .
+
+    # -- Lists and author shared by the three versions ------------------------
+    <blank:a4b15000-0002-4000-8000-040000000000>
+        rdf:type                          rdf:List ;
+        rdf:first                         "e2e-test"^^xsd:string ;
+        rdf:rest                          rdf:nil ;
+        djht:index                        0 .
+
+    <blank:a4b15000-0002-4000-8000-050000000000>
+        rdf:type                          rdf:List ;
+        rdf:first                         <author:a4b15000-0002-4000-8000-070000000000> ;
+        rdf:rest                          rdf:nil ;
+        djht:index                        0 .
+
+    <author:a4b15000-0002-4000-8000-070000000000>
+        rdf:type                          djht:Author ;
+        djht:first_name                   "Test"^^xsd:string ;
+        djht:last_name                    "Author"^^xsd:string ;
+        djht:full_name                    "Test Author"^^xsd:string ;
+        djht:is_active                    "true"^^xsd:boolean ;
+        djht:is_public                    "true"^^xsd:boolean .
+
+    <blank:a4b15000-0002-4000-8000-060000000000>
         rdf:type                          rdf:List ;
         rdf:first                         ?category ;
         rdf:rest                          rdf:nil ;
