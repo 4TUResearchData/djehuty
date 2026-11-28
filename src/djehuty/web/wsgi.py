@@ -10109,8 +10109,8 @@ class WebServer:
                     return self.error_500 ((f"Updating DOI {reserved_doi} for "
                                             f"publication of {container_uuid} failed."))
 
-        if self.db.publish_collection (collection["container_uuid"], account_uuid):
         if self.db.publish_collection (collection["container_uuid"], account_uuid, new_version):
+            return self.respond_201 ({
                 "location": f"{config.base_url}/published/{collection_id}"
             })
 
@@ -12013,9 +12013,10 @@ class WebServer:
         container = self.db.container(container_uuid, item_type=item_type, use_cache=bool(version))
         current_version = version
         if not version:
-            current_version = value_or(container, 'latest_published_version_number', 0)
             if from_draft:
-                current_version += 1
+                current_version = versioning.next_version(self.db, container_uuid)
+            else:
+                current_version = value_or(container, 'latest_published_version_number', 0)
 
         item = None
         published_date = None
