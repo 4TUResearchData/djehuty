@@ -324,6 +324,14 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
+    def highest_version(self, container_uuid):
+        """Highest version number ever given in the container, retracted versions included."""
+        query = self.__query_from_template(
+            "container_highest_version", {"container_uuid": container_uuid}
+        )
+        rows = self.__run_query(query)
+        return int(rows[0]["version"]) if rows and rows[0].get("version") else 0
+
     def __search_query_to_sparql_filters_v2(self, search_for, search_format):
         """
         Procedure to parse v2 search queries and return SPARQL FILTER statements.
