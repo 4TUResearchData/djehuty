@@ -9,8 +9,7 @@ from djehuty.api.dependencies import get_db, require_auth
 from djehuty.api.exceptions import ForbiddenError, InvalidInputError, NotFoundError
 from djehuty.api.models.common import ErrorResponse
 from djehuty.api.v3._shared import _ok
-from djehuty.services import datacite
-from djehuty.utils.convenience import value_or
+from djehuty.services import datacite, versioning
 from djehuty.web.config import config
 
 router = APIRouter(tags=["V3 / Collections"])
@@ -135,8 +134,7 @@ def publish_collection(
         raise InvalidInputError(errors, "ValidationFailed")
 
     container_uuid = collection["container_uuid"]
-    container = db.container(container_uuid, "collection")
-    new_version = value_or(container, "latest_published_version_number", 0) + 1
+    new_version = versioning.next_version(db, container_uuid)
     if config.in_production and not config.in_preproduction:
         for version in (None, new_version):
             reserved_doi = datacite.reserve_and_save_doi(
@@ -156,7 +154,7 @@ def publish_collection(
                 )
                 return Response(status_code=500)
 
-    if not db.publish_collection(container_uuid, account["uuid"]):
+    if not db.publish_collection(container_uuid, account["uuid"], new_version):
         return Response(status_code=500)
 
     return JSONResponse(

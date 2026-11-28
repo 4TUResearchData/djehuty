@@ -11,6 +11,7 @@ from datetime import date
 
 import requests
 
+from djehuty.services import versioning
 from djehuty.utils.convenience import (
     decimal_coords,
     landing_page_url,
@@ -161,9 +162,10 @@ def metadata_export_parameters(db, item_id, version=None, item_type="dataset", f
     container = db.container(container_uuid, item_type=item_type, use_cache=bool(version))
     current_version = version
     if not version:
-        current_version = value_or(container, "latest_published_version_number", 0)
         if from_draft:
-            current_version += 1
+            current_version = versioning.next_version(db, container_uuid)
+        else:
+            current_version = value_or(container, "latest_published_version_number", 0)
 
     item = None
     published_date = None

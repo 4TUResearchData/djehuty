@@ -68,8 +68,11 @@ class _Db:
     def container(self, *a, **k):
         return {"latest_published_version_number": 1}
 
-    def publish_dataset(self, container_uuid, account_uuid):
-        self.published = (container_uuid, account_uuid)
+    def highest_version(self, container_uuid):
+        return 3
+
+    def publish_dataset(self, container_uuid, account_uuid, version):
+        self.published = (container_uuid, account_uuid, version)
         return True
 
     def update_collection(self, collection_uuid, account_uuid, **kwargs):
@@ -145,7 +148,7 @@ def test_publish_assigns_the_review_and_notifies(monkeypatch):
     response = client.post(f"/v2/account/articles/{DATASET_UUID}/publish", headers=AUTH)
     assert response.status_code == 201
     assert response.json()["location"].endswith(f"/review/published/{DATASET_UUID}")
-    assert db.published == (DATASET_UUID, "acct-1")
+    assert db.published == (DATASET_UUID, "acct-1", 4)
     review_uri, kwargs = db.review_update
     assert review_uri == "review:rev-1"
     assert kwargs["status"] == "assigned"

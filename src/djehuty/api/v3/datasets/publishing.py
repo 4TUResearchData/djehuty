@@ -359,7 +359,7 @@ def publish_dataset(
     impersonator_token: str | None = Depends(get_impersonator_token),
     token: str | None = Depends(get_token),
 ):
-    from djehuty.services import datacite
+    from djehuty.services import datacite, versioning
     from djehuty.services import email as email_module
     from djehuty.utils.convenience import value_or, value_or_none
 
@@ -393,8 +393,7 @@ def publish_dataset(
         logger.error("Unable to assign reviewer before publishing for %s.", dataset_id)
 
     container_uuid = dataset["container_uuid"]
-    container = db.container(container_uuid)
-    new_version = value_or(container, "latest_published_version_number", 0) + 1
+    new_version = versioning.next_version(db, container_uuid)
     if config.in_production and not config.in_preproduction:
         for version in (None, new_version):
             reserved_doi = datacite.reserve_and_save_doi(
@@ -414,7 +413,7 @@ def publish_dataset(
                 )
                 return Response(status_code=500)
 
-    if db.publish_dataset(container_uuid, account["uuid"]):
+    if db.publish_dataset(container_uuid, account["uuid"], new_version):
         try:
             owner_account = db.account_by_uuid(dataset["account_uuid"])
             dataset = db.datasets(dataset_uuid=dataset["uuid"], use_cache=False)[0]

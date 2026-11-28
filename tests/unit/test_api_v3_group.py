@@ -323,8 +323,8 @@ class _PublishDB(_FakeDB):
             }
         ]
 
-    def container(self, *args, **kwargs):
-        return {"latest_published_version_number": 0}
+    def highest_version(self, container_uuid):
+        return 2
 
     def update_review(self, *args, **kwargs):
         self.calls.append(("update_review", args, kwargs))

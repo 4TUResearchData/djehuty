@@ -324,6 +324,14 @@ class SparqlInterface:
 
         return self.__run_query(query)
 
+    def highest_version(self, container_uuid):
+        """Highest version number ever given in the container, retracted versions included."""
+        query = self.__query_from_template(
+            "container_highest_version", {"container_uuid": container_uuid}
+        )
+        rows = self.__run_query(query)
+        return int(rows[0]["version"]) if rows and rows[0].get("version") else 0
+
     def __search_query_to_sparql_filters_v2(self, search_for, search_format):
         """
         Procedure to parse v2 search queries and return SPARQL FILTER statements.
@@ -2648,7 +2656,7 @@ class SparqlInterface:
         )
         return result
 
-    def publish_collection(self, container_uuid, account_uuid):
+    def publish_collection(self, container_uuid, account_uuid, version):
         """Procedure to publish a collection."""
 
         # Prevent caches from playing a role.
@@ -2665,13 +2673,11 @@ class SparqlInterface:
             self.log.error("Attempted to publish without a draft <container:%s>.", container_uuid)
             return False
 
-        new_version_number = 1
         latest = None
         try:
             latest = self.collections(
                 container_uuid=container_uuid, is_published=True, is_latest=True, use_cache=False
             )[0]
-            new_version_number = latest["version"] + 1
         except IndexError:
             self.log.error("No latest version for <container:%s>.", container_uuid)
 
@@ -2683,7 +2689,7 @@ class SparqlInterface:
             {
                 "account_uuid": account_uuid,
                 "blank_node": blank_node,
-                "version": new_version_number,
+                "version": version,
                 "container_uuid": container_uuid,
                 "collection_uuid": collection_uuid,
                 "timestamp": current_time,
@@ -2779,7 +2785,7 @@ class SparqlInterface:
 
         return None
 
-    def publish_dataset(self, container_uuid, account_uuid):
+    def publish_dataset(self, container_uuid, account_uuid, version):
         """Procedure to publish a draft dataset."""
 
         # Prevent caches from playing a role.
@@ -2795,13 +2801,11 @@ class SparqlInterface:
             self.log.error("Attempted to publish without a draft <container:%s>.", container_uuid)
             return False
 
-        new_version_number = 1
         latest = None
         try:
             latest = self.datasets(
                 container_uuid=container_uuid, is_published=True, is_latest=True, use_cache=False
             )[0]
-            new_version_number = latest["version"] + 1
         except IndexError:
             self.log.error("No latest version for <container:%s>.", container_uuid)
 
@@ -2812,7 +2816,7 @@ class SparqlInterface:
             "publish_draft_dataset",
             {
                 "blank_node": blank_node,
-                "version": new_version_number,
+                "version": version,
                 "container_uuid": container_uuid,
                 "dataset_uuid": dataset_uuid,
                 "timestamp": current_time,

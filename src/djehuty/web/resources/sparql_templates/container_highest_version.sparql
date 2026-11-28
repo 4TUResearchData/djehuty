@@ -1,0 +1,11 @@
+{% extends "prefixes.sparql" %}
+{% block query %}
+SELECT (MAX(?version) AS ?version)
+WHERE {
+  GRAPH <{{state_graph}}> {
+    ?item djht:container <container:{{container_uuid}}> ;
+          djht:version   ?version .
+    FILTER NOT EXISTS { <container:{{container_uuid}}> djht:draft ?item . }
+  }
+}
+{% endblock %}

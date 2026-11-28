@@ -32,6 +32,7 @@ from werkzeug.routing import Map, Rule
 from werkzeug.utils import redirect, send_file
 from werkzeug.wrappers import Request, Response
 
+from djehuty.services import versioning
 from djehuty.utils.constants import (
     filetypes_by_extension,
     group_to_member,
@@ -9977,8 +9978,7 @@ class WebServer:
             self.log.error ("Unable to assign reviewer before publishing for %s.", dataset_id)
 
         container_uuid = dataset["container_uuid"]
-        container = self.db.container(container_uuid)
-        new_version = value_or(container, 'latest_published_version_number', 0) + 1
+        new_version = versioning.next_version(self.db, container_uuid)
         if config.in_production and not config.in_preproduction:
             for version in (None, new_version):
                 reserved_doi = self.__reserve_and_save_doi (account_uuid,
@@ -9994,7 +9994,7 @@ class WebServer:
                     return self.error_500 ((f"Updating DOI {reserved_doi} for "
                                             f"publication of {container_uuid} failed."))
 
-        if self.db.publish_dataset (container_uuid, account_uuid):
+        if self.db.publish_dataset (container_uuid, account_uuid, new_version):
             try:
                 account = self.db.account_by_uuid (dataset["account_uuid"])
 
@@ -10094,8 +10094,7 @@ class WebServer:
 
         ## Register/update dois
         container_uuid = collection["container_uuid"]
-        container = self.db.container(container_uuid, "collection")
-        new_version = value_or(container, 'latest_published_version_number', 0) + 1
+        new_version = versioning.next_version(self.db, container_uuid)
         if config.in_production and not config.in_preproduction:
             for version in (None, new_version):
                 reserved_doi = self.__reserve_and_save_doi (account_uuid, collection,
@@ -10110,7 +10109,7 @@ class WebServer:
                     return self.error_500 ((f"Updating DOI {reserved_doi} for "
                                             f"publication of {container_uuid} failed."))
 
-        if self.db.publish_collection (collection["container_uuid"], account_uuid):
+        if self.db.publish_collection (collection["container_uuid"], account_uuid, new_version):
             return self.respond_201 ({
                 "location": f"{config.base_url}/published/{collection_id}"
             })
@@ -12014,9 +12013,10 @@ class WebServer:
         container = self.db.container(container_uuid, item_type=item_type, use_cache=bool(version))
         current_version = version
         if not version:
-            current_version = value_or(container, 'latest_published_version_number', 0)
             if from_draft:
-                current_version += 1
+                current_version = versioning.next_version(self.db, container_uuid)
+            else:
+                current_version = value_or(container, 'latest_published_version_number', 0)
 
         item = None
         published_date = None
