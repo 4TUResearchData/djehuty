@@ -936,6 +936,20 @@ class TestCollectionVersioning:
 
         editor.delete()
 
+    def test_publish_gives_the_next_version(self, authenticated_page: Page):
+        """Publishing a new version numbers it after the last one."""
+        container_uuid = get_container_uuid_from_url(create_draft_collection(authenticated_page))
+        fill_required_fields_and_publish_collection(authenticated_page, container_uuid)
+
+        authenticated_page.goto(f"/my/collections/{container_uuid}/new-version-draft")
+        authenticated_page.wait_for_url("**/my/collections/*/edit")
+        authenticated_page.wait_for_load_state("domcontentloaded")
+        fill_required_fields_and_publish_collection(authenticated_page, container_uuid)
+
+        response = authenticated_page.request.get(f"/v2/collections/{container_uuid}/versions")
+        assert response.ok, f"{response.status} {response.text()}"
+        assert sorted(record["version"] for record in response.json()) == [1, 2]
+
 
 # ---------------------------------------------------------------------------
 # COLLECT button tests

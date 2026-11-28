@@ -34,6 +34,12 @@ DATASET_TITLE_V1 = "Versioning Test Dataset V1"
 DATASET_DESCRIPTION_V1 = "<p>First version of the versioning test dataset.</p>"
 
 
+def _api_versions(page: Page, path: str) -> list[int]:
+    response = page.request.get(path)
+    assert response.ok, f"{path}: {response.status} {response.text()}"
+    return sorted(record["version"] for record in response.json())
+
+
 @pytest.fixture()
 def test_file(tmp_path: Path) -> str:
     """Create a temporary test file and return its path."""
@@ -306,6 +312,31 @@ class TestVersionHistory:
         versions_div = authenticated_page.locator("#versions")
         expect(versions_div).to_contain_text("Version 1")
         expect(versions_div).to_contain_text("Version 2")
+        assert _api_versions(authenticated_page, f"/v2/articles/{container_uuid}/versions") == [
+            1,
+            2,
+        ]
+
+    def test_v2_publish_gives_the_next_version(
+        self, authenticated_page: Page, published_dataset: str
+    ):
+        """Publishing through the v2 route numbers the new version after the last one."""
+        container_uuid = published_dataset
+
+        authenticated_page.goto(f"/my/datasets/{container_uuid}/new-version-draft")
+        authenticated_page.wait_for_url("**/my/datasets/*/edit")
+        authenticated_page.wait_for_load_state("domcontentloaded")
+
+        fill_required_fields_and_publish(
+            authenticated_page,
+            container_uuid,
+            publish_url=f"/v2/account/articles/{container_uuid}/publish",
+        )
+
+        assert _api_versions(authenticated_page, f"/v2/articles/{container_uuid}/versions") == [
+            1,
+            2,
+        ]
 
     def test_navigate_to_older_version(
         self, authenticated_page: Page, published_dataset: str, test_file: str, screenshot

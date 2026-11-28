@@ -24,6 +24,7 @@ def fill_required_fields_and_publish(
     is_restricted: bool = False,
     restricted_reason: str = "<p>Restricted data.</p>",
     eula: str = "<p>Test EULA.</p>",
+    publish_url: str | None = None,
 ):
     """Publish a dataset by calling the submit + publish APIs.
 
@@ -147,7 +148,7 @@ def fill_required_fields_and_publish(
 
     # Publish via API (now with impersonator cookie set)
     response = page.request.post(
-        f"/v3/datasets/{container_uuid}/publish",
+        publish_url or f"/v3/datasets/{container_uuid}/publish",
     )
     assert response.ok, f"Publish failed: {response.status} {response.text()}"
 
