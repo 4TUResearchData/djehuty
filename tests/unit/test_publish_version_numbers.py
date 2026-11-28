@@ -1,5 +1,4 @@
-"""Publish endpoints reserve the DOI for the version they publish.
-"""
+"""Publish endpoints reserve the DOI for the version they publish."""
 
 import logging
 
