@@ -2656,7 +2656,7 @@ class SparqlInterface:
         )
         return result
 
-    def publish_collection(self, container_uuid, account_uuid):
+    def publish_collection(self, container_uuid, account_uuid, version):
         """Procedure to publish a collection."""
 
         # Prevent caches from playing a role.
@@ -2673,13 +2673,11 @@ class SparqlInterface:
             self.log.error("Attempted to publish without a draft <container:%s>.", container_uuid)
             return False
 
-        new_version_number = 1
         latest = None
         try:
             latest = self.collections(
                 container_uuid=container_uuid, is_published=True, is_latest=True, use_cache=False
             )[0]
-            new_version_number = latest["version"] + 1
         except IndexError:
             self.log.error("No latest version for <container:%s>.", container_uuid)
 
@@ -2691,7 +2689,7 @@ class SparqlInterface:
             {
                 "account_uuid": account_uuid,
                 "blank_node": blank_node,
-                "version": new_version_number,
+                "version": version,
                 "container_uuid": container_uuid,
                 "collection_uuid": collection_uuid,
                 "timestamp": current_time,
@@ -2787,7 +2785,7 @@ class SparqlInterface:
 
         return None
 
-    def publish_dataset(self, container_uuid, account_uuid):
+    def publish_dataset(self, container_uuid, account_uuid, version):
         """Procedure to publish a draft dataset."""
 
         # Prevent caches from playing a role.
@@ -2803,13 +2801,11 @@ class SparqlInterface:
             self.log.error("Attempted to publish without a draft <container:%s>.", container_uuid)
             return False
 
-        new_version_number = 1
         latest = None
         try:
             latest = self.datasets(
                 container_uuid=container_uuid, is_published=True, is_latest=True, use_cache=False
             )[0]
-            new_version_number = latest["version"] + 1
         except IndexError:
             self.log.error("No latest version for <container:%s>.", container_uuid)
 
@@ -2820,7 +2816,7 @@ class SparqlInterface:
             "publish_draft_dataset",
             {
                 "blank_node": blank_node,
-                "version": new_version_number,
+                "version": version,
                 "container_uuid": container_uuid,
                 "dataset_uuid": dataset_uuid,
                 "timestamp": current_time,
